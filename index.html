@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Markaz Belajar</title>
+
+  <!-- PWA -->
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <meta name="apple-mobile-web-app-title" content="Markaz Belajar" />
+  <link rel="apple-touch-icon" href="icon_mb.png" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#ffffff" />
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600&display=swap');
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --yellow: #f3d565;
+      --blue: #078bc7;
+      --bg: #f7f7f5;
+      --card: #ffffff;
+      --text: #1a1a1a;
+      --muted: #888884;
+      --border: #e8e8e4;
+      --radius: 16px;
+    }
+
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      max-width: 480px;
+      margin: 0 auto;
+    }
+
+    /* HEADER */
+    header {
+      background: var(--card);
+      border-bottom: 1px solid var(--border);
+      padding: 16px 20px 14px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    header img {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .header-text h1 {
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: -0.3px;
+    }
+
+    .header-text p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 1px;
+    }
+
+    .header-badge {
+      margin-left: auto;
+      background: #eaf7f0;
+      color: #1a9e5c;
+      font-size: 11px;
+      font-weight: 500;
+      padding: 4px 10px;
+      border-radius: 20px;
+    }
+
+    /* MAIN */
+    main {
+      padding: 24px 16px 40px;
+    }
+
+    .greeting {
+      margin-bottom: 24px;
+    }
+
+    .greeting h2 {
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: -0.5px;
+    }
+
+    .greeting p {
+      font-size: 13px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* MENU GRID */
+    .menu-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .menu-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.15s, box-shadow 0.15s;
+      cursor: pointer;
+    }
+
+    .menu-card:active {
+      transform: scale(0.98);
+    }
+
+    .menu-card.coming-soon {
+      opacity: 0.55;
+      cursor: default;
+      pointer-events: none;
+    }
+
+    .menu-icon {
+      width: 46px;
+      height: 46px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 20px;
+    }
+
+    .icon-blue   { background: #e6f4fb; }
+    .icon-yellow { background: #fdf7e0; }
+    .icon-green  { background: #eaf7f0; }
+    .icon-gray   { background: #f0f0ee; }
+
+    .menu-info { flex: 1; }
+
+    .menu-info h3 {
+      font-size: 15px;
+      font-weight: 600;
+      letter-spacing: -0.2px;
+    }
+
+    .menu-info p {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 2px;
+    }
+
+    .menu-arrow {
+      color: var(--muted);
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .badge-soon {
+      font-size: 10px;
+      font-weight: 600;
+      background: var(--yellow);
+      color: #7a6200;
+      padding: 3px 8px;
+      border-radius: 20px;
+      margin-left: auto;
+      margin-right: 8px;
+      letter-spacing: 0.2px;
+    }
+
+    /* DIVIDER */
+    .section-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--muted);
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      margin: 24px 4px 10px;
+    }
+
+    /* FOOTER */
+    footer {
+      text-align: center;
+      padding: 0 16px 32px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    footer span {
+      color: var(--blue);
+      font-weight: 500;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <img src="icon_mb.png" alt="Logo Markaz Belajar" />
+    <div class="header-text">
+      <h1>Markaz Belajar</h1>
+      <p>Sistem Internal</p>
+    </div>
+    <div class="header-badge">● Aktif</div>
+  </header>
+
+  <main>
+    <div class="greeting">
+      <h2>Selamat datang 👋</h2>
+      <p>Pilih menu untuk memulai</p>
+    </div>
+
+    <div class="section-label">Menu Utama</div>
+
+    <div class="menu-grid">
+
+      <!-- Pelaporan Guru - Coming Soon -->
+      <div class="menu-card coming-soon">
+        <div class="menu-icon icon-gray">📋</div>
+        <div class="menu-info">
+          <h3>Pelaporan Guru</h3>
+          <p>Laporan mengajar & kehadiran</p>
+        </div>
+        <span class="badge-soon">Segera</span>
+      </div>
+
+      <!-- Jadwal -->
+      <a class="menu-card" href="https://markaz-belajar.github.io/jadwal-mb/" target="_self">
+        <div class="menu-icon icon-blue">🗓</div>
+        <div class="menu-info">
+          <h3>Jadwal</h3>
+          <p>Jadwal belajar siswa</p>
+        </div>
+        <span class="menu-arrow">›</span>
+      </a>
+
+      <!-- Invoice -->
+      <a class="menu-card" href="https://markaz-belajar.github.io/invoice-mb/" target="_self">
+        <div class="menu-icon icon-yellow">🧾</div>
+        <div class="menu-info">
+          <h3>Invoice</h3>
+          <p>Tagihan & tracking pembayaran</p>
+        </div>
+        <span class="menu-arrow">›</span>
+      </a>
+
+      <!-- Manajemen Task -->
+      <a class="menu-card" href="https://markaz-belajar.github.io/Manajemen-Task/" target="_self">
+        <div class="menu-icon icon-green">✅</div>
+        <div class="menu-info">
+          <h3>Manajemen Task</h3>
+          <p>Tugas & repositori dokumen</p>
+        </div>
+        <span class="menu-arrow">›</span>
+      </a>
+
+      <!-- Slot Coming Soon -->
+      <div class="menu-card coming-soon">
+        <div class="menu-icon icon-gray">＋</div>
+        <div class="menu-info">
+          <h3>Fitur Lainnya</h3>
+          <p>Akan hadir segera</p>
+        </div>
+        <span class="badge-soon">Segera</span>
+      </div>
+
+    </div>
+
+  </main>
+
+  <footer>
+    Markaz Belajar &mdash; <span>Sistem Internal</span>
+  </footer>
+
+</body>
+</html>
