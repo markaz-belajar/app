@@ -17,15 +17,13 @@
 
     :root {
       --blue: #1B6CA8;
-      --blue-mid: #4DA3D4;
-      --yellow: #f3d565;
       --yellow-deep: #F59F00;
       --green: #2E9E5B;
       --green-light: #E6F7EE;
+      --purple: #7C5CBF;
       --paper: #FDFAF4;
       --line: #EDE9DF;
       --ink: #1C2B3A;
-      --ink-mid: #4A6070;
       --ink-faint: #8FA4B4;
       --white: #FFFFFF;
       --shadow: 0 4px 24px rgba(28,43,58,0.12);
@@ -46,129 +44,133 @@
       margin: 0 auto;
       background: var(--paper);
       min-height: 100vh;
-      position: relative;
       overflow-x: hidden;
     }
 
-    /* ── SPLASH SCREEN ── */
+    /* SPLASH */
     #splash {
-      position: fixed;
-      inset: 0;
-      background: var(--blue);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 999;
-      transition: opacity 0.5s ease, visibility 0.5s ease;
+      position: fixed; inset: 0; background: var(--blue);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 999; transition: opacity 0.5s ease, visibility 0.5s ease;
     }
-
-    #splash.hidden {
-      opacity: 0;
-      visibility: hidden;
-    }
-
-    #splash img {
-      width: 140px;
-      animation: levitate 1.8s ease-in-out infinite;
-    }
-
+    #splash.hidden { opacity: 0; visibility: hidden; }
+    #splash img { width: 140px; animation: levitate 1.8s ease-in-out infinite; }
     @keyframes levitate {
       0%, 100% { transform: translateY(0px); }
-      50%       { transform: translateY(-14px); }
+      50% { transform: translateY(-14px); }
     }
 
-    /* ── HEADER ── */
-    .header {
-      background: var(--blue);
-      position: relative;
-      overflow: hidden;
-    }
 
+    /* HEADER */
+    .header { background: var(--blue); position: relative; overflow: hidden; }
     .hbs-1 { position:absolute; top:-30px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.07); pointer-events:none; }
     .hbs-2 { position:absolute; bottom:-50px; left:-30px; width:130px; height:130px; border-radius:50%; background:rgba(243,213,101,0.12); pointer-events:none; }
     .hbs-3 { position:absolute; top:40px; left:30%; width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,0.05); pointer-events:none; }
-
     .header-inner {
-      position: relative;
-      z-index: 2;
+      position: relative; z-index: 2;
       padding: 36px 20px 56px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
     }
+    .header-logo { width: 160px; }
 
-    .header-logo {
-      width: 110px;
-      margin-bottom: 0;
-    }
-
-    /* ── GREETING CARD ── */
-    .greeting-card-wrap {
-      margin: 0 16px;
-      margin-top: -32px;
-      position: relative;
-      z-index: 10;
-    }
-
+    /* GREETING CARD */
+    .greeting-card-wrap { margin: 0 16px; margin-top: -32px; position: relative; z-index: 10; }
     .greeting-card {
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 18px 20px;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow); padding: 18px 20px;
+      display: flex; align-items: center; justify-content: space-between;
     }
-
     .greeting-card h2 {
-      font-family: 'Baloo 2', sans-serif;
-      font-size: 17px;
-      font-weight: 800;
-      color: var(--ink);
-      line-height: 1.2;
+      font-family: 'Baloo 2', sans-serif; font-size: 17px;
+      font-weight: 800; color: var(--ink); line-height: 1.2;
     }
-
-    .greeting-card p {
-      font-size: 12px;
-      color: var(--ink-faint);
-      margin-top: 3px;
-    }
-
+    .greeting-card p { font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
     .greeting-badge {
-      background: #E8F4FD;
-      color: var(--blue);
-      font-size: 11px;
-      font-weight: 600;
-      padding: 5px 12px;
-      border-radius: 50px;
-      white-space: nowrap;
+      background: #E8F4FD; color: var(--blue);
+      font-size: 11px; font-weight: 600;
+      padding: 5px 12px; border-radius: 50px; white-space: nowrap;
     }
 
-    /* ── MENU ── */
-    main {
-      padding: 20px 16px 48px;
-    }
+    /* MAIN */
+    main { padding: 20px 16px 48px; }
 
     .section-label {
-      font-size: 10px;
-      font-weight: 600;
-      color: var(--ink-faint);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin: 0 4px 10px;
+      font-size: 10px; font-weight: 600; color: var(--ink-faint);
+      letter-spacing: 1px; text-transform: uppercase; margin: 0 4px 12px;
     }
 
-    .menu-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
+    /* ── BENTO 4 BOX ── */
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 10px;
     }
 
-    .menu-card {
+    .bento-card {
       background: var(--white);
       border: 1.5px solid var(--line);
       border-radius: var(--radius-sm);
-      padding: 15px 16px;
+      padding: 16px 14px;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--ink);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.13s, box-shadow 0.13s;
+      cursor: pointer;
+      min-height: 80px;
+    }
+
+    .bento-card:active { transform: scale(0.97); box-shadow: none; }
+
+    .bento-card.coming-soon {
+      opacity: 0.45; cursor: default; pointer-events: none;
+    }
+
+    .bento-icon {
+      width: 44px; height: 44px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+    }
+    .bento-icon svg { width: 20px; height: 20px; }
+
+    .icon-blue   { background: #E8F4FD; }
+    .icon-yellow { background: #FFF8DC; }
+    .icon-green  { background: var(--green-light); }
+    .icon-purple { background: #F0EEFF; }
+    .icon-gray   { background: #F0F0EE; }
+
+    .bento-text { flex: 1; min-width: 0; }
+    .bento-label {
+      font-family: 'Baloo 2', sans-serif;
+      font-size: 13px; font-weight: 700;
+      color: var(--ink); line-height: 1.2;
+    }
+    .bento-sub {
+      font-size: 10px; color: var(--ink-faint); margin-top: 2px;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    .badge-soon {
+      font-size: 9px; font-weight: 700;
+      background: #FFF8DC; color: #8B6914;
+      padding: 2px 7px; border-radius: 20px;
+      border: 1px solid #EDE0A0; white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .bento-arrow { flex-shrink: 0; }
+    .bento-arrow svg { width: 14px; height: 14px; color: var(--ink-faint); }
+
+    /* ── FULL WIDTH — Task Manager (compact) ── */
+    .full-card {
+      background: var(--white);
+      border: 1.5px solid var(--line);
+      border-radius: var(--radius-sm);
+      padding: 20px 18px;
       display: flex;
       align-items: center;
       gap: 14px;
@@ -176,85 +178,40 @@
       color: var(--ink);
       box-shadow: var(--shadow-sm);
       transition: transform 0.13s, box-shadow 0.13s;
-      cursor: pointer;
+      min-height: 80px;
     }
+    .full-card:active { transform: scale(0.98); box-shadow: none; }
 
-    .menu-card:active {
-      transform: scale(0.97);
-      box-shadow: none;
-    }
-
-    .menu-card.coming-soon {
-      opacity: 0.45;
-      cursor: default;
-      pointer-events: none;
-    }
-
-    .menu-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+    .full-icon {
+      width: 48px; height: 48px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
       flex-shrink: 0;
     }
+    .full-icon svg { width: 22px; height: 22px; }
 
-    .icon-blue   { background: #E8F4FD; }
-    .icon-yellow { background: #FFF8DC; }
-    .icon-green  { background: var(--green-light); }
-    .icon-gray   { background: #F0F0EE; }
-
-    .menu-icon svg { width: 20px; height: 20px; }
-
-    .menu-info { flex: 1; }
-
-    .menu-info h3 {
+    .full-info { flex: 1; }
+    .full-info h3 {
       font-family: 'Baloo 2', sans-serif;
-      font-size: 15px;
-      font-weight: 700;
-      color: var(--ink);
-      line-height: 1.2;
+      font-size: 15px; font-weight: 700; color: var(--ink);
     }
+    .full-info p { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
 
-    .menu-info p {
-      font-size: 11px;
-      color: var(--ink-faint);
-      margin-top: 2px;
-    }
+    .full-arrow svg { width: 16px; height: 16px; color: var(--ink-faint); }
 
-    .menu-arrow svg { width: 16px; height: 16px; color: var(--ink-faint); }
-
-    .badge-soon {
-      font-size: 10px;
-      font-weight: 700;
-      background: #FFF8DC;
-      color: #8B6914;
-      padding: 3px 9px;
-      border-radius: 20px;
-      border: 1px solid #EDE0A0;
-      white-space: nowrap;
-    }
-
-    /* ── FOOTER ── */
     footer {
-      text-align: center;
-      padding: 0 16px 36px;
-      font-size: 11px;
-      color: var(--ink-faint);
+      text-align: center; padding: 0 16px 36px;
+      font-size: 11px; color: var(--ink-faint);
     }
   </style>
 </head>
 <body>
 
-  <!-- SPLASH -->
   <div id="splash">
     <img src="Open_MB_Icon.png" alt="Markaz Belajar" />
   </div>
 
   <div class="page">
 
-    <!-- HEADER -->
     <div class="header">
       <div class="hbs-1"></div>
       <div class="hbs-2"></div>
@@ -264,105 +221,109 @@
       </div>
     </div>
 
-    <!-- GREETING CARD -->
     <div class="greeting-card-wrap">
       <div class="greeting-card">
         <div>
           <h2>Sistem Internal</h2>
           <p>Teacher Access</p>
         </div>
-        <div class="greeting-badge">● Aktif</div>
+        <div class="greeting-badge">● Active</div>
       </div>
     </div>
 
-    <!-- MENU -->
     <main>
-      <div class="section-label" style="margin-top: 20px;">Menu Utama</div>
-      <div class="menu-grid">
+      <div class="section-label" style="margin-top: 20px;">Main Menu</div>
 
-        <!-- Pelaporan Guru - Coming Soon -->
-        <div class="menu-card coming-soon">
-          <div class="menu-icon icon-gray">
+      <!-- 4 BENTO CARDS -->
+      <div class="bento-grid">
+
+        <!-- Teacher Report -->
+        <div class="bento-card coming-soon">
+          <div class="bento-icon icon-gray">
             <svg viewBox="0 0 24 24" fill="none" stroke="#8FA4B4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M9 12h6M9 16h6M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/>
               <rect x="9" y="1" width="6" height="4" rx="1"/>
             </svg>
           </div>
-          <div class="menu-info">
-            <h3>Pelaporan Guru</h3>
-            <p>Laporan mengajar &amp; kehadiran</p>
+          <div class="bento-text">
+            <div class="bento-label">Teacher Report</div>
+            <div class="bento-sub">Attendance & reports</div>
           </div>
-          <span class="badge-soon">Segera</span>
+          <span class="badge-soon">Soon</span>
         </div>
 
-        <!-- Jadwal -->
-        <a class="menu-card" href="https://markaz-belajar.github.io/jadwal-mb/">
-          <div class="menu-icon icon-blue">
+        <!-- Schedule -->
+        <a class="bento-card" href="https://markaz-belajar.github.io/jadwal-mb/">
+          <div class="bento-icon icon-blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="3"/>
               <path d="M16 2v4M8 2v4M3 10h18"/>
               <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
             </svg>
           </div>
-          <div class="menu-info">
-            <h3>Jadwal</h3>
-            <p>Jadwal belajar siswa</p>
+          <div class="bento-text">
+            <div class="bento-label">Schedule</div>
+            <div class="bento-sub">Student timetable</div>
           </div>
-          <div class="menu-arrow">
+          <div class="bento-arrow">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
         </a>
 
         <!-- Invoice -->
-        <a class="menu-card" href="https://markaz-belajar.github.io/invoice-mb/">
-          <div class="menu-icon icon-yellow">
+        <a class="bento-card" href="https://markaz-belajar.github.io/invoice-mb/">
+          <div class="bento-icon icon-yellow">
             <svg viewBox="0 0 24 24" fill="none" stroke="#F59F00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <path d="M14 2v6h6M9 13h6M9 17h4"/>
             </svg>
           </div>
-          <div class="menu-info">
-            <h3>Invoice</h3>
-            <p>Tagihan &amp; tracking pembayaran</p>
+          <div class="bento-text">
+            <div class="bento-label">Invoice</div>
+            <div class="bento-sub">Billing & tracking</div>
           </div>
-          <div class="menu-arrow">
+          <div class="bento-arrow">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
         </a>
 
-        <!-- Manajemen Task -->
-        <a class="menu-card" href="https://markaz-belajar.github.io/Manajemen-Task/">
-          <div class="menu-icon icon-green">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 11l3 3L22 4"/>
-              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+        <!-- Learning Hub -->
+        <a class="bento-card" href="activity.html">
+          <div class="bento-icon icon-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#7C5CBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5"/>
+              <path d="M2 12l10 5 10-5"/>
             </svg>
           </div>
-          <div class="menu-info">
-            <h3>Manajemen Task</h3>
-            <p>Tugas &amp; repositori dokumen</p>
+          <div class="bento-text">
+            <div class="bento-label">Learning Hub</div>
+            <div class="bento-sub">Activity & curriculum</div>
           </div>
-          <div class="menu-arrow">
+          <div class="bento-arrow">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
           </div>
         </a>
-
-        <!-- Coming Soon -->
-        <div class="menu-card coming-soon">
-          <div class="menu-icon icon-gray">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#8FA4B4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"/>
-              <path d="M12 8v4M12 16h.01"/>
-            </svg>
-          </div>
-          <div class="menu-info">
-            <h3>Fitur Lainnya</h3>
-            <p>Akan hadir segera</p>
-          </div>
-          <span class="badge-soon">Segera</span>
-        </div>
 
       </div>
+
+      <!-- TASK MANAGER — compact full width -->
+      <a class="full-card" href="https://markaz-belajar.github.io/Manajemen-Task/">
+        <div class="full-icon icon-green">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 11l3 3L22 4"/>
+            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
+          </svg>
+        </div>
+        <div class="full-info">
+          <h3>Task Manager</h3>
+          <p>Tasks & document repository</p>
+        </div>
+        <div class="full-arrow">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+        </div>
+      </a>
+
     </main>
 
     <footer>© 2026 Markaz Belajar. All rights reserved.</footer>
