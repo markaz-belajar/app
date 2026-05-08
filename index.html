@@ -76,6 +76,7 @@
     .top-section {
       background: #F9F9F9;
       padding: 52px 20px 0;
+      overflow: visible;
     }
 
     /* TOPBAR: logo sendiri 1 baris, center */
@@ -116,38 +117,39 @@
       50%       { box-shadow: 0 0 0 5px rgba(29,105,166,0); }
     }
 
-    /* HERO CARD */
+    /* HERO CARD — overflow visible agar mascot bisa naik ke atas */
     .hero-card {
       background: linear-gradient(135deg, #2484CE 0%, #1457A8 100%);
       border-radius: 20px;
       display: flex;
-      align-items: stretch;
-      overflow: hidden;
+      align-items: flex-end;
+      overflow: visible;
       position: relative;
       min-height: 155px;
+      padding-bottom: 18px;
     }
 
     /* Kiri: teks Hello Teacher */
     .hero-text {
       flex: 1;
-      padding: 26px 0 26px 22px;
+      padding: 26px 0 0 22px;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: flex-start;
       position: relative;
       z-index: 2;
     }
     .hero-text h2 {
       font-size: 32px;
-      font-weight: 700;
+      font-weight: 400;
       color: #fff;
       line-height: 1.1;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
     }
     .hero-greeting {
       font-size: 12px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.82);
+      font-weight: 400;
+      color: rgba(255,255,255,0.85);
       margin-top: 10px;
       display: flex;
       align-items: center;
@@ -157,20 +159,26 @@
     }
     .greeting-icon { width: 16px; height: 16px; flex-shrink: 0; }
 
-    /* Kanan: mascot — background PUTIH */
+    /* Kanan: mascot — background BIRU sama, overflow naik ke atas */
     .hero-mascot-wrap {
       width: 148px;
       flex-shrink: 0;
-      background: #FFFFFF;
+      background: transparent;
       display: flex;
       align-items: flex-end;
       justify-content: center;
-      overflow: hidden;
+      overflow: visible;
+      position: relative;
+      z-index: 3;
+      margin-bottom: -18px; /* kompensasi padding-bottom card */
     }
     .hero-mascot-wrap img {
-      width: 100%;
+      width: 160px;
       display: block;
-      object-fit: cover;
+      object-fit: contain;
+      margin-bottom: 0;
+      /* naik ke atas melampaui card */
+      transform: translateY(-30px);
     }
 
     /* TAGLINE — di luar card, teks biru */
