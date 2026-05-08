@@ -125,16 +125,27 @@
       align-items: stretch;
       overflow: visible;
       position: relative;
-      min-height: 170px;
+      min-height: 160px;
+      box-shadow: 0 8px 28px rgba(18, 70, 140, 0.38);
+    }
+    /* radial gradient overlay — pojok kanan bawah sedikit lebih gelap */
+    .hero-card::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      border-radius: 20px;
+      background: radial-gradient(ellipse at 95% 90%, rgba(10,45,100,0.28) 0%, transparent 65%);
+      pointer-events: none;
+      z-index: 1;
     }
 
-    /* Kiri: teks Hello Teacher — mulai dari atas, space di bawah greeting */
+    /* Kiri: teks Hello Teacher — rapat, greeting langsung di bawah h2 */
     .hero-text {
       flex: 1;
-      padding: 22px 0 24px 22px;
+      padding: 22px 0 22px 22px;
       display: flex;
       flex-direction: column;
-      justify-content: space-between;
+      justify-content: flex-start;
       position: relative;
       z-index: 2;
     }
@@ -149,7 +160,7 @@
       font-size: 12px;
       font-weight: 400;
       color: rgba(255,255,255,0.85);
-      margin-top: 10px;
+      margin-top: 8px;
       display: flex;
       align-items: center;
       gap: 7px;
@@ -158,23 +169,23 @@
     }
     .greeting-icon { width: 16px; height: 16px; flex-shrink: 0; }
 
-    /* Kanan: mascot — biru sama, overflow naik ke atas, bawah pas di garis card */
+    /* Kanan: mascot — absolute, bottom-aligned pas di garis bawah card */
     .hero-mascot-wrap {
-      width: 155px;
+      width: 160px;
       flex-shrink: 0;
       background: transparent;
-      display: flex;
-      align-items: flex-end;
-      justify-content: center;
-      overflow: visible;
       position: relative;
       z-index: 3;
+      overflow: visible;
     }
     .hero-mascot-wrap img {
-      width: 185px;
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      width: 190px;
       display: block;
       object-fit: contain;
-      transform: translateY(-38px);
+      transform: translateY(-0px);
     }
 
     /* TAGLINE — di luar card, teks biru */
