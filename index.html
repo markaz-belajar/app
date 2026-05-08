@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-title" content="Markaz Belajar" />
   <link rel="apple-touch-icon" href="icon_mb_app.png" />
   <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#1B6CA8" />
+  <meta name="theme-color" content="#F9F9F9" />
   <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
@@ -35,7 +35,7 @@
 
     html, body {
       font-family: 'Rubik', sans-serif;
-      background: var(--blue);
+      background: #F9F9F9;
       min-height: 100vh;
       color: var(--ink);
       overflow-x: hidden;
@@ -66,42 +66,47 @@
       min-height: 100vh;
       display: flex;
       flex-direction: column;
+      background: #F9F9F9;
       opacity: 0;
       transition: opacity 0.4s ease;
     }
     .page.visible { opacity: 1; }
 
-    /* ── BLUE TOP ── */
+    /* ── TOP SECTION: background F9F9F9 ── */
     .top-section {
-      background: var(--blue);
+      background: #F9F9F9;
       padding: 52px 20px 0;
-      position: relative;
-      overflow: hidden;
     }
-    .deco-1 { position:absolute; top:-40px; right:-40px; width:200px; height:200px; border-radius:50%; background:rgba(255,255,255,0.06); pointer-events:none; }
-    .deco-2 { position:absolute; bottom:60px; left:-60px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.04); pointer-events:none; }
-    .deco-3 { position:absolute; top:80px; right:20px; width:80px; height:80px; border-radius:50%; background:rgba(255,255,255,0.03); pointer-events:none; }
 
-    /* TOPBAR */
+    /* TOPBAR: logo sendiri 1 baris, center */
     .topbar {
       display: flex;
       align-items: center;
-      justify-content: space-between;
-      position: relative; z-index: 2;
-      margin-bottom: 20px;
+      justify-content: center;
+      margin-bottom: 12px;
     }
+    .topbar img { height: 50px; object-fit: contain; }
 
-    /* Active badge — LEFT, below logo area */
+    /* Active badge: baris sendiri, fit-content, rata kiri */
+    .badge-row {
+      display: flex;
+      align-items: center;
+      margin-bottom: 14px;
+    }
     .active-badge {
-      display: flex; align-items: center; gap: 6px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
       background: #E7F4FD;
       color: #1D69A6;
-      font-size: 11px; font-weight: 600;
-      padding: 5px 13px; border-radius: 50px;
-      white-space: nowrap;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 50px;
     }
     .active-dot {
-      width: 7px; height: 7px; border-radius: 50%;
+      width: 7px; height: 7px;
+      border-radius: 50%;
       background: #1D69A6;
       flex-shrink: 0;
       animation: pulse-dot 1.8s ease-in-out infinite;
@@ -111,92 +116,80 @@
       50%       { box-shadow: 0 0 0 5px rgba(29,105,166,0); }
     }
 
-    .topbar-center { flex: 1; display: flex; justify-content: center; }
-    .topbar-center img { height: 46px; }
-    .topbar-right { width: 100px; display: flex; justify-content: flex-end; }
-    .topbar-left  { width: 100px; }
-
     /* HERO CARD */
     .hero-card {
-      background: linear-gradient(140deg, #2080c8 0%, #1255a0 100%);
-      border-radius: 22px;
-      padding: 24px 0 0 22px;
+      background: linear-gradient(135deg, #2484CE 0%, #1457A8 100%);
+      border-radius: 20px;
       display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      overflow: visible;
-      position: relative; z-index: 2;
-      min-height: 150px;
-      box-shadow: 0 8px 32px rgba(17,78,134,0.3);
-    }
-    .hero-card::before {
-      content:''; position:absolute; top:-20px; right:80px;
-      width:110px; height:110px; border-radius:50%;
-      background:rgba(255,255,255,0.06);
-    }
-    .hero-card-inner {
-      position: relative;
+      align-items: stretch;
       overflow: hidden;
-      border-radius: 22px;
-      width: 100%;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      min-height: 150px;
+      position: relative;
+      min-height: 155px;
     }
 
+    /* Kiri: teks Hello Teacher */
     .hero-text {
-      position: relative; z-index: 2;
-      padding: 24px 0 28px 22px;
       flex: 1;
+      padding: 26px 0 26px 22px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+      z-index: 2;
     }
     .hero-text h2 {
-      font-size: 30px;
-      font-weight: 400; /* not bold */
+      font-size: 32px;
+      font-weight: 700;
       color: #fff;
       line-height: 1.1;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.5px;
     }
     .hero-greeting {
-      font-size: 12px; font-weight: 500;
-      color: rgba(255,255,255,0.72);
+      font-size: 12px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.82);
       margin-top: 10px;
-      display: flex; align-items: center; gap: 7px;
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .greeting-icon { width: 16px; height: 16px; flex-shrink: 0; }
 
-    /* Mascot — larger, overflows top of card */
-    .hero-mascot {
-      position: relative;
-      z-index: 3;
-      width: 150px;
+    /* Kanan: mascot — background PUTIH */
+    .hero-mascot-wrap {
+      width: 148px;
       flex-shrink: 0;
-      align-self: flex-end;
-      margin-bottom: 0;
-      margin-top: -30px; /* overflow upward past card top */
+      background: #FFFFFF;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      overflow: hidden;
     }
-    .hero-mascot img {
+    .hero-mascot-wrap img {
       width: 100%;
       display: block;
-      filter: drop-shadow(0 8px 16px rgba(0,0,0,0.2));
+      object-fit: cover;
     }
 
-    /* TAGLINE */
+    /* TAGLINE — di luar card, teks biru */
     .tagline {
       text-align: center;
-      font-size: 15px; font-weight: 700;
+      font-size: 16px;
+      font-weight: 700;
       color: #0686C7;
-      padding: 16px 20px 24px;
-      position: relative; z-index: 2;
+      padding: 16px 20px 22px;
+      background: #F9F9F9;
     }
 
     /* WHITE CONTENT */
     .content {
-      background: var(--bg);
+      background: var(--white);
       border-radius: 28px 28px 0 0;
       flex: 1;
       padding: 26px 16px 16px;
-      box-shadow: 0 -4px 24px rgba(28,43,58,0.08);
+      box-shadow: 0 -6px 24px rgba(28,43,58,0.10);
     }
     .section-header {
       display: flex; align-items: center; justify-content: space-between;
@@ -248,7 +241,7 @@
     }
 
     footer {
-      background: var(--bg);
+      background: var(--white);
       text-align: center; padding: 12px 16px 36px;
       font-size: 11px; color: var(--ink-faint);
     }
@@ -265,26 +258,23 @@
   <div class="page" id="mainPage">
 
     <div class="top-section">
-      <div class="deco-1"></div>
-      <div class="deco-2"></div>
-      <div class="deco-3"></div>
 
-      <!-- TOPBAR: active badge LEFT | logo CENTER | spacer RIGHT -->
+      <!-- Logo: 1 baris sendiri, center -->
       <div class="topbar">
-        <div class="topbar-left">
-          <div class="active-badge">
-            <div class="active-dot"></div>
-            Active
-          </div>
+        <img src="Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.src='icon_mb.png'" />
+      </div>
+
+      <!-- Active badge: 1 baris sendiri, fit-content, kiri -->
+      <div class="badge-row">
+        <div class="active-badge">
+          <div class="active-dot"></div>
+          Active
         </div>
-        <div class="topbar-center">
-          <img src="Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.src='icon_mb.png'" />
-        </div>
-        <div class="topbar-right"></div>
       </div>
 
       <!-- HERO CARD -->
       <div class="hero-card">
+        <!-- Kiri: teks -->
         <div class="hero-text">
           <h2>Hello<br>Teacher !</h2>
           <div class="hero-greeting">
@@ -295,17 +285,19 @@
             <span id="greetingText">Good Morning</span>
           </div>
         </div>
-        <!-- Mascot: larger, overflows top -->
-        <div class="hero-mascot">
+
+        <!-- Kanan: mascot, background putih -->
+        <div class="hero-mascot-wrap">
           <img src="mascot.png" alt="Maskot" onerror="this.parentElement.style.display='none'" />
         </div>
       </div>
 
-      <!-- TAGLINE in blue -->
+      <!-- TAGLINE: di luar card, warna biru -->
       <div class="tagline">Ready for inspiring today?</div>
+
     </div>
 
-    <!-- WHITE/F9F9F9 MENU SECTION -->
+    <!-- MENU SECTION -->
     <div class="content">
       <div class="section-header">
         <div class="section-title">Main Menu</div>
