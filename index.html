@@ -10,335 +10,356 @@
   <link rel="apple-touch-icon" href="icon_mb_app.png" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#1B6CA8" />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     :root {
       --blue: #1B6CA8;
-      --yellow-deep: #F59F00;
+      --blue-light: #EAF3FB;
+      --yellow: #F59F00;
       --green: #2E9E5B;
       --green-light: #E6F7EE;
       --purple: #7C5CBF;
-      --paper: #FDFAF4;
-      --line: #EDE9DF;
-      --ink: #1C2B3A;
-      --ink-faint: #8FA4B4;
+      --purple-light: #EEE9FF;
       --white: #FFFFFF;
-      --shadow: 0 4px 24px rgba(28,43,58,0.12);
-      --shadow-sm: 0 2px 10px rgba(28,43,58,0.07);
-      --radius: 20px;
+      --ink: #1C2B3A;
+      --ink-faint: #96AAB8;
+      --border: #EDF1F5;
+      --shadow-card: 0 2px 14px rgba(28,43,58,0.07);
       --radius-sm: 14px;
     }
 
     html, body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: var(--paper);
+      font-family: 'Rubik', sans-serif;
+      background: var(--blue);
       min-height: 100vh;
       color: var(--ink);
       overflow-x: hidden;
-      width: 100%;
     }
 
+    /* ── SPLASH ── */
+    #splash {
+      position: fixed;
+      inset: 0;
+      background: var(--blue);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+      transition: opacity 0.5s ease;
+    }
+    #splash img {
+      width: 120px;
+      animation: levitate 1.8s ease-in-out infinite;
+    }
+    @keyframes levitate {
+      0%, 100% { transform: translateY(0); }
+      50%       { transform: translateY(-12px); }
+    }
+
+    /* ── PAGE ── */
     .page {
       width: 100%;
       max-width: 480px;
       margin: 0 auto;
-      background: var(--paper);
       min-height: 100vh;
-      overflow-x: hidden;
-    }
-
-    /* SPLASH */
-    #splash {
-      position: fixed; inset: 0; background: var(--blue);
-      display: flex; align-items: center; justify-content: center;
-      z-index: 999; transition: opacity 0.5s ease, visibility 0.5s ease;
-    }
-    #splash.hidden { opacity: 0; visibility: hidden; }
-    #splash img { width: 140px; animation: levitate 1.8s ease-in-out infinite; }
-    @keyframes levitate {
-      0%, 100% { transform: translateY(0px); }
-      50% { transform: translateY(-14px); }
-    }
-
-
-    /* HEADER */
-    .header { background: var(--blue); position: relative; overflow: hidden; }
-    .hbs-1 { position:absolute; top:-30px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.07); pointer-events:none; }
-    .hbs-2 { position:absolute; bottom:-50px; left:-30px; width:130px; height:130px; border-radius:50%; background:rgba(243,213,101,0.12); pointer-events:none; }
-    .hbs-3 { position:absolute; top:40px; left:30%; width:50px; height:50px; border-radius:50%; background:rgba(255,255,255,0.05); pointer-events:none; }
-    .header-inner {
-      position: relative; z-index: 2;
-      padding: 36px 20px 56px;
-      display: flex; flex-direction: column; align-items: center;
-    }
-    .header-logo { width: 160px; }
-
-    /* GREETING CARD */
-    .greeting-card-wrap { margin: 0 16px; margin-top: -32px; position: relative; z-index: 10; overflow: hidden; }
-    .greeting-card {
-      background: var(--white); border-radius: var(--radius);
-      box-shadow: var(--shadow); padding: 18px 20px;
-      display: flex; align-items: center; justify-content: space-between;
-    }
-    .greeting-card h2 {
-      font-family: 'Baloo 2', sans-serif; font-size: 17px;
-      font-weight: 800; color: var(--ink); line-height: 1.2;
-    }
-    .greeting-card p { font-size: 12px; color: var(--ink-faint); margin-top: 3px; }
-    .greeting-badge {
-      background: #E8F4FD; color: var(--blue);
-      font-size: 11px; font-weight: 600;
-      padding: 5px 12px; border-radius: 50px; white-space: nowrap;
-    }
-
-    /* MAIN */
-    main { padding: 20px 16px 48px; width: 100%; }
-
-    .section-label {
-      font-size: 10px; font-weight: 600; color: var(--ink-faint);
-      letter-spacing: 1px; text-transform: uppercase; margin: 0 4px 12px;
-    }
-
-    /* ── BENTO 4 BOX ── */
-    .bento-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-bottom: 10px;
-      width: 100%;
-    }
-
-    .bento-card {
-      background: var(--white);
-      border: 1.5px solid var(--line);
-      border-radius: var(--radius-sm);
-      padding: 16px 14px;
       display: flex;
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      text-decoration: none;
-      color: var(--ink);
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.13s, box-shadow 0.13s;
-      cursor: pointer;
-      min-height: 80px;
+      flex-direction: column;
+      /* hidden until splash done */
+      opacity: 0;
+      transition: opacity 0.4s ease;
     }
+    .page.visible { opacity: 1; }
 
-    .bento-card:active { transform: scale(0.97); box-shadow: none; }
-
-    .bento-card.coming-soon {
-      opacity: 0.45; cursor: default; pointer-events: none;
+    /* ── BLUE TOP ── */
+    .top-section {
+      background: var(--blue);
+      padding: 52px 20px 0;
+      position: relative;
+      overflow: hidden;
     }
+    .deco-1 { position:absolute; top:-40px; right:-40px; width:180px; height:180px; border-radius:50%; background:rgba(255,255,255,0.06); pointer-events:none; }
+    .deco-2 { position:absolute; bottom:50px; left:-50px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.04); pointer-events:none; }
 
-    .bento-icon {
-      width: 44px; height: 44px; border-radius: 12px;
-      display: flex; align-items: center; justify-content: center;
+    /* TOPBAR */
+    .topbar {
+      display: flex; align-items: center;
+      position: relative; z-index: 2; margin-bottom: 26px;
+    }
+    .topbar-center { flex: 1; display: flex; justify-content: center; }
+    .topbar-center img { height: 46px; }
+    .topbar-right { width: 88px; display: flex; justify-content: flex-end; }
+    .topbar-left  { width: 88px; }
+    .active-badge {
+      display: flex; align-items: center; gap: 5px;
+      background: rgba(255,255,255,0.17);
+      color: #fff; font-size: 11px; font-weight: 600;
+      padding: 5px 12px; border-radius: 50px;
+      white-space: nowrap;
+    }
+    .active-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: #4ADE80;
+      box-shadow: 0 0 0 2px rgba(74,222,128,0.28);
       flex-shrink: 0;
     }
-    .bento-icon svg { width: 20px; height: 20px; }
 
-    .icon-blue   { background: #E8F4FD; }
-    .icon-yellow { background: #FFF8DC; }
-    .icon-green  { background: var(--green-light); }
-    .icon-purple { background: #F0EEFF; }
-    .icon-gray   { background: #F0F0EE; }
+    /* HERO CARD */
+    .hero-card {
+      background: linear-gradient(140deg, #2080c8 0%, #1255a0 100%);
+      border-radius: 22px;
+      padding: 22px 20px 0 22px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      overflow: hidden; position: relative; z-index: 2;
+      min-height: 150px;
+      box-shadow: 0 8px 32px rgba(17,78,134,0.3);
+    }
+    .hero-card::before {
+      content:''; position:absolute; top:-25px; right:90px;
+      width:100px; height:100px; border-radius:50%;
+      background:rgba(255,255,255,0.06);
+    }
+    .hero-text { position:relative; z-index:2; padding-bottom:22px; }
+    .hero-text h2 {
+      font-size: 30px; font-weight: 800; color: #fff;
+      line-height: 1.1; letter-spacing: -0.4px;
+    }
+    .hero-greeting {
+      font-size: 12px; font-weight: 500;
+      color: rgba(255,255,255,0.72);
+      margin-top: 8px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .greeting-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .hero-mascot {
+      position: relative; z-index: 2;
+      width: 118px; flex-shrink: 0; align-self: flex-end;
+    }
+    .hero-mascot img { width: 100%; display: block; }
 
-    .bento-text { flex: 1; min-width: 0; }
-    .bento-label {
-      font-family: 'Baloo 2', sans-serif;
-      font-size: 13px; font-weight: 700;
-      color: var(--ink); line-height: 1.2;
+    /* TAGLINE */
+    .tagline {
+      text-align: center;
+      font-size: 15px; font-weight: 700;
+      color: rgba(255,255,255,0.90);
+      padding: 16px 20px 24px;
+      position: relative; z-index: 2;
     }
-    .bento-sub {
-      font-size: 10px; color: var(--ink-faint); margin-top: 2px;
-      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+
+    /* WHITE CONTENT */
+    .content {
+      background: var(--white);
+      border-radius: 26px 26px 0 0;
+      flex: 1;
+      padding: 26px 16px 16px;
     }
+    .section-header {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 16px;
+    }
+    .section-title { font-size: 17px; font-weight: 700; color: var(--ink); }
+    .see-all { font-size: 13px; font-weight: 600; color: var(--blue); text-decoration: none; }
+
+    /* MENU LIST */
+    .menu-list { display: flex; flex-direction: column; gap: 10px; }
+
+    .menu-item {
+      background: var(--white);
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 13px 14px;
+      display: flex; align-items: center; gap: 14px;
+      text-decoration: none; color: var(--ink);
+      box-shadow: var(--shadow-card);
+      transition: transform 0.12s;
+    }
+    .menu-item:active { transform: scale(0.98); box-shadow: none; }
+    .menu-item.disabled { opacity: 0.46; pointer-events: none; }
+
+    .menu-icon-wrap {
+      width: 50px; height: 50px; border-radius: 14px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .menu-icon-wrap svg { width: 24px; height: 24px; }
+
+    .bg-blue   { background: var(--blue-light); }
+    .bg-yellow { background: #FFF8DC; }
+    .bg-green  { background: var(--green-light); }
+    .bg-purple { background: var(--purple-light); }
+    .bg-gray   { background: #F2F4F6; }
+
+    .menu-info { flex: 1; }
+    .menu-info h3 { font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.2px; }
+    .menu-info p  { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
+
+    .menu-arrow { flex-shrink: 0; }
+    .menu-arrow svg { width: 16px; height: 16px; color: var(--ink-faint); }
 
     .badge-soon {
-      font-size: 9px; font-weight: 700;
-      background: #FFF8DC; color: #8B6914;
-      padding: 2px 7px; border-radius: 20px;
-      border: 1px solid #EDE0A0; white-space: nowrap;
-      flex-shrink: 0;
+      font-size: 10px; font-weight: 700;
+      background: #FFF3CD; color: #856404;
+      padding: 3px 10px; border-radius: 20px;
+      border: 1px solid #FFE08A; white-space: nowrap; flex-shrink: 0;
     }
-
-    .bento-arrow { flex-shrink: 0; }
-    .bento-arrow svg { width: 14px; height: 14px; color: var(--ink-faint); }
-
-    /* ── FULL WIDTH — Task Manager (compact) ── */
-    .full-card {
-      background: var(--white);
-      border: 1.5px solid var(--line);
-      border-radius: var(--radius-sm);
-      padding: 20px 18px;
-      display: flex;
-      align-items: center;
-      gap: 14px;
-      text-decoration: none;
-      color: var(--ink);
-      box-shadow: var(--shadow-sm);
-      transition: transform 0.13s, box-shadow 0.13s;
-      min-height: 80px;
-    }
-    .full-card:active { transform: scale(0.98); box-shadow: none; }
-
-    .full-icon {
-      width: 48px; height: 48px; border-radius: 13px;
-      display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-    }
-    .full-icon svg { width: 22px; height: 22px; }
-
-    .full-info { flex: 1; }
-    .full-info h3 {
-      font-family: 'Baloo 2', sans-serif;
-      font-size: 15px; font-weight: 700; color: var(--ink);
-    }
-    .full-info p { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
-
-    .full-arrow svg { width: 16px; height: 16px; color: var(--ink-faint); }
 
     footer {
-      text-align: center; padding: 0 16px 36px;
+      background: var(--white);
+      text-align: center; padding: 12px 16px 36px;
       font-size: 11px; color: var(--ink-faint);
     }
   </style>
 </head>
 <body>
 
+  <!-- SPLASH -->
   <div id="splash">
-    <img src="Open_MB_Icon.png" alt="Markaz Belajar" />
+    <img src="Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.src='icon_mb.png'" />
   </div>
 
-  <div class="page">
+  <!-- MAIN PAGE -->
+  <div class="page" id="mainPage">
 
-    <div class="header">
-      <div class="hbs-1"></div>
-      <div class="hbs-2"></div>
-      <div class="hbs-3"></div>
-      <div class="header-inner">
-        <img class="header-logo" src="Open_MB_Icon.png" alt="Markaz Belajar" />
-      </div>
-    </div>
+    <div class="top-section">
+      <div class="deco-1"></div>
+      <div class="deco-2"></div>
 
-    <div class="greeting-card-wrap">
-      <div class="greeting-card">
-        <div>
-          <h2>Sistem Internal</h2>
-          <p>Teacher Access</p>
+      <div class="topbar">
+        <div class="topbar-left"></div>
+        <div class="topbar-center">
+          <img src="Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.src='icon_mb.png'" />
         </div>
-        <div class="greeting-badge">● Active</div>
+        <div class="topbar-right">
+          <div class="active-badge">
+            <div class="active-dot"></div>
+            Active
+          </div>
+        </div>
       </div>
-    </div>
 
-    <main>
-      <div class="section-label" style="margin-top: 20px;">Main Menu</div>
-
-      <!-- 4 BENTO CARDS -->
-      <div class="bento-grid">
-
-        <!-- Teacher Report -->
-        <div class="bento-card coming-soon">
-          <div class="bento-icon icon-gray">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#8FA4B4" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M9 12h6M9 16h6M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/>
-              <rect x="9" y="1" width="6" height="4" rx="1"/>
+      <div class="hero-card">
+        <div class="hero-text">
+          <h2>Hello<br>Teacher !</h2>
+          <div class="hero-greeting">
+            <svg id="greetingIcon" class="greeting-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="12" cy="12" r="4" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/>
+              <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/>
             </svg>
+            <span id="greetingText">Good Morning</span>
           </div>
-          <div class="bento-text">
-            <div class="bento-label">Teacher Report</div>
-            <div class="bento-sub">Attendance & reports</div>
-          </div>
-          <span class="badge-soon">Soon</span>
         </div>
+        <div class="hero-mascot">
+          <img src="mascot.png" alt="Maskot" onerror="this.parentElement.style.display='none'" />
+        </div>
+      </div>
 
-        <!-- Schedule -->
-        <a class="bento-card" href="https://markaz-belajar.github.io/jadwal-mb/">
-          <div class="bento-icon icon-blue">
+      <div class="tagline">Ready for inspiring today?</div>
+    </div>
+
+    <!-- WHITE MENU SECTION -->
+    <div class="content">
+      <div class="section-header">
+        <div class="section-title">Main Menu</div>
+        <a href="#" class="see-all">See all</a>
+      </div>
+
+      <div class="menu-list">
+
+        <a class="menu-item" href="https://markaz-belajar.github.io/jadwal-mb/">
+          <div class="menu-icon-wrap bg-blue">
             <svg viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <rect x="3" y="4" width="18" height="18" rx="3"/>
               <path d="M16 2v4M8 2v4M3 10h18"/>
               <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01"/>
             </svg>
           </div>
-          <div class="bento-text">
-            <div class="bento-label">Schedule</div>
-            <div class="bento-sub">Student timetable</div>
-          </div>
-          <div class="bento-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
+          <div class="menu-info"><h3>Schedule</h3><p>Student timetable</p></div>
+          <div class="menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
         </a>
 
-        <!-- Invoice -->
-        <a class="bento-card" href="https://markaz-belajar.github.io/invoice-mb/">
-          <div class="bento-icon icon-yellow">
+        <div class="menu-item disabled">
+          <div class="menu-icon-wrap bg-gray">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#96AAB8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 12h6M9 16h6M7 3H5a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2h-2"/>
+              <rect x="9" y="1" width="6" height="4" rx="1"/>
+            </svg>
+          </div>
+          <div class="menu-info"><h3>Teacher Report</h3><p>Attendance &amp; Reports</p></div>
+          <span class="badge-soon">Soon</span>
+        </div>
+
+        <a class="menu-item" href="activity.html">
+          <div class="menu-icon-wrap bg-purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#7C5CBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+              <path d="M2 17l10 5 10-5M2 12l10 5 10-5"/>
+            </svg>
+          </div>
+          <div class="menu-info"><h3>Learning Hub</h3><p>Activity &amp; curriculum</p></div>
+          <div class="menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+        </a>
+
+        <a class="menu-item" href="https://markaz-belajar.github.io/invoice-mb/">
+          <div class="menu-icon-wrap bg-yellow">
             <svg viewBox="0 0 24 24" fill="none" stroke="#F59F00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
               <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
               <path d="M14 2v6h6M9 13h6M9 17h4"/>
             </svg>
           </div>
-          <div class="bento-text">
-            <div class="bento-label">Invoice</div>
-            <div class="bento-sub">Billing & tracking</div>
-          </div>
-          <div class="bento-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
+          <div class="menu-info"><h3>Invoice</h3><p>Billing &amp; Tracking</p></div>
+          <div class="menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
         </a>
 
-        <!-- Learning Hub -->
-        <a class="bento-card" href="activity.html">
-          <div class="bento-icon icon-purple">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#7C5CBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M12 2L2 7l10 5 10-5-10-5z"/>
-              <path d="M2 17l10 5 10-5"/>
-              <path d="M2 12l10 5 10-5"/>
+        <a class="menu-item" href="https://markaz-belajar.github.io/Manajemen-Task/">
+          <div class="menu-icon-wrap bg-green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 11l3 3L22 4"/>
+              <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
             </svg>
           </div>
-          <div class="bento-text">
-            <div class="bento-label">Learning Hub</div>
-            <div class="bento-sub">Activity & curriculum</div>
-          </div>
-          <div class="bento-arrow">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-          </div>
+          <div class="menu-info"><h3>Task Manager</h3><p>Tasks &amp; document repository</p></div>
+          <div class="menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
         </a>
 
       </div>
-
-      <!-- TASK MANAGER — compact full width -->
-      <a class="full-card" href="https://markaz-belajar.github.io/Manajemen-Task/">
-        <div class="full-icon icon-green">
-          <svg viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 11l3 3L22 4"/>
-            <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/>
-          </svg>
-        </div>
-        <div class="full-info">
-          <h3>Task Manager</h3>
-          <p>Tasks & document repository</p>
-        </div>
-        <div class="full-arrow">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
-        </div>
-      </a>
-
-    </main>
+    </div>
 
     <footer>© 2026 Markaz Belajar. All rights reserved.</footer>
-
   </div>
 
   <script>
-    window.addEventListener('load', () => {
-      setTimeout(() => {
-        document.getElementById('splash').classList.add('hidden');
-      }, 2200);
+    // Greeting icon & text
+    const hour = new Date().getHours();
+    const textEl = document.getElementById('greetingText');
+    const iconEl = document.getElementById('greetingIcon');
+
+    if (hour >= 5 && hour < 12) {
+      textEl.textContent = 'Good Morning';
+      iconEl.innerHTML = '<circle cx="12" cy="12" r="4" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/>';
+    } else if (hour >= 12 && hour < 18) {
+      textEl.textContent = 'Good Afternoon';
+      iconEl.innerHTML = '<circle cx="12" cy="14" r="4" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/><path d="M12 4v2M4.93 6.93l1.41 1.41M19.07 6.93l-1.41 1.41M2 14h2M20 14h2" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/><path d="M3 19h18" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/>';
+    } else {
+      textEl.textContent = 'Good Evening';
+      iconEl.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>';
+    }
+
+    // Splash: fade out, then hide, then show page
+    window.addEventListener('load', function() {
+      var splash = document.getElementById('splash');
+      var page   = document.getElementById('mainPage');
+
+      setTimeout(function() {
+        // fade out splash
+        splash.style.opacity = '0';
+        setTimeout(function() {
+          // fully remove splash from layout
+          splash.style.display = 'none';
+          // fade in page
+          page.classList.add('visible');
+        }, 550);
+      }, 2000);
     });
   </script>
 
