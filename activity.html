@@ -174,7 +174,24 @@
     .program-btn:active { transform: scale(0.97); box-shadow: none; }
 
     .program-btn.soon {
-      opacity: 0.45; cursor: default; pointer-events: none;
+      opacity: 1;
+      cursor: default;
+      pointer-events: none;
+      background: #D8D4CC;
+      border-color: #C4BFB6;
+    }
+    .program-btn.soon .prog-name { color: #8A8078; }
+    .program-btn.soon .prog-icon-placeholder {
+      background: #C4BFB6;
+    }
+    .program-btn.soon .prog-icon-placeholder svg { stroke: #9A9490; }
+
+    .badge-soon-label {
+      position: absolute; bottom: 10px; right: 10px;
+      font-size: 9px; font-weight: 700;
+      background: #B8B3AA; color: #6A6560;
+      padding: 2px 8px; border-radius: 20px;
+      letter-spacing: 0.3px;
     }
 
     .prog-icon {
@@ -270,20 +287,20 @@
               <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
             </a>
 
-            <a class="program-btn" href="#">
+            <a class="program-btn soon" href="#">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </div>
               <div class="prog-name">English Kids</div>
-              <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+              <span class="badge-soon-label">Soon</span>
             </a>
 
-            <a class="program-btn" href="#">
+            <a class="program-btn soon" href="#">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
               </div>
               <div class="prog-name">Tahfidz</div>
-              <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+              <span class="badge-soon-label">Soon</span>
             </a>
 
           </div>
@@ -297,36 +314,36 @@
           </div>
           <div class="program-grid">
 
-            <a class="program-btn" href="#">
+            <a class="program-btn soon" href="#">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               </div>
               <div class="prog-name">Maple</div>
-              <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+              <span class="badge-soon-label">Soon</span>
             </a>
 
-            <a class="program-btn" href="#">
+            <a class="program-btn soon" href="#">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
               </div>
               <div class="prog-name">Math</div>
-              <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+              <span class="badge-soon-label">Soon</span>
             </a>
 
-            <a class="program-btn" href="#">
+            <a class="program-btn soon" href="#">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </div>
               <div class="prog-name">English</div>
-              <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+              <span class="badge-soon-label">Soon</span>
             </a>
 
-            <a class="program-btn" href="#">
+            <a class="program-btn soon" href="#">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
               </div>
               <div class="prog-name">Tahfidz</div>
-              <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+              <span class="badge-soon-label">Soon</span>
             </a>
 
           </div>
