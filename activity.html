@@ -30,10 +30,10 @@
     .page { max-width: 480px; margin: 0 auto; background: var(--paper); min-height: 100vh; position: relative; }
 
     /* ── HEADER ── */
-    /* Tinggi header diperbesar agar maskot lebih terlihat */
-    .header { position: relative; height: 310px; overflow: hidden; background: var(--blue); }
+    /* overflow:visible agar maskot bisa overlap ke bawah tanpa duplikat */
+    .header { position: relative; height: 260px; overflow: visible; background: var(--blue); z-index: 1; }
     .header-bg {
-      position: absolute; inset: 0;
+      position: absolute; top: 0; left: 0; right: 0; bottom: 0; overflow: hidden;
       background-image: url('learning_hub.png');
       background-size: cover; background-position: top center;
     }
@@ -43,21 +43,20 @@
     }
     .header-inner { position: relative; z-index: 2; padding: 52px 20px 0; display: flex; flex-direction: column; height: 100%; }
     .header-top { display: flex; align-items: center; justify-content: center; }
-    /* Logo diperbesar ke 127.11 x 50 */
+    /* Logo 127.11 x 50 */
     .header-logo { height: 50px; width: 127.11px; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.18)); }
-    /* Spacer dikecilkan agar logo & title lebih dekat */
+    /* Spacer kecil agar logo & title dekat */
     .header-spacer { flex: 0 0 16px; }
 
-    /* geser ke kanan, hapus sub text */
     .header-text { padding-bottom: 14px; padding-left: 32px; }
     .header-title { font-family: 'Rubik', sans-serif; font-size: 34px; font-weight: 400; color: #543C34; line-height: 1.1; letter-spacing: -0.3px; text-shadow: 0px 2px 3px rgba(84,60,52,0.45); }
 
-    /* Maskot lebih tinggi karena header lebih besar */
-    .mascot { position: absolute; right: 0; bottom: 0; height: 240px; width: auto; object-fit: contain; z-index: 3; pointer-events: none; }
+    /* Maskot overlap ke bawah header — satu gambar, z-index tinggi */
+    .mascot { position: absolute; right: 0; bottom: -55px; height: 220px; width: auto; object-fit: contain; z-index: 5; pointer-events: none; }
 
     /* ── TAB BAR glass ── */
-    /* margin-top lebih besar agar tab & konten turun, maskot makin terlihat */
-    .tabs-wrap { padding: 0 16px; margin-top: 28px; position: relative; z-index: 10; }
+    /* margin-top besar agar tab turun, maskot terlihat penuh */
+    .tabs-wrap { padding: 0 16px; margin-top: 72px; position: relative; z-index: 10; }
     .tab-bar-pill {
       background: rgba(27,108,168,0.55); border-radius: 50px; padding: 4px; display: flex; gap: 2px;
       border: 1.5px solid rgba(255,255,255,0.28);
@@ -81,9 +80,9 @@
 
     /* ── WHITE CONTENT CARD ── */
     .content-card {
-      background: var(--white); border-radius: 28px 28px 0 0;
+      background: var(--white); border-radius: 0;
       padding: 24px 16px 56px; margin-top: 14px;
-      box-shadow: 0 -6px 24px rgba(28,43,58,0.10);
+      box-shadow: none;
       min-height: calc(100vh - 340px);
     }
 
