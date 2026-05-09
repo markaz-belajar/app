@@ -1,176 +1,180 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0" />
   <title>Learning Hub – Markaz Belajar</title>
   <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#1B6CA8" />
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;800&family=Plus+Jakarta+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 
   <style>
-    * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 
     :root {
       --blue: #1B6CA8;
-      --paper: #FDFAF4;
-      --line: #EDE9DF;
+      --paper: #F9F9F9;
       --ink: #1C2B3A;
-      --ink-faint: #8FA4B4;
+      --ink-faint: #96AAB8;
       --white: #FFFFFF;
-      --shadow: 0 4px 24px rgba(28,43,58,0.12);
-      --shadow-sm: 0 2px 10px rgba(28,43,58,0.07);
-      --radius: 20px;
+      --border: #EDF1F5;
+      --green: #2E9E5B;
+      --shadow-card: 0 4px 20px rgba(28,43,58,0.09);
       --radius-sm: 14px;
     }
 
     html, body { height: 100%; overflow-x: hidden; }
+    body { font-family: 'Rubik', sans-serif; background: #F9F9F9; min-height: 100vh; color: var(--ink); }
 
-    body {
-      font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #E9EEF3;
-      min-height: 100vh;
-      color: var(--ink);
-    }
-
-    .page {
-      max-width: 480px;
-      margin: 0 auto;
-      background: var(--paper);
-      min-height: 100vh;
-      overflow: hidden;
-    }
+    .page { max-width: 480px; margin: 0 auto; background: var(--paper); min-height: 100vh; position: relative; }
 
     /* ── HEADER ── */
-    .header { background: var(--blue); position: relative; overflow: hidden; }
-    .hbs-1 { position:absolute; top:-30px; right:-40px; width:160px; height:160px; border-radius:50%; background:rgba(255,255,255,0.07); pointer-events:none; }
-    .hbs-2 { position:absolute; bottom:-50px; left:-30px; width:130px; height:130px; border-radius:50%; background:rgba(243,213,101,0.12); pointer-events:none; }
-    .header-inner { position:relative; z-index:2; padding:20px 20px 52px; display:flex; align-items:center; gap:14px; }
-    .back-btn { width:36px; height:36px; border-radius:10px; background:rgba(255,255,255,0.15); border:none; cursor:pointer; display:flex; align-items:center; justify-content:center; flex-shrink:0; text-decoration:none; }
-    .back-btn svg { width:18px; height:18px; stroke:#fff; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-    .header-title { font-family:'Baloo 2',sans-serif; font-size:18px; font-weight:800; color:#fff; }
-    .header-sub { font-size:11px; color:rgba(255,255,255,0.65); margin-top:1px; }
+    .header { position: relative; height: 260px; overflow: hidden; background: var(--blue); }
+    .header-bg {
+      position: absolute; inset: 0;
+      background-image: url('learning_hub.png');
+      background-size: cover; background-position: top center;
+    }
+    .header-bg::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to bottom, rgba(27,108,168,0.10) 0%, rgba(27,108,168,0.05) 50%, rgba(249,249,249,0.92) 88%, #F9F9F9 100%);
+    }
+    .header-inner { position: relative; z-index: 2; padding: 52px 20px 0; display: flex; flex-direction: column; height: 100%; }
+    .header-top { display: flex; align-items: center; justify-content: center; }
+    .header-logo { height: 36px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.18)); }
+    .header-spacer { flex: 1; }
+    .header-text { padding-bottom: 14px; }
+    .header-title { font-family: 'Rubik', sans-serif; font-size: 34px; font-weight: 400; color: #543C34; line-height: 1.1; letter-spacing: -0.3px; text-shadow: 0px 2px 3px rgba(84,60,52,0.45); }
+    .header-sub { font-size: 12px; color: #543C34; margin-top: 3px; font-weight: 400; text-shadow: 0px 2px 3px rgba(84,60,52,0.45); opacity: 0.8; }
+    .mascot { position: absolute; right: 0; bottom: 0; height: 200px; width: auto; object-fit: contain; z-index: 3; pointer-events: none; }
 
-    /* ── TAB BAR ── */
-    .tabs-wrap {
-      margin: 0 16px; margin-top: -28px;
-      position: relative; z-index: 10;
-      background: var(--white); border-radius: var(--radius);
-      box-shadow: var(--shadow); display: flex; overflow: hidden;
+    /* ── TAB BAR glass ── */
+    .tabs-wrap { padding: 0 16px; margin-top: 14px; position: relative; z-index: 10; }
+    .tab-bar-pill {
+      background: rgba(255,255,255,0.18); border-radius: 50px; padding: 4px; display: flex; gap: 2px;
+      border: 1.5px solid rgba(255,255,255,0.28);
+      backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
     }
     .tab-btn {
-      flex: 1; padding: 14px 10px; border: none; background: transparent;
-      font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 700;
-      color: var(--ink-faint); cursor: pointer;
-      border-bottom: 2px solid transparent;
-      transition: color 0.2s, border-color 0.2s, background 0.2s;
-      touch-action: manipulation;
+      flex: 1; padding: 10px 8px; border: none; background: transparent; border-radius: 50px;
+      font-family: 'Rubik', sans-serif; font-size: 13px; font-weight: 600;
+      color: rgba(255,255,255,0.65); cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: all 0.2s; touch-action: manipulation;
     }
-    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); background: #F0F7FF; }
+    .tab-btn:hover { color: #fff; background: rgba(255,255,255,0.12); }
+    .tab-btn.active { background: var(--white); color: var(--blue); box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 
-    /* ── SLIDER CONTAINER ── */
-    .slider-wrap {
-      overflow: hidden;
-      position: relative;
-    }
-    .slider-track {
-      display: flex;
-      /* transition applied via JS so we can disable it during drag */
-      will-change: transform;
-    }
-    .slide {
-      min-width: 100%;
-      flex-shrink: 0;
-      padding: 20px 16px 48px;
+    /* ── SLIDER ── */
+    .slider-wrap { overflow: hidden; position: relative; }
+    .slider-track { display: flex; will-change: transform; }
+    .slide { min-width: 100%; flex-shrink: 0; }
+
+    /* ── WHITE CONTENT CARD ── */
+    .content-card {
+      background: var(--white); border-radius: 28px 28px 0 0;
+      padding: 24px 16px 56px; margin-top: 14px;
+      box-shadow: 0 -6px 24px rgba(28,43,58,0.10);
+      min-height: calc(100vh - 340px);
     }
 
-    /* ── PROGRAM CARDS ── */
-    .program-section { margin-bottom: 24px; }
-    .program-title { font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:800; color:var(--ink); margin-bottom:10px; display:flex; align-items:center; gap:8px; }
-    .program-title-badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:20px; }
-    .badge-pre { background:#FFF8DC; color:#8B6914; border:1px solid #EDE0A0; }
-    .badge-ele { background:#E8F4FD; color:var(--blue); border:1px solid #BDD9F0; }
-    .program-grid { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+    /* ── SECTION ── */
+    .section-title { font-size: 17px; font-weight: 700; color: var(--ink); font-family: 'Rubik', sans-serif; margin-bottom: 14px; }
+    .section-divider { height: 1px; background: var(--border); margin: 20px 0; }
 
-    .program-btn {
-      background: var(--white); border: 1.5px solid var(--line);
-      border-radius: var(--radius-sm); padding: 18px 14px 16px;
-      display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
-      text-decoration: none; color: var(--ink); box-shadow: var(--shadow-sm);
-      transition: transform 0.13s; cursor: pointer; min-height: 100px;
-      position: relative; touch-action: manipulation;
-      font-family: inherit; -webkit-appearance: none; text-align: left; width: 100%;
+    /* ── MENU ITEM — sama dengan index.html ── */
+    .menu-list { display: flex; flex-direction: column; gap: 10px; }
+    .menu-item {
+      background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm);
+      padding: 13px 14px; display: flex; align-items: center; gap: 14px;
+      text-decoration: none; color: var(--ink); box-shadow: var(--shadow-card);
+      transition: transform 0.12s; cursor: pointer; font-family: inherit;
+      -webkit-appearance: none; width: 100%; text-align: left; touch-action: manipulation;
     }
-    .program-btn:active { transform: scale(0.97); box-shadow: none; }
-    .program-btn.soon {
-      opacity: 1; cursor: default; pointer-events: none;
-      background: #D8D4CC; border-color: #C4BFB6;
-    }
-    .program-btn.soon .prog-name { color: #8A8078; }
-    .program-btn.soon .prog-icon-placeholder { background: #C4BFB6; }
-    .program-btn.soon .prog-icon-placeholder svg { stroke: #9A9490; }
+    .menu-item:active { transform: scale(0.98); box-shadow: none; }
+    .menu-item.soon { opacity: 0.46; pointer-events: none; }
 
-    .prog-icon-placeholder { width:36px; height:36px; border-radius:9px; background:var(--line); display:flex; align-items:center; justify-content:center; }
-    .prog-icon-placeholder svg { width:16px; height:16px; stroke:var(--ink-faint); fill:none; stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
-    .prog-name { font-family:'Baloo 2',sans-serif; font-size:13px; font-weight:700; color:var(--ink); line-height:1.2; }
-    .prog-arrow { position:absolute; bottom:12px; right:12px; }
-    .prog-arrow svg { width:13px; height:13px; stroke:var(--ink-faint); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-    .badge-soon-label { position:absolute; bottom:10px; right:10px; font-size:9px; font-weight:700; background:#B8B3AA; color:#6A6560; padding:2px 8px; border-radius:20px; }
+    .menu-icon-wrap { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .menu-icon-wrap svg { width: 24px; height: 24px; }
+    .bg-blue   { background: #EAF3FB; }
+    .bg-yellow { background: #FFF8DC; }
+    .bg-green  { background: #E6F7EE; }
+    .bg-purple { background: #EEE9FF; }
+    .bg-gray   { background: #F2F4F6; }
+
+    .menu-info { flex: 1; }
+    .menu-info h3 { font-size: 15px; font-weight: 700; color: var(--ink); letter-spacing: -0.2px; }
+    .menu-info p { font-size: 12px; color: var(--ink-faint); margin-top: 2px; }
+    .menu-arrow { flex-shrink: 0; }
+    .menu-arrow svg { width: 16px; height: 16px; color: var(--ink-faint); }
+
+    .badge-soon {
+      font-size: 10px; font-weight: 700; background: #FFF3CD; color: #856404;
+      padding: 3px 10px; border-radius: 20px; border: 1px solid #FFE08A;
+      white-space: nowrap; flex-shrink: 0;
+    }
 
     /* ── COMING PANEL ── */
-    .coming-panel { background:var(--white); border:1.5px solid var(--line); border-radius:var(--radius-sm); padding:36px 20px; text-align:center; box-shadow:var(--shadow-sm); }
-    .coming-panel svg { width:40px; height:40px; stroke:var(--ink-faint); fill:none; stroke-width:1.5; margin:0 auto 12px; display:block; }
-    .coming-panel h3 { font-family:'Baloo 2',sans-serif; font-size:16px; font-weight:800; color:var(--ink); margin-bottom:6px; }
-    .coming-panel p { font-size:12px; color:var(--ink-faint); }
+    .coming-panel {
+      background: var(--white); border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      padding: 40px 20px; text-align: center; box-shadow: var(--shadow-card);
+    }
+    .coming-panel svg { width: 42px; height: 42px; stroke: var(--ink-faint); fill: none; stroke-width: 1.5; margin: 0 auto 14px; display: block; }
+    .coming-panel h3 { font-family: 'Rubik', sans-serif; font-size: 16px; font-weight: 700; color: var(--ink); margin-bottom: 6px; }
+    .coming-panel p { font-size: 12px; color: var(--ink-faint); line-height: 1.6; }
 
-    footer { text-align:center; padding:0 16px 36px; font-size:11px; color:var(--ink-faint); background:var(--paper); }
+    footer { text-align: center; padding: 0 16px 40px; font-size: 11px; color: var(--ink-faint); background: var(--white); }
 
     /* ── BOTTOM SHEET ── */
-    .sheet-overlay { position:fixed; inset:0; z-index:100; background:rgba(28,43,58,0.45); opacity:0; pointer-events:none; transition:opacity 0.3s; }
-    .sheet-overlay.open { opacity:1; pointer-events:all; }
-    .sheet { position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%); width:100%; max-width:480px; background:var(--white); border-radius:24px 24px 0 0; padding-bottom:44px; z-index:101; transition:transform 0.35s cubic-bezier(0.32,0.72,0,1); box-shadow:0 -8px 40px rgba(28,43,58,0.18); }
-    .sheet-handle { width:36px; height:4px; border-radius:99px; background:#D0CCC6; margin:12px auto 0; cursor:grab; }
-    .sheet-header { padding:16px 20px 12px; border-bottom:1px solid var(--line); }
-    .sheet-title { font-family:'Baloo 2',sans-serif; font-size:16px; font-weight:800; color:var(--ink); }
-    .sheet-sub { font-size:11px; color:var(--ink-faint); margin-top:2px; }
-    .level-list { padding:14px 16px 0; display:flex; flex-direction:column; gap:10px; }
-    .level-item { display:flex; align-items:center; gap:14px; background:var(--white); border:1.5px solid var(--line); border-radius:var(--radius-sm); padding:14px 16px; text-decoration:none; color:var(--ink); box-shadow:var(--shadow-sm); transition:transform 0.12s; touch-action:manipulation; }
-    .level-item:active { transform:scale(0.98); }
-    .level-item.soon { background:#D8D4CC; border-color:#C4BFB6; pointer-events:none; cursor:default; }
-    .level-badge { width:42px; height:42px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-family:'Baloo 2',sans-serif; font-size:15px; font-weight:800; flex-shrink:0; }
-    .lv1 { background:#E6F4EA; color:#2E7D32; }
-    .lv2,.lv3,.lv4 { background:#C4BFB6; color:#8A8078; }
-    .level-info { flex:1; }
-    .level-name { font-family:'Baloo 2',sans-serif; font-size:14px; font-weight:700; color:var(--ink); }
-    .level-item.soon .level-name { color:#8A8078; }
-    .level-desc { font-size:11px; color:var(--ink-faint); margin-top:2px; }
-    .level-item.soon .level-desc { color:#A09890; }
-    .level-arrow svg { width:14px; height:14px; stroke:var(--ink-faint); fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-    .level-soon-badge { font-size:9px; font-weight:700; background:#B8B3AA; color:#6A6560; padding:2px 8px; border-radius:20px; flex-shrink:0; }
+    .sheet-overlay { position: fixed; inset: 0; z-index: 100; background: rgba(28,43,58,0.5); opacity: 0; pointer-events: none; transition: opacity 0.3s; backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px); }
+    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+    .sheet { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%) translateY(102%); width: 100%; max-width: 480px; background: var(--white); border-radius: 26px 26px 0 0; padding-bottom: 40px; z-index: 101; transition: transform 0.38s cubic-bezier(0.32,0.72,0,1); box-shadow: 0 -8px 48px rgba(28,43,58,0.20); }
+    .sheet.open { transform: translateX(-50%) translateY(0); }
+    .sheet-handle { width: 38px; height: 4px; border-radius: 99px; background: #D0CCC6; margin: 14px auto 0; }
+    .sheet-header { padding: 18px 20px 14px; border-bottom: 1px solid var(--border); }
+    .sheet-title { font-family: 'Rubik', sans-serif; font-size: 17px; font-weight: 700; color: var(--ink); }
+    .sheet-sub { font-size: 11px; color: var(--ink-faint); margin-top: 3px; }
+    .level-list { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 10px; }
+    .level-item { display: flex; align-items: center; gap: 14px; background: var(--white); border: 1px solid var(--border); border-radius: var(--radius-sm); padding: 14px 16px; text-decoration: none; color: var(--ink); box-shadow: var(--shadow-card); transition: transform 0.12s; touch-action: manipulation; }
+    .level-item:active { transform: scale(0.98); }
+    .level-item.soon { opacity: 0.46; pointer-events: none; }
+    .level-badge { width: 44px; height: 44px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-family: 'Rubik', sans-serif; font-size: 15px; font-weight: 700; flex-shrink: 0; }
+    .lv1 { background: #E6F7EE; color: var(--green); }
+    .lv2, .lv3, .lv4 { background: #F2F4F6; color: #8A8078; }
+    .level-info { flex: 1; }
+    .level-name { font-family: 'Rubik', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); }
+    .level-desc { font-size: 11px; color: var(--ink-faint); margin-top: 2px; line-height: 1.5; }
+    .level-arrow svg { width: 14px; height: 14px; stroke: var(--ink-faint); fill: none; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; }
+    .level-soon-badge { font-size: 9px; font-weight: 700; background: #FFF3CD; color: #856404; padding: 2px 9px; border-radius: 20px; border: 1px solid #FFE08A; flex-shrink: 0; font-family: 'Rubik', sans-serif; }
   </style>
 </head>
 <body>
+<div class="page">
 
-<div class="page" id="page">
-
+  <!-- HEADER -->
   <div class="header">
-    <div class="hbs-1"></div><div class="hbs-2"></div>
+    <div class="header-bg"></div>
+    <img class="mascot" src="learning_hub_img.png" alt="Maskot" />
     <div class="header-inner">
-      <a class="back-btn" href="index.html">
-        <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      </a>
-      <div>
-        <div class="header-title">Learning Hub</div>
+      <div class="header-top">
+        <img class="header-logo" src="Open_MB_Icon.png" alt="Markaz Belajar" />
+      </div>
+      <div class="header-spacer"></div>
+      <div class="header-text">
+        <div class="header-title">Learning<br>Hub</div>
         <div class="header-sub">Activity, Achievement & Curriculum</div>
       </div>
     </div>
   </div>
 
-  <!-- TAB BAR -->
-  <div class="tabs-wrap" id="tabBar">
-    <button class="tab-btn active" onclick="goTab(0)">Activity</button>
-    <button class="tab-btn"        onclick="goTab(1)">Achievement</button>
-    <button class="tab-btn"        onclick="goTab(2)">Curriculum</button>
+  <!-- TAB BAR glass -->
+  <div class="tabs-wrap">
+    <div class="tab-bar-pill">
+      <button class="tab-btn active" onclick="goTab(0)">Activity</button>
+      <button class="tab-btn"        onclick="goTab(1)">Achievement</button>
+      <button class="tab-btn"        onclick="goTab(2)">Curriculum</button>
+    </div>
   </div>
 
   <!-- SLIDER -->
@@ -179,88 +183,110 @@
 
       <!-- SLIDE 0: Activity -->
       <div class="slide">
-        <div class="program-section">
-          <div class="program-title">Preschool <span class="program-title-badge badge-pre">Pre</span></div>
-          <div class="program-grid">
-            <button class="program-btn" onclick="openSheet()">
-              <div class="prog-icon-placeholder"><svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
-              <div class="prog-name">Calistung</div>
-              <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-            </button>
-            <div class="program-btn soon">
-              <div class="prog-icon-placeholder"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-              <div class="prog-name">English Kids</div>
-              <span class="badge-soon-label">Soon</span>
-            </div>
-            <div class="program-btn soon">
-              <div class="prog-icon-placeholder"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-              <div class="prog-name">Tahfidz</div>
-              <span class="badge-soon-label">Soon</span>
-            </div>
-          </div>
-        </div>
+        <div class="content-card">
 
-        <div class="program-section">
-          <div class="program-title">Elementary <span class="program-title-badge badge-ele">Ele</span></div>
-          <div class="program-grid">
-            <div class="program-btn soon">
-              <div class="prog-icon-placeholder"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
-              <div class="prog-name">Maple</div>
-              <span class="badge-soon-label">Soon</span>
+          <div class="section-title">Preschool</div>
+          <div class="menu-list">
+            <button class="menu-item" onclick="openSheet('calistung')">
+              <div class="menu-icon-wrap bg-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+              </div>
+              <div class="menu-info"><h3>Calistung</h3><p>Membaca, menulis & berhitung</p></div>
+              <div class="menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
+            </button>
+            <div class="menu-item soon">
+              <div class="menu-icon-wrap bg-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#7C5CBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="menu-info"><h3>English Kids</h3><p>Percakapan & kosakata dasar</p></div>
+              <span class="badge-soon">Soon</span>
             </div>
-            <div class="program-btn soon">
-              <div class="prog-icon-placeholder"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
-              <div class="prog-name">Math</div>
-              <span class="badge-soon-label">Soon</span>
-            </div>
-            <div class="program-btn soon">
-              <div class="prog-icon-placeholder"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
-              <div class="prog-name">English</div>
-              <span class="badge-soon-label">Soon</span>
-            </div>
-            <div class="program-btn soon">
-              <div class="prog-icon-placeholder"><svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg></div>
-              <div class="prog-name">Tahfidz</div>
-              <span class="badge-soon-label">Soon</span>
+            <div class="menu-item soon">
+              <div class="menu-icon-wrap bg-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div class="menu-info"><h3>Tahfidz</h3><p>Hafalan Al-Qur'an</p></div>
+              <span class="badge-soon">Soon</span>
             </div>
           </div>
+
+          <div class="section-divider"></div>
+
+          <div class="section-title">Elementary</div>
+          <div class="menu-list">
+            <div class="menu-item soon">
+              <div class="menu-icon-wrap bg-yellow">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#F59F00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+              </div>
+              <div class="menu-info"><h3>Maple</h3><p>Program kurikulum Maple</p></div>
+              <span class="badge-soon">Soon</span>
+            </div>
+            <div class="menu-item soon">
+              <div class="menu-icon-wrap bg-blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+              </div>
+              <div class="menu-info"><h3>Math</h3><p>Matematika SD</p></div>
+              <span class="badge-soon">Soon</span>
+            </div>
+            <div class="menu-item soon">
+              <div class="menu-icon-wrap bg-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#7C5CBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              </div>
+              <div class="menu-info"><h3>English</h3><p>Bahasa Inggris SD</p></div>
+              <span class="badge-soon">Soon</span>
+            </div>
+            <div class="menu-item soon">
+              <div class="menu-icon-wrap bg-green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+              </div>
+              <div class="menu-info"><h3>Tahfidz</h3><p>Hafalan Al-Qur'an</p></div>
+              <span class="badge-soon">Soon</span>
+            </div>
+          </div>
+
         </div>
       </div>
 
       <!-- SLIDE 1: Achievement -->
       <div class="slide">
-        <div class="coming-panel">
-          <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
-          <h3>Achievement System</h3>
-          <p>Coming soon — student achievement tracking</p>
+        <div class="content-card">
+          <div class="coming-panel">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
+            <h3>Achievement System</h3>
+            <p>Coming soon — student achievement tracking</p>
+          </div>
         </div>
       </div>
 
       <!-- SLIDE 2: Curriculum -->
       <div class="slide">
-        <div class="coming-panel">
-          <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          <h3>Curriculum</h3>
-          <p>Coming soon — learning materials & guides</p>
+        <div class="content-card">
+          <div class="coming-panel">
+            <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <h3>Curriculum</h3>
+            <p>Coming soon — learning materials & guides</p>
+          </div>
         </div>
       </div>
 
-    </div><!-- /slider-track -->
-  </div><!-- /slider-wrap -->
+    </div>
+  </div>
 
   <footer>© 2026 Markaz Belajar. All rights reserved.</footer>
 </div>
 
-<!-- LEVEL BOTTOM SHEET -->
+<!-- OVERLAY -->
 <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
-<div class="sheet" id="levelSheet">
+
+<!-- SHEET: CALISTUNG -->
+<div class="sheet" id="sheetCalistung">
   <div class="sheet-handle"></div>
   <div class="sheet-header">
     <div class="sheet-title">Calistung — Pilih Level</div>
     <div class="sheet-sub">Preschool · 4 Level tersedia</div>
   </div>
   <div class="level-list">
-    <a class="level-item" href="https://markaz-belajar.github.io/app/act.cal.l1.html">
+    <a class="level-item" href="act.cal.l1.html">
       <div class="level-badge lv1">L1</div>
       <div class="level-info">
         <div class="level-name">Level 1 — Foundation</div>
@@ -270,36 +296,27 @@
     </a>
     <div class="level-item soon">
       <div class="level-badge lv2">L2</div>
-      <div class="level-info">
-        <div class="level-name">Level 2 — Developing</div>
-        <div class="level-desc">Konsonan, angka 6–10, membaca suku kata</div>
-      </div>
+      <div class="level-info"><div class="level-name">Level 2 — Developing</div><div class="level-desc">Konsonan, angka 6–10, membaca suku kata</div></div>
       <span class="level-soon-badge">Soon</span>
     </div>
     <div class="level-item soon">
       <div class="level-badge lv3">L3</div>
-      <div class="level-info">
-        <div class="level-name">Level 3 — Emerging</div>
-        <div class="level-desc">Membaca kata, menulis, penjumlahan</div>
-      </div>
+      <div class="level-info"><div class="level-name">Level 3 — Emerging</div><div class="level-desc">Membaca kata, menulis, penjumlahan</div></div>
       <span class="level-soon-badge">Soon</span>
     </div>
     <div class="level-item soon">
       <div class="level-badge lv4">L4</div>
-      <div class="level-info">
-        <div class="level-name">Level 4 — Advanced</div>
-        <div class="level-desc">Membaca kalimat, menulis mandiri, berhitung</div>
-      </div>
+      <div class="level-info"><div class="level-name">Level 4 — Advanced</div><div class="level-desc">Membaca kalimat, menulis mandiri, berhitung</div></div>
       <span class="level-soon-badge">Soon</span>
     </div>
   </div>
 </div>
 
 <script>
-  const track    = document.getElementById('sliderTrack');
-  const tabBtns  = document.querySelectorAll('.tab-btn');
-  const TABS     = 3;
-  let current    = 0;
+  const track   = document.getElementById('sliderTrack');
+  const tabBtns = document.querySelectorAll('.tab-btn');
+  const TABS    = 3;
+  let current   = 0;
 
   function goTab(idx, animate = true) {
     current = Math.max(0, Math.min(TABS - 1, idx));
@@ -308,60 +325,47 @@
     tabBtns.forEach((b, i) => b.classList.toggle('active', i === current));
   }
 
-  /* ── SWIPE ── */
   (function() {
     const wrap = document.getElementById('sliderWrap');
     let startX = 0, startY = 0, dragging = false, dragDelta = 0;
-
-    wrap.addEventListener('touchstart', e => {
-      startX   = e.touches[0].clientX;
-      startY   = e.touches[0].clientY;
-      dragging = false;
-      dragDelta = 0;
-    }, { passive: true });
-
+    wrap.addEventListener('touchstart', e => { startX = e.touches[0].clientX; startY = e.touches[0].clientY; dragging = false; dragDelta = 0; }, { passive: true });
     wrap.addEventListener('touchmove', e => {
       const dx = e.touches[0].clientX - startX;
       const dy = Math.abs(e.touches[0].clientY - startY);
       if (!dragging && Math.abs(dx) > dy && Math.abs(dx) > 8) dragging = true;
       if (!dragging) return;
       dragDelta = dx;
-      /* live drag — no transition, instant follow finger */
       track.style.transition = 'none';
-      const base = current * 100;
-      const pct  = (dragDelta / wrap.offsetWidth) * 100;
-      track.style.transform  = `translateX(calc(-${base}% + ${dragDelta}px))`;
+      track.style.transform  = `translateX(calc(-${current * 100}% + ${dx}px))`;
     }, { passive: true });
-
-    wrap.addEventListener('touchend', e => {
+    wrap.addEventListener('touchend', () => {
       if (!dragging) return;
-      if (dragDelta < -50 && current < TABS - 1) goTab(current + 1);
-      else if (dragDelta > 50 && current > 0)    goTab(current - 1);
-      else                                        goTab(current); /* snap back */
-      dragging  = false;
-      dragDelta = 0;
+      if      (dragDelta < -50 && current < TABS - 1) goTab(current + 1);
+      else if (dragDelta >  50 && current > 0)        goTab(current - 1);
+      else                                             goTab(current);
+      dragging = false; dragDelta = 0;
     }, { passive: true });
   })();
 
-  /* ── BOTTOM SHEET ── */
-  const sheet   = document.getElementById('levelSheet');
   const overlay = document.getElementById('sheetOverlay');
+  let activeSheet = null;
 
-  function openSheet() {
-    sheet.style.transition  = 'transform 0.35s cubic-bezier(0.32,0.72,0,1)';
-    sheet.style.transform   = 'translateX(-50%) translateY(0)';
+  function openSheet(program) {
+    const id = 'sheet' + program.charAt(0).toUpperCase() + program.slice(1);
+    const sheet = document.getElementById(id);
+    if (!sheet) return;
+    activeSheet = sheet;
     overlay.classList.add('open');
+    sheet.classList.add('open');
     document.body.style.overflow = 'hidden';
   }
 
   function closeSheet() {
-    sheet.style.transform   = 'translateX(-50%) translateY(100%)';
+    if (activeSheet) activeSheet.classList.remove('open');
     overlay.classList.remove('open');
     document.body.style.overflow = '';
+    activeSheet = null;
   }
-
-  overlay.addEventListener('click', closeSheet);
 </script>
-
 </body>
 </html>
