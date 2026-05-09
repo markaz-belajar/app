@@ -351,15 +351,57 @@
     document.body.style.overflow = 'hidden';
   }
   function closeSheet() {
-    document.getElementById('sheetOverlay').classList.remove('open');
-    document.getElementById('levelSheet').classList.remove('open');
+    const sheet   = document.getElementById('levelSheet');
+    const overlay = document.getElementById('sheetOverlay');
+    sheet.style.transition   = 'transform 0.35s cubic-bezier(0.32,0.72,0,1)';
+    overlay.style.transition = 'opacity 0.35s';
+    sheet.style.transform    = 'translateX(-50%) translateY(100%)';
+    overlay.style.opacity    = '0';
+    setTimeout(() => {
+      sheet.classList.remove('open');
+      overlay.classList.remove('open');
+      /* reset inline styles */
+      sheet.style.transform  = '';
+      overlay.style.opacity  = '';
+      overlay.style.transition = '';
+    }, 360);
     document.body.style.overflow = '';
   }
   (function() {
-    const sheet = document.getElementById('levelSheet');
-    let sy = 0;
-    sheet.addEventListener('touchstart', e => { sy = e.touches[0].clientY; }, { passive: true });
-    sheet.addEventListener('touchend',   e => { if (e.changedTouches[0].clientY - sy > 60) closeSheet(); }, { passive: true });
+    const sheet   = document.getElementById('levelSheet');
+    const overlay = document.getElementById('sheetOverlay');
+    let sy = 0, dragging = false;
+
+    sheet.addEventListener('touchstart', e => {
+      sy       = e.touches[0].clientY;
+      dragging = true;
+      sheet.style.transition = 'none';
+    }, { passive: true });
+
+    sheet.addEventListener('touchmove', e => {
+      if (!dragging) return;
+      const dy = e.touches[0].clientY - sy;
+      if (dy < 0) return; /* jangan naik ke atas */
+      sheet.style.transform  = `translateX(-50%) translateY(${dy}px)`;
+      /* fade overlay sesuai drag */
+      const pct = Math.min(dy / 300, 1);
+      overlay.style.opacity  = 1 - pct;
+    }, { passive: true });
+
+    sheet.addEventListener('touchend', e => {
+      if (!dragging) return;
+      dragging = false;
+      const dy = e.changedTouches[0].clientY - sy;
+      sheet.style.transition = 'transform 0.35s cubic-bezier(0.32,0.72,0,1)';
+      overlay.style.transition = 'opacity 0.35s';
+      if (dy > 100) {
+        closeSheet();
+      } else {
+        /* snap balik */
+        sheet.style.transform  = 'translateX(-50%) translateY(0)';
+        overlay.style.opacity  = '1';
+      }
+    }, { passive: true });
   })();
 </script>
 
