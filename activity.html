@@ -13,9 +13,6 @@
 
     :root {
       --blue: #1B6CA8;
-      --yellow: #f3d565;
-      --green: #2E9E5B;
-      --purple: #7C5CBF;
       --paper: #FDFAF4;
       --line: #EDE9DF;
       --ink: #1C2B3A;
@@ -32,6 +29,7 @@
       background: #E9EEF3;
       min-height: 100vh;
       color: var(--ink);
+      overflow-x: hidden;
     }
 
     .page {
@@ -40,6 +38,7 @@
       background: var(--paper);
       min-height: 100vh;
       overflow-x: hidden;
+      touch-action: pan-y;
     }
 
     /* HEADER */
@@ -52,138 +51,65 @@
       padding: 20px 20px 52px;
       display: flex; align-items: center; gap: 14px;
     }
-
     .back-btn {
       width: 36px; height: 36px; border-radius: 10px;
-      background: rgba(255,255,255,0.15);
-      border: none; cursor: pointer;
+      background: rgba(255,255,255,0.15); border: none; cursor: pointer;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0;
-      text-decoration: none;
+      flex-shrink: 0; text-decoration: none;
     }
     .back-btn svg { width: 18px; height: 18px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-
-    .header-title {
-      font-family: 'Baloo 2', sans-serif;
-      font-size: 18px; font-weight: 800; color: #fff;
-    }
+    .header-title { font-family: 'Baloo 2', sans-serif; font-size: 18px; font-weight: 800; color: #fff; }
     .header-sub { font-size: 11px; color: rgba(255,255,255,0.65); margin-top: 1px; }
 
     /* TABS */
     .tabs-wrap {
       margin: 0 16px; margin-top: -28px;
       position: relative; z-index: 10;
-      background: var(--white);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      display: flex;
-      overflow: hidden;
+      background: var(--white); border-radius: var(--radius);
+      box-shadow: var(--shadow); display: flex; overflow: hidden;
+      touch-action: pan-y;
     }
-
     .tab-btn {
-      flex: 1; padding: 14px 10px;
-      border: none; background: transparent;
-      font-family: 'Baloo 2', sans-serif;
-      font-size: 13px; font-weight: 700;
-      color: var(--ink-faint);
-      cursor: pointer;
-      transition: all 0.2s;
-      border-bottom: 2px solid transparent;
+      flex: 1; padding: 14px 10px; border: none; background: transparent;
+      font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 700;
+      color: var(--ink-faint); cursor: pointer; transition: all 0.2s;
+      border-bottom: 2px solid transparent; touch-action: manipulation;
     }
+    .tab-btn.active { color: var(--blue); border-bottom-color: var(--blue); background: #F0F7FF; }
+    .tab-btn.coming { opacity: 0.7; cursor: pointer; }
 
-    .tab-btn.active {
-      color: var(--blue);
-      border-bottom-color: var(--blue);
-      background: #F0F7FF;
-    }
+    main { padding: 20px 16px 48px; touch-action: pan-y; }
 
-    /* CONTENT */
-    main { padding: 20px 16px 48px; }
-
-    .section-label {
-      font-size: 10px; font-weight: 600; color: var(--ink-faint);
-      letter-spacing: 1px; text-transform: uppercase;
-      margin: 0 4px 12px;
-    }
-
-    /* SUB TABS */
-    .sub-tabs {
-      display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
-    }
-
-    .sub-tab {
-      padding: 6px 14px; border-radius: 50px;
-      border: 1.5px solid var(--line);
-      background: var(--white);
-      font-size: 12px; font-weight: 600;
-      color: var(--ink-faint);
-      cursor: pointer; transition: all 0.15s;
-    }
-
-    .sub-tab.active {
-      background: var(--blue); color: #fff;
-      border-color: var(--blue);
-    }
-
-    .sub-tab.coming {
-      opacity: 0.45; cursor: default; pointer-events: none;
-    }
-
-    /* PROGRAM GRID */
     .program-section { margin-bottom: 24px; }
-
     .program-title {
-      font-family: 'Baloo 2', sans-serif;
-      font-size: 14px; font-weight: 800;
+      font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 800;
       color: var(--ink); margin-bottom: 10px;
       display: flex; align-items: center; gap: 8px;
     }
-
-    .program-title-badge {
-      font-size: 10px; font-weight: 600;
-      padding: 2px 8px; border-radius: 20px;
-    }
-
+    .program-title-badge { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 20px; }
     .badge-pre { background: #FFF8DC; color: #8B6914; border: 1px solid #EDE0A0; }
     .badge-ele { background: #E8F4FD; color: var(--blue); border: 1px solid #BDD9F0; }
 
-    .program-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-    }
+    .program-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
 
     .program-btn {
-      background: var(--white);
-      border: 1.5px solid var(--line);
-      border-radius: var(--radius-sm);
-      padding: 18px 14px 16px;
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 10px;
-      text-decoration: none;
-      color: var(--ink);
-      box-shadow: var(--shadow-sm);
+      background: var(--white); border: 1.5px solid var(--line);
+      border-radius: var(--radius-sm); padding: 18px 14px 16px;
+      display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+      text-decoration: none; color: var(--ink); box-shadow: var(--shadow-sm);
       transition: transform 0.13s, box-shadow 0.13s;
-      cursor: pointer;
-      min-height: 100px;
-      position: relative;
+      cursor: pointer; min-height: 100px; position: relative;
+      touch-action: manipulation; font-family: inherit;
+      -webkit-appearance: none; text-align: left;
     }
-
     .program-btn:active { transform: scale(0.97); box-shadow: none; }
 
     .program-btn.soon {
-      opacity: 1;
-      cursor: default;
-      pointer-events: none;
-      background: #D8D4CC;
-      border-color: #C4BFB6;
+      opacity: 1; cursor: default; pointer-events: none;
+      background: #D8D4CC; border-color: #C4BFB6;
     }
     .program-btn.soon .prog-name { color: #8A8078; }
-    .program-btn.soon .prog-icon-placeholder {
-      background: #C4BFB6;
-    }
+    .program-btn.soon .prog-icon-placeholder { background: #C4BFB6; }
     .program-btn.soon .prog-icon-placeholder svg { stroke: #9A9490; }
 
     .badge-soon-label {
@@ -191,52 +117,98 @@
       font-size: 9px; font-weight: 700;
       background: #B8B3AA; color: #6A6560;
       padding: 2px 8px; border-radius: 20px;
-      letter-spacing: 0.3px;
-    }
-
-    .prog-icon {
-      width: 36px; height: 36px; border-radius: 9px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 18px;
     }
 
     .prog-icon-placeholder {
       width: 36px; height: 36px; border-radius: 9px;
-      background: var(--line);
-      display: flex; align-items: center; justify-content: center;
+      background: var(--line); display: flex; align-items: center; justify-content: center;
     }
     .prog-icon-placeholder svg { width: 16px; height: 16px; stroke: var(--ink-faint); fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
-
-    .prog-name {
-      font-family: 'Baloo 2', sans-serif;
-      font-size: 13px; font-weight: 700;
-      color: var(--ink); line-height: 1.2;
-    }
-
-    .prog-arrow {
-      position: absolute; bottom: 12px; right: 12px;
-    }
+    .prog-name { font-family: 'Baloo 2', sans-serif; font-size: 13px; font-weight: 700; color: var(--ink); line-height: 1.2; }
+    .prog-arrow { position: absolute; bottom: 12px; right: 12px; }
     .prog-arrow svg { width: 13px; height: 13px; stroke: var(--ink-faint); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
 
-    /* COMING SOON PANEL */
     .coming-panel {
-      background: var(--white);
-      border: 1.5px solid var(--line);
-      border-radius: var(--radius-sm);
-      padding: 36px 20px;
-      text-align: center;
-      box-shadow: var(--shadow-sm);
+      background: var(--white); border: 1.5px solid var(--line);
+      border-radius: var(--radius-sm); padding: 36px 20px;
+      text-align: center; box-shadow: var(--shadow-sm);
     }
-    .coming-panel svg { width: 40px; height: 40px; stroke: var(--ink-faint); fill: none; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; margin-bottom: 12px; }
+    .coming-panel svg { width: 40px; height: 40px; stroke: var(--ink-faint); fill: none; stroke-width: 1.5; margin-bottom: 12px; display: block; margin-left: auto; margin-right: auto; }
     .coming-panel h3 { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 800; color: var(--ink); margin-bottom: 6px; }
     .coming-panel p { font-size: 12px; color: var(--ink-faint); }
 
     .tab-content { display: none; }
     .tab-content.active { display: block; }
 
-    footer {
-      text-align: center; padding: 0 16px 36px;
-      font-size: 11px; color: var(--ink-faint);
+    footer { text-align: center; padding: 0 16px 36px; font-size: 11px; color: var(--ink-faint); }
+
+    /* ── LEVEL BOTTOM SHEET ── */
+    .sheet-overlay {
+      position: fixed; inset: 0; z-index: 100;
+      background: rgba(28,43,58,0.45);
+      opacity: 0; pointer-events: none;
+      transition: opacity 0.3s;
+    }
+    .sheet-overlay.open { opacity: 1; pointer-events: all; }
+
+    .sheet {
+      position: fixed; bottom: 0; left: 50%;
+      transform: translateX(-50%) translateY(100%);
+      width: 100%; max-width: 480px;
+      background: var(--white);
+      border-radius: 24px 24px 0 0;
+      padding-bottom: 44px;
+      z-index: 101;
+      transition: transform 0.35s cubic-bezier(0.32,0.72,0,1);
+      box-shadow: 0 -8px 40px rgba(28,43,58,0.18);
+    }
+    .sheet.open { transform: translateX(-50%) translateY(0); }
+
+    .sheet-handle {
+      width: 36px; height: 4px; border-radius: 99px;
+      background: #D0CCC6; margin: 12px auto 0;
+    }
+    .sheet-header { padding: 16px 20px 12px; border-bottom: 1px solid var(--line); }
+    .sheet-title { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 800; color: var(--ink); }
+    .sheet-sub { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+
+    .level-list { padding: 14px 16px 0; display: flex; flex-direction: column; gap: 10px; }
+
+    .level-item {
+      display: flex; align-items: center; gap: 14px;
+      background: var(--white); border: 1.5px solid var(--line);
+      border-radius: var(--radius-sm); padding: 14px 16px;
+      text-decoration: none; color: var(--ink);
+      box-shadow: var(--shadow-sm);
+      transition: transform 0.12s;
+      touch-action: manipulation;
+    }
+    .level-item:active { transform: scale(0.98); }
+    .level-item.soon {
+      background: #D8D4CC; border-color: #C4BFB6;
+      pointer-events: none; cursor: default;
+    }
+
+    .level-badge {
+      width: 42px; height: 42px; border-radius: 12px;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 800;
+      flex-shrink: 0;
+    }
+    .lv1 { background: #E6F4EA; color: #2E7D32; }
+    .lv2, .lv3, .lv4 { background: #C4BFB6; color: #8A8078; }
+
+    .level-info { flex: 1; }
+    .level-name { font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 700; color: var(--ink); }
+    .level-item.soon .level-name { color: #8A8078; }
+    .level-desc { font-size: 11px; color: var(--ink-faint); margin-top: 2px; }
+    .level-item.soon .level-desc { color: #A09890; }
+
+    .level-arrow svg { width: 14px; height: 14px; stroke: var(--ink-faint); fill: none; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+    .level-soon-badge {
+      font-size: 9px; font-weight: 700;
+      background: #B8B3AA; color: #6A6560;
+      padding: 2px 8px; border-radius: 20px; flex-shrink: 0;
     }
   </style>
 </head>
@@ -258,19 +230,16 @@
       </div>
     </div>
 
-    <!-- TABS -->
     <div class="tabs-wrap">
-      <button class="tab-btn active" onclick="switchTab('activity')">Activity</button>
-      <button class="tab-btn coming" onclick="switchTab('achievement')">Achievement</button>
-      <button class="tab-btn coming" onclick="switchTab('curriculum')">Curriculum</button>
+      <button class="tab-btn active" onclick="switchTab('activity', this)">Activity</button>
+      <button class="tab-btn coming" onclick="switchTab('achievement', this)">Achievement</button>
+      <button class="tab-btn coming" onclick="switchTab('curriculum', this)">Curriculum</button>
     </div>
 
     <main>
 
-      <!-- ACTIVITY TAB -->
       <div class="tab-content active" id="tab-activity">
 
-        <!-- PRESCHOOL -->
         <div class="program-section">
           <div class="program-title">
             Preschool
@@ -278,35 +247,33 @@
           </div>
           <div class="program-grid">
 
-            <!-- ✅ Calistung → calistung.activity.html -->
-            <a class="program-btn" href="calistung.activity.html">
+            <button class="program-btn" onclick="openSheet()">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
               </div>
               <div class="prog-name">Calistung</div>
               <div class="prog-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
-            </a>
+            </button>
 
-            <a class="program-btn soon" href="#">
+            <div class="program-btn soon">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </div>
               <div class="prog-name">English Kids</div>
               <span class="badge-soon-label">Soon</span>
-            </a>
+            </div>
 
-            <a class="program-btn soon" href="#">
+            <div class="program-btn soon">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
               </div>
               <div class="prog-name">Tahfidz</div>
               <span class="badge-soon-label">Soon</span>
-            </a>
+            </div>
 
           </div>
         </div>
 
-        <!-- ELEMENTARY -->
         <div class="program-section">
           <div class="program-title">
             Elementary
@@ -314,44 +281,43 @@
           </div>
           <div class="program-grid">
 
-            <a class="program-btn soon" href="#">
+            <div class="program-btn soon">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
               </div>
               <div class="prog-name">Maple</div>
               <span class="badge-soon-label">Soon</span>
-            </a>
+            </div>
 
-            <a class="program-btn soon" href="#">
+            <div class="program-btn soon">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
               </div>
               <div class="prog-name">Math</div>
               <span class="badge-soon-label">Soon</span>
-            </a>
+            </div>
 
-            <a class="program-btn soon" href="#">
+            <div class="program-btn soon">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
               </div>
               <div class="prog-name">English</div>
               <span class="badge-soon-label">Soon</span>
-            </a>
+            </div>
 
-            <a class="program-btn soon" href="#">
+            <div class="program-btn soon">
               <div class="prog-icon-placeholder">
                 <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
               </div>
               <div class="prog-name">Tahfidz</div>
               <span class="badge-soon-label">Soon</span>
-            </a>
+            </div>
 
           </div>
         </div>
 
       </div>
 
-      <!-- ACHIEVEMENT TAB -->
       <div class="tab-content" id="tab-achievement">
         <div class="coming-panel">
           <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/></svg>
@@ -360,7 +326,6 @@
         </div>
       </div>
 
-      <!-- CURRICULUM TAB -->
       <div class="tab-content" id="tab-curriculum">
         <div class="coming-panel">
           <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
@@ -372,17 +337,124 @@
     </main>
 
     <footer>© 2026 Markaz Belajar. All rights reserved.</footer>
+  </div>
 
+  <!-- LEVEL BOTTOM SHEET -->
+  <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()"></div>
+  <div class="sheet" id="levelSheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div class="sheet-title">Calistung — Pilih Level</div>
+      <div class="sheet-sub">Preschool · 4 Level tersedia</div>
+    </div>
+    <div class="level-list">
+
+      <a class="level-item" href="https://markaz-belajar.github.io/app/calistung.activity.html">
+        <div class="level-badge lv1">L1</div>
+        <div class="level-info">
+          <div class="level-name">Level 1 — Foundation</div>
+          <div class="level-desc">Vokal, angka 1–5, warna, motorik dasar</div>
+        </div>
+        <div class="level-arrow"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+      </a>
+
+      <div class="level-item soon">
+        <div class="level-badge lv2">L2</div>
+        <div class="level-info">
+          <div class="level-name">Level 2 — Developing</div>
+          <div class="level-desc">Konsonan, angka 6–10, membaca suku kata</div>
+        </div>
+        <span class="level-soon-badge">Soon</span>
+      </div>
+
+      <div class="level-item soon">
+        <div class="level-badge lv3">L3</div>
+        <div class="level-info">
+          <div class="level-name">Level 3 — Emerging</div>
+          <div class="level-desc">Membaca kata, menulis, penjumlahan</div>
+        </div>
+        <span class="level-soon-badge">Soon</span>
+      </div>
+
+      <div class="level-item soon">
+        <div class="level-badge lv4">L4</div>
+        <div class="level-info">
+          <div class="level-name">Level 4 — Advanced</div>
+          <div class="level-desc">Membaca kalimat, menulis mandiri, berhitung</div>
+        </div>
+        <span class="level-soon-badge">Soon</span>
+      </div>
+
+    </div>
   </div>
 
   <script>
-    function switchTab(name) {
-      document.querySelectorAll('.tab-btn').forEach((b, i) => {
-        b.classList.toggle('active', ['activity','achievement','curriculum'][i] === name);
-      });
+    /* TAB SWITCH */
+    const tabNames = ['activity', 'achievement', 'curriculum'];
+    let currentTab = 0;
+
+    function switchTab(name, btn) {
+      currentTab = tabNames.indexOf(name);
+      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+      if (btn) btn.classList.add('active');
+      else document.querySelectorAll('.tab-btn')[currentTab].classList.add('active');
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-      document.getElementById('tab-' + name).classList.add('active');
+      const el = document.getElementById('tab-' + name);
+      if (el) el.classList.add('active');
     }
+
+    /* SWIPE LEFT/RIGHT TO CHANGE TAB */
+    (function() {
+      let startX = 0, startY = 0, moved = false;
+      const page = document.querySelector('.page');
+
+      page.addEventListener('touchstart', e => {
+        startX = e.touches[0].clientX;
+        startY = e.touches[0].clientY;
+        moved = false;
+      }, { passive: true });
+
+      page.addEventListener('touchmove', e => {
+        const dx = Math.abs(e.touches[0].clientX - startX);
+        const dy = Math.abs(e.touches[0].clientY - startY);
+        if (dx > dy && dx > 10) moved = true;
+      }, { passive: true });
+
+      page.addEventListener('touchend', e => {
+        if (!moved) return;
+        const dx = e.changedTouches[0].clientX - startX;
+        if (Math.abs(dx) < 50) return;
+        if (dx < 0 && currentTab < tabNames.length - 1) {
+          // swipe left → next tab
+          switchTab(tabNames[currentTab + 1]);
+        } else if (dx > 0 && currentTab > 0) {
+          // swipe right → prev tab
+          switchTab(tabNames[currentTab - 1]);
+        }
+      }, { passive: true });
+    })();
+
+    /* BOTTOM SHEET */
+    function openSheet() {
+      document.getElementById('sheetOverlay').classList.add('open');
+      document.getElementById('levelSheet').classList.add('open');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeSheet() {
+      document.getElementById('sheetOverlay').classList.remove('open');
+      document.getElementById('levelSheet').classList.remove('open');
+      document.body.style.overflow = '';
+    }
+
+    /* SWIPE DOWN TO CLOSE SHEET */
+    (function() {
+      const sheet = document.getElementById('levelSheet');
+      let sy = 0;
+      sheet.addEventListener('touchstart', e => { sy = e.touches[0].clientY; }, { passive: true });
+      sheet.addEventListener('touchend', e => {
+        if (e.changedTouches[0].clientY - sy > 60) closeSheet();
+      }, { passive: true });
+    })();
   </script>
 
 </body>
