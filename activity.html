@@ -128,7 +128,7 @@
     /* ── BOTTOM SHEET ── */
     .sheet-overlay { position:fixed; inset:0; z-index:100; background:rgba(28,43,58,0.45); opacity:0; pointer-events:none; transition:opacity 0.3s; }
     .sheet-overlay.open { opacity:1; pointer-events:all; }
-    .sheet { position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%); width:100%; max-width:480px; background:var(--white); border-radius:24px 24px 0 0; padding-bottom:44px; z-index:101; box-shadow:0 -8px 40px rgba(28,43,58,0.18); }
+    .sheet { position:fixed; bottom:0; left:50%; transform:translateX(-50%) translateY(100%); width:100%; max-width:480px; background:var(--white); border-radius:24px 24px 0 0; padding-bottom:44px; z-index:101; transition:transform 0.35s cubic-bezier(0.32,0.72,0,1); box-shadow:0 -8px 40px rgba(28,43,58,0.18); }
     .sheet-handle { width:36px; height:4px; border-radius:99px; background:#D0CCC6; margin:12px auto 0; cursor:grab; }
     .sheet-header { padding:16px 20px 12px; border-bottom:1px solid var(--line); }
     .sheet-title { font-family:'Baloo 2',sans-serif; font-size:16px; font-weight:800; color:var(--ink); }
@@ -347,64 +347,20 @@
   const sheet   = document.getElementById('levelSheet');
   const overlay = document.getElementById('sheetOverlay');
 
-  function setSheet(y, animated) {
-    sheet.style.transition = animated ? 'transform 0.35s cubic-bezier(0.32,0.72,0,1)' : 'none';
-    sheet.style.transform  = `translateX(-50%) translateY(${y}px)`;
-  }
-  function setOverlay(opacity, animated) {
-    overlay.style.transition = animated ? 'opacity 0.35s' : 'none';
-    overlay.style.opacity    = opacity;
-  }
-
   function openSheet() {
+    sheet.style.transition  = 'transform 0.35s cubic-bezier(0.32,0.72,0,1)';
+    sheet.style.transform   = 'translateX(-50%) translateY(0)';
     overlay.classList.add('open');
     document.body.style.overflow = 'hidden';
-    /* start from bottom, animate to 0 */
-    setSheet(600, false);
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => { setSheet(0, true); setOverlay(1, true); });
-    });
   }
 
   function closeSheet() {
-    setSheet(600, true);
-    setOverlay(0, true);
+    sheet.style.transform   = 'translateX(-50%) translateY(100%)';
+    overlay.classList.remove('open');
     document.body.style.overflow = '';
-    setTimeout(() => { overlay.classList.remove('open'); setSheet(600, false); }, 360);
   }
 
   overlay.addEventListener('click', closeSheet);
-
-  /* drag to dismiss */
-  (function() {
-    let startY = 0, dragging = false;
-
-    sheet.addEventListener('touchstart', e => {
-      startY   = e.touches[0].clientY;
-      dragging = true;
-      setSheet(0, false); /* disable transition while dragging */
-    }, { passive: true });
-
-    sheet.addEventListener('touchmove', e => {
-      if (!dragging) return;
-      const dy = Math.max(0, e.touches[0].clientY - startY); /* clamp to 0, no upward drag */
-      setSheet(dy, false);
-      const fade = Math.max(0, 1 - dy / 300);
-      setOverlay(fade, false);
-    }, { passive: true });
-
-    sheet.addEventListener('touchend', e => {
-      if (!dragging) return;
-      dragging   = false;
-      const dy   = Math.max(0, e.changedTouches[0].clientY - startY);
-      if (dy > 120) {
-        closeSheet();
-      } else {
-        setSheet(0, true);
-        setOverlay(1, true);
-      }
-    }, { passive: true });
-  })();
 </script>
 
 </body>
