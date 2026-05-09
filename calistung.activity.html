@@ -103,7 +103,7 @@ body {
 .hdr-greeting-badge { background: #E8F4FD; color: #1B6CA8; font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 50px; white-space: nowrap; }
 
 /* ── NAV TABS ── */
-.sticky-nav { position: sticky; top: 0; z-index: 200; }
+.sticky-nav { position: relative; }
 .nav-tabs { padding: 12px 14px 12px; background: var(--hdr-bg); transition: background .3s; }
 .tab-bar-pill { background: rgba(255,255,255,0.18); border-radius: 50px; padding: 4px; display: flex; gap: 2px; border: 1.5px solid rgba(255,255,255,0.2); backdrop-filter: blur(8px); }
 .nav-tab { flex: 1; padding: 9px 0; border: none; background: transparent; border-radius: 50px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.65); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s; }
@@ -112,8 +112,8 @@ body {
 
 /* ── LAYOUT ── */
 .wrap { max-width: 1200px; margin: 0 auto; padding: 16px 14px 40px; }
-.tab-content { display: none; }
-.tab-content.active { display: block; }
+.tab-content { display: none !important; visibility: hidden !important; height: 0 !important; overflow: hidden !important; padding: 0 !important; margin: 0 !important; }
+.tab-content.active { display: block !important; visibility: visible !important; height: auto !important; overflow: visible !important; padding: inherit !important; margin: inherit !important; }
 
 /* ── SECTION ── */
 .sec { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--rl); padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: background .3s, border-color .3s; }
@@ -269,12 +269,340 @@ body {
           Peta Pembelajaran · Bulan 3–6
         </div>
         <div class="legend-wrap">
+          <div class="leg"><div class="leg-dot" style="background:#7F77DD"></div>Bulan 1 – Huruf Vokal</div>
+          <div class="leg"><div class="leg-dot" style="background:#2E9E5B"></div>Bulan 2 – Motorik & Warna</div>
           <div class="leg"><div class="leg-dot" style="background:#1D9E75"></div>Bulan 3 – Diriku</div>
           <div class="leg"><div class="leg-dot" style="background:#378ADD"></div>Bulan 4 – Rumahku</div>
           <div class="leg"><div class="leg-dot" style="background:#EF9F27"></div>Bulan 5 – Sekitarku</div>
           <div class="leg"><div class="leg-dot" style="background:#D4537E"></div>Bulan 6 – Aku Bisa!</div>
         </div>
       </div>
+
+      <!-- ══ BULAN 1 ══ -->
+      <div class="month-section">
+        <div class="month-hdr">
+          <span class="month-badge" style="background:#EEEDFE;color:#534AB7;">Bulan 1</span>
+          <span class="month-name">Huruf Vokal</span>
+        </div>
+        <div class="month-focus">pengenalan huruf vokal · bunyi · nyanyian · puzzle</div>
+
+        <!-- B1-T1 -->
+        <div class="tema-card" id="b1t1">
+          <button class="tema-btn" onclick="toggle('b1t1')">
+            <div class="tema-emoji" style="background:#EEEDFE">🔤</div>
+            <div class="tema-info">
+              <div class="tema-sesi">Sesi 1–2 · 3 & 5 Feb</div>
+              <div class="tema-nama">Matching Alphabet</div>
+              <div class="tema-kosa">mencocokkan bentuk huruf · bunyi vokal · bernyanyi</div>
+            </div>
+            <div class="tema-chevron">▾</div>
+          </button>
+          <div class="tema-body">
+            <div class="sesi-lbl">Sesi 1 · 3 Februari</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas sendiri, duduk melingkar. Doa belajar bersama.</div></div></div>
+              <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Mencocokkan bentuk huruf ke papan puzzle</div><div class="act-desc">Anak mencocokkan potongan huruf vokal A I U E O ke papan puzzle. Fokus pada bentuk huruf secara visual, belum ke bunyi. Guru dampingi tanpa terburu-buru.</div></div></div>
+              <div class="act-item"><div class="act-time">20–35'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik</span><div class="act-name">Pengenalan bunyi huruf vokal</div><div class="act-desc">Guru memperkenalkan bunyi tiap vokal satu per satu: "Ini huruf A, bunyinya Aaa..." Anak mendengarkan dan meniru bunyi. Gunakan kartu bergambar benda yang diawali vokal.</div></div></div>
+              <div class="act-item"><div class="act-time">35–50'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik + gerak</span><div class="act-name">Bernyanyi huruf vokal</div><div class="act-desc">Nyanyikan lagu A I U E O dengan gerakan tangan. Diulang 3x dengan tempo berbeda. Anak mengikuti gerakan sambil menyebutkan huruf.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Anak membereskan puzzle sendiri. Doa penutup bersama, salam pulang.</div></div></div>
+            </div>
+            <div class="act-divider"></div>
+            <div class="sesi-lbl">Sesi 2 · 5 Februari</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, duduk melingkar. Doa belajar. Guru tanya: "Kemarin belajar huruf apa?" Recall singkat.</div></div></div>
+              <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Matching ulang + mandiri</div><div class="act-desc">Anak melakukan puzzle huruf vokal lebih mandiri dari sesi 1. Guru observasi: apakah sudah bisa mencocokkan tanpa bantuan?</div></div></div>
+              <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik</span><div class="act-name">Bunyi + tunjuk huruf</div><div class="act-desc">Guru sebut bunyi vokal, anak menunjuk hurufnya di papan atau kartu. "Mana yang bunyinya Uuu?" Diulang untuk semua vokal.</div></div></div>
+              <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik + gerak</span><div class="act-name">Bernyanyi huruf vokal — versi lebih cepat</div><div class="act-desc">Ulangi lagu A I U E O dari sesi 1, kali ini tempo lebih cepat. Variasi: guru diam di satu huruf, anak melanjutkan.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres puzzle, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="obs-box">
+              <div class="obs-title">Catatan observasi guru</div>
+              <div class="obs-item">Apakah bisa mencocokkan huruf vokal ke papan tanpa bantuan?</div>
+              <div class="obs-item">Apakah mengikuti bunyi vokal saat guru memperagakan?</div>
+              <div class="obs-item">Apakah antusias mengikuti lagu dan gerakan?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B1-T2 -->
+        <div class="tema-card" id="b1t2">
+          <button class="tema-btn" onclick="toggle('b1t2')">
+            <div class="tema-emoji" style="background:#EEEDFE">🔍</div>
+            <div class="tema-info">
+              <div class="tema-sesi">Sesi 3–4 · 10 & 12 Feb</div>
+              <div class="tema-nama">Hunt Alphabet</div>
+              <div class="tema-kosa">bentuk huruf · benda vokal · mencari huruf</div>
+            </div>
+            <div class="tema-chevron">▾</div>
+          </button>
+          <div class="tema-body">
+            <div class="sesi-lbl">Sesi 3 · 10 Februari</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama. Guru tanya: "Siapa yang ingat huruf vokal?"</div></div></div>
+              <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Mencocokkan bentuk huruf vokal</div><div class="act-desc">Lanjutan matching tapi dengan variasi baru — huruf dicetak di kertas, anak mencocokkan ke kartu referensi. Lebih abstrak dari puzzle 3D sebelumnya.</div></div></div>
+              <div class="act-item"><div class="act-time">20–35'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik</span><div class="act-name">Pengenalan bentuk huruf vokal</div><div class="act-desc">Guru tunjukkan bentuk tiap huruf vokal satu per satu. Anak menelusuri bentuk huruf dengan jari di atas kertas bertekstur. "Huruf A bentuknya seperti tenda!"</div></div></div>
+              <div class="act-item"><div class="act-time">35–48'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik + kosakata</span><div class="act-name">Pengenalan benda huruf vokal</div><div class="act-desc">Guru tunjuk gambar benda: apel (A), ikan (I), ulat (U), ember (E), orang (O). Anak sebut nama benda, guru highlight huruf vokal awal. "Apel dimulai A!"</div></div></div>
+              <div class="act-item"><div class="act-time">48–55'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik + gerak</span><div class="act-name">Bernyanyi huruf vokal</div><div class="act-desc">Nyanyikan lagu vokal sambil tunjuk gambar benda yang sesuai. A = tunjuk apel, I = tunjuk ikan, dst.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres alat bersama, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="act-divider"></div>
+            <div class="sesi-lbl">Sesi 4 · 12 Februari</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru tanya: "Benda apa yang dimulai huruf A?" Recall singkat dari sesi 3.</div></div></div>
+              <div class="act-item"><div class="act-time">5–25'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik + gerak</span><div class="act-name">Mencari huruf (Hunt Alphabet)</div><div class="act-desc">Guru sembunyikan kartu huruf vokal di sekitar ruangan. Anak mencari sambil menyebut huruf yang ditemukan. "Aku temukan huruf U!" Diulang beberapa ronde.</div></div></div>
+              <div class="act-item"><div class="act-time">25–40'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik</span><div class="act-name">Mencocokkan huruf + benda</div><div class="act-desc">Anak mencocokkan kartu huruf dengan kartu gambar benda yang sesuai. A-apel, I-ikan, U-ulat, E-ember, O-orang.</div></div></div>
+              <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik + gerak</span><div class="act-name">Bernyanyi + tebak huruf</div><div class="act-desc">Guru nyanyikan lagu vokal tapi diam di satu huruf, anak melanjutkan. "A I U... E...?" Anak sebutkan huruf berikutnya.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres, doa penutup, salam pulang.</div></div></div>
+            </div>
+            <div class="obs-box">
+              <div class="obs-title">Catatan observasi guru</div>
+              <div class="obs-item">Apakah bisa menyebut nama huruf vokal saat menemukannya?</div>
+              <div class="obs-item">Apakah bisa mencocokkan huruf dengan benda yang diawali vokal?</div>
+              <div class="obs-item">Apakah antusias saat aktivitas Hunt Alphabet?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B1-T3 -->
+        <div class="tema-card" id="b1t3">
+          <button class="tema-btn" onclick="toggle('b1t3')">
+            <div class="tema-emoji" style="background:#EEEDFE">🍩</div>
+            <div class="tema-info">
+              <div class="tema-sesi">Sesi 5–6 · 24 & 26 Feb</div>
+              <div class="tema-nama">Tracking</div>
+              <div class="tema-kosa">memegang donat · memasukkan · menyusun urutan</div>
+            </div>
+            <div class="tema-chevron">▾</div>
+          </button>
+          <div class="tema-body">
+            <div class="sesi-lbl">Sesi 5 · 24 Februari</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama.</div></div></div>
+              <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Memegang donat dengan 2 jari</div><div class="act-desc">Anak memegang donat mainan menggunakan ibu jari dan telunjuk. Guru ajarkan cara memegang yang tepat. Latihan mengambil dan meletakkan donat satu per satu.</div></div></div>
+              <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Memasukkan & melepaskan donat dari tiang</div><div class="act-desc">Anak memasukkan donat ke tiang kayu, lalu melepasnya kembali. Latihan koordinasi tangan-mata dan kontrol gerakan. Diulang beberapa kali.</div></div></div>
+              <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus + logika</span><div class="act-name">Menyusun donat</div><div class="act-desc">Anak menyusun donat ke tiang secara bebas dulu. Guru observasi apakah ada kesadaran urutan atau warna secara spontan.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Anak merapikan donat ke tempatnya. Doa penutup, salam.</div></div></div>
+            </div>
+            <div class="act-divider"></div>
+            <div class="sesi-lbl">Sesi 6 · 26 Februari</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru tanya: "Kemarin kita main apa? Donatnya dimasukkan ke mana?"</div></div></div>
+              <div class="act-item"><div class="act-time">5–25'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus + logika</span><div class="act-name">Menyusun donat dari besar ke kecil</div><div class="act-desc">Guru perkenalkan konsep urutan ukuran. "Ini besar, ini kecil. Mana yang paling besar?" Anak mencoba menyusun donat dari besar ke kecil secara berurutan.</div></div></div>
+              <div class="act-item"><div class="act-time">25–50'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus + warna</span><div class="act-name">Menyusun donat berdasarkan warna</div><div class="act-desc">Guru minta anak menyusun donat berdasarkan instruksi warna: "Ambil yang merah dulu!" Perkenalan warna pertama lewat konteks konkret yang familiar.</div></div></div>
+              <div class="act-item"><div class="act-time">50–58'</div><div class="act-content"><span class="act-type-pill pill-fonik">Kosakata + angka</div><div class="act-name">Hitung donatnya!</div><div class="act-desc">Anak dan guru menghitung donat bersama saat disusun. "Satu, dua, tiga..." Perkenalan angka 1–3 secara alami lewat benda konkret.</div></div></div>
+              <div class="act-item"><div class="act-time">58–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres donat, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="obs-box">
+              <div class="obs-title">Catatan observasi guru</div>
+              <div class="obs-item">Apakah bisa memegang donat dengan 2 jari secara konsisten?</div>
+              <div class="obs-item">Apakah bisa memasukkan donat ke tiang tanpa bantuan?</div>
+              <div class="obs-item">Apakah ada kesadaran urutan besar-kecil?</div>
+              <div class="obs-item">Apakah bisa menyebut warna donat saat diminta?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B1-T4: sesi 7-8 rekonstruksi Maret minggu 1 -->
+        <div class="tema-card" id="b1t4">
+          <button class="tema-btn" onclick="toggle('b1t4')">
+            <div class="tema-emoji" style="background:#EEEDFE">🎵</div>
+            <div class="tema-info">
+              <div class="tema-sesi">Sesi 7–8 · akhir Feb / awal Mar</div>
+              <div class="tema-nama">Review Vokal + Gerak</div>
+              <div class="tema-kosa">konsolidasi huruf vokal · bunyi · gerak tubuh</div>
+            </div>
+            <div class="tema-chevron">▾</div>
+          </button>
+          <div class="tema-body">
+            <div class="sesi-lbl">Sesi 7</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama.</div></div></div>
+              <div class="act-item"><div class="act-time">5–25'</div><div class="act-content"><span class="act-type-pill pill-fonik">Review fonik</span><div class="act-name">Flashcard vokal + tunjuk</div><div class="act-desc">Guru tunjukkan flashcard huruf vokal satu per satu. Anak menyebutkan nama huruf dan satu benda yang dimulai huruf tersebut. Diulang 2 putaran.</div></div></div>
+              <div class="act-item"><div class="act-time">25–45'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Gerak tubuh per vokal</div><div class="act-desc">"Kalau dengar A, angkat tangan! Kalau I, pegang hidung! U, pegang mulut! E, pegang telinga! O, buat lingkaran dengan tangan!" Diulang sampai anak hafal gerakannya.</div></div></div>
+              <div class="act-item"><div class="act-time">45–55'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Menebalkan huruf vokal besar</div><div class="act-desc">Lembar kerja dengan huruf A I U E O besar. Anak menebalkan dengan krayon tebal. Pertama kali pengenalan cara menulis huruf vokal secara fisik.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres alat, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="act-divider"></div>
+            <div class="sesi-lbl">Sesi 8</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Review singkat: "Coba sebutkan semua huruf vokal!" sambil tepuk tangan.</div></div></div>
+              <div class="act-item"><div class="act-time">5–30'</div><div class="act-content"><span class="act-type-pill pill-fonik">Review fonik</span><div class="act-name">Mini pameran vokal</div><div class="act-desc">Anak memilih satu huruf vokal favorit, bercerita: "Aku suka huruf U karena... Uuu! Seperti ulat!" Guru bantu kalau anak belum bisa sendiri.</div></div></div>
+              <div class="act-item"><div class="act-time">30–55'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Kartu vokalku</div><div class="act-desc">Anak membuat satu kartu huruf vokal pilihan: guru tulis huruf besar, anak menebalkan dan menempel gambar benda yang sesuai. Kartu dibawa pulang.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres, doa penutup, salam pulang.</div></div></div>
+            </div>
+            <div class="obs-box">
+              <div class="obs-title">Catatan observasi guru</div>
+              <div class="obs-item">Apakah bisa menyebutkan semua huruf vokal secara berurutan tanpa bantuan?</div>
+              <div class="obs-item">Apakah bisa mengasosiasikan satu benda dengan tiap huruf vokal?</div>
+              <div class="obs-item">Apakah menebalkan huruf dengan arah yang benar?</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /bulan 1 -->
+
+      <!-- ══ BULAN 2 ══ -->
+      <div class="month-section">
+        <div class="month-hdr">
+          <span class="month-badge" style="background:#E6F7EE;color:#1A7A48;">Bulan 2</span>
+          <span class="month-name">Motorik & Warna</span>
+        </div>
+        <div class="month-focus">warna lewat donat · motorik kasar · pensil & gunting</div>
+
+        <!-- B2-T1 -->
+        <div class="tema-card" id="b2t1">
+          <button class="tema-btn" onclick="toggle('b2t1')">
+            <div class="tema-emoji" style="background:#E6F7EE">🍩</div>
+            <div class="tema-info">
+              <div class="tema-sesi">Sesi 1–2 · 7 & 9 Apr</div>
+              <div class="tema-nama">Warna Lewat Donat</div>
+              <div class="tema-kosa">warna donat · hunt for color · lompat warna</div>
+            </div>
+            <div class="tema-chevron">▾</div>
+          </button>
+          <div class="tema-body">
+            <div class="sesi-lbl">Sesi 1 · 7 April</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama.</div></div></div>
+              <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-fonik">Kosakata warna</span><div class="act-name">Mengenal warna lewat donat</div><div class="act-desc">Guru perkenalkan warna lewat donat mainan. "Ini donat merah! Ini donat kuning! Ini donat biru!" Anak menyentuh dan menyebut nama warna. Kuning dan biru dikenalkan lebih dulu karena paling mudah dibedakan.</div></div></div>
+              <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-fonik">Kosakata + motorik kasar</span><div class="act-name">Hunt for color</div><div class="act-desc">Guru sebut warna, anak berlari mencari benda berwarna itu di ruangan dan membawanya ke guru. "Cari yang warna kuning!" Fokus pada 3 warna: kuning, biru, merah.</div></div></div>
+              <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Lompat warna</div><div class="act-desc">Guru buat kotak warna di lantai (kertas warna). Guru sebut warna, anak melompat ke kotak warna yang disebut. Latihan koordinasi lompat + pengenalan warna.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="act-divider"></div>
+            <div class="sesi-lbl">Sesi 2 · 9 April</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru tanya: "Kemarin kita belajar warna apa saja?" Review singkat.</div></div></div>
+              <div class="act-item"><div class="act-time">5–25'</div><div class="act-content"><span class="act-type-pill pill-fonik">Kosakata warna</span><div class="act-name">Ambil donat berdasarkan warna</div><div class="act-desc">Guru minta anak mengambil donat sesuai warna yang dipinta. "Ambilkan donat warna biru!" Fokus menyebut nama warna saat mengambil. Tambahkan hijau di sesi ini.</div></div></div>
+              <div class="act-item"><div class="act-time">25–45'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Lompat warna + sortir</div><div class="act-desc">Lanjutan lompat warna. Setelah lompat, anak memasukkan donat warna yang sama ke wadah. Latihan koordinasi + kategorisasi warna.</div></div></div>
+              <div class="act-item"><div class="act-time">45–55'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Menggunting kertas warna</div><div class="act-desc">Anak menggunting kertas berwarna secara bebas. Guru dampingi cara memegang gunting. Hasil guntingan ditempel di kertas besar — kolase warna pertama.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="obs-box">
+              <div class="obs-title">Catatan observasi guru</div>
+              <div class="obs-item">Apakah bisa menyebut kuning dan biru saat ditanya?</div>
+              <div class="obs-item">Apakah merah dan hijau belum konsisten saat diminta menyebutkan?</div>
+              <div class="obs-item">Apakah bisa melompat ke kotak warna yang tepat?</div>
+              <div class="obs-item">Apakah cara memegang gunting sudah mulai terbentuk?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B2-T2 -->
+        <div class="tema-card" id="b2t2">
+          <button class="tema-btn" onclick="toggle('b2t2')">
+            <div class="tema-emoji" style="background:#E6F7EE">✏️</div>
+            <div class="tema-info">
+              <div class="tema-sesi">Sesi 3–4 · 14 & 16 Apr</div>
+              <div class="tema-nama">Latihan Pensil & Gunting</div>
+              <div class="tema-kosa">garis lurus · lingkaran · menggunting</div>
+            </div>
+            <div class="tema-chevron">▾</div>
+          </button>
+          <div class="tema-body">
+            <div class="sesi-lbl">Sesi 3 · 14 April</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama.</div></div></div>
+              <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Membuat garis lurus — lintasan mobil</div><div class="act-desc">Anak menggambar garis lurus mengikuti lintasan jalan yang sudah digambar guru (seperti jalanan untuk mobil mainan). Guru bantu cara memegang krayon/pensil yang benar.</div></div></div>
+              <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Membuat lingkaran — rambut keriting</div><div class="act-desc">Anak menggambar lingkaran berulang mengikuti motif rambut keriting di atas gambar kepala orang. Latihan gerakan melingkar yang konsisten. Sangat menyenangkan!</div></div></div>
+              <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Menggunting kertas</div><div class="act-desc">Anak menggunting kertas mengikuti garis lurus yang sudah digambar. Guru koreksi cara pegang gunting secara pelan. Kertas tebal agar lebih mudah digunting.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres alat tulis dan gunting, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="act-divider"></div>
+            <div class="sesi-lbl">Sesi 4 · 16 April</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru tanya: "Kemarin kita belajar membuat apa?" Anak menunjukkan gerakan garis lurus atau lingkaran di udara.</div></div></div>
+              <div class="act-item"><div class="act-time">5–25'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Menggunting rambut</div><div class="act-desc">Anak menggunting "rambut" dari gambar orang yang dicetak di kertas — kertas tebal dengan garis rambut panjang. Simulasi aktivitas menggunting yang lebih terarah dan kontekstual.</div></div></div>
+              <div class="act-item"><div class="act-time">25–50'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Garis & lingkaran bebas</div><div class="act-desc">Anak menggambar bebas menggunakan pensil dan krayon — kombinasi garis lurus dan lingkaran. Guru observasi cara pegang dan tekanan tangan. Tidak dikoreksi keras.</div></div></div>
+              <div class="act-item"><div class="act-time">50–58'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Karya "wajahku"</div><div class="act-desc">Anak menggambar wajah sederhana: lingkaran besar (kepala), lingkaran kecil (mata), garis (hidung, mulut). Guru beri label nama bagian wajah.</div></div></div>
+              <div class="act-item"><div class="act-time">58–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="obs-box">
+              <div class="obs-title">Catatan observasi guru</div>
+              <div class="obs-item">Apakah garis lurus sudah cukup baik dibuat dengan krayon?</div>
+              <div class="obs-item">Apakah lingkaran sudah bisa dibuat meski belum sempurna?</div>
+              <div class="obs-item">Apakah cara memegang gunting mulai membaik dari sesi sebelumnya?</div>
+              <div class="obs-item">Apakah bisa menggunting mengikuti garis?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B2-T3 -->
+        <div class="tema-card" id="b2t3">
+          <button class="tema-btn" onclick="toggle('b2t3')">
+            <div class="tema-emoji" style="background:#E6F7EE">⚽</div>
+            <div class="tema-info">
+              <div class="tema-sesi">Sesi 5–6 · 21 & 23 Apr</div>
+              <div class="tema-nama">Bermain Bola</div>
+              <div class="tema-kosa">memindahkan bola · melempar · menyusun warna</div>
+            </div>
+            <div class="tema-chevron">▾</div>
+          </button>
+          <div class="tema-body">
+            <div class="sesi-lbl">Sesi 5 · 21 April</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama.</div></div></div>
+              <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Memindahkan bola satu persatu</div><div class="act-desc">Anak memindahkan bola dari satu wadah ke wadah lain satu per satu menggunakan tangan. Fokus: kontrol gerakan tangan dan koordinasi. Guru sebut warna bola saat dipindahkan.</div></div></div>
+              <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Memindahkan bola dari kanan ke kiri</div><div class="act-desc">Latihan pemindahan bola secara konsisten dari sisi kanan ke sisi kiri. Bantu anak mengenal konsep kanan-kiri secara awal lewat benda konkret.</div></div></div>
+              <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Melempar bola ke keranjang</div><div class="act-desc">Anak melempar bola ke keranjang dari jarak dekat. Latihan koordinasi mata-tangan dan kontrol kekuatan lemparan. Diulang beberapa kali.</div></div></div>
+              <div class="act-item"><div class="act-time">55–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Bola dikumpulkan kembali, beres-beres, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="act-divider"></div>
+            <div class="sesi-lbl">Sesi 6 · 23 April</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru tanya: "Kemarin kita lempar bola ke mana?" Recall singkat.</div></div></div>
+              <div class="act-item"><div class="act-time">5–25'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Membawa bola melewati rintangan sambil berjinjit</div><div class="act-desc">Anak membawa bola melewati rintangan sederhana (kursi, garis) sambil berjinjit. Latihan keseimbangan dan koordinasi. Diulang beberapa kali dengan rintangan berbeda.</div></div></div>
+              <div class="act-item"><div class="act-time">25–50'</div><div class="act-content"><span class="act-type-pill pill-fonik">Kosakata warna + motorik</span><div class="act-name">Menyusun bola sesuai warna</div><div class="act-desc">Anak mengelompokkan bola berwarna ke wadah yang sesuai. Review warna: kuning, biru, merah. Guru sebut warna, anak ambil dan kelompokkan. Meningkatkan konsistensi dari sesi sebelumnya.</div></div></div>
+              <div class="act-item"><div class="act-time">50–58'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Gambar bolaku</div><div class="act-desc">Anak menggambar bola (lingkaran) di kertas dan mewarnainya sesuai warna bola favorit. Latihan lingkaran dan warna sekaligus.</div></div></div>
+              <div class="act-item"><div class="act-time">58–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="obs-box">
+              <div class="obs-title">Catatan observasi guru</div>
+              <div class="obs-item">Apakah bisa memindahkan bola secara konsisten beberapa kali?</div>
+              <div class="obs-item">Apakah bisa berjinjit sambil membawa bola melewati rintangan?</div>
+              <div class="obs-item">Apakah menyusun bola sesuai warna dengan benar?</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- B2-T4 -->
+        <div class="tema-card" id="b2t4">
+          <button class="tema-btn" onclick="toggle('b2t4')">
+            <div class="tema-emoji" style="background:#E6F7EE">🍿</div>
+            <div class="tema-info">
+              <div class="tema-sesi">Sesi 7–8 · 28 & 30 Apr</div>
+              <div class="tema-nama">Kreasi & Sensory Play</div>
+              <div class="tema-kosa">popcorn art · menggunting · menempel · lompat</div>
+            </div>
+            <div class="tema-chevron">▾</div>
+          </button>
+          <div class="tema-body">
+            <div class="sesi-lbl">Sesi 7 · 28 April — Membuat Popcorn</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama. Guru: "Hari ini kita buat popcorn dari kertas!"</div></div></div>
+              <div class="act-item"><div class="act-time">5–25'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Menggunting kertas jadi popcorn</div><div class="act-desc">Anak menggunting kertas putih/kuning menjadi potongan kecil menyerupai popcorn. Latihan menggunting bentuk bebas — tidak perlu mengikuti garis. Sangat antusias!</div></div></div>
+              <div class="act-item"><div class="act-time">25–45'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Mewarnai wadah popcorn</div><div class="act-desc">Anak mewarnai gambar wadah popcorn (gelas/kotak bergaris) dengan krayon. Latihan mewarnai dalam area tertentu dengan tekanan tangan yang tepat.</div></div></div>
+              <div class="act-item"><div class="act-time">45–57'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Menempel popcorn ke wadah</div><div class="act-desc">Anak menempelkan potongan kertas "popcorn" ke gambar wadah menggunakan lem. Latihan koordinasi menempel dan tekanan jari. Hasil jadi karya yang bisa dibawa pulang.</div></div></div>
+              <div class="act-item"><div class="act-time">57–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres sisa kertas dan lem, doa penutup, salam.</div></div></div>
+            </div>
+            <div class="act-divider"></div>
+            <div class="sesi-lbl">Sesi 8 · 30 April — Sensory Motor Play</div>
+            <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru: "Hari ini kita main lompat! Tapi ada aturannya ya."</div></div></div>
+              <div class="act-item"><div class="act-time">5–30'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Lompat 1 dan 2</div><div class="act-desc">Guru buat injakan di lantai (kertas/lakban). Anak melompat ke injakan 1, lalu ke injakan 2. Latihan lompat terarah dan koordinasi kaki. Guru beri instruksi: "Lompat ke kotak 1! Sekarang kotak 2!"</div></div></div>
+              <div class="act-item"><div class="act-time">30–50'</div><div class="act-content"><span class="act-type-pill pill-motorik">Sensory play</span><div class="act-name">Eksplorasi sensori bebas</div><div class="act-desc">Sediakan bahan sensori (pasir kinetik, beras, atau air dalam wadah). Anak bebas menjelajah, menuang, meremas. Guru menamai bahan dan tekstur: "Ini kasar, ini halus, ini dingin."</div></div></div>
+              <div class="act-item"><div class="act-time">50–58'</div><div class="act-content"><span class="act-type-pill pill-review">Review</span><div class="act-name">Tunjuk & sebut</div><div class="act-desc">Review singkat: guru tunjuk huruf vokal, bola, warna — anak menyebutkan. Lihat perkembangan dari awal bulan.</div></div></div>
+              <div class="act-item"><div class="act-time">58–60'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Doa penutup & beres-beres</div><div class="act-desc">Beres-beres bahan sensori, doa penutup, salam. Akhir Bulan 2!</div></div></div>
+            </div>
+            <div class="obs-box">
+              <div class="obs-title">Catatan observasi guru</div>
+              <div class="obs-item">Apakah sangat semangat saat aktivitas meremas dan menempel?</div>
+              <div class="obs-item">Apakah bisa melompat pada injakan yang ditentukan secara berurutan?</div>
+              <div class="obs-item">Apakah rasa ingin tahu tinggi saat eksplorasi sensori?</div>
+              <div class="obs-item">Apakah menggunting sudah lebih baik dari sesi awal bulan?</div>
+            </div>
+          </div>
+        </div>
+      </div><!-- /bulan 2 -->
 
       <!-- ══ BULAN 3 ══ -->
       <div class="month-section">
@@ -339,6 +667,7 @@ body {
           <div class="tema-body">
             <div class="sesi-lbl">Sesi 3 — Gerakanku</div>
             <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama.</div></div></div>
               <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Ikuti gerakan guru</div><div class="act-desc">Guru memperagakan: lompat, jalan, berdiri, duduk, angkat tangan. Anak menirukan. Guru sebut nama gerakan setiap kali. Diulang urutan berbeda.</div></div></div>
               <div class="act-item"><div class="act-time">20–35'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Menggunting garis lurus</div><div class="act-desc">Latihan menggunting di garis lurus yang digambar guru. Fokus: cara memegang gunting yang benar — ibu jari atas, dua jari di bawah.</div></div></div>
               <div class="act-item"><div class="act-time">35–50'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik & kosakata</span><div class="act-name">Kartu gerakan + tebak kata</div><div class="act-desc">Guru tunjuk kartu bergambar gerakan. Anak tebak nama gerakan. Guru tulis di papan. "Lompat dimulai huruf L."</div></div></div>
@@ -347,6 +676,7 @@ body {
             <div class="act-divider"></div>
             <div class="sesi-lbl">Sesi 4 — Aku bergerak, aku bisa!</div>
             <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru tanya: "Siapa yang ingat cara memegang gunting?"</div></div></div>
               <div class="act-item"><div class="act-time">5–25'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik kasar</span><div class="act-name">Rintangan gerakan</div><div class="act-desc">Buat rintangan di kelas: berjinjit melewati garis, lompat ke kotak, jalan mundur. Anak bergantian. Melanjutkan kemampuan berjinjit dan melompat dari April.</div></div></div>
               <div class="act-item"><div class="act-time">25–40'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Menggunting & menempel pola orang</div><div class="act-desc">Anak menggunting bagian tubuh yang sudah dicetak (lingkaran kepala, persegi badan), lalu menempel jadi bentuk orang di kertas.</div></div></div>
               <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-fonik">Fonik & kosakata</span><div class="act-name">Mana yang bergerak?</div><div class="act-desc">Guru sebut benda: "Meja — bisa bergerak?" Anak jawab ya/tidak. Kembangkan ke kosakata baru: lambat, cepat, kuat, ringan.</div></div></div>
@@ -374,6 +704,7 @@ body {
           <div class="tema-body">
             <div class="sesi-lbl">Sesi 5 — Aku kenal warna</div>
             <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama. Guru tunjuk benda berwarna di sekitar: "Ini warna apa?"</div></div></div>
               <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-fonik">Kosakata warna</span><div class="act-name">Buru warna!</div><div class="act-desc">Guru sebut warna, anak berlari menyentuh benda berwarna itu di ruangan. Fokus: merah & hijau yang belum konsisten, tambahkan ke kuning & biru yang sudah dikenal.</div></div></div>
               <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Mewarnai sesuai kode warna</div><div class="act-desc">Worksheet benda rumah sederhana dengan kode angka warna (1=merah, 2=biru). Anak mewarnai sesuai kode. Latihan pegang krayon dan tekanan tangan.</div></div></div>
               <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Kolase warna bebas</div><div class="act-desc">Anak menempel potongan kertas berwarna di area yang sesuai. Guru beri label warna di tiap area. Fokus pada proses dan pengenalan nama warna.</div></div></div>
@@ -381,6 +712,7 @@ body {
             <div class="act-divider"></div>
             <div class="sesi-lbl">Sesi 6 — Warna di sekitarku</div>
             <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru tanya: "Siapa yang ingat warna apa saja yang kita pelajari kemarin?"</div></div></div>
               <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-fonik">Kosakata</span><div class="act-name">Sortir benda berdasarkan warna</div><div class="act-desc">Sediakan benda-benda kecil beragam warna. Anak mengelompokkan ke wadah sesuai warna sambil menyebut nama warna keras-keras. Tambahkan putih & hitam.</div></div></div>
               <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Melukis dengan jari — pelangi tubuh</div><div class="act-desc">Anak melukis bentuk tubuh (dari tema sesi 1-2) dengan cat jari, mewarnai tiap bagian warna berbeda. Fokus pada kontrol tekanan jari.</div></div></div>
               <div class="act-item"><div class="act-time">40–58'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Buku warnaku (mini booklet)</div><div class="act-desc">2 lembar kertas dilipat jadi booklet kecil. Tiap halaman: satu warna, anak menggambar/menempel benda dengan warna itu. Guru tulis nama warna.</div></div></div>
@@ -408,6 +740,7 @@ body {
           <div class="tema-body">
             <div class="sesi-lbl">Sesi 7 — Menghitung dengan tubuh</div>
             <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, simpan tas, duduk melingkar. Doa belajar bersama.</div></div></div>
               <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-fonik">Kosakata angka</span><div class="act-name">Hitung bagian tubuh</div><div class="act-desc">"Berapa matamu? Hitung! Satu... dua. Dua mata!" Guru dan anak menghitung bersama: jari tangan, kaki, telinga, hidung. Fokus angka 1–3 konkret.</div></div></div>
               <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Merangkai manik-manik 1–3</div><div class="act-desc">Anak memasukkan manik ke tali sesuai angka yang disebutkan guru. "Masukkan 2 manik merah!" Latihan koordinasi tangan-mata.</div></div></div>
               <div class="act-item"><div class="act-time">40–55'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Worksheet: gambar & hitung</div><div class="act-desc">"Lingkari 2 apel. Warnai 3 bola." Anak mengikuti instruksi, guru membaca instruksinya.</div></div></div>
@@ -415,6 +748,7 @@ body {
             <div class="act-divider"></div>
             <div class="sesi-lbl">Sesi 8 — Angkaku sampai 3</div>
             <div class="act-list">
+              <div class="act-item"><div class="act-time">0–5'</div><div class="act-content"><span class="act-type-pill pill-rutin">Rutinitas</span><div class="act-name">Pembukaan & doa</div><div class="act-desc">Salam, doa. Guru tanya: "Berapa jumlah matamu? Hitunglah bersama!"</div></div></div>
               <div class="act-item"><div class="act-time">5–20'</div><div class="act-content"><span class="act-type-pill pill-fonik">Angka</span><div class="act-name">Kartu angka + benda konkret</div><div class="act-desc">Tunjuk kartu angka 1, 2, 3. Anak meletakkan benda konkret sebanyak angka di kartu sambil mengucap: "Satu, dua, tiga."</div></div></div>
               <div class="act-item"><div class="act-time">20–40'</div><div class="act-content"><span class="act-type-pill pill-motorik">Motorik halus</span><div class="act-name">Menebalkan angka 1 2 3</div><div class="act-desc">Lembar angka dengan titik-titik untuk ditebalkan. Anak menebalkan dengan krayon tebal. Guru bantu arahkan cara menulis angka atas ke bawah.</div></div></div>
               <div class="act-item"><div class="act-time">40–58'</div><div class="act-content"><span class="act-type-pill pill-output">Output</span><div class="act-name">Buku angkaku 1–3</div><div class="act-desc">Mini booklet: tiap halaman satu angka, anak menempel stiker sebanyak angka tersebut.</div></div></div>
@@ -678,72 +1012,8 @@ body {
 
     <!-- ══ TAB: INFO PROGRAM ══ -->
     <div id="tab-info" class="tab-content">
-      <div class="sec">
-        <div class="sec-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          Detail Program
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
-          <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
-            <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Program</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text);">Calistung Preschool</div>
-          </div>
-          <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
-            <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Level</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text);">Level 1 — Foundation</div>
-          </div>
-          <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
-            <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Durasi</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text);">6 Bulan · 48 Sesi</div>
-          </div>
-          <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
-            <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Sesi per Minggu</div>
-            <div style="font-size:13px;font-weight:600;color:var(--text);">2x · 60 menit</div>
-          </div>
-        </div>
-        <div style="background:var(--accent-dim);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
-          <div style="font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Pendekatan Pembelajaran</div>
-          <div style="display:flex;flex-wrap:wrap;gap:6px;">
-            <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Montessori</span>
-            <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Letterland</span>
-            <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">SEL</span>
-            <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Hoikuen/Yōchien</span>
-            <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Nilai Islami</span>
-          </div>
-        </div>
-      </div>
-
-      <div class="sec">
-        <div class="sec-title">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
-          Peta Bulan
-        </div>
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--teal-light);border-radius:var(--r);border-left:3px solid var(--teal);">
-            <div style="font-size:18px;">🧠</div>
-            <div><div style="font-size:11px;font-weight:700;color:var(--teal-dark);">Bulan 1–2 (selesai)</div><div style="font-size:12px;color:var(--text2);">Huruf vokal, angka 1–5 dasar, warna awal, motorik fondasi</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--teal-light);border-radius:var(--r);border-left:3px solid var(--teal);">
-            <div style="font-size:18px;">🪞</div>
-            <div><div style="font-size:11px;font-weight:700;color:var(--teal-dark);">Bulan 3 — Diriku</div><div style="font-size:12px;color:var(--text2);">Tubuh, gerakan, warna penuh, angka 1–3</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--blue-light);border-radius:var(--r);border-left:3px solid var(--blue);">
-            <div style="font-size:18px;">🏠</div>
-            <div><div style="font-size:11px;font-weight:700;color:var(--blue-dark);">Bulan 4 — Rumahku</div><div style="font-size:12px;color:var(--text2);">Benda rumah, vokal dalam konteks, angka 4–5</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--amber-light);border-radius:var(--r);border-left:3px solid var(--amber);">
-            <div style="font-size:18px;">🌿</div>
-            <div><div style="font-size:11px;font-weight:700;color:var(--amber-dark);">Bulan 5 — Sekitarku</div><div style="font-size:12px;color:var(--text2);">Lingkungan dekat, bentuk dasar, menulis vokal</div></div>
-          </div>
-          <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--pink-light);border-radius:var(--r);border-left:3px solid var(--pink);">
-            <div style="font-size:18px;">🎉</div>
-            <div><div style="font-size:11px;font-weight:700;color:var(--pink-dark);">Bulan 6 — Aku Bisa!</div><div style="font-size:12px;color:var(--text2);">Review, konsolidasi, pameran karya, graduation</div></div>
-          </div>
-        </div>
-      </div>
-
-
-    </div><!-- /tab-info -->
+      <div id="info-content"></div>
+    </div>
 
   </div><!-- /wrap -->
 </div><!-- /page-outer -->
@@ -751,15 +1021,92 @@ body {
 <script>
   /* ── TABS ── */
   const HDR = {
-    map:  { title: 'Tema Map', sub: 'Calistung Preschool · Level 1', badge: '● 4 Bulan' },
+    map:  { title: 'Tema Map', sub: 'Calistung Preschool · Level 1', badge: '● 6 Bulan' },
     info: { title: 'Info Program', sub: 'Calistung Preschool · Level 1', badge: '● Detail' },
   };
+
+  const INFO_HTML = `
+    <div class="sec">
+      <div class="sec-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Detail Program
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Program</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">Calistung Preschool</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Level</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">Level 1 — Foundation</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Durasi</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">6 Bulan · 48 Sesi</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Sesi per Minggu</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">2x · 60 menit</div>
+        </div>
+      </div>
+      <div style="background:var(--accent-dim);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Pendekatan Pembelajaran</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Montessori</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Letterland</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">SEL</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Hoikuen/Yōchien</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Nilai Islami</span>
+        </div>
+      </div>
+    </div>
+    <div class="sec">
+      <div class="sec-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Peta Bulan
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#EEEDFE;border-radius:var(--r);border-left:3px solid #7F77DD;">
+          <div style="font-size:18px;">🔤</div>
+          <div><div style="font-size:11px;font-weight:700;color:#534AB7;">Bulan 1 — Huruf Vokal (Feb)</div><div style="font-size:12px;color:var(--text2);">Matching alphabet, hunt alphabet, tracking donat, review vokal</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#E6F7EE;border-radius:var(--r);border-left:3px solid #2E9E5B;">
+          <div style="font-size:18px;">🎨</div>
+          <div><div style="font-size:11px;font-weight:700;color:#1A7A48;">Bulan 2 — Motorik & Warna (Apr)</div><div style="font-size:12px;color:var(--text2);">Warna lewat donat, pensil & gunting, bermain bola, sensory play</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#E1F5EE;border-radius:var(--r);border-left:3px solid #1D9E75;">
+          <div style="font-size:18px;">🪞</div>
+          <div><div style="font-size:11px;font-weight:700;color:#0F6E56;">Bulan 3 — Diriku</div><div style="font-size:12px;color:var(--text2);">Tubuh, gerakan, warna penuh, angka 1–3</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#E6F1FB;border-radius:var(--r);border-left:3px solid #378ADD;">
+          <div style="font-size:18px;">🏠</div>
+          <div><div style="font-size:11px;font-weight:700;color:#185FA5;">Bulan 4 — Rumahku</div><div style="font-size:12px;color:var(--text2);">Benda rumah, vokal dalam konteks, angka 4–5</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FAEEDA;border-radius:var(--r);border-left:3px solid #EF9F27;">
+          <div style="font-size:18px;">🌿</div>
+          <div><div style="font-size:11px;font-weight:700;color:#854F0B;">Bulan 5 — Sekitarku</div><div style="font-size:12px;color:var(--text2);">Lingkungan dekat, bentuk dasar, menulis vokal</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FBEAF0;border-radius:var(--r);border-left:3px solid #D4537E;">
+          <div style="font-size:18px;">🎉</div>
+          <div><div style="font-size:11px;font-weight:700;color:#993556;">Bulan 6 — Aku Bisa!</div><div style="font-size:12px;color:var(--text2);">Review, konsolidasi, pameran karya, graduation</div></div>
+        </div>
+      </div>
+    </div>`;
+
+  let infoInjected = false;
 
   function switchTab(name, btn) {
     document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
     document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
     document.getElementById('tab-' + name).classList.add('active');
     if (btn) btn.classList.add('active');
+
+    // Inject info content lazily on first visit
+    if (name === 'info' && !infoInjected) {
+      document.getElementById('info-content').innerHTML = INFO_HTML;
+      infoInjected = true;
+    }
+
     const d = HDR[name] || HDR.map;
     const title = document.getElementById('hdrTitle');
     const sub   = document.getElementById('hdrSub');
