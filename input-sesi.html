@@ -328,8 +328,20 @@ body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t
 const API = 'https://script.google.com/macros/s/AKfycbyUCKQs9D1AlnvUcAjt3vqtPBEeMgP988prADAcgTZXxFo5QqoMPCZoS32NpIaFBK7U/exec';
 
 // ── API helper — JSONP (no CORS) ──
-function api(action, params={}) {
-  return new Promise((resolve, reject) => {
+async function api(action, params={}) {
+  const url = new URL(API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k,
+      typeof v==='object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+
+  // Proxy untuk bypass CORS Apps Script
+  const proxyUrl = 'https://corsproxy.io/?' + encodeURIComponent(url.toString());
+
+  const res = await fetch(proxyUrl);
+  return await res.json();
+}
     const cbName = '_mb' + Date.now() + Math.random().toString(36).slice(2);
     const script  = document.createElement('script');
     const url     = new URL(API);
