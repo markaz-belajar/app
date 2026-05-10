@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Markaz Belajar · Input Sesi</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#212121;--sf:#2f2f2f;--sf2:#3a3a3a;--sf3:#444;
+  --bd:#424242;--bd2:#525252;
+  --tx:#ececec;--tx2:#a8a8a8;--tx3:#6a6a6a;
+  --ac:#8ab4f8;--ac-d:rgba(138,180,248,.12);
+  --yw:#f5c548;--yw-d:rgba(245,197,72,.12);
+  --ok:#6ee7b7;--ok-d:rgba(110,231,183,.10);
+  --er:#f87171;--er-d:rgba(248,113,113,.10);
+  --wn:#fbbf24;--wn-d:rgba(251,191,36,.10);
+  --pu:#c084fc;--pu-d:rgba(192,132,252,.10);
+  --r:8px;--rl:12px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.5;overflow-x:hidden;min-height:100vh}
+
+.screen{display:none}.screen.active{display:block}
+
+.topbar{background:var(--sf);border-bottom:1px solid var(--bd);padding:.85rem 1rem;position:sticky;top:0;z-index:100}
+.tb-r1{display:flex;align-items:center;gap:8px;margin-bottom:.4rem}
+.tb-chip{background:var(--ac-d);color:var(--ac);border:1px solid rgba(138,180,248,.2);border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600}
+.tb-title{font-size:18px;font-weight:600;color:var(--tx)}
+.tb-sub{font-size:12px;color:var(--tx3);margin-top:1px}
+.tb-back{background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);padding:6px 12px;font-size:13px;font-weight:500;color:var(--tx2);cursor:pointer;-webkit-tap-highlight-color:transparent}
+.sesi-pill{background:var(--ac-d);color:var(--ac);border:1px solid rgba(138,180,248,.2);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;margin-left:auto}
+.edit-pill{background:var(--wn-d);color:var(--wn);border:1px solid rgba(251,191,36,.25);border-radius:6px;padding:3px 10px;font-size:12px;font-weight:600;margin-left:auto}
+.search-wrap{position:relative;margin-top:.65rem}
+.search-input{width:100%;padding:11px 14px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);font-family:'Geist',sans-serif;font-size:15px;color:var(--tx);outline:none;-webkit-appearance:none}
+.search-input::placeholder{color:var(--tx3)}
+
+.content{padding:.85rem 1rem 5rem;max-width:640px;margin:0 auto}
+.sec-lbl{font-size:11px;font-weight:500;color:var(--tx3);letter-spacing:.5px;text-transform:uppercase;margin:.75rem 0 .45rem}
+
+.stats-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:.9rem}
+.stat-box{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:.65rem .5rem;text-align:center}
+.stat-num{font-family:'Geist Mono',monospace;font-size:22px;font-weight:700;color:var(--ac);line-height:1}
+.stat-lbl{font-size:11px;color:var(--tx3);margin-top:2px}
+
+.siswa-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:.85rem 1rem;margin-bottom:.45rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.siswa-card:active,.siswa-card:hover{background:var(--sf2);border-color:var(--bd2)}
+.avatar{width:42px;height:42px;border-radius:50%;background:var(--ac-d);border:1.5px solid rgba(138,180,248,.25);display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:var(--ac);flex-shrink:0}
+.s-info{flex:1;min-width:0}
+.s-nama{font-size:14px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.s-meta{font-size:12px;color:var(--tx3);margin-top:1px}
+.s-tag{display:inline-block;font-size:10px;font-weight:600;border-radius:5px;padding:2px 7px;margin-top:4px}
+.tag-pvt{background:var(--er-d);color:var(--er)}
+.tag-reg{background:var(--ac-d);color:var(--ac)}
+.sesi-info{text-align:right;flex-shrink:0}
+.sesi-lbl{font-size:10px;color:var(--tx3);line-height:1}
+.sesi-num{font-family:'Geist Mono',monospace;font-size:22px;font-weight:700;color:var(--ac);line-height:1;margin-top:1px}
+.s-arrow{font-size:18px;color:var(--bd2);margin-left:4px;flex-shrink:0}
+
+.aksi-opts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:1rem}
+.aksi-btn{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:1.1rem .9rem;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent;text-align:left}
+.aksi-btn:active{transform:scale(.97)}
+.aksi-btn.baru:active{border-color:rgba(138,180,248,.4);background:var(--ac-d)}
+.aksi-btn.edit:active{border-color:rgba(251,191,36,.4);background:var(--wn-d)}
+.aksi-ico{font-size:22px;margin-bottom:.5rem}
+.aksi-ttl{font-size:14px;font-weight:700;color:var(--tx);margin-bottom:2px}
+.aksi-sub{font-size:11px;color:var(--tx3);line-height:1.4}
+
+.riwayat-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:.85rem 1rem;margin-bottom:.45rem;cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.riwayat-card:active{background:var(--sf2);border-color:var(--wn)}
+.riwayat-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:.3rem}
+.riwayat-sesi{font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;color:var(--wn);background:var(--wn-d);border-radius:5px;padding:2px 8px}
+.riwayat-tgl{font-size:12px;color:var(--tx3)}
+.riwayat-kegiatan{font-size:13px;color:var(--tx2);line-height:1.4;margin-bottom:.3rem}
+.riwayat-meta{font-size:11px;color:var(--tx3)}
+.hadir-dot{display:inline-block;width:7px;height:7px;border-radius:50%;margin-right:4px}
+.dot-hadir{background:var(--ok)}.dot-izin{background:var(--wn)}.dot-alpa{background:var(--er)}
+
+.guru-list{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.75rem}
+.guru-opt{background:var(--sf);border:1px solid var(--bd);border-radius:var(--r);padding:.8rem 1rem;cursor:pointer;display:flex;align-items:center;gap:10px;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.guru-opt:active{background:var(--sf2)}
+.guru-opt.selected{border-color:rgba(138,180,248,.4);background:var(--ac-d)}
+.guru-avatar{width:36px;height:36px;border-radius:50%;background:var(--sf2);border:1.5px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:var(--tx2);flex-shrink:0}
+.guru-opt.selected .guru-avatar{background:var(--ac-d);border-color:var(--ac);color:var(--ac)}
+.guru-nama{font-size:14px;font-weight:600;color:var(--tx)}
+.guru-peran{font-size:11px;color:var(--tx3);margin-top:1px}
+.guru-check{margin-left:auto;font-size:16px;color:var(--ac);display:none}
+.guru-opt.selected .guru-check{display:block}
+.divider-or{display:flex;align-items:center;gap:10px;margin:.5rem 0}
+.divider-line{flex:1;height:1px;background:var(--bd)}
+.divider-txt{font-size:11px;color:var(--tx3);font-weight:500}
+.guru-custom-input{width:100%;padding:11px 13px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);font-family:'Geist',sans-serif;font-size:14px;color:var(--tx);outline:none;-webkit-appearance:none}
+.guru-custom-input::placeholder{color:var(--tx3)}
+.guru-custom-input:focus{border-color:var(--ac)}
+.btn-lanjut{width:100%;padding:13px;background:var(--ac);color:#0a2846;border:none;border-radius:var(--rl);font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;-webkit-tap-highlight-color:transparent;margin-top:.5rem}
+.btn-lanjut:disabled{opacity:.35;cursor:default}
+
+.fcard{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);margin-bottom:.75rem;overflow:hidden}
+.fcard-head{padding:.65rem 1rem;border-bottom:1px solid var(--bd);display:flex;align-items:center;gap:8px;background:rgba(255,255,255,.02)}
+.fcard-ico{font-size:13px;opacity:.6}
+.fcard-ttl{font-size:13px;font-weight:600;color:var(--tx2)}
+.fcard-body{padding:.85rem 1rem}
+
+.guru-bar{background:var(--ac-d);border:1px solid rgba(138,180,248,.2);border-radius:var(--r);padding:.6rem .9rem;margin-bottom:.75rem;display:flex;align-items:center;justify-content:space-between}
+.guru-bar-label{font-size:11px;color:var(--tx3)}
+.guru-bar-nama{font-size:13px;font-weight:600;color:var(--ac)}
+.guru-bar-change{font-size:11px;color:var(--tx3);cursor:pointer;text-decoration:underline}
+
+.h-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px}
+.hbtn{padding:11px 6px;border-radius:var(--r);border:1px solid var(--bd);background:var(--sf2);font-family:'Geist',sans-serif;font-size:13px;font-weight:500;color:var(--tx3);cursor:pointer;text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.hbtn.on-hadir{border-color:var(--ok);background:var(--ok-d);color:var(--ok)}
+.hbtn.on-izin{border-color:var(--wn);background:var(--wn-d);color:var(--wn)}
+.hbtn.on-alpa{border-color:var(--er);background:var(--er-d);color:var(--er)}
+
+.fin{width:100%;padding:11px 13px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);font-family:'Geist',sans-serif;font-size:14px;color:var(--tx);outline:none;resize:vertical;min-height:76px;-webkit-appearance:none}
+.fin.one{min-height:unset;resize:none}
+.fin::placeholder{color:var(--tx3)}
+
+.badge-row{border:1px solid var(--bd);border-radius:var(--r);margin-bottom:.4rem;overflow:hidden;transition:border .15s}
+.badge-row.on{border-color:rgba(245,197,72,.35);background:var(--yw-d)}
+.badge-tap{display:flex;align-items:center;gap:10px;padding:.7rem .85rem;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.chk{width:20px;height:20px;border-radius:5px;border:1.5px solid var(--bd2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s}
+.chk.on{background:var(--yw);border-color:var(--yw)}
+.chk-tick{font-size:12px;color:#0a2846;font-weight:700;display:none}
+.chk.on .chk-tick{display:block}
+.badge-info{flex:1;min-width:0}
+.badge-nama{font-size:13px;font-weight:600;color:var(--tx)}
+.badge-desc{font-size:11px;color:var(--tx3);margin-top:1px}
+.fw-tag{display:inline-block;font-size:10px;font-weight:600;border-radius:4px;padding:1px 6px;margin-top:3px}
+.fw-sel{background:var(--ac-d);color:var(--ac)}
+.fw-mont{background:var(--ok-d);color:var(--ok)}
+.fw-ll{background:var(--wn-d);color:var(--wn)}
+.fw-yo{background:var(--er-d);color:var(--er)}
+.momen-wrap{padding:0 .85rem .7rem;display:none}
+.momen-wrap.show{display:block}
+.momen-input{width:100%;padding:9px 11px;background:var(--sf3);border:1px solid var(--bd);border-radius:var(--r);font-family:'Geist',sans-serif;font-size:13px;color:var(--tx);outline:none;resize:none;min-height:52px;-webkit-appearance:none}
+.momen-input::placeholder{color:var(--tx3)}
+
+.badge-sub-row{border:1px solid var(--bd);border-radius:var(--r);margin-bottom:.4rem;padding:.75rem .85rem}
+.badge-sub-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:.3rem}
+.badge-sub-desc{font-size:11px;color:var(--tx3);margin-bottom:.6rem}
+.sub-checks{display:flex;flex-direction:column;gap:.4rem}
+.sub-check{display:flex;align-items:flex-start;gap:10px;padding:.5rem .6rem;border:1px solid var(--bd);border-radius:var(--r);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.sub-check.on{border-color:rgba(245,197,72,.35);background:var(--yw-d)}
+.sub-chk{width:18px;height:18px;border-radius:4px;border:1.5px solid var(--bd2);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .15s}
+.sub-chk.on{background:var(--yw);border-color:var(--yw)}
+.sub-chk-tick{font-size:11px;color:#0a2846;font-weight:700;display:none}
+.sub-chk.on .sub-chk-tick{display:block}
+.sub-label{font-size:12px;color:var(--tx2);line-height:1.4}
+
+.badge-streak-row{border:1px solid var(--bd);border-radius:var(--r);margin-bottom:.4rem;padding:.75rem .85rem}
+.badge-streak-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:.3rem}
+.badge-streak-desc{font-size:11px;color:var(--tx3);margin-bottom:.65rem}
+.streak-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.streak-btn{padding:10px 8px;border-radius:var(--r);border:1px solid var(--bd);background:var(--sf2);font-family:'Geist',sans-serif;font-size:13px;font-weight:500;color:var(--tx3);cursor:pointer;text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.streak-btn.on-yes{border-color:var(--ok);background:var(--ok-d);color:var(--ok)}
+.streak-btn.on-no{border-color:var(--er);background:var(--er-d);color:var(--er)}
+.streak-warn{margin-top:.5rem;font-size:11px;color:var(--er);background:var(--er-d);border-radius:var(--r);padding:6px 9px;display:none}
+.streak-warn.show{display:block}
+
+.badge-c-row{border:1px solid var(--bd);border-radius:var(--r);margin-bottom:.4rem;padding:.75rem .85rem}
+.badge-c-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:.3rem}
+.badge-c-desc{font-size:11px;color:var(--tx3);margin-bottom:.65rem}
+.skill-levels{display:flex;flex-direction:column;gap:.3rem}
+.skill-opt{display:flex;align-items:flex-start;gap:9px;padding:.5rem .6rem;border:1px solid var(--bd);border-radius:var(--r);cursor:pointer;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.skill-opt.on{border-color:rgba(138,180,248,.35);background:var(--ac-d)}
+.skill-num{width:20px;height:20px;border-radius:50%;background:var(--sf3);border:1.5px solid var(--bd2);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:var(--tx3);flex-shrink:0;font-family:'Geist Mono',monospace;margin-top:1px;transition:all .15s}
+.skill-opt.on .skill-num{background:var(--ac);border-color:var(--ac);color:#0a2846}
+.skill-label{font-size:12px;color:var(--tx2);line-height:1.4;flex:1}
+.skill-stars{font-size:11px;color:var(--yw);margin-top:1px;letter-spacing:-1px}
+.badge-c-note{width:100%;padding:8px 11px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);font-family:'Geist',sans-serif;font-size:12px;color:var(--tx);outline:none;resize:none;min-height:46px;margin-top:.5rem;-webkit-appearance:none}
+.badge-c-note::placeholder{color:var(--tx3)}
+
+.badge-e-row{border:1px solid var(--bd);border-radius:var(--r);margin-bottom:.4rem;padding:.75rem .85rem}
+.badge-e-title{font-size:13px;font-weight:600;color:var(--tx);margin-bottom:.3rem}
+.badge-e-desc{font-size:11px;color:var(--tx3);margin-bottom:.65rem}
+.e-opts{display:grid;grid-template-columns:1fr 1fr;gap:6px}
+.e-btn{padding:10px 8px;border-radius:var(--r);border:1px solid var(--bd);background:var(--sf2);font-family:'Geist',sans-serif;font-size:13px;font-weight:500;color:var(--tx3);cursor:pointer;text-align:center;transition:all .15s;-webkit-tap-highlight-color:transparent}
+.e-btn.on{border-color:rgba(192,132,252,.4);background:var(--pu-d);color:var(--pu)}
+.badge-e-note{width:100%;padding:8px 11px;background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);font-family:'Geist',sans-serif;font-size:12px;color:var(--tx);outline:none;resize:none;min-height:46px;margin-top:.5rem;-webkit-appearance:none}
+.badge-e-note::placeholder{color:var(--tx3)}
+
+.hint{font-size:12px;color:var(--tx3);line-height:1.55;margin-bottom:.65rem}
+
+.btn-sub{width:100%;padding:14px;background:var(--ac);color:#0a2846;border:none;border-radius:var(--rl);font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;-webkit-tap-highlight-color:transparent;margin-top:.25rem}
+.btn-sub:active{opacity:.85}
+.btn-sub:disabled{opacity:.35;cursor:default}
+.btn-sub.edit-mode{background:var(--wn);color:#0a2846}
+
+.success-wrap{padding:3rem 1.5rem;text-align:center;max-width:480px;margin:0 auto}
+.suc-ico{font-size:44px;margin-bottom:1rem}
+.suc-title{font-size:20px;font-weight:700;color:var(--tx);margin-bottom:.4rem}
+.suc-sub{font-size:13px;color:var(--tx3);line-height:1.7;margin-bottom:1.75rem}
+.btn-a{width:100%;padding:13px;border-radius:var(--rl);font-family:'Geist',sans-serif;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:.5rem;-webkit-tap-highlight-color:transparent}
+.btn-yw{background:var(--yw);color:#0a2846;border:none}
+.btn-ol{background:transparent;color:var(--ac);border:1px solid var(--bd2)}
+
+.loading{text-align:center;padding:3rem 1rem}
+.spinner{width:32px;height:32px;border:2.5px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:13px;color:var(--tx3)}
+.empty-txt{font-size:13px;color:var(--tx3);margin-top:.5rem;text-align:center;padding:2rem 0}
+.err-box{background:var(--er-d);border:1px solid rgba(248,113,113,.2);border-radius:var(--r);padding:.85rem;margin:.5rem 0}
+.err-txt{font-size:13px;color:var(--er);line-height:1.5}
+
+.bot-note{position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-top:1px solid var(--bd);padding:.65rem 1rem;text-align:center;font-size:12px;color:var(--tx3);z-index:99}
+@media(min-width:768px){
+  .topbar{padding:1rem 2rem}
+  .content{padding:1.2rem 2rem 3rem}
+  .bot-note{position:relative;background:transparent;border:none;text-align:left;padding:.5rem 2rem 1rem}
+}
+</style>
+</head>
+<body>
+
+<!-- ══════ S1: PILIH SISWA ══════ -->
+<div id="s1" class="screen active">
+  <div class="topbar">
+    <div class="tb-r1">
+      <div class="tb-chip">MARKAZ BELAJAR</div>
+      <span style="font-size:11px;color:var(--tx3)">Preschool · Calistung</span>
+    </div>
+    <div class="tb-title">Pilih Siswa</div>
+    <div class="tb-sub" id="tb-date">—</div>
+    <div class="search-wrap">
+      <input class="search-input" id="search" type="text" placeholder="Cari nama siswa..."
+        oninput="filterSiswa(this.value)" autocomplete="off" autocorrect="off" spellcheck="false">
+    </div>
+  </div>
+  <div class="content">
+    <div class="stats-row" id="stats-row" style="display:none">
+      <div class="stat-box"><div class="stat-num" id="st-total">0</div><div class="stat-lbl">Total</div></div>
+      <div class="stat-box"><div class="stat-num" id="st-reg">0</div><div class="stat-lbl">Reguler</div></div>
+      <div class="stat-box"><div class="stat-num" id="st-pvt">0</div><div class="stat-lbl">Private</div></div>
+    </div>
+    <div class="sec-lbl">Siswa Aktif</div>
+    <div id="siswa-list">
+      <div class="loading"><div class="spinner"></div><div class="loading-txt">Mengambil data...</div></div>
+    </div>
+  </div>
+  <div class="bot-note">Tap nama siswa untuk mulai</div>
+</div>
+
+<!-- ══════ S2: PILIH AKSI ══════ -->
+<div id="s2" class="screen">
+  <div class="topbar">
+    <div class="tb-r1"><button class="tb-back" onclick="go('s1')">← Kembali</button></div>
+    <div class="tb-title" id="aksi-nama">—</div>
+    <div class="tb-sub" id="aksi-meta">—</div>
+  </div>
+  <div class="content">
+    <div class="aksi-opts">
+      <div class="aksi-btn baru" onclick="pilihAksi('baru')">
+        <div class="aksi-ico">✦</div>
+        <div class="aksi-ttl">Sesi Baru</div>
+        <div class="aksi-sub">Input pertemuan hari ini</div>
+      </div>
+      <div class="aksi-btn edit" onclick="pilihAksi('edit')">
+        <div class="aksi-ico">✎</div>
+        <div class="aksi-ttl">Edit Sesi</div>
+        <div class="aksi-sub">Koreksi sesi sebelumnya</div>
+      </div>
+    </div>
+    <div id="riwayat-wrap" style="display:none">
+      <div class="sec-lbl">Pilih sesi yang ingin diedit</div>
+      <div id="riwayat-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ S3: PILIH GURU ══════ -->
+<div id="s3" class="screen">
+  <div class="topbar">
+    <div class="tb-r1">
+      <button class="tb-back" onclick="go('s2')">← Kembali</button>
+      <div id="s3-pill" class="sesi-pill">Sesi ke-1</div>
+    </div>
+    <div class="tb-title" id="guru-siswa-nama">—</div>
+    <div class="tb-sub">Siapa yang mengajar hari ini?</div>
+  </div>
+  <div class="content">
+    <div class="sec-lbl">Pilih Guru</div>
+    <div class="guru-list" id="guru-list"></div>
+    <div class="divider-or">
+      <div class="divider-line"></div>
+      <div class="divider-txt">atau ketik nama lain</div>
+      <div class="divider-line"></div>
+    </div>
+    <input class="guru-custom-input" id="guru-custom" type="text"
+      placeholder="Nama guru pengganti / lainnya..."
+      oninput="onGuruCustom(this.value)" autocomplete="off" autocorrect="off">
+    <button class="btn-lanjut" id="btn-lanjut-guru" onclick="lanjutDariGuru()" disabled>Lanjut →</button>
+  </div>
+</div>
+
+<!-- ══════ S4: FORM INPUT SESI ══════ -->
+<div id="s4" class="screen">
+  <div class="topbar">
+    <div class="tb-r1">
+      <button class="tb-back" onclick="go('s3')">← Kembali</button>
+      <div id="form-pill" class="sesi-pill">Sesi ke-1</div>
+    </div>
+    <div class="tb-title" id="form-nama">—</div>
+    <div class="tb-sub" id="form-meta">—</div>
+  </div>
+  <div class="content" id="form-body"></div>
+</div>
+
+<!-- ══════ S5: SUKSES ══════ -->
+<div id="s5" class="screen">
+  <div class="content">
+    <div class="success-wrap">
+      <div class="suc-ico">✦</div>
+      <div class="suc-title" id="suc-title">Tersimpan</div>
+      <div class="suc-sub" id="suc-txt">—</div>
+      <button class="btn-a btn-yw" onclick="go('s1')">Input siswa lain</button>
+      <button class="btn-a btn-ol" onclick="go('s1')">Kembali ke daftar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+// ⚙️ GANTI URL INI dengan URL Apps Script kamu
+// Format: https://script.google.com/macros/s/SCRIPT_ID/exec
+// ══════════════════════════════════════════════════════════
+const API = 'GANTI_DENGAN_URL_APPS_SCRIPT_KAMU';
+
+// ── API helper — semua pakai GET + ?action=xxx ──
+async function api(action, params={}) {
+  const url = new URL(API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v==='object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  const res = await fetch(url.toString(), { redirect:'follow' });
+  return await res.json();
+}
+
+// ── State ──
+let allSiswa=[], curSiswa=null, curGuru='', curAksi='baru';
+let curEditSesi=null, badgeMaster=[], allBadgeMeta={};
+let loadingRiwayat=false;
+let fState={kehadiran:'hadir',kegiatan:'',catatan:'',fotoCaption:'',
+  bB:{},bSub:{},bStreak:{},bC:{},bE:{}};
+
+const GURU_LIST=[
+  {nama:'Elis Rosmiati',   inisial:'ER', peran:'Teacher'},
+  {nama:'Yessi Marlina',   inisial:'YM', peran:'Teacher'},
+  {nama:'Annisa Zharotun J', inisial:'AZ', peran:'Ass Teacher'},
+];
+
+// ── Init ──
+(function(){
+  const d=new Date();
+  document.getElementById('tb-date').textContent=
+    d.toLocaleDateString('id-ID',{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  renderGuruList();
+  api('getSiswa').then(gotSiswa).catch(e=>errH(e.message));
+})();
+
+function gotSiswa(r){
+  if(!r.ok){errH(r.error);return;}
+  allSiswa=r.data;
+  const reg=allSiswa.filter(s=>s.tipe==='Reguler').length;
+  const pvt=allSiswa.filter(s=>s.tipe==='Private').length;
+  document.getElementById('st-total').textContent=allSiswa.length;
+  document.getElementById('st-reg').textContent=reg;
+  document.getElementById('st-pvt').textContent=pvt;
+  document.getElementById('stats-row').style.display='grid';
+  renderList(allSiswa);
+}
+
+function errH(e){
+  document.getElementById('siswa-list').innerHTML=
+    `<div class="err-box"><div class="err-txt">⚠ ${e}</div></div>`;
+}
+
+function renderList(list){
+  const el=document.getElementById('siswa-list');
+  if(!list.length){el.innerHTML=`<div class="empty-txt">Tidak ada hasil</div>`;return;}
+  el.innerHTML=list.map(s=>`
+    <div class="siswa-card" onclick="pilihSiswa(${s.id})">
+      <div class="avatar">${s.inisial}</div>
+      <div class="s-info">
+        <div class="s-nama">${s.nama}</div>
+        <div class="s-meta">${s.program} · ${s.usia}</div>
+        <span class="s-tag ${s.tipe==='Private'?'tag-pvt':'tag-reg'}">${s.tipe}</span>
+      </div>
+      <div class="sesi-info">
+        <div class="sesi-lbl">Sesi ke-</div>
+        <div class="sesi-num">${(s.jumlahSesi||0)+1}</div>
+      </div>
+      <div class="s-arrow">›</div>
+    </div>`).join('');
+}
+
+function filterSiswa(q){
+  renderList(!q.trim()?allSiswa:allSiswa.filter(s=>s.nama.toLowerCase().includes(q.toLowerCase())));
+}
+
+function pilihSiswa(id){
+  curSiswa=allSiswa.find(s=>s.id===id); if(!curSiswa)return;
+  document.getElementById('aksi-nama').textContent=curSiswa.nama;
+  document.getElementById('aksi-meta').textContent=`${curSiswa.program} · ${curSiswa.tipe} · ${curSiswa.usia}`;
+  document.getElementById('riwayat-wrap').style.display='none';
+  go('s2');
+}
+
+function pilihAksi(aksi){
+  curAksi=aksi;
+  if(aksi==='baru'){
+    curEditSesi=null;
+    document.getElementById('guru-siswa-nama').textContent=curSiswa.nama;
+    document.getElementById('s3-pill').textContent=`Sesi ke-${(curSiswa.jumlahSesi||0)+1}`;
+    document.getElementById('s3-pill').className='sesi-pill';
+    go('s3');
+  } else {
+    if(loadingRiwayat)return;
+    loadingRiwayat=true;
+    document.getElementById('riwayat-wrap').style.display='block';
+    document.getElementById('riwayat-list').innerHTML=
+      `<div class="loading"><div class="spinner"></div><div class="loading-txt">Memuat riwayat...</div></div>`;
+    api('getSesiSiswa',{idSiswa:curSiswa.id})
+      .then(r=>{loadingRiwayat=false;gotRiwayat(r);})
+      .catch(e=>{loadingRiwayat=false;
+        document.getElementById('riwayat-list').innerHTML=
+          `<div class="err-box"><div class="err-txt">⚠ ${e.message}</div></div>`;});
+  }
+}
+
+function gotRiwayat(r){
+  const el=document.getElementById('riwayat-list');
+  if(!r||!r.ok){el.innerHTML=`<div class="err-box"><div class="err-txt">⚠ ${r?.error||'Gagal'}</div></div>`;return;}
+  if(!r.data.length){el.innerHTML=`<div class="empty-txt">Belum ada sesi tercatat.</div>`;return;}
+  const sorted=[...r.data].reverse();
+  el.innerHTML=sorted.map(s=>{
+    const kh=(s.kehadiran||'').toLowerCase();
+    const dc=kh.includes('hadir')?'dot-hadir':kh.includes('izin')?'dot-izin':'dot-alpa';
+    return `<div class="riwayat-card" onclick='pilihSesiEdit(${JSON.stringify(s)})'>
+      <div class="riwayat-top">
+        <span class="riwayat-sesi">Sesi ${s.sesiKe}</span>
+        <span class="riwayat-tgl">${s.tanggal}</span>
+      </div>
+      <div class="riwayat-kegiatan">${s.kegiatan||'(tidak ada keterangan)'}</div>
+      <div class="riwayat-meta"><span class="hadir-dot ${dc}"></span>${s.kehadiran} · ${s.badgeCatat||'-'}</div>
+    </div>`;
+  }).join('');
+}
+
+function pilihSesiEdit(sesi){
+  curEditSesi=sesi;
+  document.getElementById('guru-siswa-nama').textContent=curSiswa.nama;
+  document.getElementById('s3-pill').textContent=`Edit Sesi ${sesi.sesiKe}`;
+  document.getElementById('s3-pill').className='edit-pill';
+  go('s3');
+}
+
+// ── Guru ──
+let selectedGuru='';
+function renderGuruList(){
+  document.getElementById('guru-list').innerHTML=GURU_LIST.map(g=>`
+    <div class="guru-opt" id="go-${g.nama}" onclick="pilihGuru('${g.nama}')">
+      <div class="guru-avatar">${g.inisial}</div>
+      <div><div class="guru-nama">${g.nama}</div><div class="guru-peran">${g.peran}</div></div>
+      <div class="guru-check">✓</div>
+    </div>`).join('');
+}
+function pilihGuru(nama){
+  selectedGuru=nama;
+  document.getElementById('guru-custom').value='';
+  document.querySelectorAll('.guru-opt').forEach(el=>el.classList.toggle('selected',el.id===`go-${nama}`));
+  document.getElementById('btn-lanjut-guru').disabled=false;
+}
+function onGuruCustom(val){
+  if(val.trim()){
+    selectedGuru=val.trim();
+    document.querySelectorAll('.guru-opt').forEach(el=>el.classList.remove('selected'));
+    document.getElementById('btn-lanjut-guru').disabled=false;
+  } else {selectedGuru='';document.getElementById('btn-lanjut-guru').disabled=true;}
+}
+function lanjutDariGuru(){if(!selectedGuru)return;curGuru=selectedGuru;openForm();}
+
+// ── Form ──
+function openForm(){
+  resetState();
+  const isEdit=curAksi==='edit'&&curEditSesi;
+  const sesiKe=isEdit?curEditSesi.sesiKe:(curSiswa.jumlahSesi||0)+1;
+  document.getElementById('form-nama').textContent=curSiswa.nama;
+  document.getElementById('form-meta').textContent=`${curSiswa.program} · Guru: ${curGuru}`;
+  const pill=document.getElementById('form-pill');
+  pill.textContent=isEdit?`Edit Sesi ${sesiKe}`:`Sesi ke-${sesiKe}`;
+  pill.className=isEdit?'edit-pill':'sesi-pill';
+  document.getElementById('form-body').innerHTML=
+    `<div class="loading"><div class="spinner"></div><div class="loading-txt">Memuat form...</div></div>`;
+  go('s4');
+  api('getBadgeMaster',{level:curSiswa.levelAktif||1})
+    .then(r=>{allBadgeMeta=r;badgeMaster=r.ok?r.data:[];buildForm(r,isEdit);})
+    .catch(()=>buildForm({},isEdit));
+}
+
+function resetState(){
+  fState={kehadiran:'hadir',kegiatan:'',catatan:'',fotoCaption:'',bB:{},bSub:{},bStreak:{},bC:{},bE:{}};
+}
+
+function fwCls(fw){
+  if(fw==='SEL')return'fw-sel';if(fw==='Montessori')return'fw-mont';
+  if(fw==='Letterland')return'fw-ll';return'fw-yo';
+}
+function stars(n){return'★'.repeat(n)+'☆'.repeat(5-n)}
+
+function buildForm(meta,isEdit){
+  const isE=isEdit&&curEditSesi;
+  const today=isE?curEditSesi.tanggal:new Date().toISOString().split('T')[0];
+  const kegiatan=isE?curEditSesi.kegiatan||'':'';
+  const catatan=isE?curEditSesi.catatan||'':'';
+  const kehadiran=isE?curEditSesi.kehadiran:'hadir';
+  if(isE)fState.kehadiran=kehadiran;
+
+  const bB=badgeMaster.filter(b=>(meta.tipeB||[]).includes(b.id));
+  const bBSub=badgeMaster.filter(b=>(meta.tipeBSub||[]).includes(b.id));
+  const bBStreak=badgeMaster.filter(b=>(meta.tipeBStreak||[]).includes(b.id));
+  const bC=badgeMaster.filter(b=>(meta.tipeC||[]).includes(b.id));
+  const bE=badgeMaster.filter(b=>(meta.tipeE||[]).includes(b.id));
+
+  document.getElementById('form-body').innerHTML=`
+    <div class="guru-bar">
+      <div><div class="guru-bar-label">Guru hari ini</div><div class="guru-bar-nama">${curGuru}</div></div>
+      <div class="guru-bar-change" onclick="go('s3')">Ganti</div>
+    </div>
+    ${isE?`<div class="err-box" style="background:var(--wn-d);border-color:rgba(251,191,36,.25);margin-bottom:.75rem">
+      <div class="err-txt" style="color:var(--wn)">✎ Mode edit — Sesi ${curEditSesi.sesiKe} · ${curEditSesi.tanggal}</div>
+    </div>`:''}
+    <div class="fcard">
+      <div class="fcard-head"><span class="fcard-ico">📅</span><span class="fcard-ttl">Tanggal</span></div>
+      <div class="fcard-body"><input type="date" id="f-tgl" class="fin one" value="${today}"></div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-head"><span class="fcard-ico">○</span><span class="fcard-ttl">Kehadiran</span></div>
+      <div class="fcard-body">
+        <div class="h-grid">
+          <button class="hbtn ${kehadiran==='hadir'?'on-hadir':''}" id="bh-hadir" onclick="setH('hadir')">Hadir</button>
+          <button class="hbtn ${kehadiran==='izin'?'on-izin':''}" id="bh-izin" onclick="setH('izin')">Izin / Sakit</button>
+          <button class="hbtn ${kehadiran==='alpa'?'on-alpa':''}" id="bh-alpa" onclick="setH('alpa')">Alpa</button>
+        </div>
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-head"><span class="fcard-ico">◈</span><span class="fcard-ttl">Kegiatan hari ini</span></div>
+      <div class="fcard-body">
+        <textarea id="f-keg" class="fin" placeholder="Tuliskan kegiatan belajar hari ini..." rows="3">${kegiatan}</textarea>
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-head"><span class="fcard-ico">◉</span><span class="fcard-ttl">Observasi — badge hari ini</span></div>
+      <div class="fcard-body" style="padding:.65rem .85rem">
+        <p class="hint">Centang badge yang kamu amati pada anak hari ini.</p>
+        ${bB.map(b=>`
+        <div class="badge-row" id="br-${b.id}">
+          <div class="badge-tap" onclick="togB('${b.id}')">
+            <div class="chk" id="ck-${b.id}"><span class="chk-tick">✓</span></div>
+            <div class="badge-info">
+              <div class="badge-nama">${b.nama}</div>
+              <div class="badge-desc">${b.deskripsi}</div>
+              <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span>
+            </div>
+          </div>
+          <div class="momen-wrap" id="mw-${b.id}">
+            <textarea class="momen-input" id="mn-${b.id}" placeholder="Ceritakan momen yang kamu lihat... (opsional)" rows="2"></textarea>
+          </div>
+        </div>`).join('')}
+        ${bBStreak.map(b=>`
+        <div class="badge-streak-row">
+          <div class="badge-streak-title">${b.nama} <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span></div>
+          <div class="badge-streak-desc">${b.deskripsi}</div>
+          <div class="streak-opts">
+            <button class="streak-btn" id="sk-y-${b.id}" onclick="setStreak('${b.id}',true)">✓ Datang lengkap</button>
+            <button class="streak-btn" id="sk-n-${b.id}" onclick="setStreak('${b.id}',false)">✗ Tidak lengkap</button>
+          </div>
+          <div class="streak-warn" id="sw-${b.id}">Streak akan reset ke 0.</div>
+        </div>`).join('')}
+        ${bBSub.map(b=>`
+        <div class="badge-sub-row">
+          <div class="badge-sub-title">${b.nama} <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span></div>
+          <div class="badge-sub-desc">${b.deskripsi}</div>
+          <div class="sub-checks">
+            <div class="sub-check" id="sc-a-${b.id}" onclick="togSub('${b.id}','a')">
+              <div class="sub-chk" id="sck-a-${b.id}"><span class="sub-chk-tick">✓</span></div>
+              <div class="sub-label">Saat <strong>datang</strong> — simpan tas & sepatu di tempat yang benar</div>
+            </div>
+            <div class="sub-check" id="sc-b-${b.id}" onclick="togSub('${b.id}','b')">
+              <div class="sub-chk" id="sck-b-${b.id}"><span class="sub-chk-tick">✓</span></div>
+              <div class="sub-label">Saat <strong>pulang</strong> — ambil semua barang, tidak ada yang tertinggal</div>
+            </div>
+          </div>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-head"><span class="fcard-ico">◎</span><span class="fcard-ttl">Progress skill — update level</span></div>
+      <div class="fcard-body" style="padding:.65rem .85rem">
+        <p class="hint">Pilih level skill anak saat ini jika ada perubahan. Tidak wajib setiap sesi.</p>
+        ${bC.map(b=>`
+        <div class="badge-c-row">
+          <div class="badge-c-title">${b.nama} <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span></div>
+          <div class="badge-c-desc">${b.deskripsi}</div>
+          <div class="skill-levels">
+            ${(b.skillLevels||[]).map((lbl,i)=>`
+            <div class="skill-opt" id="so-${b.id}-${i+1}" onclick="setSkill('${b.id}',${i+1})">
+              <div class="skill-num">${i+1}</div>
+              <div><div class="skill-label">${lbl}</div><div class="skill-stars">${stars(i+1)}</div></div>
+            </div>`).join('')}
+          </div>
+          <textarea class="badge-c-note" id="cn-${b.id}" placeholder="Catatan observasi... (opsional)" rows="2"></textarea>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-head"><span class="fcard-ico">✦</span><span class="fcard-ttl">Momen pertama / karya</span></div>
+      <div class="fcard-body" style="padding:.65rem .85rem">
+        <p class="hint">Tandai jika ada momen istimewa atau karya hari ini.</p>
+        ${bE.map(b=>`
+        <div class="badge-e-row">
+          <div class="badge-e-title">${b.nama} <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span></div>
+          <div class="badge-e-desc">${b.deskripsi}</div>
+          <div class="e-opts">
+            <button class="e-btn" id="ev-y-${b.id}" onclick="setEvent('${b.id}',true)">✦ Ada karya hari ini</button>
+            <button class="e-btn" id="ev-n-${b.id}" onclick="setEvent('${b.id}',false)">Tidak ada</button>
+          </div>
+          <textarea class="badge-e-note" id="en-${b.id}" placeholder="Deskripsikan karya atau momen... (opsional)" rows="2"></textarea>
+        </div>`).join('')}
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-head"><span class="fcard-ico">◻</span><span class="fcard-ttl">Foto momen</span></div>
+      <div class="fcard-body">
+        <p class="hint">Simpan foto ke Google Drive, lalu tulis keterangannya di sini.</p>
+        <textarea id="f-foto" class="fin" placeholder="Keterangan foto hari ini... (opsional)" rows="2"></textarea>
+      </div>
+    </div>
+    <div class="fcard">
+      <div class="fcard-head"><span class="fcard-ico">✎</span><span class="fcard-ttl">Catatan guru</span></div>
+      <div class="fcard-body">
+        <textarea id="f-cat" class="fin" placeholder="Catatan umum sesi ini..." rows="3">${catatan}</textarea>
+      </div>
+    </div>
+    <button class="btn-sub ${isE?'edit-mode':''}" id="btn-sub" onclick="doSubmit()">
+      ${isE?`✎ Simpan Perubahan Sesi ${curEditSesi.sesiKe}`:'Simpan Sesi'}
+    </button>
+    <div style="height:.5rem"></div>`;
+}
+
+// ── Interaksi form ──
+function setH(v){
+  fState.kehadiran=v;
+  ['hadir','izin','alpa'].forEach(x=>{
+    const el=document.getElementById('bh-'+x);
+    if(el)el.className='hbtn'+(x===v?' on-'+x:'');
+  });
+}
+function togB(id){
+  const on=!fState.bB[id];fState.bB[id]=on?{id,on:true}:null;
+  document.getElementById('ck-'+id)?.classList.toggle('on',on);
+  document.getElementById('br-'+id)?.classList.toggle('on',on);
+  document.getElementById('mw-'+id)?.classList.toggle('show',on);
+}
+function togSub(id,sub){
+  if(!fState.bSub[id])fState.bSub[id]={id,subA:false,subB:false};
+  if(sub==='a')fState.bSub[id].subA=!fState.bSub[id].subA;
+  else fState.bSub[id].subB=!fState.bSub[id].subB;
+  const onA=fState.bSub[id].subA,onB=fState.bSub[id].subB;
+  document.getElementById('sck-a-'+id)?.classList.toggle('on',onA);
+  document.getElementById('sc-a-'+id)?.classList.toggle('on',onA);
+  document.getElementById('sck-b-'+id)?.classList.toggle('on',onB);
+  document.getElementById('sc-b-'+id)?.classList.toggle('on',onB);
+}
+function setStreak(id,hadir){
+  fState.bStreak[id]={id,hadir};
+  document.getElementById('sk-y-'+id).className='streak-btn'+(hadir?' on-yes':'');
+  document.getElementById('sk-n-'+id).className='streak-btn'+(!hadir?' on-no':'');
+  const w=document.getElementById('sw-'+id);
+  if(w)w.className='streak-warn'+(!hadir?' show':'');
+}
+function setSkill(id,level){
+  const master=badgeMaster.find(b=>b.id===id);if(!master)return;
+  const cur=fState.bC[id]||{};
+  fState.bC[id]={...cur,skillLevel:cur.skillLevel===level?0:level};
+  const chosen=fState.bC[id].skillLevel;
+  for(let n=1;n<=(master.skillLevels||[]).length;n++){
+    document.getElementById(`so-${id}-${n}`)?.classList.toggle('on',n===chosen);
+  }
+}
+function setEvent(id,ada){
+  fState.bE[id]={id,ada};
+  document.getElementById('ev-y-'+id).className='e-btn'+(ada?' on':'');
+  document.getElementById('ev-n-'+id).className='e-btn'+(!ada?' on':'');
+}
+
+// ── Submit ──
+function doSubmit(){
+  const btn=document.getElementById('btn-sub');
+  if(!fState.kehadiran){alert('Pilih kehadiran dulu.');return;}
+  btn.disabled=true;
+  btn.textContent=curAksi==='edit'?'Menyimpan perubahan...':'Menyimpan...';
+
+  const bBArr=Object.values(fState.bB).filter(b=>b?.on).map(b=>{
+    const m=badgeMaster.find(x=>x.id===b.id);
+    return{id:b.id,nama:m?.nama||b.id,momen:document.getElementById('mn-'+b.id)?.value.trim()||''};
+  });
+  const bSubArr=Object.values(fState.bSub).filter(b=>b&&(b.subA||b.subB)).map(b=>{
+    const m=badgeMaster.find(x=>x.id===b.id);
+    return{id:b.id,nama:m?.nama||b.id,subA:b.subA,subB:b.subB};
+  });
+  const bStreakArr=Object.values(fState.bStreak).filter(b=>b&&b.hadir!==undefined).map(b=>{
+    const m=badgeMaster.find(x=>x.id===b.id);
+    return{id:b.id,nama:m?.nama||b.id,hadir:b.hadir};
+  });
+  const bCArr=Object.entries(fState.bC).filter(([,v])=>v?.skillLevel>0).map(([id,v])=>({
+    id,skillLevel:v.skillLevel,
+    catatan:document.getElementById('cn-'+id)?.value.trim()||'',
+  }));
+  const bEArr=Object.values(fState.bE).filter(b=>b?.ada).map(b=>{
+    const m=badgeMaster.find(x=>x.id===b.id);
+    return{id:b.id,nama:m?.nama||b.id,catatan:document.getElementById('en-'+b.id)?.value.trim()||''};
+  });
+
+  const payload={
+    idSiswa:curSiswa.id, namaSiswa:curSiswa.nama, guru:curGuru,
+    tanggal:document.getElementById('f-tgl').value,
+    kehadiran:fState.kehadiran,
+    kegiatan:document.getElementById('f-keg').value.trim(),
+    catatan:document.getElementById('f-cat').value.trim(),
+    fotoCaption:document.getElementById('f-foto').value.trim(),
+    badgeB:bBArr, badgeSub:bSubArr, badgeStreak:bStreakArr,
+    badgeC:bCArr, badgeE:bEArr,
+    levelAktif:curSiswa.levelAktif||1,
+    isEdit:curAksi==='edit',
+    editSesiKe:curEditSesi?.sesiKe||null,
+  };
+
+  const action=curAksi==='edit'?'editSesi':'simpanSesi';
+
+  api(action,{data:payload})
+    .then(r=>{
+      if(!r.ok){
+        btn.disabled=false;
+        btn.textContent=curAksi==='edit'?'✎ Simpan Perubahan':'Simpan Sesi';
+        alert('Gagal: '+r.error);return;
+      }
+      const s=allSiswa.find(x=>x.id===curSiswa.id);
+      if(s&&curAksi==='baru')s.jumlahSesi=(s.jumlahSesi||0)+1;
+      const isEdit=curAksi==='edit';
+      document.getElementById('suc-title').textContent=isEdit?'Perubahan tersimpan':'Sesi tersimpan';
+      document.getElementById('suc-txt').innerHTML=
+        `${isEdit?`Sesi <strong style="color:var(--tx)">${r.sesiKe}</strong> berhasil diperbarui`
+          :`Sesi <strong style="color:var(--tx)">${r.sesiKe}</strong> berhasil disimpan`}
+        untuk <strong style="color:var(--tx)">${curSiswa.nama}</strong>.<br>Guru: ${curGuru}`;
+      go('s5');
+    })
+    .catch(e=>{
+      btn.disabled=false;
+      btn.textContent=curAksi==='edit'?'✎ Simpan Perubahan':'Simpan Sesi';
+      alert('Error: '+e.message);
+    });
+}
+
+function go(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0,0);
+}
+</script>
+</body>
+</html>
