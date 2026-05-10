@@ -66,7 +66,7 @@
 html, body { height: 100%; }
 body {
   font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
-  background: var(--outer-bg);
+  background: #ffffff;
   color: var(--text);
   font-size: 14px;
   line-height: 1.5;
@@ -80,8 +80,8 @@ body {
   max-width: 1200px;
   margin: 0 auto;
   min-height: 100vh;
-  background: linear-gradient(to bottom, var(--hdr-bg) 0%, var(--hdr-bg) 60%, var(--bg) 100%);
-  box-shadow: 0 0 40px rgba(28,43,58,0.15);
+  background: linear-gradient(to bottom, var(--hdr-bg) 0%, #4a9fd4 18%, #a8d4ee 36%, #d6eaf8 52%, #ffffff 68%);
+  box-shadow: 0 0 40px rgba(28,43,58,0.10);
 }
 
 /* ── HEADER ── */
@@ -111,7 +111,33 @@ body {
 .nav-tab.active { background: #fff; color: #1B6CA8; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
 
 /* ── LAYOUT ── */
-.wrap { max-width: 1200px; margin: 0 auto; padding: 16px 14px 40px; }
+.wrap { max-width: 1200px; margin: 0 auto; padding: 16px 14px 40px; background: transparent; }
+
+/* ── MONTH SELECTOR ── */
+.month-selector {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 14px 14px 10px;
+  background: transparent;
+  border-bottom: 1px solid rgba(255,255,255,0.3);
+  margin-bottom: 14px;
+}
+.mth-btn {
+  padding: 7px 14px;
+  border-radius: 50px;
+  border: 1.5px solid var(--border);
+  background: var(--surface2);
+  color: var(--text2);
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all .18s;
+  white-space: nowrap;
+}
+.mth-btn:hover { border-color: var(--accent); color: var(--accent); }
+.mth-btn.active { background: var(--accent); color: #fff; border-color: var(--accent); }
 
 /* ── SECTION ── */
 .sec { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--rl); padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: background .3s, border-color .3s; }
@@ -314,32 +340,37 @@ body {
     </div>`;
   }
 
-  const MAP_HTML = `
-    <div class="sec">
-      <div class="sec-title">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>
-        Peta Pembelajaran · Bulan 1–6
-      </div>
-      <div class="legend-wrap">
-        <div class="leg"><div class="leg-dot" style="background:#7F77DD"></div>Bulan 1 – Huruf Vokal</div>
-        <div class="leg"><div class="leg-dot" style="background:#2E9E5B"></div>Bulan 2 – Motorik & Warna</div>
-        <div class="leg"><div class="leg-dot" style="background:#1D9E75"></div>Bulan 3 – Diriku</div>
-        <div class="leg"><div class="leg-dot" style="background:#378ADD"></div>Bulan 4 – Rumahku</div>
-        <div class="leg"><div class="leg-dot" style="background:#EF9F27"></div>Bulan 5 – Sekitarku</div>
-        <div class="leg"><div class="leg-dot" style="background:#D4537E"></div>Bulan 6 – Aku Bisa!</div>
-      </div>
-    </div>
+  function showMonth(idx, btn) {
+    document.querySelectorAll('.mth-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const mc = document.getElementById('month-content');
+    if (mc) mc.innerHTML = MONTHS[idx];
+  }
 
-    ${month('Bulan 1','#EEEDFE','#534AB7','Huruf Vokal','pengenalan huruf vokal · bunyi · nyanyian · puzzle',
-      card('b1t1','🔤','#EEEDFE','Sesi 1–2 · 3 & 5 Feb','Matching Alphabet','mencocokkan bentuk huruf · bunyi vokal · bernyanyi',
-        slbl('Sesi 1 · 3 Februari') +
+  const MAP_HTML = `
+    <div class="month-selector">
+      <button class="mth-btn active" onclick="showMonth(0,this)">Huruf Vokal</button>
+      <button class="mth-btn" onclick="showMonth(1,this)">Motorik & Warna</button>
+      <button class="mth-btn" onclick="showMonth(2,this)">Diriku</button>
+      <button class="mth-btn" onclick="showMonth(3,this)">Rumahku</button>
+      <button class="mth-btn" onclick="showMonth(4,this)">Sekitarku</button>
+      <button class="mth-btn" onclick="showMonth(5,this)">Aku Bisa!</button>
+    </div>
+    <div id="month-content"></div>
+  `;
+
+  const MONTHS = [
+    // Bulan 1 — Huruf Vokal
+    month('Bulan 1','#EEEDFE','#534AB7','Huruf Vokal','pengenalan huruf vokal · bunyi · nyanyian · puzzle',
+      card('b1t1','🔤','#EEEDFE','Sesi 1–2','Matching Alphabet','mencocokkan bentuk huruf · bunyi vokal · bernyanyi',
+        slbl('Sesi 1') +
         BUKA +
         motor('5–15\'','Mencocokkan bentuk huruf ke papan puzzle','Anak mencocokkan potongan huruf vokal A I U E O ke papan puzzle. Guru dampingi tanpa terburu-buru.') +
         fonik('15–35\'','Pengenalan bunyi huruf vokal','Guru memperkenalkan bunyi tiap vokal: "Ini huruf A, bunyinya Aaa..." Anak mendengarkan dan meniru bunyi.') +
         fonik('35–55\'','Bernyanyi huruf vokal','Nyanyikan lagu A I U E O dengan gerakan tangan. Diulang 3x dengan tempo berbeda.') +
         TUTUP +
         divider +
-        slbl('Sesi 2 · 5 Februari') +
+        slbl('Sesi 2') +
         rutin('0–5\'','Pembukaan & doa','Salam, doa. Guru tanya: "Kemarin belajar huruf apa?" Recall singkat.') +
         motor('5–20\'','Matching ulang + mandiri','Anak melakukan puzzle huruf vokal lebih mandiri. Guru observasi: apakah sudah bisa mencocokkan tanpa bantuan?') +
         fonik('20–40\'','Bunyi + tunjuk huruf','Guru sebut bunyi vokal, anak menunjuk hurufnya di papan. "Mana yang bunyinya Uuu?"') +
@@ -347,8 +378,8 @@ body {
         TUTUP +
         obs('Apakah bisa mencocokkan huruf vokal ke papan tanpa bantuan?','Apakah mengikuti bunyi vokal saat guru memperagakan?','Apakah antusias mengikuti lagu dan gerakan?')
       ) +
-      card('b1t2','🔍','#EEEDFE','Sesi 3–4 · 10 & 12 Feb','Hunt Alphabet','bentuk huruf · benda vokal · mencari huruf',
-        slbl('Sesi 3 · 10 Februari') +
+      card('b1t2','🔍','#EEEDFE','Sesi 3–4','Hunt Alphabet','bentuk huruf · benda vokal · mencari huruf',
+        slbl('Sesi 3') +
         rutin('0–5\'','Pembukaan & doa','Salam, simpan tas, doa. Guru tanya: "Siapa yang ingat huruf vokal?"') +
         motor('5–20\'','Mencocokkan bentuk huruf vokal','Huruf dicetak di kertas, anak mencocokkan ke kartu referensi.') +
         fonik('20–35\'','Pengenalan bentuk huruf vokal','Anak menelusuri bentuk huruf dengan jari di atas kertas bertekstur. "Huruf A bentuknya seperti tenda!"') +
@@ -356,7 +387,7 @@ body {
         fonik('48–55\'','Bernyanyi huruf vokal','Nyanyikan lagu vokal sambil tunjuk gambar benda yang sesuai.') +
         TUTUP +
         divider +
-        slbl('Sesi 4 · 12 Februari') +
+        slbl('Sesi 4') +
         rutin('0–5\'','Pembukaan & doa','Salam, doa. Guru tanya: "Benda apa yang dimulai huruf A?" Recall singkat.') +
         fonik('5–25\'','Mencari huruf (Hunt Alphabet)','Guru sembunyikan kartu huruf vokal di ruangan. Anak mencari sambil menyebut huruf yang ditemukan.') +
         fonik('25–40\'','Mencocokkan huruf + benda','Anak mencocokkan kartu huruf dengan kartu gambar benda yang sesuai.') +
@@ -364,15 +395,15 @@ body {
         TUTUP +
         obs('Apakah bisa menyebut nama huruf vokal saat menemukannya?','Apakah bisa mencocokkan huruf dengan benda yang diawali vokal?','Apakah antusias saat Hunt Alphabet?')
       ) +
-      card('b1t3','🍩','#EEEDFE','Sesi 5–6 · 24 & 26 Feb','Tracking Donat','memegang donat · memasukkan · menyusun urutan',
-        slbl('Sesi 5 · 24 Februari') +
+      card('b1t3','🍩','#EEEDFE','Sesi 5–6','Tracking Donat','memegang donat · memasukkan · menyusun urutan',
+        slbl('Sesi 5') +
         BUKA +
         motor('5–20\'','Memegang donat dengan 2 jari','Anak memegang donat mainan menggunakan ibu jari dan telunjuk. Latihan mengambil dan meletakkan satu per satu.') +
         motor('20–40\'','Memasukkan & melepaskan donat dari tiang','Anak memasukkan donat ke tiang kayu, lalu melepasnya kembali. Diulang beberapa kali.') +
         motor('40–55\'','Menyusun donat','Anak menyusun donat ke tiang secara bebas. Guru observasi apakah ada kesadaran urutan atau warna secara spontan.') +
         TUTUP +
         divider +
-        slbl('Sesi 6 · 26 Februari') +
+        slbl('Sesi 6') +
         rutin('0–5\'','Pembukaan & doa','Salam, doa. Guru tanya: "Kemarin kita main apa? Donatnya dimasukkan ke mana?"') +
         motor('5–25\'','Menyusun donat dari besar ke kecil','Guru perkenalkan konsep urutan ukuran. Anak mencoba menyusun donat dari besar ke kecil.') +
         motor('25–45\'','Menyusun donat berdasarkan warna','Guru minta anak menyusun donat berdasarkan instruksi warna: "Ambil yang merah dulu!"') +
@@ -380,7 +411,7 @@ body {
         TUTUP2 +
         obs('Apakah bisa memegang donat dengan 2 jari secara konsisten?','Apakah bisa memasukkan donat ke tiang tanpa bantuan?','Apakah ada kesadaran urutan besar-kecil?','Apakah bisa menyebut warna donat saat diminta?')
       ) +
-      card('b1t4','🎵','#EEEDFE','Sesi 7–8 · Akhir Feb / Awal Mar','Review Vokal + Gerak','konsolidasi huruf vokal · bunyi · gerak tubuh',
+      card('b1t4','🎵','#EEEDFE','Sesi 7–8','Review Vokal + Gerak','konsolidasi huruf vokal · bunyi · gerak tubuh',
         slbl('Sesi 7') +
         BUKA +
         fonik('5–25\'','Flashcard vokal + tunjuk','Guru tunjukkan flashcard huruf vokal satu per satu. Anak menyebutkan nama huruf dan satu benda yang dimulai huruf tersebut.') +
@@ -395,18 +426,19 @@ body {
         TUTUP +
         obs('Apakah bisa menyebutkan semua huruf vokal berurutan tanpa bantuan?','Apakah bisa mengasosiasikan satu benda dengan tiap huruf vokal?','Apakah menebalkan huruf dengan arah yang benar?')
       )
-    )}
-
-    ${month('Bulan 2','#E6F7EE','#1A7A48','Motorik & Warna','warna lewat donat · motorik kasar · pensil & gunting',
-      card('b2t1','🍩','#E6F7EE','Sesi 1–2 · 7 & 9 Apr','Warna Lewat Donat','warna donat · hunt for color · lompat warna',
-        slbl('Sesi 1 · 7 April') +
+    
+    ),
+    // Bulan 2 — Motorik & Warna
+    month('Bulan 2','#E6F7EE','#1A7A48','Motorik & Warna','warna lewat donat · motorik kasar · pensil & gunting',
+      card('b2t1','🍩','#E6F7EE','Sesi 1–2','Warna Lewat Donat','warna donat · hunt for color · lompat warna',
+        slbl('Sesi 1') +
         BUKA +
         fonik('5–20\'','Mengenal warna lewat donat','Guru perkenalkan warna lewat donat mainan. Anak menyentuh dan menyebut nama warna. Kuning dan biru dikenalkan lebih dulu.') +
         fonik('20–40\'','Hunt for color','Guru sebut warna, anak berlari mencari benda berwarna itu di ruangan. Fokus 3 warna: kuning, biru, merah.') +
         motor('40–55\'','Lompat warna','Guru buat kotak warna di lantai. Guru sebut warna, anak melompat ke kotak yang disebut.') +
         TUTUP +
         divider +
-        slbl('Sesi 2 · 9 April') +
+        slbl('Sesi 2') +
         rutin('0–5\'','Pembukaan & doa','Salam, doa. Guru tanya: "Kemarin kita belajar warna apa saja?" Review singkat.') +
         fonik('5–25\'','Ambil donat berdasarkan warna','Guru minta anak mengambil donat sesuai warna yang dipinta. Tambahkan hijau di sesi ini.') +
         motor('25–45\'','Lompat warna + sortir','Setelah lompat, anak memasukkan donat warna yang sama ke wadah.') +
@@ -414,15 +446,15 @@ body {
         TUTUP +
         obs('Apakah bisa menyebut kuning dan biru saat ditanya?','Apakah merah dan hijau belum konsisten saat diminta menyebutkan?','Apakah bisa melompat ke kotak warna yang tepat?','Apakah cara memegang gunting sudah mulai terbentuk?')
       ) +
-      card('b2t2','✏️','#E6F7EE','Sesi 3–4 · 14 & 16 Apr','Latihan Pensil & Gunting','garis lurus · lingkaran · menggunting',
-        slbl('Sesi 3 · 14 April') +
+      card('b2t2','✏️','#E6F7EE','Sesi 3–4','Latihan Pensil & Gunting','garis lurus · lingkaran · menggunting',
+        slbl('Sesi 3') +
         BUKA +
         motor('5–20\'','Membuat garis lurus — lintasan mobil','Anak menggambar garis lurus mengikuti lintasan jalan yang digambar guru. Guru bantu cara memegang krayon yang benar.') +
         motor('20–40\'','Membuat lingkaran — rambut keriting','Anak menggambar lingkaran berulang mengikuti motif rambut keriting di atas gambar kepala orang.') +
         motor('40–55\'','Menggunting kertas','Anak menggunting mengikuti garis lurus yang digambar. Guru koreksi cara pegang gunting pelan-pelan.') +
         TUTUP +
         divider +
-        slbl('Sesi 4 · 16 April') +
+        slbl('Sesi 4') +
         rutin('0–5\'','Pembukaan & doa','Salam, doa. Guru tanya: "Kemarin kita belajar membuat apa?" Anak peragakan gerakan garis atau lingkaran di udara.') +
         motor('5–25\'','Menggunting rambut','Anak menggunting "rambut" dari gambar orang yang dicetak — kertas tebal dengan garis rambut panjang.') +
         motor('25–50\'','Garis & lingkaran bebas','Anak menggambar bebas kombinasi garis lurus dan lingkaran. Guru observasi cara pegang dan tekanan tangan.') +
@@ -430,15 +462,15 @@ body {
         TUTUP2 +
         obs('Apakah garis lurus sudah cukup baik dibuat dengan krayon?','Apakah lingkaran sudah bisa dibuat meski belum sempurna?','Apakah cara memegang gunting mulai membaik?')
       ) +
-      card('b2t3','⚽','#E6F7EE','Sesi 5–6 · 21 & 23 Apr','Bermain Bola','memindahkan bola · melempar · menyusun warna',
-        slbl('Sesi 5 · 21 April') +
+      card('b2t3','⚽','#E6F7EE','Sesi 5–6','Bermain Bola','memindahkan bola · melempar · menyusun warna',
+        slbl('Sesi 5') +
         BUKA +
         motor('5–20\'','Memindahkan bola satu persatu','Anak memindahkan bola dari satu wadah ke wadah lain satu per satu. Guru sebut warna bola saat dipindahkan.') +
         motor('20–40\'','Memindahkan bola dari kanan ke kiri','Latihan pemindahan bola konsisten kanan ke kiri. Bantu anak mengenal konsep kanan-kiri.') +
         motor('40–55\'','Melempar bola ke keranjang','Anak melempar bola ke keranjang dari jarak dekat. Latihan koordinasi mata-tangan.') +
         TUTUP +
         divider +
-        slbl('Sesi 6 · 23 April') +
+        slbl('Sesi 6') +
         rutin('0–5\'','Pembukaan & doa','Salam, doa. Guru tanya: "Kemarin kita lempar bola ke mana?" Recall singkat.') +
         motor('5–25\'','Membawa bola melewati rintangan sambil berjinjit','Anak membawa bola melewati rintangan sederhana sambil berjinjit. Latihan keseimbangan dan koordinasi.') +
         fonik('25–50\'','Menyusun bola sesuai warna','Anak mengelompokkan bola berwarna ke wadah yang sesuai. Review warna: kuning, biru, merah.') +
@@ -446,15 +478,15 @@ body {
         TUTUP2 +
         obs('Apakah bisa memindahkan bola secara konsisten beberapa kali?','Apakah bisa berjinjit sambil membawa bola melewati rintangan?','Apakah menyusun bola sesuai warna dengan benar?')
       ) +
-      card('b2t4','🍿','#E6F7EE','Sesi 7–8 · 28 & 30 Apr','Kreasi & Sensory Play','popcorn art · menggunting · menempel · lompat',
-        slbl('Sesi 7 · 28 April — Membuat Popcorn') +
+      card('b2t4','🍿','#E6F7EE','Sesi 7–8','Kreasi & Sensory Play','popcorn art · menggunting · menempel · lompat',
+        slbl('Sesi 7') +
         rutin('0–5\'','Pembukaan & doa','Salam, simpan tas, doa. Guru: "Hari ini kita buat popcorn dari kertas!"') +
         motor('5–25\'','Menggunting kertas jadi popcorn','Anak menggunting kertas putih/kuning menjadi potongan kecil menyerupai popcorn. Bentuk bebas.') +
         motor('25–45\'','Mewarnai wadah popcorn','Anak mewarnai gambar wadah popcorn dengan krayon. Latihan mewarnai dalam area tertentu.') +
         output('45–57\'','Menempel popcorn ke wadah','Anak menempelkan potongan kertas "popcorn" ke gambar wadah menggunakan lem. Karya bisa dibawa pulang.') +
         rutin('57–60\'','Doa penutup & beres-beres','Beres-beres sisa kertas dan lem, doa penutup, salam.') +
         divider +
-        slbl('Sesi 8 · 30 April — Sensory Motor Play') +
+        slbl('Sesi 8') +
         rutin('0–5\'','Pembukaan & doa','Salam, doa. Guru: "Hari ini kita main lompat! Tapi ada aturannya ya."') +
         motor('5–30\'','Lompat 1 dan 2','Guru buat injakan di lantai. Anak melompat ke injakan 1, lalu ke injakan 2. Latihan lompat terarah.') +
         motor('30–50\'','Eksplorasi sensori bebas','Sediakan bahan sensori (pasir kinetik, beras, atau air). Anak bebas menjelajah, menuang, meremas.') +
@@ -462,9 +494,9 @@ body {
         rutin('58–60\'','Doa penutup & beres-beres','Beres-beres, doa penutup, salam. Akhir Bulan 2!') +
         obs('Apakah sangat semangat saat aktivitas meremas dan menempel?','Apakah bisa melompat pada injakan yang ditentukan secara berurutan?','Apakah rasa ingin tahu tinggi saat eksplorasi sensori?','Apakah menggunting sudah lebih baik dari sesi awal bulan?')
       )
-    )}
-
-    ${month('Bulan 3','#E1F5EE','#0F6E56','Diriku','tubuh · warna · angka 1–3',
+    ),
+    // Bulan 3 — Diriku
+    month('Bulan 3','#E1F5EE','#0F6E56','Diriku','tubuh · warna · angka 1–3',
       card('t1','🪞','#E1F5EE','Sesi 1–2','Ini Tubuhku','mata, hidung, mulut, telinga, tangan, kaki',
         slbl('Sesi 1 — Aku punya tubuh') +
         BUKA +
@@ -532,9 +564,9 @@ body {
         TUTUP2 +
         obs('Apakah bisa menyebutkan angka 1–3 dengan urutan benar?','Apakah bisa mencocokkan angka dengan jumlah benda yang tepat?','Apakah koordinasi tangan-mata (merangkai manik) membaik?')
       )
-    )}
-
-    ${month('Bulan 4','#E6F1FB','#185FA5','Rumahku','benda di rumah · huruf vokal dalam konteks · angka 1–5',
+    ),
+    // Bulan 4 — Rumahku
+    month('Bulan 4','#E6F1FB','#185FA5','Rumahku','benda di rumah · huruf vokal dalam konteks · angka 1–5',
       card('t5','🛏','#E6F1FB','Sesi 1–2','Kamarku','kasur, bantal, selimut, pintu, jendela',
         BUKA +
         fonik('5–20\'','Apa yang ada di kamarku?','Guru tampilkan gambar kamar. Anak menyebutkan benda. Guru tulis nama benda di papan.') +
@@ -566,9 +598,9 @@ body {
         output('40–55\'','Kartu angka 1–5 buatanku','Anak buat kartu angka 1–5: tulis angka dibantu guru, tempel stiker sebanyak angka tersebut.') +
         TUTUP
       )
-    )}
-
-    ${month('Bulan 5','#FAEEDA','#854F0B','Sekitarku','lingkungan dekat · bentuk · menulis huruf vokal',
+    ),
+    // Bulan 5 — Sekitarku
+    month('Bulan 5','#FAEEDA','#854F0B','Sekitarku','lingkungan dekat · bentuk · menulis huruf vokal',
       card('t9','🌿','#FAEEDA','Sesi 1–2','Halaman Rumahku','pohon, bunga, tanah, batu, air',
         BUKA +
         motor('5–20\'','Jalan-jalan mini di halaman','Bila memungkinkan, bawa anak ke halaman. Anak menyentuh tanah, batu, daun. Guru menamai.') +
@@ -608,9 +640,9 @@ body {
         TUTUP +
         obs('Apakah bisa menebalkan huruf dengan arah yang benar?','Apakah bisa menyebut nama vokal ketika melihat hurufnya?','Apakah bisa menemukan vokal dalam kata secara mandiri?')
       )
-    )}
-
-    ${month('Bulan 6','#FBEAF0','#993556','Aku Bisa!','review · konsolidasi · kreasi mandiri',
+    ),
+    // Bulan 6 — Aku Bisa!
+    month('Bulan 6','#FBEAF0','#993556','Aku Bisa!','review · konsolidasi · kreasi mandiri',
       card('t13','🌈','#FBEAF0','Sesi 1–2','Aku Tahu Warnanya','review semua warna lewat benda rumah',
         BUKA +
         fonik('5–25\'','Permainan warna benda rumah','Guru sebut warna, anak menyebut benda rumah yang punya warna itu. Review menyeluruh.') +
@@ -646,8 +678,8 @@ body {
           <div class="milestone-item">Merapikan alat setelah belajar (dengan pengingat)</div>
         </div>`
       )
-    )}
-  `;
+    ),
+  ];
 
   const INFO_HTML = `
     <div class="sec">
@@ -728,6 +760,7 @@ body {
 
     const mc = document.getElementById('main-content');
     mc.innerHTML = name === 'map' ? MAP_HTML : INFO_HTML;
+    if (name === 'map') showMonth(0, document.querySelector('.mth-btn'));
 
     const d = HDR[name] || HDR.map;
     const title = document.getElementById('hdrTitle');
