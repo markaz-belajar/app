@@ -44,19 +44,10 @@
     .deco2 { width: 120px; height: 120px; bottom: 20px; right: 30px; background: rgba(255,202,40,0.08); }
     .deco3 { width: 80px; height: 80px; top: 40px; left: -20px; background: rgba(255,255,255,0.04); }
 
-    .header-inner { position: relative; z-index: 2; padding: 52px 20px 0; display: flex; flex-direction: column; height: 100%; }
-    .header-top { display: flex; align-items: center; justify-content: space-between; }
-    .header-logo { height: 50px; width: 127px; object-fit: contain; filter: drop-shadow(0 2px 8px rgba(0,0,0,0.18)); }
-    .header-back {
-      display: flex; align-items: center; gap: 6px;
-      background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.25);
-      border-radius: 50px; padding: 7px 14px;
-      font-size: 13px; font-weight: 600; color: #fff;
-      text-decoration: none; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
-    }
-    .header-spacer { flex: 0 0 16px; }
-    .header-text { padding-bottom: 14px; padding-left: 4px; }
-    .header-eyebrow { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); letter-spacing: 1.2px; text-transform: uppercase; margin-bottom: 6px; }
+    .header-inner { position: relative; z-index: 2; padding: 0 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; gap: 16px; }
+    .header-logo { height: 90px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 12px rgba(0,0,0,0.25)); }
+
+    .header-text { width: 100%; padding-left: 30px; text-align: left; }
     .header-title { font-size: 34px; font-weight: 700; color: #fff; line-height: 1.1; letter-spacing: -0.5px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
 
     /* TAB BAR */
@@ -183,13 +174,9 @@
     <div class="header-deco deco2"></div>
     <div class="header-deco deco3"></div>
     <div class="header-inner">
-      <div class="header-top">
-        <img class="header-logo" src="Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.style.display='none'" />
-        <a class="header-back" href="index.html">← Beranda</a>
-      </div>
-      <div class="header-spacer"></div>
+      <img class="header-logo" src="Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.style.display='none'" />
+
       <div class="header-text">
-        <div class="header-eyebrow">Calistung · Preschool</div>
         <div class="header-title">Teacher<br>Report</div>
       </div>
     </div>
@@ -211,41 +198,37 @@
       <!-- SLIDE 0: INPUT -->
       <div class="slide">
         <div class="content-card">
-          <div class="section-title">Input Sesi</div>
-          <div class="section-sub">Catat pertemuan & observasi hari ini</div>
-
-          <div class="info-box">
-            <div class="info-box-ico">💡</div>
-            <div class="info-box-txt"><strong>Cara kerja:</strong> Pilih siswa → pilih guru → isi kehadiran, kegiatan, badge, dan catatan. Data tersimpan langsung ke Google Sheets.</div>
-          </div>
+          <div class="section-title">Input Sesi Baru</div>
+          <div class="section-sub">Pilih program untuk mulai mencatat sesi</div>
 
           <div class="menu-list">
-            <a class="menu-item" href="input-sesi.html">
+            <a class="menu-item" href="https://markaz-belajar.github.io/app/input-sesi.html">
               <div class="menu-icon-wrap bg-blue">
                 <svg viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                  <path d="M12 2a5 5 0 1 0 0 10A5 5 0 0 0 12 2z"/>
+                  <path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/>
                 </svg>
               </div>
               <div class="menu-info">
-                <h3>Input Sesi Baru</h3>
-                <p>Catat pertemuan & observasi hari ini</p>
+                <h3>Preschool</h3>
+                <p>Calistung · Tahfidz · English Kids</p>
               </div>
               <div class="menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
             </a>
 
-            <a class="menu-item" href="input-sesi.html">
-              <div class="menu-icon-wrap bg-yellow">
-                <svg viewBox="0 0 24 24" fill="none" stroke="#F59F00" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+            <div class="menu-item soon">
+              <div class="menu-icon-wrap bg-purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="#7C5CBF" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                  <path d="M6 12v5c3 3 9 3 12 0v-5"/>
                 </svg>
               </div>
               <div class="menu-info">
-                <h3>Edit Sesi Lama</h3>
-                <p>Koreksi atau perbarui data sesi sebelumnya</p>
+                <h3>Elementary</h3>
+                <p>Matematika · English · Tahfidz</p>
               </div>
-              <div class="menu-arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg></div>
-            </a>
+              <span class="badge-soon">Soon</span>
+            </div>
           </div>
 
           <div class="section-divider"></div>
