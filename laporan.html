@@ -1,0 +1,506 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Laporan Perkembangan – Markaz Belajar</title>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Lato:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --sun:#FFCA28;--sun-deep:#F59F00;
+  --sky:#1B6CA8;--sky-light:#E8F4FD;--sky-mid:#4DA3D4;
+  --leaf:#2E9E5B;--leaf-light:#E6F7EE;
+  --coral:#E85D4A;--coral-light:#FFF0EE;
+  --ink:#1C2B3A;--ink-mid:#4A6070;--ink-faint:#8FA4B4;
+  --paper:#FDFAF4;--paper-warm:#FFF8E8;--line:#EDE9DF;
+  --white:#FFFFFF;
+  --radius:20px;--radius-sm:12px;
+  --shadow:0 4px 24px rgba(28,43,58,0.10);
+  --shadow-sm:0 2px 10px rgba(28,43,58,0.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{font-size:16px}
+body{font-family:'Lato',sans-serif;background:#E9EEF3;min-height:100vh;color:var(--ink)}
+.page{max-width:480px;margin:0 auto;background:var(--paper);min-height:100vh;position:relative;overflow:visible;border-radius:20px}
+@media(max-width:480px){.page{border-radius:0}}
+@media(min-width:481px){body{padding:20px 0}.page{border-radius:28px;min-height:auto;box-shadow:0 8px 40px rgba(0,0,0,0.15)}}
+
+/* LOADING */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:16px;padding:2rem}
+.spinner{width:36px;height:36px;border:3px solid var(--line);border-top-color:var(--sky);border-radius:50%;animation:spin .7s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-family:'Baloo 2',sans-serif;font-size:14px;color:var(--ink-faint);text-align:center}
+.err-wrap{padding:2rem 1.5rem;text-align:center}
+.err-ico{font-size:40px;margin-bottom:1rem}
+.err-title{font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800;color:var(--ink);margin-bottom:.5rem}
+.err-msg{font-size:13px;color:var(--ink-faint);line-height:1.6}
+
+/* HEADER */
+.header{background:#f5c548;padding:0;position:relative;border-radius:0 0 32px 32px;overflow:hidden}
+.header-inner{position:relative;z-index:2;padding:22px 20px 58px;border-radius:0 0 32px 32px}
+.header-logo-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+.header-logo-txt{font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:rgba(28,43,58,0.6);letter-spacing:.5px}
+.header-level-badge{background:rgba(28,43,58,0.12);border-radius:50px;padding:5px 14px;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;color:rgba(28,43,58,0.7)}
+.header-eyebrow{font-size:11px;font-weight:700;color:rgba(28,43,58,0.65);letter-spacing:1.2px;text-transform:uppercase;margin-bottom:5px}
+.header-title{font-family:'Baloo 2',sans-serif;font-size:24px;font-weight:800;color:#1C2B3A;line-height:1.15;margin-bottom:12px}
+.header-period{display:inline-flex;align-items:center;gap:6px;background:#ffffff;border:none;border-radius:50px;padding:6px 16px;font-size:12px;color:var(--sky);font-weight:700}
+
+/* STUDENT CARD */
+.student-card-wrap{margin:0 16px;margin-top:-36px;position:relative;z-index:10}
+.student-card{background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow);padding:16px;display:flex;align-items:flex-start;gap:14px}
+.avatar{width:56px;height:56px;flex-shrink:0;background:linear-gradient(135deg,var(--sky) 0%,var(--sky-mid) 100%);border-radius:16px;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800;color:#fff;border:3px solid var(--sun)}
+.student-name{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--ink);line-height:1.2}
+.student-meta{font-size:12px;color:var(--ink-mid);margin-top:3px}
+.student-id{font-size:10px;font-weight:700;color:var(--sky);margin-top:3px;letter-spacing:.4px}
+.student-badges{display:flex;gap:5px;flex-wrap:wrap;margin-top:10px}
+.sbadge{border-radius:50px;padding:3px 10px;font-size:10px;font-weight:700}
+.sbadge-blue{background:var(--sky-light);color:var(--sky)}
+.sbadge-yellow{background:#FFF8DC;color:#8B6914}
+.sbadge-coral{background:var(--coral-light);color:var(--coral)}
+
+/* STAT STRIP */
+.stat-strip{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin:14px 16px 0}
+.stat-box{background:var(--white);border-radius:var(--radius-sm);box-shadow:var(--shadow-sm);padding:12px 8px;text-align:center}
+.stat-num{font-family:'Baloo 2',sans-serif;font-size:26px;font-weight:800;color:var(--sky);line-height:1}
+.stat-lbl{font-size:10px;color:var(--ink-faint);margin-top:3px;line-height:1.3}
+
+/* SECTION */
+.section{margin:14px 16px 0;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-sm);overflow:hidden}
+.sec-head{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1.5px solid var(--line)}
+.sec-icon{width:34px;height:34px;flex-shrink:0;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px}
+.sec-title{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;color:var(--ink)}
+.sec-sub{font-size:11px;color:var(--ink-faint);margin-top:1px}
+
+/* TIMELINE */
+.timeline{padding:14px 16px}
+.tl-item{display:flex;gap:12px;margin-bottom:18px}
+.tl-item:last-child{margin-bottom:0}
+.tl-left{display:flex;flex-direction:column;align-items:center;flex-shrink:0;width:36px}
+.tl-dot{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:11px;font-weight:800;flex-shrink:0}
+.tl-dot-y{background:var(--paper-warm);color:var(--sun-deep);border:2px solid var(--sun)}
+.tl-dot-b{background:var(--sky);color:#fff}
+.tl-dot-r{background:var(--coral-light);color:var(--coral);border:2px solid var(--coral)}
+.tl-dot-g{background:var(--leaf-light);color:var(--leaf);border:2px solid var(--leaf)}
+.tl-line{width:2px;flex:1;background:var(--line);margin:4px 0;min-height:12px}
+.tl-body{flex:1;min-width:0}
+.tl-date{font-size:11px;color:var(--ink-faint);margin-bottom:3px}
+.tl-guru{font-size:10px;color:var(--sky);font-weight:700;margin-bottom:3px}
+.tl-title{font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:var(--ink);margin-bottom:4px}
+.tl-desc{font-size:12px;color:var(--ink-mid);line-height:1.55;margin-bottom:6px}
+.tl-catatan{background:var(--sky-light);border-left:3px solid var(--sky-mid);border-radius:0 8px 8px 0;padding:7px 10px;font-size:12px;color:var(--sky);font-style:italic;line-height:1.45;margin-bottom:7px}
+.tl-pills{display:flex;gap:4px;flex-wrap:wrap;margin-bottom:4px}
+.tl-pill{font-size:10px;font-weight:700;background:var(--paper-warm);color:var(--sun-deep);border:1px solid var(--sun);border-radius:50px;padding:2px 9px}
+.tl-izin{background:var(--coral-light);border-left:3px solid var(--coral);border-radius:0 8px 8px 0;padding:7px 12px;font-size:12px;font-weight:700;color:var(--coral);margin-bottom:4px}
+
+/* HADIR BADGE */
+.hadir-tag{display:inline-block;font-size:10px;font-weight:700;border-radius:50px;padding:2px 8px;margin-bottom:6px}
+.hadir-hadir{background:var(--leaf-light);color:var(--leaf)}
+.hadir-izin{background:var(--coral-light);color:var(--coral)}
+.hadir-alpa{background:#F5F5F5;color:#999}
+
+/* MILESTONE */
+.milestone-wrap{padding:14px 16px}
+.ms-category-label{font-size:10px;font-weight:800;color:var(--sky);letter-spacing:1px;text-transform:uppercase;padding-bottom:6px;border-bottom:2px solid var(--sun);margin-bottom:10px;margin-top:16px}
+.ms-category-label:first-child{margin-top:0}
+.ms-row{display:flex;align-items:flex-start;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}
+.ms-row:last-child{border-bottom:none}
+.ms-status{flex-shrink:0;margin-top:3px}
+.ms-dot-on{width:10px;height:10px;border-radius:50%;background:var(--sun);border:2px solid var(--sun-deep);display:inline-block}
+.ms-dot-off{width:10px;height:10px;border-radius:50%;background:#E0E0E0;border:2px solid #CCC;display:inline-block}
+.ms-info{flex:1;min-width:0}
+.ms-name{font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:700;color:var(--ink)}
+.ms-desc{font-size:11px;color:var(--ink-faint);margin-top:2px;line-height:1.4}
+.stars{display:flex;gap:2px;flex-shrink:0;align-items:center}
+.s-on{font-size:14px;color:var(--sun)}
+.s-off{font-size:14px;color:#E0E0E0}
+.s-super{font-size:16px;color:var(--coral)}
+.legend-row{display:flex;gap:8px;flex-wrap:wrap;padding:10px 16px;border-top:1px solid var(--line)}
+.leg{display:flex;align-items:center;gap:4px;font-size:10px;color:var(--ink-faint)}
+
+/* CATATAN GURU */
+.teacher-note{margin:14px 16px 0;background:linear-gradient(135deg,#1B6CA8 0%,#145688 100%);border-radius:var(--radius);padding:18px 16px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.tn-deco{position:absolute;top:-20px;right:-20px;width:100px;height:100px;border-radius:50%;background:rgba(255,255,255,0.06);pointer-events:none}
+.tn-deco2{position:absolute;bottom:-30px;left:-20px;width:80px;height:80px;border-radius:50%;background:rgba(255,202,40,0.08);pointer-events:none}
+.tn-head{display:flex;align-items:center;gap:8px;margin-bottom:12px}
+.tn-head-icon{width:30px;height:30px;border-radius:8px;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;font-size:15px}
+.tn-head-title{font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:#fff}
+.tn-text{font-size:13px;color:rgba(255,255,255,0.9);line-height:1.65;position:relative;z-index:1}
+.tn-tag{display:inline-block;background:var(--sun);color:var(--ink);font-size:11px;font-weight:800;border-radius:50px;padding:3px 10px;margin-top:12px}
+
+/* TANDA TANGAN */
+.sig-section{margin:14px 16px 0;background:var(--white);border-radius:var(--radius);box-shadow:var(--shadow-sm);padding:16px}
+.sig-title{font-size:10px;font-weight:800;color:var(--ink-faint);letter-spacing:.8px;text-transform:uppercase;margin-bottom:14px;text-align:center}
+.sig-row{display:flex;justify-content:space-around}
+.sig-item{text-align:center}
+.sig-line{width:70px;height:1px;background:var(--line);margin:0 auto 5px}
+.sig-role{font-size:10px;color:var(--ink-faint);font-weight:700;text-transform:uppercase;letter-spacing:.4px}
+.sig-name{font-family:'Baloo 2',sans-serif;font-size:12px;font-weight:700;color:var(--ink);margin-top:2px}
+
+/* FOOTER */
+.footer{margin:14px 16px 28px;text-align:center;font-size:11px;color:var(--ink-faint)}
+.footer strong{color:var(--sky)}
+
+/* EMPTY STATE */
+.empty-state{padding:2rem 1rem;text-align:center;font-size:13px;color:var(--ink-faint)}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <div class="loading-wrap" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-txt">Memuat laporan...</div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════
+const API = 'https://script.google.com/macros/s/AKfycbwhA4cweMbkHhUYsXj7KewyPSp4p-OuAxaK_84QfEnhM-IMZCpu5hIUTZxALbOxma0m/exec';
+
+function api(action, params={}) {
+  const url = new URL(API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v==='object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json());
+}
+
+// ── Ambil ?id dari URL ──
+function getIdFromUrl() {
+  const p = new URLSearchParams(window.location.search);
+  return p.get('id');
+}
+
+// ── Format tanggal ──
+function fmtTgl(tgl) {
+  if (!tgl) return '—';
+  const d = new Date(tgl);
+  if (isNaN(d)) return tgl;
+  return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+}
+
+// ── Format periode ──
+function fmtPeriode(sesiList) {
+  if (!sesiList.length) return '—';
+  const sorted = [...sesiList].sort((a,b) => new Date(a.tanggal)-new Date(b.tanggal));
+  const first = new Date(sorted[0].tanggal);
+  const last  = new Date(sorted[sorted.length-1].tanggal);
+  const opt = { month:'long', year:'numeric' };
+  if (first.getMonth()===last.getMonth() && first.getFullYear()===last.getFullYear()) {
+    return first.toLocaleDateString('id-ID', opt);
+  }
+  return first.toLocaleDateString('id-ID',{month:'long'})+' – '+last.toLocaleDateString('id-ID', opt);
+}
+
+// ── Stars HTML ──
+function starsHtml(n, max=5) {
+  let h = '';
+  for (let i=1; i<=max; i++) {
+    if (i===max && n>=max) h += `<span class="s-super">★</span>`;
+    else if (i<=n) h += `<span class="s-on">★</span>`;
+    else h += `<span class="s-off">★</span>`;
+  }
+  return h;
+}
+
+// ── Kelompok badge per framework ──
+const FW_ORDER = ['SEL','Montessori','Letterland','Yōchien'];
+
+function groupByFramework(badges) {
+  const groups = {};
+  FW_ORDER.forEach(fw => groups[fw] = []);
+  badges.forEach(b => {
+    const fw = b.framework || 'Lainnya';
+    if (!groups[fw]) groups[fw] = [];
+    groups[fw].push(b);
+  });
+  return groups;
+}
+
+// ── Render milestone ──
+function renderMilestone(badgeData, badgeMaster) {
+  if (!badgeMaster.length) return '<div class="empty-state">Data badge tidak tersedia.</div>';
+
+  // Gabungkan master + data aktual
+  const badgeMap = {};
+  (badgeData || []).forEach(b => { badgeMap[b.nama] = b; });
+
+  const groups = groupByFramework(badgeMaster);
+  let html = '';
+
+  FW_ORDER.forEach(fw => {
+    const list = groups[fw];
+    if (!list || !list.length) return;
+    html += `<div class="ms-category-label">${fw}</div>`;
+    list.forEach(master => {
+      const actual = badgeMap[master.nama] || null;
+      const tercapai = actual?.tercapai || false;
+      const bintang  = Number(actual?.bintang) || 0;
+      const desc     = actual?.catatan || master.deskripsi || '';
+      html += `
+      <div class="ms-row">
+        <div class="ms-status"><span class="${tercapai?'ms-dot-on':'ms-dot-off'}"></span></div>
+        <div class="ms-info">
+          <div class="ms-name">${master.nama}</div>
+          <div class="ms-desc">${desc}</div>
+        </div>
+        <div class="stars">${starsHtml(bintang)}</div>
+      </div>`;
+    });
+  });
+
+  return html;
+}
+
+// ── Render timeline sesi ──
+function renderTimeline(sesiList) {
+  if (!sesiList.length) return '<div class="empty-state">Belum ada sesi tercatat.</div>';
+
+  const sorted = [...sesiList].sort((a,b) => new Date(a.tanggal)-new Date(b.tanggal));
+
+  return sorted.map((s, i) => {
+    const isLast = i === sorted.length - 1;
+    const kh = (s.kehadiran||'').toLowerCase();
+    const isHadir = kh === 'hadir';
+    const isIzin  = kh === 'izin' || kh.includes('sakit');
+    const isAlpa  = kh === 'alpa';
+
+    const dotClass = isLast ? 'tl-dot-b' : (isHadir ? 'tl-dot-y' : isIzin ? 'tl-dot-r' : 'tl-dot-g');
+    const hadirClass = isHadir ? 'hadir-hadir' : isIzin ? 'hadir-izin' : 'hadir-alpa';
+    const hadirLabel = isHadir ? '✓ Hadir' : isIzin ? '⚡ Izin/Sakit' : '✗ Alpa';
+
+    // Badge pills dari badgeCatat
+    let pillsHtml = '';
+    if (s.badgeCatat && s.badgeCatat.trim()) {
+      const pills = s.badgeCatat.split('|').map(p=>p.trim()).filter(Boolean);
+      if (pills.length) {
+        pillsHtml = `<div class="tl-pills">${pills.map(p=>`<span class="tl-pill">⭐ ${p}</span>`).join('')}</div>`;
+      }
+    }
+
+    // Catatan guru (jika ada)
+    const catatanHtml = s.catatan
+      ? `<div class="tl-catatan">💬 ${s.catatan}</div>`
+      : '';
+
+    // Izin / alpa notice
+    const izinHtml = !isHadir
+      ? `<div class="tl-izin">${isIzin ? '🤒 Izin/Sakit — tidak ada kegiatan sesi ini' : '❌ Alpa — tidak ada kegiatan sesi ini'}</div>`
+      : '';
+
+    const kegiatanHtml = (isHadir && s.kegiatan)
+      ? `<div class="tl-desc">${s.kegiatan}</div>`
+      : '';
+
+    const guruHtml = s.guru ? `<div class="tl-guru">👩‍🏫 ${s.guru}</div>` : '';
+
+    return `
+    <div class="tl-item">
+      <div class="tl-left">
+        <div class="tl-dot ${dotClass}">${s.sesiKe}</div>
+        ${!isLast ? '<div class="tl-line"></div>' : ''}
+      </div>
+      <div class="tl-body">
+        <div class="tl-date">${fmtTgl(s.tanggal)}${isLast ? ' · Pertemuan terakhir' : ''}</div>
+        ${guruHtml}
+        <span class="hadir-tag ${hadirClass}">${hadirLabel}</span>
+        ${izinHtml}
+        ${kegiatanHtml}
+        ${catatanHtml}
+        ${pillsHtml}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── Hitung stats ──
+function hitungStats(sesiList, badgeData) {
+  const total  = sesiList.length;
+  const hadir  = sesiList.filter(s=>(s.kehadiran||'').toLowerCase()==='hadir').length;
+  const tercapai = (badgeData||[]).filter(b=>b.tercapai).length;
+  const progress = total > 0 ? Math.round((hadir/48)*100) : 0;
+  return { total, hadir, tercapai, progress };
+}
+
+// ── Catatan guru terbaru ──
+function catatanTerbaru(sesiList) {
+  const withCatatan = sesiList
+    .filter(s => s.catatan && s.catatan.trim())
+    .sort((a,b) => new Date(b.tanggal)-new Date(a.tanggal));
+  return withCatatan.length ? withCatatan[0].catatan : null;
+}
+
+// ── MAIN RENDER ──
+async function render() {
+  const idSiswa = getIdFromUrl();
+  if (!idSiswa) {
+    showError('ID siswa tidak ditemukan', 'Buka halaman ini dengan parameter ?id=xxx');
+    return;
+  }
+
+  try {
+    // Fetch semua data paralel
+    const [rSiswa, rSesi, rBadge, rMaster] = await Promise.all([
+      api('getSiswa'),
+      api('getSesiSiswa', { idSiswa }),
+      api('getBadgeSiswa', { idSiswa }),
+      api('getBadgeMaster', { level: 1 }),
+    ]);
+
+    if (!rSiswa.ok) { showError('Gagal memuat data siswa', rSiswa.error); return; }
+    if (!rSesi.ok)  { showError('Gagal memuat data sesi',  rSesi.error);  return; }
+
+    const siswa     = rSiswa.data.find(s => String(s.id) === String(idSiswa));
+    const sesiList  = rSesi.data  || [];
+    const badgeData = rBadge?.data || [];
+    const badgeMaster = rMaster?.data || [];
+
+    if (!siswa) { showError('Siswa tidak ditemukan', `ID ${idSiswa} tidak ada dalam data.`); return; }
+
+    const stats   = hitungStats(sesiList, badgeData);
+    const periode = fmtPeriode(sesiList);
+    const lastCatatan = catatanTerbaru(sesiList);
+    const now = new Date().toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+
+    document.title = `Laporan – ${siswa.nama}`;
+
+    document.getElementById('page').innerHTML = `
+
+      <!-- HEADER -->
+      <div class="header">
+        <div class="header-inner">
+          <div class="header-logo-row">
+            <div class="header-logo-txt">MARKAZ BELAJAR</div>
+            <div class="header-level-badge">Level ${siswa.levelAktif||1} · Foundation</div>
+          </div>
+          <div class="header-eyebrow">Laporan Perkembangan Siswa</div>
+          <div class="header-title">Catatan Guru<br>untuk ${siswa.nama.split(' ')[0]}</div>
+          <div class="header-period">📅 ${periode} · Level ${siswa.levelAktif||1} Foundation</div>
+        </div>
+      </div>
+
+      <!-- PROFIL SISWA -->
+      <div class="student-card-wrap">
+        <div class="student-card">
+          <div class="avatar">${siswa.inisial}</div>
+          <div style="flex:1;min-width:0">
+            <div class="student-name">${siswa.nama}</div>
+            <div class="student-meta">${siswa.kelamin||'—'} · ${siswa.program||'Preschool'}</div>
+            <div class="student-id">${siswa.nomorInduk||'—'}</div>
+            <div class="student-badges">
+              <span class="sbadge sbadge-blue">Level ${siswa.levelAktif||1} – Foundation</span>
+              <span class="sbadge sbadge-yellow">${siswa.tipe||'Reguler'}</span>
+              <span class="sbadge sbadge-coral">Calistung</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STAT STRIP -->
+      <div class="stat-strip">
+        <div class="stat-box">
+          <div class="stat-num">${stats.total}</div>
+          <div class="stat-lbl">Pertemuan<br>tercatat</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">${stats.tercapai}</div>
+          <div class="stat-lbl">Badge<br>tercapai</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-num">${stats.progress}%</div>
+          <div class="stat-lbl">Progress<br>pembelajaran</div>
+        </div>
+      </div>
+
+      <!-- TIMELINE -->
+      <div class="section">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--paper-warm)">📅</div>
+          <div>
+            <div class="sec-title">Catatan Pertemuan</div>
+            <div class="sec-sub">${periode} · ${stats.hadir} hadir dari ${stats.total} sesi</div>
+          </div>
+        </div>
+        <div class="timeline">
+          ${renderTimeline(sesiList)}
+        </div>
+      </div>
+
+      <!-- MILESTONE BADGE -->
+      <div class="section">
+        <div class="sec-head">
+          <div class="sec-icon" style="background:var(--paper-warm)">⭐</div>
+          <div>
+            <div class="sec-title">Pencapaian Badge Milestone</div>
+            <div class="sec-sub">Level ${siswa.levelAktif||1} Foundation · Rekap keseluruhan</div>
+          </div>
+        </div>
+        <div class="legend-row">
+          <div class="leg"><span class="ms-dot-on"></span> Tercapai</div>
+          <div class="leg"><span class="ms-dot-off"></span> Dalam proses</div>
+          <div class="leg"><span style="color:var(--sun);font-size:13px">★</span> Skor 1–4</div>
+          <div class="leg"><span style="color:var(--coral);font-size:13px">★</span> Superstar</div>
+        </div>
+        <div class="milestone-wrap">
+          ${renderMilestone(badgeData, badgeMaster)}
+        </div>
+      </div>
+
+      <!-- CATATAN GURU TERBARU -->
+      ${lastCatatan ? `
+      <div class="teacher-note">
+        <div class="tn-deco"></div>
+        <div class="tn-deco2"></div>
+        <div class="tn-head">
+          <div class="tn-head-icon">👩‍🏫</div>
+          <div class="tn-head-title">Catatan Guru</div>
+        </div>
+        <div class="tn-text">${lastCatatan}</div>
+        <div class="tn-tag">Semangat terus! 🌟</div>
+      </div>` : ''}
+
+      <!-- TANDA TANGAN -->
+      <div class="sig-section">
+        <div class="sig-title">Tanda Tangan · Persetujuan Laporan</div>
+        <div class="sig-row">
+          <div class="sig-item">
+            <div class="sig-line"></div>
+            <div class="sig-role">Guru</div>
+            <div class="sig-name">——————</div>
+          </div>
+          <div class="sig-item">
+            <div class="sig-line"></div>
+            <div class="sig-role">Asisten Guru</div>
+            <div class="sig-name">——————</div>
+          </div>
+          <div class="sig-item">
+            <div class="sig-line"></div>
+            <div class="sig-role">Orang Tua</div>
+            <div class="sig-name">——————</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="footer">
+        Diperbarui · <strong>${now}</strong> · Markaz Belajar Preschool Calistung
+      </div>
+    `;
+
+  } catch(e) {
+    showError('Terjadi kesalahan', e.message);
+  }
+}
+
+function showError(title, msg) {
+  document.getElementById('page').innerHTML = `
+    <div class="err-wrap">
+      <div class="err-ico">⚠️</div>
+      <div class="err-title">${title}</div>
+      <div class="err-msg">${msg||''}</div>
+    </div>`;
+}
+
+render();
+</script>
+</body>
+</html>
