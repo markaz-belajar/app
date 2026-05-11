@@ -20,8 +20,6 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%;overflow-x:hidden}
 body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--ink);min-height:100vh}
-
-/* ── HEADER ── */
 .hdr{background:linear-gradient(135deg,#1457A8,#2484CE);position:sticky;top:0;z-index:200;box-shadow:0 2px 12px rgba(20,87,168,0.3)}
 .hdr-inner{max-width:1200px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;justify-content:space-between;gap:10px}
 .hdr-brand{font-size:17px;font-weight:700;color:#fff}
@@ -32,8 +30,6 @@ body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--ink);min-he
 .hbtn svg{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round}
 .hbtn.add{background:rgba(255,255,255,0.9);color:var(--blue)}
 .hbtn.add:hover{background:#fff}
-
-/* ── SUMMARY ── */
 .wrap{max-width:1200px;margin:0 auto;padding:16px 20px}
 .sum-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:14px}
 @media(max-width:600px){.sum-grid{grid-template-columns:repeat(2,1fr)}}
@@ -44,8 +40,6 @@ body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--ink);min-he
 .c-done  .sum-n{color:var(--green)}
 .c-proc  .sum-n{color:var(--yellow)}
 .c-sisa  .sum-n{color:var(--red)}
-
-/* ── TOTAL PROGRESS BAR ── */
 .prog-card{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);padding:16px 20px;margin-bottom:14px;box-shadow:var(--shadow)}
 .prog-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px}
 .prog-lbl{font-size:14px;font-weight:700}
@@ -55,8 +49,6 @@ body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--ink);min-he
 .prog-meta{display:flex;gap:14px;margin-top:8px;font-size:11px;color:var(--ink3);flex-wrap:wrap}
 .prog-meta span{display:flex;align-items:center;gap:4px}
 .dot{width:7px;height:7px;border-radius:50%;flex-shrink:0}
-
-/* ── TABS ── */
 .tabs-scroll{overflow-x:auto;padding-bottom:2px;margin-bottom:14px}
 .tabs{display:flex;gap:6px;min-width:max-content}
 .tab{padding:8px 16px;border-radius:50px;font-family:'Rubik',sans-serif;font-size:12px;font-weight:600;cursor:pointer;border:1.5px solid var(--bd);background:var(--white);color:var(--ink3);transition:all .15s;white-space:nowrap;display:flex;align-items:center;gap:6px}
@@ -64,8 +56,6 @@ body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--ink);min-he
 .tab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
 .tab .tc{font-size:10px;padding:1px 6px;border-radius:99px;background:var(--blue-d);color:var(--blue)}
 .tab.active .tc{background:rgba(255,255,255,0.25);color:#fff}
-
-/* ── CAT HEADER ── */
 .cat-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;flex-wrap:wrap;gap:8px}
 .cat-title{font-size:17px;font-weight:700}
 .cat-meta{font-size:12px;color:var(--ink3)}
@@ -74,20 +64,14 @@ body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--ink);min-he
 .mini-bar{width:100px;height:6px;background:#EDF1F5;border-radius:99px;overflow:hidden}
 .mini-fill{height:100%;border-radius:99px;background:var(--green);transition:width .5s}
 .mini-txt{font-size:12px;font-weight:600;color:var(--ink3)}
-
-/* ── FILTER ── */
 .filt-row{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap}
 .fb{padding:6px 13px;border-radius:50px;font-family:'Rubik',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:1.5px solid var(--bd);background:var(--white);color:var(--ink3);transition:all .15s}
 .fb.active{background:var(--ink);color:#fff;border-color:var(--ink)}
 .fb.fs.active{background:var(--green);border-color:var(--green)}
 .fb.fp.active{background:var(--yellow);border-color:var(--yellow);color:#0a2846}
 .fb.fb2.active{background:var(--ink3);border-color:var(--ink3)}
-
-/* ── ITEM GRID ── */
 .item-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px}
 @media(max-width:480px){.item-grid{grid-template-columns:1fr 1fr}}
-
-/* ── ITEM CARD ── */
 .icard{background:var(--white);border:1px solid var(--bd);border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);transition:transform .12s,box-shadow .12s;cursor:default}
 .icard:hover{transform:translateY(-2px);box-shadow:0 8px 28px rgba(28,43,58,0.12)}
 .icard.sudah{border-color:rgba(46,158,91,0.3)}
@@ -114,8 +98,6 @@ body{font-family:'Rubik',sans-serif;background:var(--bg);color:var(--ink);min-he
 .iact{flex:1;padding:6px;border-radius:8px;font-family:'Rubik',sans-serif;font-size:11px;font-weight:600;cursor:pointer;border:1px solid var(--bd);background:var(--bg);color:var(--ink3);transition:all .15s;text-align:center}
 .iact:hover{border-color:var(--blue);color:var(--blue);background:var(--blue-d)}
 .iact.del:hover{border-color:var(--red);color:var(--red);background:var(--red-d)}
-
-/* ── MODAL ── */
 .overlay{position:fixed;inset:0;background:rgba(28,43,58,0.55);z-index:300;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px)}
 .overlay.open{opacity:1;pointer-events:all}
 @media(min-width:600px){.overlay{align-items:center}}
@@ -135,8 +117,6 @@ input[type=text],input[type=number],input[type=url],select,textarea{width:100%;p
 input:focus,select:focus,textarea:focus{border-color:var(--blue);background:var(--white)}
 textarea{resize:vertical;min-height:70px}
 select option{background:var(--white)}
-
-/* UPLOAD ZONE */
 .upzone{border:2px dashed var(--bd2);border-radius:12px;padding:20px;text-align:center;cursor:pointer;transition:all .2s;background:var(--bg);position:relative}
 .upzone:hover,.upzone.drag{border-color:var(--blue);background:var(--blue-d)}
 .upzone input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
@@ -150,39 +130,27 @@ select option{background:var(--white)}
 .up-status.ok{color:var(--green)}
 .up-status.err{color:var(--red)}
 .up-status.loading{color:var(--blue)}
-
-/* PROGRESS UPLOAD */
 .up-prog{height:4px;background:var(--bd);border-radius:99px;overflow:hidden;margin-top:6px;display:none}
 .up-prog-fill{height:100%;background:var(--blue);border-radius:99px;transition:width .3s}
-
-/* MODAL ACTIONS */
 .modal-acts{display:flex;gap:10px;padding:16px 20px 0}
 .btn-cancel{flex:1;padding:11px;border-radius:12px;border:1.5px solid var(--bd);background:var(--white);font-family:'Rubik',sans-serif;font-size:14px;font-weight:600;color:var(--ink3);cursor:pointer;transition:all .15s}
 .btn-cancel:hover{background:var(--bg);border-color:var(--bd2)}
 .btn-save{flex:2;padding:11px;border-radius:12px;border:none;background:var(--blue);font-family:'Rubik',sans-serif;font-size:14px;font-weight:700;color:#fff;cursor:pointer;transition:all .15s}
 .btn-save:hover{opacity:.9}
 .btn-save:disabled{opacity:.4;cursor:default}
-
-/* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:12px;font-size:13px;font-weight:600;z-index:500;transition:transform .3s;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,0.2)}
 .toast.show{transform:translateX(-50%) translateY(0)}
 .toast.ok{background:var(--green)}
 .toast.err{background:var(--red)}
-
-/* LOADING / EMPTY */
 .loading{text-align:center;padding:48px 20px;color:var(--ink3)}
 .spinner{width:28px;height:28px;border:2.5px solid var(--bd);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 12px}
 @keyframes spin{to{transform:rotate(360deg)}}
 .empty{text-align:center;padding:32px;color:var(--ink3);font-size:13px}
-
-@media(min-width:769px){
-  .hdr-inner,.wrap{padding-left:32px;padding-right:32px}
-}
+@media(min-width:769px){.hdr-inner,.wrap{padding-left:32px;padding-right:32px}}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <div class="hdr">
   <div class="hdr-inner">
     <div>
@@ -202,18 +170,13 @@ select option{background:var(--white)}
   </div>
 </div>
 
-<!-- MAIN WRAP -->
 <div class="wrap">
-
-  <!-- SUMMARY -->
   <div class="sum-grid">
     <div class="sum-card c-total"><div class="sum-n" id="s-total">—</div><div class="sum-l">Total Item</div></div>
     <div class="sum-card c-done"><div class="sum-n" id="s-done">—</div><div class="sum-l">Sudah Dibeli</div></div>
     <div class="sum-card c-proc"><div class="sum-n" id="s-proc">—</div><div class="sum-l">Sedang Proses</div></div>
     <div class="sum-card c-sisa"><div class="sum-n" id="s-sisa">—</div><div class="sum-l">Belum Dibeli</div></div>
   </div>
-
-  <!-- TOTAL PROGRESS -->
   <div class="prog-card">
     <div class="prog-head">
       <div class="prog-lbl">Progress Keseluruhan</div>
@@ -226,20 +189,10 @@ select option{background:var(--white)}
       <span><span class="dot" style="background:#EDF1F5;border:1px solid #d0d5dd"></span>Sisa: <strong id="m-sisa">Rp 0</strong></span>
     </div>
   </div>
+  <div class="tabs-scroll"><div class="tabs" id="tabs"></div></div>
+  <div id="content"><div class="loading"><div class="spinner"></div><div>Memuat data...</div></div></div>
+</div>
 
-  <!-- TABS -->
-  <div class="tabs-scroll">
-    <div class="tabs" id="tabs"></div>
-  </div>
-
-  <!-- CONTENT -->
-  <div id="content">
-    <div class="loading"><div class="spinner"></div><div>Memuat data...</div></div>
-  </div>
-
-</div><!-- /wrap -->
-
-<!-- ── MODAL ADD/EDIT ── -->
 <div class="overlay" id="modal-overlay" onclick="onOverlayClick(event)">
   <div class="modal" id="modal">
     <div class="modal-handle"></div>
@@ -315,20 +268,16 @@ select option{background:var(--white)}
   </div>
 </div>
 
-<!-- TOAST -->
 <div class="toast" id="toast"></div>
 
 <script>
-const SHEET_ID  = '1Y0SOCfL7Xi0TCZJQvicGLVuP2cmQhOkLjfCFC_JEvQY';
-const GAS_URL   = 'https://script.google.com/macros/s/AKfycbzESqcrKVpCk7AkdkfqjCvu0JjuxjBF1rs5DU9N8aOgWwy4oDT9DXKcvnHG0IiZKGGI/exec';
-// Sheets write endpoint (same GAS, we'll use JSONP for write or direct)
-// For reading CSV:
-const CSV_URL   = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
+const SHEET_ID = '1Y0SOCfL7Xi0TCZJQvicGLVuP2cmQhOkLjfCFC_JEvQY';
+const GAS_URL  = 'https://script.google.com/macros/s/AKfycbzESqcrKVpCk7AkdkfqjCvu0JjuxjBF1rs5DU9N8aOgWwy4oDT9DXKcvnHG0IiZKGGI/exec';
+const CSV_URL  = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=Sheet1`;
 
 let allData = [], currentCat = 'semua', currentFilter = 'semua';
 let editRow = null, uploadedImgUrl = '';
 
-// ── CSV PARSER ──
 function parseCSV(txt) {
   const rows = []; let cur = '', inQ = false, row = [];
   for (let i = 0; i < txt.length; i++) {
@@ -348,7 +297,6 @@ function parseCSV(txt) {
 function rp(n){return n?'Rp '+Number(n).toLocaleString('id-ID'):'—'}
 function parseHarga(s){return parseInt(String(s||'').replace(/[^0-9]/g,''))||0}
 
-// ── LOAD ──
 async function loadData() {
   document.getElementById('content').innerHTML='<div class="loading"><div class="spinner"></div><div>Memuat data...</div></div>';
   try {
@@ -357,20 +305,18 @@ async function loadData() {
     const txt = await res.text();
     const rows = parseCSV(txt);
     if (rows.length < 2) { setContent('<div class="empty">Sheet kosong. Tambah item dulu.</div>'); return; }
-
     const hdr = rows[0].map(h=>h.trim().toLowerCase());
     const col = ns => { for(const n of ns){const i=hdr.findIndex(h=>h.includes(n));if(i>=0)return i;} return -1; };
-    const iK=col(['kategori']), iN=col(['nama']), iH=col(['harga']),
-          iL=col(['link']),     iG=col(['gambar']), iS=col(['status']),
+    const iK=col(['kategori']),iN=col(['nama']),iH=col(['harga']),
+          iL=col(['link']),iG=col(['gambar']),iS=col(['status']),
           iP=col(['prioritas']),iC=col(['catatan']);
-
     allData = [];
     for (let i=1;i<rows.length;i++){
       const r=rows[i];
       const nama=(iN>=0?r[iN]:'').trim();
       if(!nama) continue;
       allData.push({
-        row:i+1, // 1-based sheet row (header=1, data starts 2)
+        row:i+1,
         kategori:(iK>=0?r[iK]:'Lainnya').trim()||'Lainnya',
         nama, harga:parseHarga(iH>=0?r[iH]:''),
         link:(iL>=0?r[iL]:'').trim(),
@@ -387,8 +333,6 @@ async function loadData() {
 }
 
 function setContent(h){document.getElementById('content').innerHTML=h}
-
-// ── BUILD UI ──
 function buildUI(){updateSummary();buildTabs();renderContent()}
 
 function updateSummary(){
@@ -438,7 +382,6 @@ function renderContent(){
   const pct=tot?Math.round(don/tot*100):0;
   const totRp=catData.reduce((s,d)=>s+d.harga,0);
   const donRp=catData.filter(d=>d.status.toLowerCase()==='sudah').reduce((s,d)=>s+d.harga,0);
-
   document.getElementById('content').innerHTML=`
     <div class="cat-head">
       <div>
@@ -465,7 +408,6 @@ function renderCards(){
   const list=currentFilter==='semua'?catData:catData.filter(d=>d.status.toLowerCase()===currentFilter);
   const grid=document.getElementById('item-grid');
   if(!list.length){grid.innerHTML='<div class="empty">Tidak ada item.</div>';return;}
-
   grid.innerHTML=list.map(item=>{
     const st=item.status.toLowerCase();
     const scls=st==='sudah'?'sb-sudah':st==='proses'?'sb-proses':'sb-belum';
@@ -477,7 +419,6 @@ function renderCards(){
     const stamp=st==='sudah'?'<span class="stamp">✓ DIBELI</span>':st==='proses'?'<span class="stamp pr">↻ PROSES</span>':'';
     const linkH=item.link?`<a class="ilink" href="${item.link}" target="_blank" rel="noopener"><svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>Beli</a>`:'';
     const noteH=item.catatan?`<div class="inote">${item.catatan}</div>`:'';
-    const rowData=encodeURIComponent(JSON.stringify(item));
     return`
       <div class="icard ${ccls}">
         <div class="img-wrap">${imgH}${stamp}</div>
@@ -498,7 +439,6 @@ function renderCards(){
   }).join('');
 }
 
-// ── MODAL ──
 function openAdd(){
   editRow=null; uploadedImgUrl='';
   document.getElementById('modal-title').textContent='Tambah Item';
@@ -529,18 +469,16 @@ function openEdit(item){
   if(item.gambar){
     document.getElementById('up-img').src=item.gambar;
     document.getElementById('up-preview').style.display='block';
-    document.getElementById('up-status').textContent='';
   } else {
     document.getElementById('up-preview').style.display='none';
-    document.getElementById('up-status').textContent='';
   }
+  document.getElementById('up-status').textContent='';
   document.getElementById('modal-overlay').classList.add('open');
 }
 
 function closeModal(){document.getElementById('modal-overlay').classList.remove('open')}
 function onOverlayClick(e){if(e.target===document.getElementById('modal-overlay'))closeModal()}
 
-// ── FILE UPLOAD ──
 function onFileChange(e){
   const file=e.target.files[0];
   if(!file)return;
@@ -550,47 +488,39 @@ function onFileChange(e){
     const b64=evt.target.result;
     document.getElementById('up-img').src=b64;
     document.getElementById('up-preview').style.display='block';
-    uploadToGDrive(b64,file.name,file.type);
+    uploadToImgur(b64);
   };
   reader.readAsDataURL(file);
 }
 
-async function uploadToGDrive(base64, filename, mimeType) {
+// ── UPLOAD KE IMGUR ──
+async function uploadToImgur(base64) {
   showStatus('loading', '⏳ Mengupload gambar...');
   document.getElementById('up-prog').style.display = 'block';
   document.getElementById('up-prog-fill').style.width = '30%';
   try {
-    const res = await fetch(GAS_URL, {
+    const formData = new FormData();
+    formData.append('image', base64.split(',')[1]);
+    formData.append('type', 'base64');
+
+    const res = await fetch('https://api.imgur.com/3/image', {
       method: 'POST',
-      redirect: 'follow',
-      headers: { 'Content-Type': 'text/plain' },
-      body: JSON.stringify({ base64, filename, mimeType })
+      headers: { 'Authorization': 'Client-ID 546c25a59c58ad7' },
+      body: formData
     });
+
     document.getElementById('up-prog-fill').style.width = '80%';
-
-    const text = await res.text();
-    let json;
-    try { json = JSON.parse(text); }
-    catch(e) {
-      // GAS redirect — coba extract URL dari text
-      const match = text.match(/"url":"([^"]+)"/);
-      if (match) {
-        json = { success: true, url: match[1] };
-      } else {
-        json = { success: false, error: 'Parse error' };
-      }
-    }
-
+    const json = await res.json();
     document.getElementById('up-prog-fill').style.width = '100%';
     setTimeout(() => { document.getElementById('up-prog').style.display = 'none'; }, 600);
 
     if (json.success) {
-      uploadedImgUrl = json.url;
-      document.getElementById('f-gambar').value = json.url;
-      document.getElementById('up-img').src = json.url;
+      uploadedImgUrl = json.data.link;
+      document.getElementById('f-gambar').value = json.data.link;
+      document.getElementById('up-img').src = json.data.link;
       showStatus('ok', '✓ Gambar berhasil diupload');
     } else {
-      showStatus('err', 'Gagal upload: ' + (json.error || 'unknown'));
+      showStatus('err', 'Gagal upload gambar');
     }
   } catch(err) {
     showStatus('err', 'Error: ' + err.message);
@@ -612,18 +542,15 @@ function removeImg(){
   document.getElementById('up-status').textContent='';
 }
 
-// ── SAVE ITEM (write to Sheets via GAS) ──
 async function saveItem(){
   const kat=document.getElementById('f-kat').value.trim();
   const nama=document.getElementById('f-nama').value.trim();
   if(!kat||!nama){toast('Kategori dan Nama wajib diisi','err');return;}
-
   const payload={
     action: editRow?'edit':'add',
     row: editRow||null,
     data:{
-      kategori:kat,
-      nama,
+      kategori:kat, nama,
       harga:document.getElementById('f-harga').value||'',
       link:document.getElementById('f-link').value.trim()||'',
       gambar:document.getElementById('f-gambar').value.trim()||uploadedImgUrl||'',
@@ -632,16 +559,10 @@ async function saveItem(){
       catatan:document.getElementById('f-cat').value.trim()||'',
     }
   };
-
   const btn=document.getElementById('btn-save');
   btn.disabled=true; btn.textContent='Menyimpan...';
-
   try{
-    const res=await fetch(GAS_URL,{
-      method:'POST',redirect:'follow',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify(payload)
-    });
+    const res=await fetch(GAS_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)});
     const json=await res.json();
     if(json.success){
       toast(editRow?'Item berhasil diupdate!':'Item berhasil ditambahkan!','ok');
@@ -650,29 +571,20 @@ async function saveItem(){
     } else {
       toast('Gagal: '+(json.error||'unknown'),'err');
     }
-  } catch(e){
-    toast('Error: '+e.message,'err');
-  } finally {
-    btn.disabled=false; btn.textContent='Simpan';
-  }
+  } catch(e){toast('Error: '+e.message,'err');}
+  finally{btn.disabled=false;btn.textContent='Simpan';}
 }
 
-// ── DELETE ──
 async function deleteItem(row,nama){
   if(!confirm(`Hapus "${nama}"?`))return;
   try{
-    const res=await fetch(GAS_URL,{
-      method:'POST',redirect:'follow',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({action:'delete',row})
-    });
+    const res=await fetch(GAS_URL,{method:'POST',redirect:'follow',headers:{'Content-Type':'text/plain'},body:JSON.stringify({action:'delete',row})});
     const json=await res.json();
     if(json.success){toast('Item dihapus','ok');setTimeout(loadData,600);}
     else toast('Gagal hapus: '+(json.error||''),'err');
   } catch(e){toast('Error: '+e.message,'err');}
 }
 
-// ── TOAST ──
 function toast(msg,type='ok'){
   const el=document.getElementById('toast');
   el.textContent=msg;
