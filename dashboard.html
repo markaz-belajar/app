@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Dashboard Guru · Markaz Belajar</title>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600;700&family=Geist+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#0f1117;
+  --sf:#1a1d27;
+  --sf2:#22263a;
+  --sf3:#2a2f45;
+  --bd:#2e3350;
+  --bd2:#3d4468;
+  --tx:#f0f2ff;
+  --tx2:#8b92b8;
+  --tx3:#4a5180;
+  --ac:#6c8fff;--ac-d:rgba(108,143,255,.12);--ac-g:rgba(108,143,255,.06);
+  --ok:#4ade9e;--ok-d:rgba(74,222,158,.10);
+  --yw:#fbbf24;--yw-d:rgba(251,191,36,.10);
+  --er:#f87171;--er-d:rgba(248,113,113,.10);
+  --pu:#a78bfa;--pu-d:rgba(167,139,250,.10);
+  --pk:#f472b6;--pk-d:rgba(244,114,182,.10);
+  --r:10px;--rl:16px;--rxl:20px;
+  --sh:0 4px 24px rgba(0,0,0,.4);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--tx);font-size:15px;line-height:1.5;min-height:100vh;overflow-x:hidden}
+
+/* NAV */
+.nav{background:var(--sf);border-bottom:1px solid var(--bd);padding:.75rem 1rem;position:sticky;top:0;z-index:100;display:flex;align-items:center;justify-content:space-between}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-dot{width:8px;height:8px;border-radius:50%;background:var(--ac);box-shadow:0 0 8px var(--ac);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.6;transform:scale(.85)}}
+.nav-title{font-size:15px;font-weight:700;color:var(--tx);letter-spacing:-.2px}
+.nav-sub{font-size:11px;color:var(--tx3);margin-top:1px}
+.nav-right{display:flex;align-items:center;gap:8px}
+.nav-btn{background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);padding:6px 12px;font-family:'Geist',sans-serif;font-size:12px;font-weight:600;color:var(--tx2);cursor:pointer;text-decoration:none;display:flex;align-items:center;gap:5px;transition:all .15s}
+.nav-btn:hover{background:var(--sf3);color:var(--tx)}
+.nav-btn.primary{background:var(--ac-d);border-color:rgba(108,143,255,.3);color:var(--ac)}
+
+/* CONTENT */
+.content{padding:.85rem 1rem 5rem;max-width:680px;margin:0 auto}
+
+/* LOADING */
+.loading{text-align:center;padding:4rem 1rem}
+.spinner{width:32px;height:32px;border:2.5px solid var(--bd);border-top-color:var(--ac);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+@keyframes spin{to{transform:rotate(360deg)}}
+.loading-txt{font-size:13px;color:var(--tx3)}
+.err-box{background:var(--er-d);border:1px solid rgba(248,113,113,.2);border-radius:var(--r);padding:1rem;margin:.5rem 0}
+.err-txt{font-size:13px;color:var(--er)}
+
+/* SECTION LABEL */
+.sec-lbl{font-size:10px;font-weight:600;color:var(--tx3);letter-spacing:.8px;text-transform:uppercase;margin:1.25rem 0 .5rem;display:flex;align-items:center;gap:8px}
+.sec-lbl::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* HERO STATS */
+.hero{background:linear-gradient(135deg,var(--sf) 0%,var(--sf2) 100%);border:1px solid var(--bd);border-radius:var(--rxl);padding:1.25rem;margin-bottom:.5rem;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(108,143,255,.08) 0%,transparent 70%);pointer-events:none}
+.hero-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:1rem}
+.hero-date{font-size:12px;color:var(--tx3)}
+.hero-day{font-size:20px;font-weight:700;color:var(--tx);margin-top:2px}
+.live-badge{display:flex;align-items:center;gap:5px;background:var(--ok-d);border:1px solid rgba(74,222,158,.2);border-radius:50px;padding:4px 10px;font-size:11px;font-weight:600;color:var(--ok)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--ok);animation:pulse 1.5s ease-in-out infinite}
+.hero-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.hstat{background:var(--sf3);border:1px solid var(--bd);border-radius:var(--r);padding:.7rem .5rem;text-align:center}
+.hstat-num{font-family:'Geist Mono',monospace;font-size:22px;font-weight:600;line-height:1}
+.hstat-lbl{font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.2}
+.hstat-ok .hstat-num{color:var(--ok)}
+.hstat-yw .hstat-num{color:var(--yw)}
+.hstat-er .hstat-num{color:var(--er)}
+.hstat-ac .hstat-num{color:var(--ac)}
+
+/* ALERT CARDS */
+.alert-row{display:flex;flex-direction:column;gap:.4rem;margin-bottom:.25rem}
+.alert-card{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:.85rem 1rem;display:flex;align-items:flex-start;gap:12px}
+.alert-card.warn{border-color:rgba(251,191,36,.25);background:rgba(251,191,36,.04)}
+.alert-card.danger{border-color:rgba(248,113,113,.25);background:rgba(248,113,113,.04)}
+.alert-card.good{border-color:rgba(74,222,158,.2);background:rgba(74,222,158,.04)}
+.alert-card.info{border-color:rgba(108,143,255,.2);background:rgba(108,143,255,.04)}
+.alert-ico{font-size:18px;flex-shrink:0;margin-top:1px}
+.alert-body{flex:1;min-width:0}
+.alert-title{font-size:13px;font-weight:600;color:var(--tx)}
+.alert-sub{font-size:12px;color:var(--tx2);margin-top:2px;line-height:1.4}
+
+/* SISWA CARDS */
+.siswa-grid{display:flex;flex-direction:column;gap:.4rem}
+.sc{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:.85rem 1rem;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;text-decoration:none;position:relative;overflow:hidden}
+.sc:hover,.sc:active{background:var(--sf2);border-color:var(--bd2)}
+.sc.belum-input{border-left:3px solid var(--yw)}
+.sc.sudah-input{border-left:3px solid var(--ok)}
+.sc.alpa{border-left:3px solid var(--er)}
+.sc-avatar{width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;flex-shrink:0;border:1.5px solid var(--bd2)}
+.sc-av-reg{background:var(--ac-d);color:var(--ac);border-color:rgba(108,143,255,.3)}
+.sc-av-pvt{background:var(--pu-d);color:var(--pu);border-color:rgba(167,139,250,.3)}
+.sc-info{flex:1;min-width:0}
+.sc-nama{font-size:14px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sc-meta{font-size:11px;color:var(--tx3);margin-top:2px}
+.sc-right{text-align:right;flex-shrink:0}
+.sc-sesi{font-family:'Geist Mono',monospace;font-size:18px;font-weight:600;color:var(--ac);line-height:1}
+.sc-sesi-lbl{font-size:10px;color:var(--tx3);line-height:1;margin-top:1px}
+.sc-tags{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}
+.sc-tag{font-size:10px;font-weight:600;border-radius:4px;padding:2px 6px}
+.tag-hadir{background:var(--ok-d);color:var(--ok)}
+.tag-izin{background:var(--yw-d);color:var(--yw)}
+.tag-alpa{background:var(--er-d);color:var(--er)}
+.tag-belum{background:var(--sf3);color:var(--tx3);border:1px solid var(--bd)}
+.tag-pvt{background:var(--pu-d);color:var(--pu)}
+.tag-reg{background:var(--ac-d);color:var(--ac)}
+.tag-badge{background:var(--yw-d);color:var(--yw)}
+.sc-arrow{font-size:16px;color:var(--bd2);margin-left:4px;flex-shrink:0}
+
+/* ACTION BTNS */
+.action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:.25rem}
+.act-btn{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:1rem;cursor:pointer;text-align:left;text-decoration:none;display:block;transition:all .15s}
+.act-btn:hover{background:var(--sf2)}
+.act-btn:active{transform:scale(.97)}
+.act-ico{font-size:20px;margin-bottom:.4rem}
+.act-ttl{font-size:13px;font-weight:700;color:var(--tx)}
+.act-sub{font-size:11px;color:var(--tx3);margin-top:2px;line-height:1.35}
+
+/* FILTER TABS */
+.filter-row{display:flex;gap:6px;margin-bottom:.65rem;overflow-x:auto;padding-bottom:2px;-ms-overflow-style:none;scrollbar-width:none}
+.filter-row::-webkit-scrollbar{display:none}
+.ftab{background:var(--sf);border:1px solid var(--bd);border-radius:50px;padding:6px 14px;font-family:'Geist',sans-serif;font-size:12px;font-weight:500;color:var(--tx3);cursor:pointer;white-space:nowrap;transition:all .15s}
+.ftab.on{background:var(--ac-d);border-color:rgba(108,143,255,.3);color:var(--ac);font-weight:600}
+
+/* BADGE ALERT */
+.badge-alert{background:var(--sf);border:1px solid var(--bd);border-radius:var(--rl);padding:.7rem .85rem;margin-bottom:.4rem;display:flex;align-items:center;gap:10px}
+.badge-alert.almost{border-color:rgba(251,191,36,.3);background:var(--yw-d)}
+.badge-alert.achieved{border-color:rgba(74,222,158,.2);background:var(--ok-d)}
+.ba-left{flex:1;min-width:0}
+.ba-nama{font-size:13px;font-weight:600;color:var(--tx)}
+.ba-badge{font-size:11px;color:var(--tx3);margin-top:2px}
+.ba-bar{height:4px;background:var(--sf3);border-radius:2px;margin-top:6px;overflow:hidden}
+.ba-fill{height:100%;border-radius:2px;background:var(--yw);transition:width .5s ease}
+.ba-pct{font-family:'Geist Mono',monospace;font-size:11px;font-weight:600;color:var(--yw);flex-shrink:0}
+
+/* REFRESH BTN */
+.refresh-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem}
+.last-update{font-size:11px;color:var(--tx3)}
+.refresh-btn{background:var(--sf2);border:1px solid var(--bd);border-radius:var(--r);padding:5px 12px;font-family:'Geist',sans-serif;font-size:12px;font-weight:500;color:var(--tx2);cursor:pointer;transition:all .15s}
+.refresh-btn:hover{color:var(--ac)}
+
+/* BOTTOM NAV */
+.bot-nav{position:fixed;bottom:0;left:0;right:0;background:var(--sf);border-top:1px solid var(--bd);display:flex;z-index:99;max-width:680px;margin:0 auto}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:.6rem .5rem;cursor:pointer;text-decoration:none;transition:all .15s;font-size:10px;font-weight:500;color:var(--tx3);gap:3px}
+.bn-item.on{color:var(--ac)}
+.bn-ico{font-size:18px;line-height:1}
+
+@media(min-width:680px){
+  .bot-nav{left:50%;transform:translateX(-50%);width:680px;border-radius:16px 16px 0 0}
+  .content{padding-top:1.2rem}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<div class="nav">
+  <div class="nav-brand">
+    <div class="nav-dot"></div>
+    <div>
+      <div class="nav-title">Markaz Belajar</div>
+      <div class="nav-sub">Dashboard Guru</div>
+    </div>
+  </div>
+  <div class="nav-right">
+    <a href="index.html" class="nav-btn primary">✦ Input Sesi</a>
+  </div>
+</div>
+
+<!-- CONTENT -->
+<div class="content">
+  <div id="main">
+    <div class="loading">
+      <div class="spinner"></div>
+      <div class="loading-txt">Memuat data...</div>
+    </div>
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bot-nav">
+  <div class="bn-item on" onclick="setTab('dashboard')">
+    <div class="bn-ico">◈</div>Dashboard
+  </div>
+  <div class="bn-item" onclick="setTab('siswa')">
+    <div class="bn-ico">◉</div>Siswa
+  </div>
+  <div class="bn-item" onclick="setTab('badge')">
+    <div class="bn-ico">⭐</div>Badge
+  </div>
+  <a href="index.html" class="bn-item">
+    <div class="bn-ico">✦</div>Input
+  </a>
+</div>
+
+<script>
+const API = 'https://script.google.com/macros/s/AKfycbwhA4cweMbkHhUYsXj7KewyPSp4p-OuAxaK_84QfEnhM-IMZCpu5hIUTZxALbOxma0m/exec';
+
+function api(action, params={}) {
+  const url = new URL(API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v==='object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json());
+}
+
+let allSiswa = [], allSesi = {}, currentTab = 'dashboard', filterMode = 'semua';
+let lastUpdate = null;
+
+// ── Init ──
+async function init() {
+  try {
+    const r = await api('getSiswa');
+    if (!r.ok) { showErr(r.error); return; }
+    allSiswa = r.data;
+    lastUpdate = new Date();
+
+    // Fetch sesi semua siswa secara paralel (batch)
+    await fetchAllSesi();
+    renderTab(currentTab);
+  } catch(e) {
+    showErr(e.message);
+  }
+}
+
+async function fetchAllSesi() {
+  const promises = allSiswa.map(s =>
+    api('getSesiSiswa', { idSiswa: s.id })
+      .then(r => { if (r.ok) allSesi[s.id] = r.data; else allSesi[s.id] = []; })
+      .catch(() => { allSesi[s.id] = []; })
+  );
+  await Promise.all(promises);
+}
+
+function showErr(msg) {
+  document.getElementById('main').innerHTML =
+    `<div class="err-box"><div class="err-txt">⚠ ${msg}</div></div>`;
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.bn-item').forEach((el,i) => {
+    const tabs = ['dashboard','siswa','badge'];
+    el.classList.toggle('on', tabs[i] === tab);
+  });
+  renderTab(tab);
+}
+
+function renderTab(tab) {
+  if (tab === 'dashboard') renderDashboard();
+  else if (tab === 'siswa') renderSiswa();
+  else if (tab === 'badge') renderBadge();
+}
+
+// ══════════════════════════════
+// TAB 1 — DASHBOARD
+// ══════════════════════════════
+function renderDashboard() {
+  const today = todayStr();
+  const d = new Date();
+  const dayName = d.toLocaleDateString('id-ID',{weekday:'long'});
+  const dateStr = d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});
+
+  // Hitung stats hari ini
+  let hadirHariIni=0, izinHariIni=0, alpaHariIni=0, belumInput=0;
+  allSiswa.forEach(s => {
+    const sesiHariIni = (allSesi[s.id]||[]).find(x => normalizeDate(x.tanggal) === today);
+    if (!sesiHariIni) belumInput++;
+    else {
+      const kh = (sesiHariIni.kehadiran||'').toLowerCase();
+      if (kh === 'hadir') hadirHariIni++;
+      else if (kh === 'izin' || kh.includes('sakit')) izinHariIni++;
+      else alpaHariIni++;
+    }
+  });
+
+  // Alert: siapa belum diinput
+  const belumList = allSiswa.filter(s => {
+    return !(allSesi[s.id]||[]).find(x => normalizeDate(x.tanggal) === today);
+  });
+
+  // Alert: streak absen (3+ sesi terakhir izin/alpa berturut)
+  const streakAbsen = allSiswa.filter(s => {
+    const sesi = [...(allSesi[s.id]||[])].sort((a,b) => new Date(b.tanggal)-new Date(a.tanggal));
+    if (sesi.length < 2) return false;
+    const last3 = sesi.slice(0,3);
+    return last3.every(x => {
+      const kh = (x.kehadiran||'').toLowerCase();
+      return kh !== 'hadir';
+    });
+  });
+
+  // Badge hampir tercapai (dari jumlah sesi, estimasi)
+  const hampirBadge = allSiswa.filter(s => {
+    const total = (allSesi[s.id]||[]).length;
+    return total >= 5 && total < 10;
+  });
+
+  const lu = lastUpdate ? lastUpdate.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'}) : '—';
+
+  let html = `
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-top">
+        <div>
+          <div class="hero-date">${dateStr}</div>
+          <div class="hero-day">${dayName}</div>
+        </div>
+        <div class="live-badge"><div class="live-dot"></div>Live</div>
+      </div>
+      <div class="hero-stats">
+        <div class="hstat hstat-ok">
+          <div class="hstat-num">${hadirHariIni}</div>
+          <div class="hstat-lbl">Hadir<br>hari ini</div>
+        </div>
+        <div class="hstat hstat-yw">
+          <div class="hstat-num">${izinHariIni}</div>
+          <div class="hstat-lbl">Izin/<br>Sakit</div>
+        </div>
+        <div class="hstat hstat-er">
+          <div class="hstat-num">${belumInput}</div>
+          <div class="hstat-lbl">Belum<br>diinput</div>
+        </div>
+        <div class="hstat hstat-ac">
+          <div class="hstat-num">${allSiswa.length}</div>
+          <div class="hstat-lbl">Total<br>siswa</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AKSI CEPAT -->
+    <div class="sec-lbl">Aksi Cepat</div>
+    <div class="action-row">
+      <a href="index.html" class="act-btn">
+        <div class="act-ico">✦</div>
+        <div class="act-ttl">Input Sesi</div>
+        <div class="act-sub">Catat pertemuan hari ini</div>
+      </a>
+      <div class="act-btn" onclick="setTab('siswa')">
+        <div class="act-ico">◉</div>
+        <div class="act-ttl">Lihat Siswa</div>
+        <div class="act-sub">Status semua siswa aktif</div>
+      </div>
+    </div>`;
+
+  // Alert belum input
+  if (belumList.length > 0) {
+    html += `<div class="sec-lbl">Perlu Perhatian</div><div class="alert-row">`;
+    html += `<div class="alert-card warn">
+      <div class="alert-ico">⏳</div>
+      <div class="alert-body">
+        <div class="alert-title">${belumList.length} siswa belum diinput hari ini</div>
+        <div class="alert-sub">${belumList.slice(0,3).map(s=>s.nama.split(' ')[0]).join(', ')}${belumList.length>3?` +${belumList.length-3} lainnya`:''}</div>
+      </div>
+    </div>`;
+    if (streakAbsen.length > 0) {
+      html += `<div class="alert-card danger">
+        <div class="alert-ico">🚨</div>
+        <div class="alert-body">
+          <div class="alert-title">${streakAbsen.length} siswa absen berturut-turut</div>
+          <div class="alert-sub">${streakAbsen.map(s=>s.nama.split(' ')[0]).join(', ')} — perlu follow up</div>
+        </div>
+      </div>`;
+    }
+    html += `</div>`;
+  } else {
+    html += `<div class="sec-lbl">Status Hari Ini</div>
+    <div class="alert-row">
+      <div class="alert-card good">
+        <div class="alert-ico">✅</div>
+        <div class="alert-body">
+          <div class="alert-title">Semua siswa sudah diinput hari ini</div>
+          <div class="alert-sub">${hadirHariIni} hadir · ${izinHariIni} izin · ${alpaHariIni} alpa</div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // Rekap sesi total per siswa (ringkas)
+  html += `<div class="sec-lbl">Rekap Siswa</div>
+  <div class="refresh-bar">
+    <div class="last-update">Update: ${lu}</div>
+    <button class="refresh-btn" onclick="refreshData()">↻ Refresh</button>
+  </div>
+  <div class="siswa-grid">`;
+
+  const sorted = [...allSiswa].sort((a,b) => {
+    const aHari = (allSesi[a.id]||[]).find(x=>normalizeDate(x.tanggal)===today);
+    const bHari = (allSesi[b.id]||[]).find(x=>normalizeDate(x.tanggal)===today);
+    if (!aHari && bHari) return -1;
+    if (aHari && !bHari) return 1;
+    return 0;
+  });
+
+  sorted.forEach(s => {
+    const sesiHariIni = (allSesi[s.id]||[]).find(x => normalizeDate(x.tanggal) === today);
+    const totalSesi = (allSesi[s.id]||[]).length;
+    const kh = sesiHariIni ? (sesiHariIni.kehadiran||'').toLowerCase() : null;
+    const statusClass = !sesiHariIni ? 'belum-input' : kh==='hadir' ? 'sudah-input' : 'alpa';
+    const avClass = s.tipe==='Private' ? 'sc-av-pvt' : 'sc-av-reg';
+    const tagStatus = !sesiHariIni
+      ? `<span class="sc-tag tag-belum">Belum input</span>`
+      : kh==='hadir' ? `<span class="sc-tag tag-hadir">✓ Hadir</span>`
+      : kh.includes('izin')||kh.includes('sakit') ? `<span class="sc-tag tag-izin">Izin</span>`
+      : `<span class="sc-tag tag-alpa">Alpa</span>`;
+
+    html += `
+    <div class="sc ${statusClass}" onclick="bukaLaporan(${s.id})">
+      <div class="sc-avatar ${avClass}">${s.inisial}</div>
+      <div class="sc-info">
+        <div class="sc-nama">${s.nama}</div>
+        <div class="sc-meta">${s.program} · ${s.usia}</div>
+        <div class="sc-tags">
+          ${tagStatus}
+          <span class="sc-tag ${s.tipe==='Private'?'tag-pvt':'tag-reg'}">${s.tipe}</span>
+        </div>
+      </div>
+      <div class="sc-right">
+        <div class="sc-sesi">${totalSesi}</div>
+        <div class="sc-sesi-lbl">sesi</div>
+      </div>
+      <div class="sc-arrow">›</div>
+    </div>`;
+  });
+
+  html += `</div>`;
+  document.getElementById('main').innerHTML = html;
+}
+
+// ══════════════════════════════
+// TAB 2 — SISWA
+// ══════════════════════════════
+function renderSiswa() {
+  const filters = [
+    {id:'semua', label:'Semua'},
+    {id:'reguler', label:'Reguler'},
+    {id:'private', label:'Private'},
+    {id:'hadir', label:'Hadir Hari Ini'},
+    {id:'belum', label:'Belum Input'},
+  ];
+
+  const today = todayStr();
+  let list = [...allSiswa];
+
+  if (filterMode === 'reguler') list = list.filter(s=>s.tipe==='Reguler');
+  else if (filterMode === 'private') list = list.filter(s=>s.tipe==='Private');
+  else if (filterMode === 'hadir') list = list.filter(s=>{
+    const x = (allSesi[s.id]||[]).find(x=>normalizeDate(x.tanggal)===today);
+    return x && x.kehadiran.toLowerCase()==='hadir';
+  });
+  else if (filterMode === 'belum') list = list.filter(s=>
+    !(allSesi[s.id]||[]).find(x=>normalizeDate(x.tanggal)===today)
+  );
+
+  let html = `
+    <div class="filter-row">
+      ${filters.map(f=>`<div class="ftab ${filterMode===f.id?'on':''}" onclick="setFilter('${f.id}')">${f.label}</div>`).join('')}
+    </div>
+    <div class="siswa-grid">`;
+
+  list.forEach(s => {
+    const sesiList = allSesi[s.id] || [];
+    const totalSesi = sesiList.length;
+    const hadirCount = sesiList.filter(x=>x.kehadiran.toLowerCase()==='hadir').length;
+    const pct = totalSesi > 0 ? Math.round((hadirCount/totalSesi)*100) : 0;
+    const lastSesi = [...sesiList].sort((a,b)=>new Date(b.tanggal)-new Date(a.tanggal))[0];
+    const lastTgl = lastSesi ? fmtTglPendek(lastSesi.tanggal) : 'Belum ada';
+    const avClass = s.tipe==='Private' ? 'sc-av-pvt' : 'sc-av-reg';
+
+    html += `
+    <div class="sc" onclick="bukaLaporan(${s.id})">
+      <div class="sc-avatar ${avClass}">${s.inisial}</div>
+      <div class="sc-info">
+        <div class="sc-nama">${s.nama}</div>
+        <div class="sc-meta">${s.usia} · Terakhir: ${lastTgl}</div>
+        <div class="sc-tags">
+          <span class="sc-tag ${s.tipe==='Private'?'tag-pvt':'tag-reg'}">${s.tipe}</span>
+          <span class="sc-tag tag-hadir">${pct}% hadir</span>
+        </div>
+      </div>
+      <div class="sc-right">
+        <div class="sc-sesi">${totalSesi}</div>
+        <div class="sc-sesi-lbl">sesi</div>
+      </div>
+      <div class="sc-arrow">›</div>
+    </div>`;
+  });
+
+  html += `</div>`;
+  if (!list.length) html += `<div style="text-align:center;padding:2rem;font-size:13px;color:var(--tx3)">Tidak ada siswa</div>`;
+  document.getElementById('main').innerHTML = html;
+}
+
+function setFilter(mode) {
+  filterMode = mode;
+  renderSiswa();
+}
+
+// ══════════════════════════════
+// TAB 3 — BADGE ALERT
+// ══════════════════════════════
+function renderBadge() {
+  // Analisa progress badge dari jumlah sesi & kehadiran
+  const items = [];
+
+  allSiswa.forEach(s => {
+    const sesiList = allSesi[s.id] || [];
+    const totalSesi = sesiList.length;
+    const hadirCount = sesiList.filter(x=>(x.kehadiran||'').toLowerCase()==='hadir').length;
+
+    // Generous One threshold: 8 centang
+    // Curious Mind threshold: 20 centang
+    // Neat & Independent threshold: 15 centang
+    // Rough estimate: badge progress dari total hadir
+
+    if (totalSesi > 0) {
+      // Badge hampir: 70-99%
+      const thresholds = [
+        {nama:'Generous One', th:8},
+        {nama:'Curious Mind', th:20},
+        {nama:'Neat & Independent', th:15},
+        {nama:'Trustworthy Keeper', th:10},
+        {nama:'Mini Explorer', th:10},
+      ];
+      thresholds.forEach(b => {
+        const pct = Math.min(Math.round((hadirCount/b.th)*100), 100);
+        if (pct >= 50) {
+          items.push({
+            siswa: s.nama,
+            badge: b.nama,
+            pct,
+            achieved: pct >= 100,
+            hadirCount, threshold: b.th
+          });
+        }
+      });
+    }
+  });
+
+  // Sort: achieved dulu, lalu pct tertinggi
+  items.sort((a,b) => {
+    if (a.achieved && !b.achieved) return -1;
+    if (!a.achieved && b.achieved) return 1;
+    return b.pct - a.pct;
+  });
+
+  let html = `
+    <div class="sec-lbl">Badge Tercapai / Hampir Tercapai</div>
+    <div class="alert-card info" style="margin-bottom:.65rem">
+      <div class="alert-ico">ℹ️</div>
+      <div class="alert-body">
+        <div class="alert-title">Estimasi dari data kehadiran</div>
+        <div class="alert-sub">Progress aktual dilihat saat guru mencentang badge di form input sesi</div>
+      </div>
+    </div>`;
+
+  if (!items.length) {
+    html += `<div style="text-align:center;padding:2rem;font-size:13px;color:var(--tx3)">Belum ada data badge yang cukup</div>`;
+  } else {
+    items.forEach(item => {
+      html += `
+      <div class="badge-alert ${item.achieved?'achieved':'almost'}">
+        <div class="ba-left">
+          <div class="ba-nama">${item.siswa.split(' ')[0]}</div>
+          <div class="ba-badge">⭐ ${item.badge} · ${item.hadirCount}/${item.threshold} sesi</div>
+          <div class="ba-bar"><div class="ba-fill" style="width:${item.pct}%;background:${item.achieved?'var(--ok)':'var(--yw)'}"></div></div>
+        </div>
+        <div class="ba-pct" style="color:${item.achieved?'var(--ok)':'var(--yw)'}">${item.pct}%</div>
+      </div>`;
+    });
+  }
+
+  document.getElementById('main').innerHTML = html;
+}
+
+// ── Utils ──
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+function normalizeDate(tgl) {
+  if (!tgl) return '';
+  const d = new Date(tgl);
+  if (isNaN(d)) return String(tgl).substring(0,10);
+  return d.toISOString().split('T')[0];
+}
+
+function fmtTglPendek(tgl) {
+  if (!tgl) return '—';
+  const d = new Date(tgl);
+  if (isNaN(d)) return tgl;
+  return d.toLocaleDateString('id-ID',{day:'numeric',month:'short'});
+}
+
+function bukaLaporan(id) {
+  window.location.href = `laporan.html?id=${id}`;
+}
+
+async function refreshData() {
+  document.getElementById('main').innerHTML =
+    `<div class="loading"><div class="spinner"></div><div class="loading-txt">Memuat ulang...</div></div>`;
+  await fetchAllSesi();
+  lastUpdate = new Date();
+  renderTab(currentTab);
+}
+
+// ── Start ──
+init();
+</script>
+</body>
+</html>
