@@ -122,6 +122,21 @@ textarea{resize:vertical;min-height:80px;}
 .modal-actions{display:flex;gap:10px;margin-top:16px;}
 
 
+
+/* REMINDER SHEET */
+.reminder-overlay{display:none;position:fixed;inset:0;background:rgba(28,43,58,0.55);z-index:600;align-items:flex-end;justify-content:center;backdrop-filter:blur(3px);}
+.reminder-overlay.open{display:flex;animation:fadeIn .2s ease;}
+.reminder-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 18px 36px;box-shadow:0 -8px 32px rgba(28,43,58,0.18);}
+.reminder-sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:99px;margin:0 auto 18px;}
+.reminder-sheet-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.reminder-sheet-title svg{width:16px;height:16px;color:#25D366;}
+.reminder-img-preview{width:100%;border-radius:14px;object-fit:cover;max-height:180px;margin-bottom:14px;box-shadow:0 2px 12px rgba(0,0,0,0.1);}
+.reminder-copy-btn{width:100%;padding:13px;border-radius:12px;border:2px dashed var(--border2);background:var(--surface2);color:var(--text2);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;margin-bottom:10px;transition:all .2s;}
+.reminder-copy-btn.copied{border-color:var(--success);background:var(--success-dim);color:var(--success);}
+.reminder-wa-btn{width:100%;padding:14px;border-radius:12px;border:none;background:#25D366;color:#fff;font-family:inherit;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:opacity .2s;}
+.reminder-wa-btn:hover{opacity:.9;}
+.reminder-hint{font-size:11px;color:var(--text3);text-align:center;margin-top:10px;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 /* SEND METHOD CARDS */
 .send-opt-card{position:relative;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:16px 10px;border:2px solid var(--border);border-radius:14px;background:var(--surface2);cursor:pointer;transition:all .2s;font-family:inherit;}
 .send-opt-card:hover{border-color:var(--border2);background:var(--surface);}
@@ -834,6 +849,8 @@ textarea{resize:vertical;min-height:80px;}
 let GAS_URL = 'https://script.google.com/macros/s/AKfycbxbyZtQyblDlDZgRyRLy_grf-W66O7nWwsL9vn1iI46GENgWtjAkcg5u7-LeBERXbiX7A/exec';
 
 // Sheet siswa (hanya baca, tidak berubah)
+
+const REMINDER_IMG_B64 = "https://raw.githubusercontent.com/markaz-belajar/app/main/reminder_payment.jpg";
 const SHEET1_ID = '1Jt2fv8NLgBxuzdXvw0ptSreCfGBlSuXvODcg5ia9CfA';
 const SHEET1_URL = `https://docs.google.com/spreadsheets/d/${SHEET1_ID}/gviz/tq?tqx=out:csv`;
 
@@ -1800,23 +1817,11 @@ async function confirmSend(){
       else if(num.startsWith('0'))   { num = '62' + num.substring(1); }
       else if(num.startsWith('8'))   { num = '62' + num; }
       // else biarkan apa adanya (misal sudah format lain)
-      ;let msg=`Invoice Markaz Belajar\n\nNo: ${inv.invoice_number}\nSiswa: ${inv.student_name}\nTotal: ${rp(inv.amount)}\nJatuh Tempo: ${fmtShort(inv.due_date)}`;if(note)msg+=`\n\nCatatan: ${note}`;msg+='\n\nTerima kasih! 🙏';const waUrl=`https://wa.me/${num}?text=${encodeURIComponent(msg)}`;
-      const isAndroid=/Android/i.test(navigator.userAgent);
-      const isIOS=/iPhone|iPad|iPod/i.test(navigator.userAgent);
-      if(isAndroid){
-        // Android intent — langsung buka WA app, bypass browser
-        // Format intent WhatsApp yang benar untuk Android Chrome
-        const encodedMsg=encodeURIComponent(msg);
-        const intentUrl=`intent://send?phone=${num}&text=${encodedMsg}#Intent;scheme=https;package=com.whatsapp;S.browser_fallback_url=${encodeURIComponent(waUrl)};end`;
-        window.location.href=intentUrl;
-      } else if(isIOS){
-        // iOS universal link — langsung buka WA app
-        window.location.href=`whatsapp://send?phone=${num}&text=${encodeURIComponent(msg)}`;
-        // Fallback ke wa.me kalau WA tidak terinstall setelah 1.5 detik
-        setTimeout(()=>{ window.location.href=waUrl; },1500);
-      } else {
-        window.open(waUrl,'_blank');
-      }}
+      ;let bulan=new Date().toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+      let msg=`Assalamualaikum, Bunda! 🙏\nKami ingin mengingatkan saatnya melakukan *pembayaran* bimbel bulan ini\n\n✅ ${bulan}\n📋 No. Invoice: ${inv.invoice_number}\n👦 Siswa: ${inv.student_name}\n💰 Total: ${rp(inv.amount)}\n📅 Jatuh Tempo: ${fmtShort(inv.due_date)}\n\nCukup via *transfer* atau *cash* seperti biasa ke Kak Elis. 💛\nButuh info rincian/konfirmasi? Kami siap bantu 💬\n\n*Terima kasih* sudah bersama *Markaz Belajar* 💛`;
+      if(note)msg+=`\n\nCatatan: ${note}`;
+      // Salin gambar ke clipboard lalu buka WA
+      showReminderSheet(num, msg);}
     else showToast('Nomor HP tidak ditemukan.',false);
   }
   // Reset loading state
@@ -2190,6 +2195,37 @@ document.addEventListener('click',function(e){
 });
 
 /* RUN */
+/* REMINDER SHEET */
+let _reminderNum='';let _reminderMsg='';
+function showReminderSheet(num,msg){
+  _reminderNum=num;_reminderMsg=msg;
+  document.getElementById('reminderImgPreview').src=REMINDER_IMG_B64;
+  document.getElementById('reminderCopyLabel').textContent='1. Salin Gambar Pengingat';
+  document.getElementById('reminderCopyBtn').classList.remove('copied');
+  document.getElementById('reminderSheet').classList.add('open');
+}
+function closeReminderSheet(){
+  document.getElementById('reminderSheet').classList.remove('open');
+}
+async function copyReminderImg(){
+  try{
+    const res=await fetch(REMINDER_IMG_B64);
+    const blob=await res.blob();
+    await navigator.clipboard.write([new ClipboardItem({'image/jpeg':blob})]);
+    document.getElementById('reminderCopyLabel').textContent='✓ Gambar Tersalin!';
+    document.getElementById('reminderCopyBtn').classList.add('copied');
+  }catch(e){
+    // Fallback: download gambar
+    const a=document.createElement('a');a.href=REMINDER_IMG_B64;a.download='pengingat-markaz.jpg';a.click();
+    document.getElementById('reminderCopyLabel').textContent='✓ Gambar Diunduh!';
+    document.getElementById('reminderCopyBtn').classList.add('copied');
+  }
+}
+function openReminderWa(){
+  window.open(`https://wa.me/${_reminderNum}?text=${encodeURIComponent(_reminderMsg)}`,'_blank');
+  closeReminderSheet();
+}
+
 init();
 </script>
 
@@ -2232,6 +2268,28 @@ init();
         <button class="notif-popup-skip" onclick="dismissNotifPopup()">Nanti Saja</button>
       </div>
     </div>
+  </div>
+</div>
+
+<!-- REMINDER SHEET -->
+<div class="reminder-overlay" id="reminderSheet">
+  <div class="reminder-sheet">
+    <div class="reminder-sheet-handle"></div>
+    <div class="reminder-sheet-title">
+      <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.57a.75.75 0 0 0 .918.919l5.739-1.479A11.953 11.953 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.953 9.953 0 0 1-5.127-1.417l-.368-.218-3.807.981.999-3.683-.24-.381A9.953 9.953 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      Kirim Pengingat Pembayaran
+    </div>
+    <img id="reminderImgPreview" class="reminder-img-preview" src="" alt="Reminder">
+    <button class="reminder-copy-btn" id="reminderCopyBtn" onclick="copyReminderImg()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span id="reminderCopyLabel">1. Salin Gambar Pengingat</span>
+    </button>
+    <button class="reminder-wa-btn" id="reminderWaBtn" onclick="openReminderWa()">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.57a.75.75 0 0 0 .918.919l5.739-1.479A11.953 11.953 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.953 9.953 0 0 1-5.127-1.417l-.368-.218-3.807.981.999-3.683-.24-.381A9.953 9.953 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+      2. Buka WhatsApp & Kirim Pesan
+    </button>
+    <p class="reminder-hint">Paste gambar di chat WA setelah pesan terkirim</p>
+    <button onclick="closeReminderSheet()" style="width:100%;margin-top:10px;padding:10px;border:none;background:none;color:var(--text3);font-family:inherit;font-size:13px;cursor:pointer;">Tutup</button>
   </div>
 </div>
 </body>
