@@ -1108,14 +1108,24 @@ async function uploadProofToDrive(base64, mimeType, invoiceNumber) {
     }
   } catch(e) {}
   const cleanB64 = compressed.includes(',') ? compressed.split(',')[1] : compressed;
-  const resp = await fetch(GAS_URL, {
-    method: 'POST',
-    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-    body: JSON.stringify({ base64: cleanB64, mimeType: 'image/jpeg', filename: 'bukti_' + (invoiceNumber || Date.now()) + '.jpg' }),
-    cache: 'no-store',
-  });
+  const payload = JSON.stringify({ base64: cleanB64, mimeType: 'image/jpeg', filename: 'bukti_' + (invoiceNumber || Date.now()) + '.jpg' });
+  // GAS Web App kadang redirect POST → GET dan body hilang.
+  // Gunakan fetch dengan redirect: 'follow' dan tangkap respons akhir.
+  let resp;
+  try {
+    resp = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: payload,
+      cache: 'no-store',
+      redirect: 'follow',
+    });
+  } catch(fetchErr) {
+    throw new Error('Koneksi gagal: ' + fetchErr.message);
+  }
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  const data = await resp.json();
+  let data;
+  try { data = await resp.json(); } catch(e) { throw new Error('Respons tidak valid dari server'); }
   if (!data.success && !data.viewUrl && !data.url) throw new Error(data.error || 'Upload gagal');
   return data.viewUrl || data.url;
 }
@@ -1569,7 +1579,9 @@ function addProg(){
   const jenjang = activeStudent.jenjang || 'Elementary';
   const jenProgs=PROGS[jenjang]||['Program'];
   const defaultProg=(!isManualStudent&&student&&student.program&&jenProgs.includes(student.program))?student.program:jenProgs[0];
-  progs.push({id:pc,prog:defaultProg,type:'Reguler',dur:1,manualPrice:null,useManualPrice:false});
+  const defaultType=(!isManualStudent&&student&&student.defaultType)?student.defaultType:'Reguler';
+  const defaultDur=(!isManualStudent&&student&&student.defaultDur)?student.defaultDur:1;
+  progs.push({id:pc,prog:defaultProg,type:defaultType,dur:defaultDur,manualPrice:null,useManualPrice:false});
   renderProgList();if(prevOpen)renderPrev();
 }
 function removeProg(id){progs=progs.filter(p=>p.id!==id);renderProgList();if(prevOpen)renderPrev();}
@@ -1640,7 +1652,7 @@ function togglePreview(){
 function buildInvHTML(d){
   const rows=d.items.length?d.items.map(it=>`<tr><td style="font-size:11px;">${it.label}</td><td style="font-size:11px;">${it.type||'—'}</td><td style="font-size:11px;">${it.dur?it.dur+' Bulan':'—'}</td><td style="text-align:right;font-family:'Geist Mono',monospace;font-size:11px;">${rp(it.price)}</td></tr>`).join(''):`<tr><td colspan="4" style="text-align:center;color:#bbb;padding:16px;font-size:11px;">Belum ada item</td></tr>`;
   const ibuPrefix = n => (n && n !== '—') ? 'Ibu ' + n : n;
-  return `<div class="inv-doc"><div class="inv-top"><div style="text-align:center;padding:4px 0 8px;"><img src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" style="height:56px;width:auto;object-fit:contain;" onerror="this.style.display='none'"></div><div class="inv-top-row" style="border-top:1px solid rgba(28,44,58,0.15);padding-top:10px;margin-top:4px;"><div style="font-size:13px;font-weight:700;color:#1c1c1c;letter-spacing:-.02em;">Markaz Belajar</div><div class="inv-title-block"><div class="inv-title-word">Invoice</div><div class="inv-num">${d.invNum}</div>${d.nomorInduk?`<div style="font-size:9px;color:rgba(28,44,58,.45);font-family:'Geist Mono',monospace;margin-top:3px;">${d.nomorInduk}</div>`:''}</div></div></div><div class="inv-body"><div class="inv-parties"><div><div class="inv-plbl">Dari</div><div class="inv-pname">Markaz Belajar</div><div class="inv-psub">Jl.Raya Sirih Rt 01 Rw 05<br>Des. Kamasan, Kec. Cinangka<br>Kab. Serang – Banten<br>08366583082</div></div><div><div class="inv-plbl">Tagihan Kepada</div><div class="inv-pname">${ibuPrefix(d.pName)}</div><div class="inv-psub">${d.sName}${d.jenjang?' · '+d.jenjang:''}${d.guru?' · Guru: '+d.guru:''}</div>${d.alamat?`<div class="inv-psub" style="margin-top:4px;">${d.alamat}</div>`:''}</div></div><div class="inv-meta"><div class="inv-mb"><div class="inv-ml">Tanggal</div><div class="inv-mv">${fmtShort(d.invDate)}</div></div><div class="inv-mb"><div class="inv-ml">Jatuh Tempo</div><div class="inv-mv" style="color:#dc2626;">${fmtShort(d.dueDate)}</div></div><div class="inv-mb"><div class="inv-ml">Dibuat Oleh</div><div class="inv-mv">${d.creator}</div></div></div><table class="inv-tbl"><thead><tr><th>Program</th><th>Tipe</th><th>Durasi</th><th>Harga</th></tr></thead><tbody>${rows}</tbody></table><div class="inv-totals"><div class="inv-trow"><span>Subtotal</span><span>${rp(d.subtotal)}</span></div><div class="inv-tfinal"><span class="inv-tflbl">Total</span><span class="inv-tfval">${rp(d.subtotal)}</span></div></div><div class="inv-bank"><div class="inv-bank-ttl">Informasi Pembayaran</div><div class="inv-bank-row"><span class="inv-bname">Dana</span><span class="inv-bnum">0838-665-830-82</span></div><div class="inv-bank-row"><span class="inv-bname">BCA</span><span class="inv-bnum">651-065-92-26</span></div><div class="inv-ban">a.n Elis Rosmiati</div></div>${d.notes?`<div class="inv-notes">Catatan: ${d.notes}</div>`:''}<div class="inv-created">Dibuat oleh: ${d.creator} · ${fmtShort(d.invDate)}</div></div><div class="inv-footer"><span style="font-size:9px;color:#aaa;">Terima kasih atas kepercayaan Anda</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:#1c1c1c;letter-spacing:-.02em;">Markaz Belajar</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em;">Powered by Qazas Studio</span></div></div>`;
+  return `<div class="inv-doc"><div class="inv-top"><div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><img src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" style="height:52px;width:auto;object-fit:contain;" onerror="this.style.display='none'"><div class="inv-title-block"><div class="inv-title-word">Invoice</div><div class="inv-num">${d.invNum}</div>${d.nomorInduk?`<div style="font-size:9px;color:rgba(28,44,58,.45);font-family:'Geist Mono',monospace;margin-top:3px;">${d.nomorInduk}</div>`:''}</div></div></div><div class="inv-body"><div class="inv-parties"><div><div class="inv-plbl">Dari</div><div class="inv-pname">Markaz Belajar</div><div class="inv-psub">Jl.Raya Sirih Rt 01 Rw 05<br>Des. Kamasan, Kec. Cinangka<br>Kab. Serang – Banten<br>08366583082</div></div><div><div class="inv-plbl">Tagihan Kepada</div><div class="inv-pname">${ibuPrefix(d.pName)}</div><div class="inv-psub">${d.sName}${d.jenjang?' · '+d.jenjang:''}${d.guru?' · Guru: '+d.guru:''}</div>${d.alamat?`<div class="inv-psub" style="margin-top:4px;">${d.alamat}</div>`:''}</div></div><div class="inv-meta"><div class="inv-mb"><div class="inv-ml">Tanggal</div><div class="inv-mv">${fmtShort(d.invDate)}</div></div><div class="inv-mb"><div class="inv-ml">Jatuh Tempo</div><div class="inv-mv" style="color:#dc2626;">${fmtShort(d.dueDate)}</div></div><div class="inv-mb"><div class="inv-ml">Dibuat Oleh</div><div class="inv-mv">${d.creator}</div></div></div><table class="inv-tbl"><thead><tr><th>Program</th><th>Tipe</th><th>Durasi</th><th>Harga</th></tr></thead><tbody>${rows}</tbody></table><div class="inv-totals"><div class="inv-trow"><span>Subtotal</span><span>${rp(d.subtotal)}</span></div><div class="inv-tfinal"><span class="inv-tflbl">Total</span><span class="inv-tfval">${rp(d.subtotal)}</span></div></div><div class="inv-bank"><div class="inv-bank-ttl">Informasi Pembayaran</div><div class="inv-bank-row"><span class="inv-bname">Dana</span><span class="inv-bnum">0838-665-830-82</span></div><div class="inv-bank-row"><span class="inv-bname">BCA</span><span class="inv-bnum">651-065-92-26</span></div><div class="inv-ban">a.n Elis Rosmiati</div></div>${d.notes?`<div class="inv-notes">Catatan: ${d.notes}</div>`:''}<div class="inv-created">Dibuat oleh: ${d.creator} · ${fmtShort(d.invDate)}</div></div><div class="inv-footer"><span style="font-size:9px;color:#aaa;">Terima kasih atas kepercayaan Anda</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:#1c1c1c;letter-spacing:-.02em;">Markaz Belajar</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em;">Powered by Qazas Studio</span></div></div>`;
 }
 
 function buildInv(){
@@ -1968,7 +1980,7 @@ function openProofUpload(invId){
       const inv=invoices.find(i=>i.__backendId===invId);
       const mimeType=currentProofData.split(';')[0].replace('data:','');
       let proofUrl=currentProofData;
-      try{const url=await uploadProofToDrive(currentProofData,mimeType,inv?.invoice_number||'inv');if(url)proofUrl=url;}catch(err){console.warn('Upload Drive gagal, simpan lokal',err);}
+      try{const url=await uploadProofToDrive(currentProofData,mimeType,inv?.invoice_number||'inv');if(url)proofUrl=url;else showToast('Upload Drive gagal, tersimpan lokal.',false);}catch(err){showToast('Upload Drive: '+err.message+' — tersimpan lokal.',false);}
       try{await updateInvoiceInSheets(invId,{payment_proof:proofUrl},document.getElementById('createdBy').value);await syncFromSheets(false);showToast('Bukti pembayaran berhasil disimpan! ✓',true);}
       catch(err){showToast('Gagal simpan bukti: '+err.message,false);}
       currentProofData=null;
