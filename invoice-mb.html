@@ -1077,10 +1077,47 @@ async function deleteInvoiceFromSheets(backendId, deletedBy) {
   }
   return await gasPost('deleteInvoice', { backendId, deletedBy });
 }
+function compressImageBase64(base64, maxPx, quality) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      let w = img.width, h = img.height;
+      if (w > maxPx || h > maxPx) {
+        if (w > h) { h = Math.round(h * maxPx / w); w = maxPx; }
+        else { w = Math.round(w * maxPx / h); h = maxPx; }
+      }
+      const canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      resolve(canvas.toDataURL('image/jpeg', quality));
+    };
+    img.onerror = reject;
+    img.src = base64;
+  });
+}
 async function uploadProofToDrive(base64, mimeType, invoiceNumber) {
   if (!hasGasUrl()) return null;
-  const data = await gasPost('uploadProof', { base64, mimeType, invoiceNumber });
-  return data.viewUrl;
+  // POST body langsung — gasPost pakai GET query string -> 413
+  const TARGET = 60000;
+  const steps = [{maxPx:800,q:0.7},{maxPx:600,q:0.6},{maxPx:480,q:0.5},{maxPx:360,q:0.4},{maxPx:260,q:0.35}];
+  let compressed = base64;
+  try {
+    for (const {maxPx, q} of steps) {
+      compressed = await compressImageBase64(compressed, maxPx, q);
+      if (compressed.length <= TARGET) break;
+    }
+  } catch(e) {}
+  const cleanB64 = compressed.includes(',') ? compressed.split(',')[1] : compressed;
+  const resp = await fetch(GAS_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+    body: JSON.stringify({ base64: cleanB64, mimeType: 'image/jpeg', filename: 'bukti_' + (invoiceNumber || Date.now()) + '.jpg' }),
+    cache: 'no-store',
+  });
+  if (!resp.ok) throw new Error('HTTP ' + resp.status);
+  const data = await resp.json();
+  if (!data.success && !data.viewUrl && !data.url) throw new Error(data.error || 'Upload gagal');
+  return data.viewUrl || data.url;
 }
 
 /* SYNC: ambil data terbaru, bandingkan, tampilkan notif jika ada yang baru */
