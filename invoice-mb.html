@@ -1040,13 +1040,21 @@ async function fetchInvoicesFromSheets() {
   return data.invoices || [];
 }
 async function gasPost(action, payload) {
-  // Kirim semua data sebagai satu JSON string di param 'payload'
-  // agar tidak corrupt saat encode URL (terutama invoice_items yg berupa array)
-  const jsonPayload = encodeURIComponent(JSON.stringify({ action, ...payload }));
-  const resp = await fetch(`${GAS_URL}?payload=${jsonPayload}`, { cache: 'no-store' });
+  // Gunakan POST dengan body JSON — paling andal untuk data besar (invoice_items, dll)
+  // GAS doPost menerima via e.postData.contents
+  const body = JSON.stringify({ action, ...payload });
+  let resp;
+  try {
+    resp = await fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: body,
+      redirect: 'follow',
+    });
+  } catch(err) { throw new Error('Koneksi gagal: ' + err.message); }
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
   let data;
-  try { data = await resp.json(); } catch(e) { throw new Error('Respons tidak valid dari server'); }
+  try { data = await resp.json(); } catch(e) { throw new Error('Respons tidak valid: ' + e.message); }
   if (data.error) throw new Error(data.error);
   return data;
 }
