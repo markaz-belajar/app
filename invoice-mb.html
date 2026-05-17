@@ -2209,7 +2209,37 @@ function showToast(msg,success){
 function rp(n){return 'Rp '+Number(n).toLocaleString('id-ID');}
 function isoDate(d){return d.toISOString().split('T')[0];}
 function fmtLong(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
-function fmtShort(s){if(!s)return '—';const d=new Date(s+'T00:00:00');return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});}
+function fmtShort(s){
+  if(!s||s==='—'||s==='')return '—';
+  // Handle Google Sheets Date serial, JS Date object, or string
+  let d;
+  if(typeof s==='number'){
+    // Google Sheets date serial: days since Dec 30, 1899
+    d=new Date((s-25569)*86400*1000);
+  } else if(s instanceof Date){
+    d=s;
+  } else {
+    // String: coba ISO dulu, lalu format lain
+    const str=String(s).trim();
+    // ISO format: 2026-05-17
+    if(/^\d{4}-\d{2}-\d{2}/.test(str)){
+      d=new Date(str+'T00:00:00');
+    }
+    // DD/MM/YYYY atau MM/DD/YYYY dari Sheets
+    else if(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(str)){
+      const parts=str.split(/[\/\-]/);
+      // Cek apakah tahun di akhir (DD/MM/YYYY)
+      if(parseInt(parts[2])>31){
+        d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+      } else {
+        d=new Date(str);
+      }
+    }
+    else { d=new Date(str); }
+  }
+  if(!d||isNaN(d.getTime()))return String(s)||'—';
+  return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+}
 function fmtTime(d){return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});}
 
 /* DARK MODE */
