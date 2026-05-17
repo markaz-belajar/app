@@ -1944,8 +1944,7 @@ async function confirmPayment(){
 
   if(currentProofData){
     // Tampilkan popup loading di tengah layar
-    showLoadingPopup('Mengupload Bukti Transfer', 'Sedang mengirim gambar ke server...
-Mohon jangan tutup halaman ini.');
+    showLoadingPopup('Mengupload Bukti Transfer', 'Sedang mengirim gambar ke server... Mohon jangan tutup halaman ini.');
     try{
       const inv=invoices.find(i=>i.__backendId===currentInvoiceId);
       const mimeType=currentProofData.split(';')[0].replace('data:','');
