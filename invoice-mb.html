@@ -2,9 +2,6 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Markaz Belajar — Invoice</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -347,6 +344,18 @@ textarea{resize:vertical;min-height:80px;}
 [data-theme="dark"] .notif-card{box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 [data-theme="dark"] #hamburgerMenu{box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 @keyframes slideDown{from{transform:translateX(-50%) translateY(-100%);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+/* ── Loading Popup ── */
+.loading-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease;}
+.loading-popup-box{background:var(--surface,#fff);border-radius:16px;padding:32px 28px;min-width:260px;max-width:320px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);animation:popIn .25s ease;}
+.loading-popup-spinner{width:48px;height:48px;border:4px solid rgba(27,108,168,0.15);border-top-color:#1B6CA8;border-radius:50%;animation:spinLoop .8s linear infinite;margin:0 auto 16px;}
+.loading-popup-title{font-size:15px;font-weight:600;color:var(--text,#1c2c3a);margin-bottom:6px;}
+.loading-popup-sub{font-size:12px;color:var(--text2,#6b7c8d);line-height:1.5;}
+.loading-popup-success .loading-popup-spinner{display:none;}
+.loading-popup-success .loading-popup-icon{display:flex!important;}
+.loading-popup-icon{display:none;align-items:center;justify-content:center;width:48px;height:48px;border-radius:50%;background:#e8f7ee;margin:0 auto 16px;}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes popIn{from{opacity:0;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+@keyframes spinLoop{to{transform:rotate(360deg)}}@keyframes fadeOut{from{opacity:1}to{opacity:0}}
 @keyframes slideIn{from{transform:translateX(400px);opacity:0;}to{transform:translateX(0);opacity:1;}}
 @keyframes slideOut{from{transform:translateX(0);opacity:1;}to{transform:translateX(400px);opacity:0;}}
 @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
@@ -1929,20 +1938,35 @@ function handlePaymentProofUpload(e){
 async function confirmPayment(){
   if(!currentInvoiceId)return;
   const updatedBy=document.getElementById('createdBy').value;
+  const confirmBtn=document.querySelector('#paymentModal .btn-success');
+  if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent='Menyimpan...';}
   let proofUrl=null;
-  
-  // Upload bukti jika ada
+
   if(currentProofData){
+    // Tampilkan popup loading di tengah layar
+    showLoadingPopup('Mengupload Bukti Transfer', 'Sedang mengirim gambar ke server...
+Mohon jangan tutup halaman ini.');
     try{
       const inv=invoices.find(i=>i.__backendId===currentInvoiceId);
       const mimeType=currentProofData.split(';')[0].replace('data:','');
-      const url=await uploadProofToDrive(currentProofData,mimeType,inv?.invoice_number||'inv');
-      proofUrl=url||currentProofData; // fallback base64 jika upload gagal
-    }catch(e){
-      proofUrl=currentProofData; // simpan base64 lokal jika error
-    }
+      // Fire and forget — GAS butuh ~20 detik, browser throw error tapi data tetap masuk
+      const TARGET=60000;
+      const steps=[{maxPx:800,q:0.7},{maxPx:600,q:0.6},{maxPx:480,q:0.5},{maxPx:360,q:0.4},{maxPx:260,q:0.35}];
+      let compressed=currentProofData;
+      try{for(const {maxPx,q} of steps){compressed=await compressImageBase64(compressed,maxPx,q);if(compressed.length<=TARGET)break;}}catch(e){}
+      const cleanB64=compressed.includes(',')?compressed.split(',')[1]:compressed;
+      const filename='bukti_'+(inv?.invoice_number||Date.now())+'.jpg';
+      const payload=JSON.stringify({base64:cleanB64,mimeType:'image/jpeg',filename});
+      // Kirim tanpa await — GAS proses di background
+      fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload,cache:'no-store'}).catch(()=>{});
+      // Tunggu 3 detik supaya GAS sempat mulai
+      updateLoadingPopup('Mengupload Bukti Transfer','Gambar sedang diproses di server...');
+      await new Promise(r=>setTimeout(r,3000));
+      proofUrl=filename; // tandai bahwa bukti sudah dikirim
+    }catch(e){}
   }
 
+  updateLoadingPopup('Menyimpan Pembayaran','Mencatat data ke Google Sheets...');
   const updates={
     payment_status: document.getElementById('paymentStatus').value,
     payment_amount: parseInt(document.getElementById('paymentAmount').value)||0,
@@ -1954,13 +1978,16 @@ async function confirmPayment(){
 
   try{
     await updateInvoiceInSheets(currentInvoiceId, updates, updatedBy);
-    await syncFromSheets(false);
-    showToast('Pembayaran berhasil disimpan! ✓', true);
+    successLoadingPopup('Pembayaran Tersimpan! ✓', 'Data berhasil dicatat.');
+    closeModal('paymentModal');
+    currentProofData=null;
+    syncFromSheets(false);
   }catch(e){
-    showToast('Gagal update: '+e.message, false);
+    hideLoadingPopup();
+    showToast('Gagal menyimpan: '+e.message, false);
+  }finally{
+    if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent='Simpan';}
   }
-  closeModal('paymentModal');
-  currentProofData=null;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2212,23 +2239,68 @@ function showToast(msg,success){
 function rp(n){return 'Rp '+Number(n).toLocaleString('id-ID');}
 function isoDate(d){return d.toISOString().split('T')[0];}
 function fmtLong(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
-function parseDate(s){
-  if(!s||s==='—'||s==='')return null;
-  if(s instanceof Date)return s;
-  if(typeof s==='number')return new Date((s-25569)*86400*1000);
-  const str=String(s).trim();
-  const isoMatch=str.match(/^(\d{4}-\d{2}-\d{2})/);
-  if(isoMatch)return new Date(isoMatch[1]+'T00:00:00');
-  const parts=str.split(/[\/\-]/);
-  if(parts.length===3&&parseInt(parts[2])>31)return new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
-  const d=new Date(str);
-  return isNaN(d.getTime())?null:d;
-}
 function fmtShort(s){
   if(!s||s==='—'||s==='')return '—';
-  const d=parseDate(s);
+  // Handle Google Sheets Date serial, JS Date object, or string
+  let d;
+  if(typeof s==='number'){
+    // Google Sheets date serial: days since Dec 30, 1899
+    d=new Date((s-25569)*86400*1000);
+  } else if(s instanceof Date){
+    d=s;
+  } else {
+    // String: coba ISO dulu, lalu format lain
+    const str=String(s).trim();
+    // ISO format: 2026-05-17
+    if(/^\d{4}-\d{2}-\d{2}/.test(str)){
+      d=new Date(str+'T00:00:00');
+    }
+    // DD/MM/YYYY atau MM/DD/YYYY dari Sheets
+    else if(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(str)){
+      const parts=str.split(/[\/\-]/);
+      // Cek apakah tahun di akhir (DD/MM/YYYY)
+      if(parseInt(parts[2])>31){
+        d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+      } else {
+        d=new Date(str);
+      }
+    }
+    else { d=new Date(str); }
+  }
   if(!d||isNaN(d.getTime()))return String(s)||'—';
   return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+}
+function showLoadingPopup(title, sub) {
+  hideLoadingPopup();
+  const overlay = document.createElement('div');
+  overlay.className = 'loading-popup-overlay';
+  overlay.id = 'loadingPopup';
+  overlay.innerHTML = `
+    <div class="loading-popup-box" id="loadingPopupBox">
+      <div class="loading-popup-spinner"></div>
+      <div class="loading-popup-icon">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="loading-popup-title" id="loadingPopupTitle">${title}</div>
+      <div class="loading-popup-sub" id="loadingPopupSub">${sub}</div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+function updateLoadingPopup(title, sub) {
+  const t = document.getElementById('loadingPopupTitle');
+  const s = document.getElementById('loadingPopupSub');
+  if(t) t.textContent = title;
+  if(s) s.textContent = sub;
+}
+function successLoadingPopup(title, sub) {
+  const box = document.getElementById('loadingPopupBox');
+  if(box) box.classList.add('loading-popup-success');
+  updateLoadingPopup(title, sub);
+  setTimeout(() => hideLoadingPopup(), 1800);
+}
+function hideLoadingPopup() {
+  const el = document.getElementById('loadingPopup');
+  if(el) { el.style.animation='fadeOut .2s ease'; setTimeout(()=>el.remove(), 200); }
 }
 function fmtTime(d){return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});}
 
