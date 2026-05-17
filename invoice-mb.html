@@ -1040,12 +1040,10 @@ async function fetchInvoicesFromSheets() {
   return data.invoices || [];
 }
 async function gasPost(action, payload) {
-  // Kirim tiap field sebagai param GET terpisah agar doGet bisa parse e.parameter.xxx
-  const params = new URLSearchParams({ action });
-  for (const [k, v] of Object.entries(payload)) {
-    params.set(k, typeof v === 'object' ? JSON.stringify(v) : String(v));
-  }
-  const resp = await fetch(`${GAS_URL}?${params.toString()}`, { cache: 'no-store' });
+  // Kirim semua data sebagai satu JSON string di param 'payload'
+  // agar tidak corrupt saat encode URL (terutama invoice_items yg berupa array)
+  const jsonPayload = encodeURIComponent(JSON.stringify({ action, ...payload }));
+  const resp = await fetch(`${GAS_URL}?payload=${jsonPayload}`, { cache: 'no-store' });
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
   let data;
   try { data = await resp.json(); } catch(e) { throw new Error('Respons tidak valid dari server'); }
