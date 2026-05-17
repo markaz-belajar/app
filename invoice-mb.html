@@ -344,6 +344,7 @@ textarea{resize:vertical;min-height:80px;}
 [data-theme="dark"] .notif-card{box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 [data-theme="dark"] #hamburgerMenu{box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 @keyframes slideDown{from{transform:translateX(-50%) translateY(-100%);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+@keyframes toastSpin{to{transform:rotate(360deg)}}
 @keyframes slideIn{from{transform:translateX(400px);opacity:0;}to{transform:translateX(0);opacity:1;}}
 @keyframes slideOut{from{transform:translateX(0);opacity:1;}to{transform:translateX(400px);opacity:0;}}
 @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
@@ -1138,7 +1139,7 @@ async function uploadProofToDrive(base64, mimeType, invoiceNumber) {
 
 /* SYNC: ambil data terbaru, bandingkan, tampilkan notif jika ada yang baru */
 async function syncFromSheets(isManual = false) {
-  setSyncStatus('syncing', 'Sinkronisasi...');
+  setSyncStatus('syncing', 'Memperbarui data...');
   try {
     const fresh = await fetchInvoicesFromSheets();
     
@@ -1742,8 +1743,9 @@ async function finishInvoice(){
     knownInvoiceIds.add(invData.__backendId);
     if(result.backendId) knownInvoiceIds.add(result.backendId);
     
-    showToast(result.offline ? 'Invoice disimpan lokal (GAS_URL belum diisi).' : 'Invoice berhasil disimpan ke Google Sheets! ✓', true);
-    await syncFromSheets(false);
+    showToast(result.offline ? 'Invoice disimpan lokal (GAS_URL belum diisi).' : '✓ Invoice berhasil disimpan!', true);
+    // Sync di background — tidak blokir UI, data akan muncul otomatis
+    syncFromSheets(false);
     setTimeout(()=>{resetForm();switchTabById('tracking');},1200);
   }catch(e){
     showToast('Gagal menyimpan: '+e.message, false);
@@ -1926,18 +1928,23 @@ function handlePaymentProofUpload(e){
 async function confirmPayment(){
   if(!currentInvoiceId)return;
   const updatedBy=document.getElementById('createdBy').value;
+  const confirmBtn=document.querySelector('#paymentModal .btn-success');
   let proofUrl=null;
-  
+
+  if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent='Menyimpan...';}
+
   // Upload bukti jika ada
   if(currentProofData){
+    showToast('⏳ Mengupload bukti pembayaran... Mohon tunggu', 'loading');
     try{
       const inv=invoices.find(i=>i.__backendId===currentInvoiceId);
       const mimeType=currentProofData.split(';')[0].replace('data:','');
       const url=await uploadProofToDrive(currentProofData,mimeType,inv?.invoice_number||'inv');
-      proofUrl=url||currentProofData; // fallback base64 jika upload gagal
+      proofUrl=url||currentProofData;
     }catch(e){
-      proofUrl=currentProofData; // simpan base64 lokal jika error
+      proofUrl=currentProofData;
     }
+    removeLoadingToast();
   }
 
   const updates={
@@ -1949,15 +1956,21 @@ async function confirmPayment(){
     ...(proofUrl ? {payment_proof: proofUrl} : {})
   };
 
+  showToast('⏳ Menyimpan data pembayaran...', 'loading');
   try{
     await updateInvoiceInSheets(currentInvoiceId, updates, updatedBy);
-    await syncFromSheets(false);
-    showToast('Pembayaran berhasil disimpan! ✓', true);
+    removeLoadingToast();
+    showToast('✓ Pembayaran berhasil disimpan!', true);
+    closeModal('paymentModal');
+    currentProofData=null;
+    // Sync di background — tidak blokir UI
+    syncFromSheets(false);
   }catch(e){
-    showToast('Gagal update: '+e.message, false);
+    removeLoadingToast();
+    showToast('Gagal menyimpan: '+e.message, false);
+  }finally{
+    if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent='Simpan';}
   }
-  closeModal('paymentModal');
-  currentProofData=null;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2200,11 +2213,26 @@ function resetForm(){
    MODAL & HELPERS
 ═══════════════════════════════════════════════════════ */
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-function showToast(msg,success){
-  const t=document.createElement('div');
-  t.style.cssText=`position:fixed;bottom:20px;right:20px;background:${success?'#2E9E5B':'#DC3545'};color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;animation:slideIn .3s ease;max-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);`;
-  t.textContent=msg;document.body.appendChild(t);
-  setTimeout(()=>{t.style.animation='slideOut .3s ease';setTimeout(()=>t.remove(),300);},3500);
+function showToast(msg, success, duration) {
+  // Hapus toast loading sebelumnya jika ada
+  document.querySelectorAll('.toast-loading').forEach(el => el.remove());
+  const isLoading = success === 'loading';
+  const dur = duration !== undefined ? duration : (isLoading ? 0 : 3500);
+  const bg = isLoading ? '#1B6CA8' : (success ? '#2E9E5B' : '#DC3545');
+  const t = document.createElement('div');
+  if (isLoading) t.className = 'toast-loading';
+  const spinner = isLoading ? `<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:toastSpin .7s linear infinite;margin-right:8px;vertical-align:middle;flex-shrink:0"></span>` : '';
+  t.style.cssText = `position:fixed;bottom:20px;right:20px;background:${bg};color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;animation:slideIn .3s ease;max-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:flex;align-items:center;`;
+  t.innerHTML = spinner + `<span>${msg}</span>`;
+  document.body.appendChild(t);
+  if (dur > 0) setTimeout(() => { t.style.animation = 'slideOut .3s ease'; setTimeout(() => t.remove(), 300); }, dur);
+  return t;
+}
+function removeLoadingToast() {
+  document.querySelectorAll('.toast-loading').forEach(el => {
+    el.style.animation = 'slideOut .3s ease';
+    setTimeout(() => el.remove(), 300);
+  });
 }
 function rp(n){return 'Rp '+Number(n).toLocaleString('id-ID');}
 function isoDate(d){return d.toISOString().split('T')[0];}
