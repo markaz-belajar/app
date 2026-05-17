@@ -1774,7 +1774,7 @@ function updateStats(data){
   data.forEach(inv=>{
     if(inv.payment_status==='paid')paid++;
     else if(inv.payment_status==='partial')partial++;
-    else{pending++;const d=new Date(inv.due_date+'T00:00:00');if(d<today)overdue++;}
+    else{pending++;const d=parseDate(inv.due_date);if(d<today)overdue++;}
   });
   document.getElementById('statTotal').textContent=data.length;
   document.getElementById('statPaid').textContent=paid;
@@ -1794,7 +1794,7 @@ function renderTracking(){
   const today=new Date();
   let filtered=invoices.filter(inv=>{
     const matchSearch=inv.invoice_number.toLowerCase().includes(searchVal)||inv.student_name.toLowerCase().includes(searchVal);
-    const dueDate=new Date(inv.due_date+'T00:00:00');
+    const dueDate=parseDate(inv.due_date);
     const isOverdue=dueDate<today&&inv.payment_status!=='paid';
     let matchFilter=true;
     if(filterVal==='overdue'&&!isOverdue)matchFilter=false;
@@ -1808,7 +1808,7 @@ function renderTracking(){
     if(inv.payment_status==='paid')statusPay='<span class="status-badge status-paid">✓ Lunas</span>';
     else if(inv.payment_status==='partial')statusPay='<span class="status-badge status-partial">Cicilan</span>';
     else statusPay='<span class="status-badge status-pending-pay">Pending</span>';
-    const dueDate=new Date(inv.due_date+'T00:00:00');
+    const dueDate=parseDate(inv.due_date);
     const diffDays=Math.floor((dueDate-today)/(1000*60*60*24));
     let dueStatus,dueColor;
     if(diffDays<0){dueStatus=`LEWAT ${Math.abs(diffDays)}hr`;dueColor='var(--danger)';}
@@ -2238,68 +2238,23 @@ function showToast(msg,success){
 function rp(n){return 'Rp '+Number(n).toLocaleString('id-ID');}
 function isoDate(d){return d.toISOString().split('T')[0];}
 function fmtLong(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
+function parseDate(s){
+  if(!s||s==='—'||s==='')return null;
+  if(s instanceof Date)return s;
+  if(typeof s==='number')return new Date((s-25569)*86400*1000);
+  const str=String(s).trim();
+  const m=str.match(/^(\d{4}-\d{2}-\d{2})/);
+  if(m)return new Date(m[1]+'T00:00:00');
+  const parts=str.split(/[\/\-]/);
+  if(parts.length===3&&parseInt(parts[2])>31)return new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+  const d=new Date(str);
+  return isNaN(d.getTime())?null:d;
+}
 function fmtShort(s){
   if(!s||s==='—'||s==='')return '—';
-  // Handle Google Sheets Date serial, JS Date object, or string
-  let d;
-  if(typeof s==='number'){
-    // Google Sheets date serial: days since Dec 30, 1899
-    d=new Date((s-25569)*86400*1000);
-  } else if(s instanceof Date){
-    d=s;
-  } else {
-    // String: coba ISO dulu, lalu format lain
-    const str=String(s).trim();
-    // ISO format: 2026-05-17
-    if(/^\d{4}-\d{2}-\d{2}/.test(str)){
-      d=new Date(str+'T00:00:00');
-    }
-    // DD/MM/YYYY atau MM/DD/YYYY dari Sheets
-    else if(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(str)){
-      const parts=str.split(/[\/\-]/);
-      // Cek apakah tahun di akhir (DD/MM/YYYY)
-      if(parseInt(parts[2])>31){
-        d=new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
-      } else {
-        d=new Date(str);
-      }
-    }
-    else { d=new Date(str); }
-  }
-  if(!d||isNaN(d.getTime()))return String(s)||'—';
+  const d=parseDate(s);
+  if(!d)return String(s)||'—';
   return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
-}
-function showLoadingPopup(title, sub) {
-  hideLoadingPopup();
-  const overlay = document.createElement('div');
-  overlay.className = 'loading-popup-overlay';
-  overlay.id = 'loadingPopup';
-  overlay.innerHTML = `
-    <div class="loading-popup-box" id="loadingPopupBox">
-      <div class="loading-popup-spinner"></div>
-      <div class="loading-popup-icon">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <div class="loading-popup-title" id="loadingPopupTitle">${title}</div>
-      <div class="loading-popup-sub" id="loadingPopupSub">${sub}</div>
-    </div>`;
-  document.body.appendChild(overlay);
-}
-function updateLoadingPopup(title, sub) {
-  const t = document.getElementById('loadingPopupTitle');
-  const s = document.getElementById('loadingPopupSub');
-  if(t) t.textContent = title;
-  if(s) s.textContent = sub;
-}
-function successLoadingPopup(title, sub) {
-  const box = document.getElementById('loadingPopupBox');
-  if(box) box.classList.add('loading-popup-success');
-  updateLoadingPopup(title, sub);
-  setTimeout(() => hideLoadingPopup(), 1800);
-}
-function hideLoadingPopup() {
-  const el = document.getElementById('loadingPopup');
-  if(el) { el.style.animation='fadeOut .2s ease'; setTimeout(()=>el.remove(), 200); }
 }
 function fmtTime(d){return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});}
 
