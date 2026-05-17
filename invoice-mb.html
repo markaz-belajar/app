@@ -344,7 +344,6 @@ textarea{resize:vertical;min-height:80px;}
 [data-theme="dark"] .notif-card{box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 [data-theme="dark"] #hamburgerMenu{box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 @keyframes slideDown{from{transform:translateX(-50%) translateY(-100%);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
-@keyframes toastSpin{to{transform:rotate(360deg)}}
 @keyframes slideIn{from{transform:translateX(400px);opacity:0;}to{transform:translateX(0);opacity:1;}}
 @keyframes slideOut{from{transform:translateX(0);opacity:1;}to{transform:translateX(400px);opacity:0;}}
 @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
@@ -1139,7 +1138,7 @@ async function uploadProofToDrive(base64, mimeType, invoiceNumber) {
 
 /* SYNC: ambil data terbaru, bandingkan, tampilkan notif jika ada yang baru */
 async function syncFromSheets(isManual = false) {
-  setSyncStatus('syncing', 'Memperbarui data...');
+  setSyncStatus('syncing', 'Sinkronisasi...');
   try {
     const fresh = await fetchInvoicesFromSheets();
     
@@ -1743,9 +1742,8 @@ async function finishInvoice(){
     knownInvoiceIds.add(invData.__backendId);
     if(result.backendId) knownInvoiceIds.add(result.backendId);
     
-    showToast(result.offline ? 'Invoice disimpan lokal (GAS_URL belum diisi).' : '✓ Invoice berhasil disimpan!', true);
-    // Sync di background — tidak blokir UI, data akan muncul otomatis
-    syncFromSheets(false);
+    showToast(result.offline ? 'Invoice disimpan lokal (GAS_URL belum diisi).' : 'Invoice berhasil disimpan ke Google Sheets! ✓', true);
+    await syncFromSheets(false);
     setTimeout(()=>{resetForm();switchTabById('tracking');},1200);
   }catch(e){
     showToast('Gagal menyimpan: '+e.message, false);
@@ -1764,7 +1762,7 @@ function updateStats(data){
   data.forEach(inv=>{
     if(inv.payment_status==='paid')paid++;
     else if(inv.payment_status==='partial')partial++;
-    else{pending++;const d=new Date(inv.due_date+'T00:00:00');if(d<today)overdue++;}
+    else{pending++;const d=parseDate(inv.due_date);if(d&&d<today)overdue++;}
   });
   document.getElementById('statTotal').textContent=data.length;
   document.getElementById('statPaid').textContent=paid;
@@ -1784,7 +1782,7 @@ function renderTracking(){
   const today=new Date();
   let filtered=invoices.filter(inv=>{
     const matchSearch=inv.invoice_number.toLowerCase().includes(searchVal)||inv.student_name.toLowerCase().includes(searchVal);
-    const dueDate=new Date(inv.due_date+'T00:00:00');
+    const dueDate=parseDate(inv.due_date);
     const isOverdue=dueDate<today&&inv.payment_status!=='paid';
     let matchFilter=true;
     if(filterVal==='overdue'&&!isOverdue)matchFilter=false;
@@ -1798,11 +1796,18 @@ function renderTracking(){
     if(inv.payment_status==='paid')statusPay='<span class="status-badge status-paid">✓ Lunas</span>';
     else if(inv.payment_status==='partial')statusPay='<span class="status-badge status-partial">Cicilan</span>';
     else statusPay='<span class="status-badge status-pending-pay">Pending</span>';
-    const dueDate=new Date(inv.due_date+'T00:00:00');
-    const diffDays=Math.floor((dueDate-today)/(1000*60*60*24));
+    const dueDate=parseDate(inv.due_date);
+    const diffDays=dueDate?Math.floor((dueDate-today)/(1000*60*60*24)):null;
     let dueStatus,dueColor;
-    if(diffDays<0){dueStatus=`LEWAT ${Math.abs(diffDays)}hr`;dueColor='var(--danger)';}
-    else if(diffDays<=3){dueStatus=`${diffDays}hr lagi`;dueColor='var(--warning)';}
+    if(diffDays===null){dueStatus='—';dueColor='var(--text3)';}
+    else if(diffDays<0){
+      const abs=Math.abs(diffDays);
+      dueStatus=abs===1?'Lewat kemarin':abs<7?`Lewat ${abs} hari`:`Lewat ${Math.floor(abs/7)} mgg`;
+      dueColor='var(--danger)';
+    }
+    else if(diffDays===0){dueStatus='Hari ini';dueColor='var(--warning)';}
+    else if(diffDays===1){dueStatus='Besok';dueColor='var(--warning)';}
+    else if(diffDays<=7){dueStatus=`${diffDays} hari lagi`;dueColor='var(--warning)';}
     else{dueStatus=fmtShort(inv.due_date);dueColor='var(--success)';}
     const proofBtn=inv.payment_proof?`<button class="btn-icon" onclick="viewProof('${inv.__backendId}')" title="Lihat bukti"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>`:`<button class="btn-icon" onclick="openProofUpload('${inv.__backendId}')" title="Upload bukti"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>`;
     return `<tr>
@@ -1928,23 +1933,18 @@ function handlePaymentProofUpload(e){
 async function confirmPayment(){
   if(!currentInvoiceId)return;
   const updatedBy=document.getElementById('createdBy').value;
-  const confirmBtn=document.querySelector('#paymentModal .btn-success');
   let proofUrl=null;
-
-  if(confirmBtn){confirmBtn.disabled=true;confirmBtn.textContent='Menyimpan...';}
-
+  
   // Upload bukti jika ada
   if(currentProofData){
-    showToast('⏳ Mengupload bukti pembayaran... Mohon tunggu', 'loading');
     try{
       const inv=invoices.find(i=>i.__backendId===currentInvoiceId);
       const mimeType=currentProofData.split(';')[0].replace('data:','');
       const url=await uploadProofToDrive(currentProofData,mimeType,inv?.invoice_number||'inv');
-      proofUrl=url||currentProofData;
+      proofUrl=url||currentProofData; // fallback base64 jika upload gagal
     }catch(e){
-      proofUrl=currentProofData;
+      proofUrl=currentProofData; // simpan base64 lokal jika error
     }
-    removeLoadingToast();
   }
 
   const updates={
@@ -1956,21 +1956,15 @@ async function confirmPayment(){
     ...(proofUrl ? {payment_proof: proofUrl} : {})
   };
 
-  showToast('⏳ Menyimpan data pembayaran...', 'loading');
   try{
     await updateInvoiceInSheets(currentInvoiceId, updates, updatedBy);
-    removeLoadingToast();
-    showToast('✓ Pembayaran berhasil disimpan!', true);
-    closeModal('paymentModal');
-    currentProofData=null;
-    // Sync di background — tidak blokir UI
-    syncFromSheets(false);
+    await syncFromSheets(false);
+    showToast('Pembayaran berhasil disimpan! ✓', true);
   }catch(e){
-    removeLoadingToast();
-    showToast('Gagal menyimpan: '+e.message, false);
-  }finally{
-    if(confirmBtn){confirmBtn.disabled=false;confirmBtn.textContent='Simpan';}
+    showToast('Gagal update: '+e.message, false);
   }
+  closeModal('paymentModal');
+  currentProofData=null;
 }
 
 /* ═══════════════════════════════════════════════════════
@@ -2213,26 +2207,11 @@ function resetForm(){
    MODAL & HELPERS
 ═══════════════════════════════════════════════════════ */
 function closeModal(id){document.getElementById(id).classList.remove('open');}
-function showToast(msg, success, duration) {
-  // Hapus toast loading sebelumnya jika ada
-  document.querySelectorAll('.toast-loading').forEach(el => el.remove());
-  const isLoading = success === 'loading';
-  const dur = duration !== undefined ? duration : (isLoading ? 0 : 3500);
-  const bg = isLoading ? '#1B6CA8' : (success ? '#2E9E5B' : '#DC3545');
-  const t = document.createElement('div');
-  if (isLoading) t.className = 'toast-loading';
-  const spinner = isLoading ? `<span style="display:inline-block;width:14px;height:14px;border:2px solid rgba(255,255,255,0.4);border-top-color:#fff;border-radius:50%;animation:toastSpin .7s linear infinite;margin-right:8px;vertical-align:middle;flex-shrink:0"></span>` : '';
-  t.style.cssText = `position:fixed;bottom:20px;right:20px;background:${bg};color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;animation:slideIn .3s ease;max-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.25);display:flex;align-items:center;`;
-  t.innerHTML = spinner + `<span>${msg}</span>`;
-  document.body.appendChild(t);
-  if (dur > 0) setTimeout(() => { t.style.animation = 'slideOut .3s ease'; setTimeout(() => t.remove(), 300); }, dur);
-  return t;
-}
-function removeLoadingToast() {
-  document.querySelectorAll('.toast-loading').forEach(el => {
-    el.style.animation = 'slideOut .3s ease';
-    setTimeout(() => el.remove(), 300);
-  });
+function showToast(msg,success){
+  const t=document.createElement('div');
+  t.style.cssText=`position:fixed;bottom:20px;right:20px;background:${success?'#2E9E5B':'#DC3545'};color:#fff;padding:12px 16px;border-radius:8px;font-size:13px;font-weight:500;z-index:9999;animation:slideIn .3s ease;max-width:320px;box-shadow:0 4px 16px rgba(0,0,0,0.2);`;
+  t.textContent=msg;document.body.appendChild(t);
+  setTimeout(()=>{t.style.animation='slideOut .3s ease';setTimeout(()=>t.remove(),300);},3500);
 }
 function rp(n){return 'Rp '+Number(n).toLocaleString('id-ID');}
 function isoDate(d){return d.toISOString().split('T')[0];}
@@ -2267,6 +2246,21 @@ function fmtShort(s){
   }
   if(!d||isNaN(d.getTime()))return String(s)||'—';
   return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+}
+function parseDate(s){
+  if(!s||s==='—'||s==='')return null;
+  if(s instanceof Date)return s;
+  if(typeof s==='number')return new Date((s-25569)*86400*1000);
+  const str=String(s).trim();
+  // Ambil hanya bagian tanggal (YYYY-MM-DD) dari ISO string apapun
+  const isoMatch=str.match(/^(\d{4}-\d{2}-\d{2})/);
+  if(isoMatch)return new Date(isoMatch[1]+'T00:00:00');
+  if(/^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{4}/.test(str)){
+    const parts=str.split(/[\/\-]/);
+    if(parseInt(parts[2])>31)return new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+  }
+  const d=new Date(str);
+  return isNaN(d.getTime())?null:d;
 }
 function fmtTime(d){return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});}
 
