@@ -383,7 +383,7 @@ function renderList(list){
   const el=document.getElementById('siswa-list');
   if(!list.length){el.innerHTML=`<div class="empty-txt">Tidak ada hasil</div>`;return;}
   el.innerHTML=list.map(s=>`
-    <div class="siswa-card" onclick="pilihSiswa(${s.id})">
+    <div class="siswa-card" onclick="pilihSiswa('${s.id}')">
       <div class="avatar">${s.inisial}</div>
       <div class="s-info">
         <div class="s-nama">${s.nama}</div>
@@ -403,7 +403,7 @@ function filterSiswa(q){
 }
 
 function pilihSiswa(id){
-  curSiswa=allSiswa.find(s=>s.id===id); if(!curSiswa)return;
+  curSiswa=allSiswa.find(s=>String(s.id)===String(id)); if(!curSiswa)return;
   document.getElementById('aksi-nama').textContent=curSiswa.nama;
   document.getElementById('aksi-meta').textContent=`${curSiswa.program} · ${curSiswa.tipe} · ${curSiswa.usia}`;
   document.getElementById('riwayat-wrap').style.display='none';
