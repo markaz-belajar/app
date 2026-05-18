@@ -708,11 +708,11 @@ textarea{resize:vertical;min-height:80px;}
       <table class="track-table">
         <thead>
           <tr>
-            <th>Invoice</th><th>Total</th><th>Jatuh Tempo</th><th>Status</th>
+            <th>Invoice</th><th>Total</th><th>Jatuh Tempo</th><th>Status</th><th>Tgl Bayar</th>
           </tr>
         </thead>
         <tbody id="trackingList">
-          <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:40px 20px;">Memuat data dari Google Sheets...</td></tr>
+          <tr><td colspan="5" style="text-align:center;color:var(--text3);padding:40px 20px;">Memuat data dari Google Sheets...</td></tr>
         </tbody>
       </table>
     </div>
@@ -1807,7 +1807,7 @@ function updateStats(data){
 function renderTracking(){
   const list=document.getElementById('trackingList');
   if(!invoices||invoices.length===0){
-    list.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:40px 20px;">Belum ada invoice.</td></tr>';
+    list.innerHTML='<tr><td colspan="5" style="text-align:center;color:var(--text3);padding:40px 20px;">Belum ada invoice.</td></tr>';
     updateStats([]);return;
   }
   const searchVal=document.getElementById('trackingSearch').value.toLowerCase();
@@ -1840,18 +1840,24 @@ function renderTracking(){
     else if(diffDays===1){dueStatus='Besok';dueColor='var(--warning)';}
     else if(diffDays<=7){dueStatus=`${diffDays} hari lagi`;dueColor='var(--warning)';}
     else{dueStatus=fmtShort(inv.due_date);dueColor='var(--success)';}
-    // Status cell gabungan
-    const proofIcon=inv.payment_proof
-      ?`<span onclick="viewProof('${inv.__backendId}')" style="cursor:pointer;margin-left:4px;" title="Lihat bukti">📎</span>`
-      :`<span onclick="openProofUpload('${inv.__backendId}')" style="cursor:pointer;margin-left:4px;color:var(--text3);" title="Upload bukti">⬆</span>`;
-    const sentInfo=isSent?inv.sent_via.toUpperCase():'Belum kirim';
+    // Status badge
     let statusCell='';
     if(isPaid){
-      statusCell=`<span class="status-badge status-paid">✓ Lunas</span> <span style="font-size:10px;color:var(--text3);">${inv.payment_date?fmtShort(inv.payment_date):''}${proofIcon}</span>`;
+      statusCell=`<span class="status-badge status-paid">✓ Lunas</span>`;
     }else if(isPartial){
-      statusCell=`<span class="status-badge status-partial">Cicilan</span> <span style="font-size:10px;color:var(--text3);">${sentInfo}${proofIcon}</span>`;
+      statusCell=`<span class="status-badge status-partial">Cicilan</span>`;
     }else{
-      statusCell=`<span class="status-badge status-pending-pay">Belum Bayar</span> <span style="font-size:10px;color:var(--text3);">${sentInfo}${proofIcon}</span>`;
+      statusCell=`<span class="status-badge status-pending-pay">Belum Bayar</span>`;
+    }
+    // Tanggal bayar / info kirim
+    let dateCell='';
+    if(isPaid){
+      dateCell=`<span style="font-size:11px;color:var(--text3);">${inv.payment_date?fmtShort(inv.payment_date):'—'}</span>`;
+    }else if(isPartial){
+      dateCell=`<span style="font-size:11px;color:var(--text3);">${inv.payment_date?fmtShort(inv.payment_date):'—'}</span>`;
+    }else{
+      const sentInfo=isSent?`<span style="font-size:10px;color:var(--success);">${inv.sent_via.toUpperCase()}</span>`:`<span style="font-size:10px;color:var(--text3);">Belum kirim</span>`;
+      dateCell=sentInfo;
     }
     return `<tr onclick="openInvDialog('${inv.__backendId}')" style="cursor:pointer;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
       <td>
@@ -1860,7 +1866,8 @@ function renderTracking(){
       </td>
       <td style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;white-space:nowrap;">${rp(inv.amount)}</td>
       <td><span style="padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;background:${dueColor}20;color:${dueColor};white-space:nowrap;">${dueStatus}</span></td>
-      <td>${statusCell} <span style="font-size:11px;color:var(--text3);">›</span></td>
+      <td>${statusCell}</td>
+      <td>${dateCell}</td>
     </tr>`;
   }).join('');
 }
