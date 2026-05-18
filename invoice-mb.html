@@ -1052,15 +1052,20 @@ async function fetchInvoicesFromSheets() {
   return data.invoices || [];
 }
 async function gasPost(action, payload) {
-  // GAS Web App hanya support GET dari browser (POST kena CORS block).
-  // Kirim semua data sebagai satu JSON di ?payload= (GET, tidak kena CORS).
-  // GAS doGet membaca e.parameter.payload lalu JSON.parse.
   const jsonStr = JSON.stringify({ action, ...payload });
   const url = GAS_URL + '?payload=' + encodeURIComponent(jsonStr);
+  // Timeout 25 detik — GAS kadang lambat tapi tidak sampai menit
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 25000);
   let resp;
   try {
-    resp = await fetch(url, { cache: 'no-store' });
-  } catch(err) { throw new Error('Koneksi gagal: ' + err.message); }
+    resp = await fetch(url, { cache: 'no-store', signal: controller.signal });
+  } catch(err) {
+    clearTimeout(timer);
+    if (err.name === 'AbortError') throw new Error('Server lambat merespons, coba lagi.');
+    throw new Error('Koneksi gagal: ' + err.message);
+  }
+  clearTimeout(timer);
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
   let data;
   try { data = await resp.json(); } catch(e) { throw new Error('Respons tidak valid'); }
@@ -1965,7 +1970,19 @@ async function confirmPayment(){
     }catch(e){}
   }
 
+  // Update progress setiap 5 detik supaya user tahu masih proses
   updateLoadingPopup('Menyimpan Pembayaran','Mencatat data ke Google Sheets...');
+  const progressMsgs = [
+    'Menghubungi server...',
+    'Server sedang memproses...',
+    'Hampir selesai...',
+    'Mohon tunggu sebentar...',
+  ];
+  let msgIdx = 0;
+  const progressTimer = setInterval(() => {
+    msgIdx = (msgIdx + 1) % progressMsgs.length;
+    updateLoadingPopup('Menyimpan Pembayaran', progressMsgs[msgIdx]);
+  }, 5000);
   const updates={
     payment_status: document.getElementById('paymentStatus').value,
     payment_amount: parseInt(document.getElementById('paymentAmount').value)||0,
@@ -1977,11 +1994,13 @@ async function confirmPayment(){
 
   try{
     await updateInvoiceInSheets(currentInvoiceId, updates, updatedBy);
+    clearInterval(progressTimer);
     successLoadingPopup('Pembayaran Tersimpan! ✓', 'Data berhasil dicatat.');
     closeModal('paymentModal');
     currentProofData=null;
     syncFromSheets(false);
   }catch(e){
+    clearInterval(progressTimer);
     hideLoadingPopup();
     showToast('Gagal menyimpan: '+e.message, false);
   }finally{
@@ -2238,6 +2257,18 @@ function showToast(msg,success){
 function rp(n){return 'Rp '+Number(n).toLocaleString('id-ID');}
 function isoDate(d){return d.toISOString().split('T')[0];}
 function fmtLong(d){return d.toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'});}
+function parseDate(s){
+  if(!s||s==='—'||s==='')return null;
+  if(s instanceof Date)return s;
+  if(typeof s==='number')return new Date((s-25569)*86400*1000);
+  const str=String(s).trim();
+  const m=str.match(/^(\d{4}-\d{2}-\d{2})/);
+  if(m)return new Date(m[1]+'T00:00:00');
+  const parts=str.split(/[\/\-]/);
+  if(parts.length===3&&parseInt(parts[2])>31)return new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+  const d=new Date(str);
+  return isNaN(d.getTime())?null:d;
+}
 function parseDate(s){
   if(!s||s==='—'||s==='')return null;
   if(s instanceof Date)return s;
