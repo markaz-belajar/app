@@ -2207,16 +2207,68 @@ function openProofUpload(invId){
   input.type='file';input.accept='image/*';
   input.onchange=async(e)=>{
     const file=e.target.files[0];if(!file)return;
-    if(file.size>5*1024*1024){showToast('File terlalu besar',false);return;}
+    if(file.size>5*1024*1024){showToast('File terlalu besar (maks 5MB)',false);return;}
+
+    // Tampilkan modal loading — tidak bisa ditutup sampai selesai
+    const loadingModal=document.createElement('div');
+    loadingModal.id='proof-loading-modal';
+    loadingModal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.65);z-index:9999;display:flex;align-items:center;justify-content:center;';
+    loadingModal.innerHTML=`
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:var(--rl);padding:28px 24px;max-width:320px;width:90%;text-align:center;">
+        <div id="proof-loading-icon" style="font-size:32px;margin-bottom:12px;">
+          <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="animation:spin 1s linear infinite;display:block;margin:0 auto;">
+            <path d="M21 12a9 9 0 1 1-6.219-8.56"/>
+          </svg>
+        </div>
+        <div id="proof-loading-title" style="font-size:14px;font-weight:700;color:var(--text);margin-bottom:6px;">Mengupload bukti...</div>
+        <div id="proof-loading-sub" style="font-size:12px;color:var(--text3);line-height:1.5;">Mohon tunggu, jangan tutup halaman ini.</div>
+      </div>`;
+    document.body.appendChild(loadingModal);
+
     const reader=new FileReader();
     reader.onload=async(evt)=>{
       currentProofData=evt.target.result;
       const inv=invoices.find(i=>i.__backendId===invId);
       const mimeType=currentProofData.split(';')[0].replace('data:','');
       let proofUrl=currentProofData;
-      try{const url=await uploadProofToDrive(currentProofData,mimeType,inv?.invoice_number||'inv');if(url)proofUrl=url;else showToast('Upload Drive gagal, tersimpan lokal.',false);}catch(err){showToast('Upload Drive: '+err.message+' — tersimpan lokal.',false);}
-      try{await updateInvoiceInSheets(invId,{payment_proof:proofUrl},document.getElementById('createdBy').value);await syncFromSheets(false);showToast('Bukti pembayaran berhasil disimpan! ✓',true);}
-      catch(err){showToast('Gagal simpan bukti: '+err.message,false);}
+      let uploadOk=true;
+
+      // Step 1: Upload ke Drive
+      try{
+        const url=await uploadProofToDrive(currentProofData,mimeType,inv?.invoice_number||'inv');
+        if(url) proofUrl=url;
+        else { uploadOk=false; }
+      }catch(err){ uploadOk=false; }
+
+      // Step 2: Simpan URL ke Sheets
+      try{
+        await updateInvoiceInSheets(invId,{payment_proof:proofUrl},document.getElementById('createdBy').value);
+        await syncFromSheets(false);
+
+        // Tampilkan sukses di dalam modal
+        document.getElementById('proof-loading-icon').innerHTML=`
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto;">
+            <circle cx="12" cy="12" r="10"/><polyline points="9 12 11.5 14.5 15.5 10"/>
+          </svg>`;
+        document.getElementById('proof-loading-title').textContent='Bukti berhasil disimpan!';
+        document.getElementById('proof-loading-sub').innerHTML=uploadOk
+          ? 'Tersimpan di Google Drive.'
+          : 'Tersimpan lokal (Drive tidak tersedia).';
+
+        // Tutup modal otomatis setelah 1.5 detik
+        setTimeout(()=>{ loadingModal.remove(); }, 1500);
+
+      }catch(err){
+        document.getElementById('proof-loading-icon').innerHTML=`
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:block;margin:0 auto;">
+            <circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/>
+          </svg>`;
+        document.getElementById('proof-loading-title').textContent='Gagal menyimpan bukti';
+        document.getElementById('proof-loading-sub').innerHTML=`${err.message}<br><br>
+          <button onclick="document.getElementById('proof-loading-modal').remove()"
+            style="padding:8px 20px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-family:inherit;font-size:12px;color:var(--text2);">
+            Tutup</button>`;
+      }
       currentProofData=null;
     };
     reader.readAsDataURL(file);
