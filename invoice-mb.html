@@ -1695,7 +1695,7 @@ function buildInv(){
   });
 }
 function renderPrev(){document.getElementById('previewDoc').innerHTML=buildInv();}
-function printFromForm(){if(!student&&progs.length===0&&!regOn){showToast('Lengkapi data invoice terlebih dahulu.',false);return;}_renderPDF(buildInv(),document.getElementById('invoiceNumber', paidStamp).value+'.pdf',false);}
+function printFromForm(){if(!student&&progs.length===0&&!regOn){showToast('Lengkapi data invoice terlebih dahulu.',false);return;}_renderPDF(buildInv(),document.getElementById('invoiceNumber').value+'.pdf',false);}
 
 function _renderPDF(invHTML,filename,paidStamp=false){
   let finalHTML=invHTML;
@@ -1803,14 +1803,12 @@ function renderTracking(){
   });
   updateStats(invoices);
   list.innerHTML=filtered.map(inv=>{
-    // Status kolom gabungan: kirim + bayar + bukti dalam 1 kolom
-    const isPaid = inv.payment_status==='paid';
-    const isPartial = inv.payment_status==='partial';
-    const isSent = !!inv.sent_via;
-
+    const isPaid=inv.payment_status==='paid';
+    const isPartial=inv.payment_status==='partial';
+    const isSent=!!inv.sent_via;
     // Due date
     const dueDate=parseDate(inv.due_date);
-    const diffDays=dueDate?Math.floor((dueDate-today)/(1000*60*60*24)):null;
+    const diffDays=dueDate&&!isNaN(dueDate)?Math.floor((dueDate-today)/(1000*60*60*24)):null;
     let dueStatus,dueColor;
     if(diffDays===null){dueStatus='—';dueColor='var(--text3)';}
     else if(isPaid){dueStatus=fmtShort(inv.due_date);dueColor='var(--text3)';}
@@ -1819,57 +1817,36 @@ function renderTracking(){
     else if(diffDays===1){dueStatus='Besok';dueColor='var(--warning)';}
     else if(diffDays<=7){dueStatus=`${diffDays} hari lagi`;dueColor='var(--warning)';}
     else{dueStatus=fmtShort(inv.due_date);dueColor='var(--success)';}
-
-    // Status gabungan — kirim + bayar + bukti + tgl bayar dalam 1 cell
-    let statusCell = '';
+    // Status cell gabungan
+    const proofIcon=inv.payment_proof
+      ?`<span onclick="viewProof('${inv.__backendId}')" style="cursor:pointer;margin-left:4px;" title="Lihat bukti">📎</span>`
+      :`<span onclick="openProofUpload('${inv.__backendId}')" style="cursor:pointer;margin-left:4px;color:var(--text3);" title="Upload bukti">⬆</span>`;
+    const sentInfo=isSent?inv.sent_via.toUpperCase():'Belum kirim';
+    let statusCell='';
     if(isPaid){
-      const proofIcon = inv.payment_proof
-        ? `<span onclick="viewProof('${inv.__backendId}')" title="Lihat bukti" style="cursor:pointer;margin-left:4px;color:var(--success);font-size:10px;">📎</span>`
-        : '';
-      statusCell = `<div style="display:flex;flex-direction:column;gap:2px;">
-        <span class="status-badge status-paid">✓ Lunas</span>
-        <span style="font-size:10px;color:var(--text3);">${inv.payment_date?fmtShort(inv.payment_date):''}${proofIcon}</span>
-      </div>`;
-    } else if(isPartial){
-      const proofIcon = inv.payment_proof
-        ? `<span onclick="viewProof('${inv.__backendId}')" title="Lihat bukti" style="cursor:pointer;margin-left:4px;font-size:10px;">📎</span>`
-        : `<span onclick="openProofUpload('${inv.__backendId}')" title="Upload bukti" style="cursor:pointer;margin-left:4px;font-size:10px;color:var(--text3);">⬆</span>`;
-      statusCell = `<div style="display:flex;flex-direction:column;gap:2px;">
-        <span class="status-badge status-partial">Cicilan</span>
-        <span style="font-size:10px;color:var(--text3);">${isSent?inv.sent_via.toUpperCase():'Belum kirim'}${proofIcon}</span>
-      </div>`;
-    } else {
-      const proofIcon = inv.payment_proof
-        ? `<span onclick="viewProof('${inv.__backendId}')" title="Lihat bukti" style="cursor:pointer;margin-left:4px;font-size:10px;">📎</span>`
-        : `<span onclick="openProofUpload('${inv.__backendId}')" title="Upload bukti" style="cursor:pointer;margin-left:4px;font-size:10px;color:var(--text3);">⬆</span>`;
-      statusCell = `<div style="display:flex;flex-direction:column;gap:2px;">
-        <span class="status-badge status-pending-pay">Belum Bayar</span>
-        <span style="font-size:10px;color:var(--text3);">${isSent?inv.sent_via.toUpperCase():'Belum kirim'}${proofIcon}</span>
-      </div>`;
+      statusCell=`<div><span class="status-badge status-paid">✓ Lunas</span><div style="font-size:10px;color:var(--text3);margin-top:2px;">${inv.payment_date?fmtShort(inv.payment_date):''}${proofIcon}</div></div>`;
+    }else if(isPartial){
+      statusCell=`<div><span class="status-badge status-partial">Cicilan</span><div style="font-size:10px;color:var(--text3);margin-top:2px;">${sentInfo}${proofIcon}</div></div>`;
+    }else{
+      statusCell=`<div><span class="status-badge status-pending-pay">Belum Bayar</span><div style="font-size:10px;color:var(--text3);margin-top:2px;">${sentInfo}${proofIcon}</div></div>`;
     }
-
-    // Tombol aksi — ramping, berdasarkan status
-    const btnEdit = `<button title="Edit" style="background:var(--accent-dim);color:var(--accent);border:none;border-radius:6px;padding:5px 7px;font-size:11px;cursor:pointer;font-family:inherit;" onclick="openEditModal('${inv.__backendId}')">Edit</button>`;
-    const btnHapus = `<button title="Hapus" style="background:var(--danger-dim);color:var(--danger);border:none;border-radius:6px;padding:5px 7px;font-size:11px;cursor:pointer;font-family:inherit;" onclick="deleteInvoice('${inv.__backendId}')">✕</button>`;
-    let aksiCell = '';
-    if(isPaid){
-      // Lunas: Cetak Lunas (langsung, bukan via modal Kirim) | Edit | Hapus
-      aksiCell = `<button style="background:#e8f7ee;color:#2E9E5B;border:1px solid rgba(46,158,91,.25);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;" onclick="printInvoice('${inv.__backendId}',true)">🖨 Cetak</button>${btnEdit}${btnHapus}`;
-    } else if(!isSent){
-      // Belum kirim: Kirim (utama) | Edit | Hapus
-      aksiCell = `<button class="btn-small btn-accent" style="border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;border:none;background:var(--accent);color:#fff;white-space:nowrap;" onclick="openSendModal('${inv.__backendId}')">📤 Kirim</button>${btnEdit}${btnHapus}`;
-    } else {
-      // Sudah kirim belum bayar: Bayar (utama) | Kirim Lagi | Edit | Hapus
-      aksiCell = `<button style="background:#2E9E5B;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;" onclick="openPaymentModal('${inv.__backendId}')">💳 Bayar</button><button style="background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 7px;font-size:10px;cursor:pointer;font-family:inherit;" onclick="openSendModal('${inv.__backendId}')">↺</button>${btnEdit}${btnHapus}`;
-    }
-
     return `<tr>
       <td><strong style="font-size:11px;font-family:'Geist Mono',monospace;">${inv.invoice_number}</strong><br><span style="font-size:10px;color:var(--text3);">${inv.created_by||''}</span></td>
       <td style="font-size:12px;">${inv.student_name}</td>
       <td style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;">${rp(inv.amount)}</td>
       <td><span style="padding:3px 7px;border-radius:6px;font-size:10px;font-weight:600;background:${dueColor}20;color:${dueColor};white-space:nowrap;">${dueStatus}</span></td>
       <td>${statusCell}</td>
-      <td><div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;">${aksiCell}</div></td>
+      <td><div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap;">
+        ${isPaid
+          ?`<button onclick="downloadInvoicePDF('${inv.__backendId}')" style="background:#e8f7ee;color:#2E9E5B;border:1px solid rgba(46,158,91,.25);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;">🖨 Cetak</button>`
+          :!isSent
+            ?`<button onclick="openSendModal('${inv.__backendId}')" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;">📤 Kirim</button>`
+            :`<button onclick="openPaymentModal('${inv.__backendId}')" style="background:#2E9E5B;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;">💳 Bayar</button>
+             <button onclick="openSendModal('${inv.__backendId}')" style="background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 7px;font-size:10px;cursor:pointer;font-family:inherit;" title="Kirim ulang">↺</button>`
+        }
+        <button onclick="openEditModal('${inv.__backendId}')" style="background:var(--accent-dim);color:var(--accent);border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;font-family:inherit;">Edit</button>
+        <button onclick="deleteInvoice('${inv.__backendId}')" style="background:var(--danger-dim);color:var(--danger);border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;font-family:inherit;">✕</button>
+      </div></td>
     </tr>`;
   }).join('');
 }
@@ -1939,11 +1916,6 @@ async function confirmSend(){
   document.getElementById('sendNote').value='';document.getElementById('sendNoteField').style.display='none';currentSendMethod=null;const _wa=document.getElementById('sendOptWa');const _em=document.getElementById('sendOptEmail');if(_wa)_wa.classList.remove('selected-wa','selected-email');if(_em)_em.classList.remove('selected-wa','selected-email');
 }
 
-function printInvoice(invId, paidStamp=false){
-  const inv=invoices.find(i=>i.__backendId===invId);if(!inv)return;
-  currentInvoiceId=invId;
-  downloadInvoicePDF(invId, paidStamp);
-}
 function printCurrentInvoice(){
   if(!currentInvoiceId)return;
   const inv=invoices.find(i=>i.__backendId===currentInvoiceId);if(!inv)return;
@@ -2236,7 +2208,7 @@ async function confirmEdit(){
 /* ═══════════════════════════════════════════════════════
    PDF
 ═══════════════════════════════════════════════════════ */
-function downloadInvoicePDF(invId, paidStamp=false){
+function downloadInvoicePDF(invId){
   const inv=invoices.find(i=>i.__backendId===invId);if(!inv)return;
   const st=STUDENTS.find(s=>s.id===inv.student_id);
   const items=inv.invoice_items&&inv.invoice_items.length>0?inv.invoice_items:[{label:'Layanan Bimbingan Belajar',type:'—',dur:'',price:inv.amount}];
@@ -2295,21 +2267,11 @@ function parseDate(s){
   const d=new Date(str);
   return isNaN(d.getTime())?null:d;
 }
-function parseDate(s){
-  if(!s||s===\'—\'||s===\'\')return null;
-  if(s instanceof Date)return s;
-  if(typeof s===\'number\')return new Date((s-25569)*86400*1000);
-  const str=String(s).trim();
-  const m=str.match(/^(\d{4}-\d{2}-\d{2})/);
-  if(m)return new Date(m[1]+\'T00:00:00\');
-  const d=new Date(str);
-  return isNaN(d.getTime())?null:d;
-}
 function fmtShort(s){
-  if(!s||s===\'—\'||s===\'\')return \'—\';
+  if(!s||s==='—'||s==='')return '—';
   const d=parseDate(s);
-  if(!d)return String(s)||\'-\';
-  return d.toLocaleDateString(\'id-ID\',{day:\'numeric\',month:\'short\',year:\'numeric\'});
+  if(!d)return String(s)||'—';
+  return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
 }
 function fmtTime(d){return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});}
 
