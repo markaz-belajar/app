@@ -341,12 +341,12 @@ function progInfo(raw) {
 }
 
 // ── API ──
-const API = 'https://script.google.com/macros/s/AKfycbwhA4cweMbkHhUYsXj7KewyPSp4p-OuAxaK_84QfEnhM-IMZCpu5hIUTZxALbOxma0m/exec';
+const API = 'https://script.google.com/macros/s/AKfycbyV94MFG6cqWUaHmBLpHJXB5sUySAItNMqnxpPDW9qgJeFPsuWEwqr1JTRZ_-G35_Y3Lg/exec';
 function api(action, params = {}) {
   const url = new URL(API);
   url.searchParams.set('action', action);
   for (const [k, v] of Object.entries(params))
-    url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
+    url.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : v);
   return fetch(url.toString(), { redirect: 'follow' }).then(r => r.json());
 }
 
@@ -511,8 +511,9 @@ async function loadSiswa() {
   try {
     let all = window._allSiswa;
     if (!all) {
+      wrap.innerHTML = `<div class="loading-inline"><div class="spinner"></div><div class="loading-txt">Memuat daftar siswa...</div></div>`;
       const r = await api('getSiswa');
-      if (!r.ok) { wrap.innerHTML = `<div style="text-align:center;padding:2rem;font-size:13px;color:var(--ink-faint)">Gagal memuat data</div>`; return; }
+      if (!r.ok) { wrap.innerHTML = `<div style="text-align:center;padding:2rem;font-size:13px;color:var(--ink-faint)">Gagal memuat data siswa.<br><small>${r.error||''}</small></div>`; return; }
       all = r.data;
       window._allSiswa = all;
     }
@@ -523,6 +524,8 @@ async function loadSiswa() {
 }
 
 init();
+// Langsung load siswa di background supaya tab Laporan sudah siap saat dibuka
+loadSiswa();
 </script>
 </body>
 </html>
