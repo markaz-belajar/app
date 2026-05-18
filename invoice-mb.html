@@ -1824,11 +1824,11 @@ function renderTracking(){
     const sentInfo=isSent?inv.sent_via.toUpperCase():'Belum kirim';
     let statusCell='';
     if(isPaid){
-      statusCell=`<div><span class="status-badge status-paid">✓ Lunas</span><div style="font-size:10px;color:var(--text3);margin-top:2px;">${inv.payment_date?fmtShort(inv.payment_date):''}${proofIcon}</div></div>`;
+      statusCell=`<span class="status-badge status-paid">✓ Lunas</span> <span style="font-size:10px;color:var(--text3);">${inv.payment_date?fmtShort(inv.payment_date):''}${proofIcon}</span>`;
     }else if(isPartial){
-      statusCell=`<div><span class="status-badge status-partial">Cicilan</span><div style="font-size:10px;color:var(--text3);margin-top:2px;">${sentInfo}${proofIcon}</div></div>`;
+      statusCell=`<span class="status-badge status-partial">Cicilan</span> <span style="font-size:10px;color:var(--text3);">${sentInfo}${proofIcon}</span>`;
     }else{
-      statusCell=`<div><span class="status-badge status-pending-pay">Belum Bayar</span><div style="font-size:10px;color:var(--text3);margin-top:2px;">${sentInfo}${proofIcon}</div></div>`;
+      statusCell=`<span class="status-badge status-pending-pay">Belum Bayar</span> <span style="font-size:10px;color:var(--text3);">${sentInfo}${proofIcon}</span>`;
     }
     return `<tr>
       <td><strong style="font-size:11px;font-family:'Geist Mono',monospace;">${inv.invoice_number}</strong><br><span style="font-size:10px;color:var(--text3);">${inv.created_by||''}</span></td>
