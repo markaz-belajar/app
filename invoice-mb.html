@@ -1837,13 +1837,9 @@ function renderTracking(){
       <td><span style="padding:3px 7px;border-radius:6px;font-size:10px;font-weight:600;background:${dueColor}20;color:${dueColor};white-space:nowrap;">${dueStatus}</span></td>
       <td>${statusCell}</td>
       <td><div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap;">
-        ${isPaid
-          ?`<button onclick="downloadInvoicePDF('${inv.__backendId}')" style="background:#e8f7ee;color:#2E9E5B;border:1px solid rgba(46,158,91,.25);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;">🖨 Cetak</button>`
-          :!isSent
-            ?`<button onclick="openSendModal('${inv.__backendId}')" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;">📤 Kirim</button>`
-            :`<button onclick="openPaymentModal('${inv.__backendId}')" style="background:#2E9E5B;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;">💳 Bayar</button>
-             <button onclick="openSendModal('${inv.__backendId}')" style="background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 7px;font-size:10px;cursor:pointer;font-family:inherit;" title="Kirim ulang">↺</button>`
-        }
+        ${isPaid?`<button onclick="downloadInvoicePDF('${inv.__backendId}')" style="background:#e8f7ee;color:#2E9E5B;border:1px solid rgba(46,158,91,.25);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;">🖨 Cetak</button>`:''}
+        <button onclick="openSendModal('${inv.__backendId}')" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;">Kirim</button>
+        ${!isPaid?`<button onclick="openPaymentModal('${inv.__backendId}')" style="background:#2E9E5B;color:#fff;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;">Bayar</button>`:''}
         <button onclick="openEditModal('${inv.__backendId}')" style="background:var(--accent-dim);color:var(--accent);border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;font-family:inherit;">Edit</button>
         <button onclick="deleteInvoice('${inv.__backendId}')" style="background:var(--danger-dim);color:var(--danger);border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;font-family:inherit;">✕</button>
       </div></td>
