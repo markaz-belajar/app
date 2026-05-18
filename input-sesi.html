@@ -334,8 +334,8 @@ function api(action, params={}) {
   const url = new URL(API);
   url.searchParams.set('action', action);
   for (const [k, v] of Object.entries(params)) {
-    url.searchParams.set(k, typeof v === 'object'
-      ? encodeURIComponent(JSON.stringify(v)) : v);
+    // Gunakan JSON.stringify langsung — searchParams sudah encode otomatis
+    url.searchParams.set(k, typeof v === 'object' ? JSON.stringify(v) : v);
   }
   return fetch(url.toString(), { redirect: 'follow' })
     .then(r => r.json());
@@ -743,7 +743,7 @@ function doSubmit(){
 
   const action=curAksi==='edit'?'editSesi':'simpanSesi';
 
-  api(action,{data:payload})
+  api(action, payload)
     .then(r=>{
       if(!r.ok){
         btn.disabled=false;
@@ -755,8 +755,8 @@ function doSubmit(){
       const isEdit=curAksi==='edit';
       document.getElementById('suc-title').textContent=isEdit?'Perubahan tersimpan':'Sesi tersimpan';
       document.getElementById('suc-txt').innerHTML=
-        `${isEdit?`Sesi <strong style="color:var(--tx)">${r.sesiKe}</strong> berhasil diperbarui`
-          :`Sesi <strong style="color:var(--tx)">${r.sesiKe}</strong> berhasil disimpan`}
+        `${isEdit?`Sesi <strong style="color:var(--tx)">${r.sesiKe ?? payload.editSesiKe ?? '—'}</strong> berhasil diperbarui`
+          :`Sesi <strong style="color:var(--tx)">${r.sesiKe ?? '—'}</strong> berhasil disimpan`}
         untuk <strong style="color:var(--tx)">${curSiswa.nama}</strong>.<br>Guru: ${curGuru}`;
       go('s5');
     })
