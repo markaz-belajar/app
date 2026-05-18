@@ -424,7 +424,7 @@ function pilihAksi(aksi){
     document.getElementById('riwayat-wrap').style.display='block';
     document.getElementById('riwayat-list').innerHTML=
       `<div class="loading"><div class="spinner"></div><div class="loading-txt">Memuat riwayat...</div></div>`;
-    api('getSesiSiswa',{idSiswa:curSiswa.id})
+    api('getSesiSiswa',{idSiswa:curSiswa.id, namaSiswa:curSiswa.nama})
       .then(r=>{loadingRiwayat=false;gotRiwayat(r);})
       .catch(e=>{loadingRiwayat=false;
         document.getElementById('riwayat-list').innerHTML=
