@@ -687,11 +687,11 @@ textarea{resize:vertical;min-height:80px;}
         <thead>
           <tr>
             <th>No. Invoice</th><th>Siswa</th><th>Total</th><th>Jatuh Tempo</th>
-            <th>Pengiriman</th><th>Pembayaran</th><th>Tgl Bayar</th><th>Bukti</th><th>Aksi</th>
+            <th>Status</th><th>Aksi</th>
           </tr>
         </thead>
         <tbody id="trackingList">
-          <tr><td colspan="9" style="text-align:center;color:var(--text3);padding:40px 20px;">Memuat data dari Google Sheets...</td></tr>
+          <tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px 20px;">Memuat data dari Google Sheets...</td></tr>
         </tbody>
       </table>
     </div>
@@ -1052,20 +1052,15 @@ async function fetchInvoicesFromSheets() {
   return data.invoices || [];
 }
 async function gasPost(action, payload) {
+  // GAS Web App hanya support GET dari browser (POST kena CORS block).
+  // Kirim semua data sebagai satu JSON di ?payload= (GET, tidak kena CORS).
+  // GAS doGet membaca e.parameter.payload lalu JSON.parse.
   const jsonStr = JSON.stringify({ action, ...payload });
   const url = GAS_URL + '?payload=' + encodeURIComponent(jsonStr);
-  // Timeout 25 detik — GAS kadang lambat tapi tidak sampai menit
-  const controller = new AbortController();
-  const timer = setTimeout(() => controller.abort(), 25000);
   let resp;
   try {
-    resp = await fetch(url, { cache: 'no-store', signal: controller.signal });
-  } catch(err) {
-    clearTimeout(timer);
-    if (err.name === 'AbortError') throw new Error('Server lambat merespons, coba lagi.');
-    throw new Error('Koneksi gagal: ' + err.message);
-  }
-  clearTimeout(timer);
+    resp = await fetch(url, { cache: 'no-store' });
+  } catch(err) { throw new Error('Koneksi gagal: ' + err.message); }
   if (!resp.ok) throw new Error('HTTP ' + resp.status);
   let data;
   try { data = await resp.json(); } catch(e) { throw new Error('Respons tidak valid'); }
@@ -1700,7 +1695,7 @@ function buildInv(){
   });
 }
 function renderPrev(){document.getElementById('previewDoc').innerHTML=buildInv();}
-function printFromForm(){if(!student&&progs.length===0&&!regOn){showToast('Lengkapi data invoice terlebih dahulu.',false);return;}_renderPDF(buildInv(),document.getElementById('invoiceNumber').value+'.pdf',false);}
+function printFromForm(){if(!student&&progs.length===0&&!regOn){showToast('Lengkapi data invoice terlebih dahulu.',false);return;}_renderPDF(buildInv(),document.getElementById('invoiceNumber', paidStamp).value+'.pdf',false);}
 
 function _renderPDF(invHTML,filename,paidStamp=false){
   let finalHTML=invHTML;
@@ -1791,7 +1786,7 @@ function updateStats(data){
 function renderTracking(){
   const list=document.getElementById('trackingList');
   if(!invoices||invoices.length===0){
-    list.innerHTML='<tr><td colspan="9" style="text-align:center;color:var(--text3);padding:40px 20px;">Belum ada invoice.</td></tr>';
+    list.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px 20px;">Belum ada invoice.</td></tr>';
     updateStats([]);return;
   }
   const searchVal=document.getElementById('trackingSearch').value.toLowerCase();
@@ -1808,33 +1803,73 @@ function renderTracking(){
   });
   updateStats(invoices);
   list.innerHTML=filtered.map(inv=>{
-    const statusSent=inv.sent_via?`<span class="status-badge status-sent">${inv.sent_via.toUpperCase()}</span>`:'<span class="status-badge status-pending-send">Pending</span>';
-    let statusPay='';
-    if(inv.payment_status==='paid')statusPay='<span class="status-badge status-paid">✓ Lunas</span>';
-    else if(inv.payment_status==='partial')statusPay='<span class="status-badge status-partial">Cicilan</span>';
-    else statusPay='<span class="status-badge status-pending-pay">Pending</span>';
+    // Status kolom gabungan: kirim + bayar + bukti dalam 1 kolom
+    const isPaid = inv.payment_status==='paid';
+    const isPartial = inv.payment_status==='partial';
+    const isSent = !!inv.sent_via;
+
+    // Due date
     const dueDate=parseDate(inv.due_date);
-    const diffDays=Math.floor((dueDate-today)/(1000*60*60*24));
+    const diffDays=dueDate?Math.floor((dueDate-today)/(1000*60*60*24)):null;
     let dueStatus,dueColor;
-    if(diffDays<0){dueStatus=`LEWAT ${Math.abs(diffDays)}hr`;dueColor='var(--danger)';}
-    else if(diffDays<=3){dueStatus=`${diffDays}hr lagi`;dueColor='var(--warning)';}
+    if(diffDays===null){dueStatus='—';dueColor='var(--text3)';}
+    else if(isPaid){dueStatus=fmtShort(inv.due_date);dueColor='var(--text3)';}
+    else if(diffDays<0){const a=Math.abs(diffDays);dueStatus=a===1?'Lewat kemarin':a<7?`Lewat ${a} hari`:`Lewat ${Math.floor(a/7)} mgg`;dueColor='var(--danger)';}
+    else if(diffDays===0){dueStatus='Hari ini';dueColor='var(--warning)';}
+    else if(diffDays===1){dueStatus='Besok';dueColor='var(--warning)';}
+    else if(diffDays<=7){dueStatus=`${diffDays} hari lagi`;dueColor='var(--warning)';}
     else{dueStatus=fmtShort(inv.due_date);dueColor='var(--success)';}
-    const proofBtn=inv.payment_proof?`<button class="btn-icon" onclick="viewProof('${inv.__backendId}')" title="Lihat bukti"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg></button>`:`<button class="btn-icon" onclick="openProofUpload('${inv.__backendId}')" title="Upload bukti"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></button>`;
+
+    // Status gabungan — kirim + bayar + bukti + tgl bayar dalam 1 cell
+    let statusCell = '';
+    if(isPaid){
+      const proofIcon = inv.payment_proof
+        ? `<span onclick="viewProof('${inv.__backendId}')" title="Lihat bukti" style="cursor:pointer;margin-left:4px;color:var(--success);font-size:10px;">📎</span>`
+        : '';
+      statusCell = `<div style="display:flex;flex-direction:column;gap:2px;">
+        <span class="status-badge status-paid">✓ Lunas</span>
+        <span style="font-size:10px;color:var(--text3);">${inv.payment_date?fmtShort(inv.payment_date):''}${proofIcon}</span>
+      </div>`;
+    } else if(isPartial){
+      const proofIcon = inv.payment_proof
+        ? `<span onclick="viewProof('${inv.__backendId}')" title="Lihat bukti" style="cursor:pointer;margin-left:4px;font-size:10px;">📎</span>`
+        : `<span onclick="openProofUpload('${inv.__backendId}')" title="Upload bukti" style="cursor:pointer;margin-left:4px;font-size:10px;color:var(--text3);">⬆</span>`;
+      statusCell = `<div style="display:flex;flex-direction:column;gap:2px;">
+        <span class="status-badge status-partial">Cicilan</span>
+        <span style="font-size:10px;color:var(--text3);">${isSent?inv.sent_via.toUpperCase():'Belum kirim'}${proofIcon}</span>
+      </div>`;
+    } else {
+      const proofIcon = inv.payment_proof
+        ? `<span onclick="viewProof('${inv.__backendId}')" title="Lihat bukti" style="cursor:pointer;margin-left:4px;font-size:10px;">📎</span>`
+        : `<span onclick="openProofUpload('${inv.__backendId}')" title="Upload bukti" style="cursor:pointer;margin-left:4px;font-size:10px;color:var(--text3);">⬆</span>`;
+      statusCell = `<div style="display:flex;flex-direction:column;gap:2px;">
+        <span class="status-badge status-pending-pay">Belum Bayar</span>
+        <span style="font-size:10px;color:var(--text3);">${isSent?inv.sent_via.toUpperCase():'Belum kirim'}${proofIcon}</span>
+      </div>`;
+    }
+
+    // Tombol aksi — ramping, berdasarkan status
+    const btnEdit = `<button title="Edit" style="background:var(--accent-dim);color:var(--accent);border:none;border-radius:6px;padding:5px 7px;font-size:11px;cursor:pointer;font-family:inherit;" onclick="openEditModal('${inv.__backendId}')">Edit</button>`;
+    const btnHapus = `<button title="Hapus" style="background:var(--danger-dim);color:var(--danger);border:none;border-radius:6px;padding:5px 7px;font-size:11px;cursor:pointer;font-family:inherit;" onclick="deleteInvoice('${inv.__backendId}')">✕</button>`;
+    let aksiCell = '';
+    if(isPaid){
+      // Lunas: Cetak Lunas (langsung, bukan via modal Kirim) | Edit | Hapus
+      aksiCell = `<button style="background:#e8f7ee;color:#2E9E5B;border:1px solid rgba(46,158,91,.25);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;" onclick="printInvoice('${inv.__backendId}',true)">🖨 Cetak</button>${btnEdit}${btnHapus}`;
+    } else if(!isSent){
+      // Belum kirim: Kirim (utama) | Edit | Hapus
+      aksiCell = `<button class="btn-small btn-accent" style="border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;border:none;background:var(--accent);color:#fff;white-space:nowrap;" onclick="openSendModal('${inv.__backendId}')">📤 Kirim</button>${btnEdit}${btnHapus}`;
+    } else {
+      // Sudah kirim belum bayar: Bayar (utama) | Kirim Lagi | Edit | Hapus
+      aksiCell = `<button style="background:#2E9E5B;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:700;white-space:nowrap;" onclick="openPaymentModal('${inv.__backendId}')">💳 Bayar</button><button style="background:transparent;color:var(--text2);border:1px solid var(--border);border-radius:6px;padding:5px 7px;font-size:10px;cursor:pointer;font-family:inherit;" onclick="openSendModal('${inv.__backendId}')">↺</button>${btnEdit}${btnHapus}`;
+    }
+
     return `<tr>
-      <td><strong style="font-size:11px;font-family:'Geist Mono',monospace;">${inv.invoice_number}</strong><br><span style="font-size:10px;color:var(--text3);">${inv.created_by}</span></td>
-      <td>${inv.student_name}</td>
-      <td style="font-family:'Geist Mono',monospace;font-size:11px;">${rp(inv.amount)}</td>
-      <td><span style="padding:3px 7px;border-radius:6px;font-size:10px;font-weight:600;background:${dueColor}20;color:${dueColor};">${dueStatus}</span></td>
-      <td>${statusSent}</td>
-      <td>${statusPay}</td>
-      <td style="font-size:11px;color:var(--text2);">${inv.payment_date?fmtShort(inv.payment_date):'—'}</td>
-      <td style="text-align:center;">${proofBtn}</td>
-      <td><div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;">
-        <button class="btn btn-small btn-accent" onclick="openSendModal('${inv.__backendId}')">Kirim</button>
-        <button class="btn btn-small btn-ghost" onclick="openPaymentModal('${inv.__backendId}')">Bayar</button>
-        <button class="btn btn-small" style="background:var(--accent-dim);color:var(--accent);border:1px solid rgba(27,108,168,.15);border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500;" onclick="openEditModal('${inv.__backendId}')">Edit</button>
-        <button class="btn btn-small" style="background:var(--danger-dim);color:var(--danger);border:1px solid rgba(220,53,69,.15);border-radius:8px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500;" onclick="deleteInvoice('${inv.__backendId}')">Hapus</button>
-      </div></td>
+      <td><strong style="font-size:11px;font-family:'Geist Mono',monospace;">${inv.invoice_number}</strong><br><span style="font-size:10px;color:var(--text3);">${inv.created_by||''}</span></td>
+      <td style="font-size:12px;">${inv.student_name}</td>
+      <td style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;">${rp(inv.amount)}</td>
+      <td><span style="padding:3px 7px;border-radius:6px;font-size:10px;font-weight:600;background:${dueColor}20;color:${dueColor};white-space:nowrap;">${dueStatus}</span></td>
+      <td>${statusCell}</td>
+      <td><div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;">${aksiCell}</div></td>
     </tr>`;
   }).join('');
 }
@@ -1904,6 +1939,11 @@ async function confirmSend(){
   document.getElementById('sendNote').value='';document.getElementById('sendNoteField').style.display='none';currentSendMethod=null;const _wa=document.getElementById('sendOptWa');const _em=document.getElementById('sendOptEmail');if(_wa)_wa.classList.remove('selected-wa','selected-email');if(_em)_em.classList.remove('selected-wa','selected-email');
 }
 
+function printInvoice(invId, paidStamp=false){
+  const inv=invoices.find(i=>i.__backendId===invId);if(!inv)return;
+  currentInvoiceId=invId;
+  downloadInvoicePDF(invId, paidStamp);
+}
 function printCurrentInvoice(){
   if(!currentInvoiceId)return;
   const inv=invoices.find(i=>i.__backendId===currentInvoiceId);if(!inv)return;
@@ -1970,19 +2010,7 @@ async function confirmPayment(){
     }catch(e){}
   }
 
-  // Update progress setiap 5 detik supaya user tahu masih proses
   updateLoadingPopup('Menyimpan Pembayaran','Mencatat data ke Google Sheets...');
-  const progressMsgs = [
-    'Menghubungi server...',
-    'Server sedang memproses...',
-    'Hampir selesai...',
-    'Mohon tunggu sebentar...',
-  ];
-  let msgIdx = 0;
-  const progressTimer = setInterval(() => {
-    msgIdx = (msgIdx + 1) % progressMsgs.length;
-    updateLoadingPopup('Menyimpan Pembayaran', progressMsgs[msgIdx]);
-  }, 5000);
   const updates={
     payment_status: document.getElementById('paymentStatus').value,
     payment_amount: parseInt(document.getElementById('paymentAmount').value)||0,
@@ -1994,13 +2022,11 @@ async function confirmPayment(){
 
   try{
     await updateInvoiceInSheets(currentInvoiceId, updates, updatedBy);
-    clearInterval(progressTimer);
     successLoadingPopup('Pembayaran Tersimpan! ✓', 'Data berhasil dicatat.');
     closeModal('paymentModal');
     currentProofData=null;
     syncFromSheets(false);
   }catch(e){
-    clearInterval(progressTimer);
     hideLoadingPopup();
     showToast('Gagal menyimpan: '+e.message, false);
   }finally{
@@ -2210,7 +2236,7 @@ async function confirmEdit(){
 /* ═══════════════════════════════════════════════════════
    PDF
 ═══════════════════════════════════════════════════════ */
-function downloadInvoicePDF(invId){
+function downloadInvoicePDF(invId, paidStamp=false){
   const inv=invoices.find(i=>i.__backendId===invId);if(!inv)return;
   const st=STUDENTS.find(s=>s.id===inv.student_id);
   const items=inv.invoice_items&&inv.invoice_items.length>0?inv.invoice_items:[{label:'Layanan Bimbingan Belajar',type:'—',dur:'',price:inv.amount}];
@@ -2270,22 +2296,20 @@ function parseDate(s){
   return isNaN(d.getTime())?null:d;
 }
 function parseDate(s){
-  if(!s||s==='—'||s==='')return null;
+  if(!s||s===\'—\'||s===\'\')return null;
   if(s instanceof Date)return s;
-  if(typeof s==='number')return new Date((s-25569)*86400*1000);
+  if(typeof s===\'number\')return new Date((s-25569)*86400*1000);
   const str=String(s).trim();
   const m=str.match(/^(\d{4}-\d{2}-\d{2})/);
-  if(m)return new Date(m[1]+'T00:00:00');
-  const parts=str.split(/[\/\-]/);
-  if(parts.length===3&&parseInt(parts[2])>31)return new Date(parseInt(parts[2]),parseInt(parts[1])-1,parseInt(parts[0]));
+  if(m)return new Date(m[1]+\'T00:00:00\');
   const d=new Date(str);
   return isNaN(d.getTime())?null:d;
 }
 function fmtShort(s){
-  if(!s||s==='—'||s==='')return '—';
+  if(!s||s===\'—\'||s===\'\')return \'—\';
   const d=parseDate(s);
-  if(!d)return String(s)||'—';
-  return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+  if(!d)return String(s)||\'-\';
+  return d.toLocaleDateString(\'id-ID\',{day:\'numeric\',month:\'short\',year:\'numeric\'});
 }
 function fmtTime(d){return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});}
 
