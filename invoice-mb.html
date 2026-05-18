@@ -344,6 +344,28 @@ textarea{resize:vertical;min-height:80px;}
 [data-theme="dark"] .notif-card{box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 [data-theme="dark"] #hamburgerMenu{box-shadow:0 8px 32px rgba(0,0,0,0.5);}
 @keyframes slideDown{from{transform:translateX(-50%) translateY(-100%);opacity:0;}to{transform:translateX(-50%) translateY(0);opacity:1;}}
+/* ── Invoice Action Dialog ── */
+.inv-dialog-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:9000;display:flex;align-items:flex-end;justify-content:center;animation:fadeIn .2s ease;}
+@media(min-width:600px){.inv-dialog-overlay{align-items:center;}}
+.inv-dialog-box{background:var(--surface,#fff);border-radius:20px 20px 0 0;width:100%;max-width:520px;max-height:92vh;overflow-y:auto;animation:slideUp .25s ease;padding-bottom:env(safe-area-inset-bottom,12px);}
+@media(min-width:600px){.inv-dialog-box{border-radius:16px;max-height:85vh;}}
+@keyframes slideUp{from{transform:translateY(30px);opacity:0}to{transform:translateY(0);opacity:1}}
+.inv-dialog-header{padding:16px 20px 12px;border-bottom:1px solid var(--border,#eee);position:sticky;top:0;background:var(--surface,#fff);z-index:1;border-radius:20px 20px 0 0;}
+.inv-dialog-drag{width:36px;height:4px;background:var(--border2,#ddd);border-radius:2px;margin:0 auto 12px;}
+.inv-dialog-body{padding:16px 20px;}
+.inv-dialog-section{margin-bottom:16px;}
+.inv-dialog-section-title{font-size:10px;font-weight:700;color:var(--text3,#aaa);text-transform:uppercase;letter-spacing:.08em;margin-bottom:8px;}
+.inv-dialog-info-row{display:flex;justify-content:space-between;align-items:center;padding:6px 0;border-bottom:1px solid var(--border,#f0f0f0);font-size:13px;}
+.inv-dialog-info-row:last-child{border-bottom:none;}
+.inv-dialog-info-label{color:var(--text2,#666);}
+.inv-dialog-info-value{font-weight:600;color:var(--text,#1c2c3a);text-align:right;}
+.inv-dialog-actions{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px;}
+.inv-dialog-action-btn{padding:12px 8px;border-radius:10px;border:none;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:4px;transition:opacity .15s;}
+.inv-dialog-action-btn:active{opacity:.75;}
+.inv-dialog-action-btn .btn-icon-big{font-size:20px;}
+.inv-dialog-wa-box{background:var(--surface2,#f8f9fb);border-radius:10px;padding:12px;margin-top:8px;}
+.inv-dialog-wa-label{font-size:11px;font-weight:600;color:var(--text2,#666);margin-bottom:6px;}
+.inv-dialog-wa-text{font-size:12px;color:var(--text,#1c2c3a);line-height:1.6;white-space:pre-wrap;max-height:120px;overflow-y:auto;background:#fff;border:1px solid var(--border,#eee);border-radius:8px;padding:8px;font-family:inherit;}
 /* ── Loading Popup ── */
 .loading-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.55);z-index:99999;display:flex;align-items:center;justify-content:center;animation:fadeIn .2s ease;}
 .loading-popup-box{background:var(--surface,#fff);border-radius:16px;padding:32px 28px;min-width:260px;max-width:320px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,0.25);animation:popIn .25s ease;}
@@ -686,12 +708,11 @@ textarea{resize:vertical;min-height:80px;}
       <table class="track-table">
         <thead>
           <tr>
-            <th>No. Invoice</th><th>Siswa</th><th>Total</th><th>Jatuh Tempo</th>
-            <th>Status</th><th>Aksi</th>
+            <th>Invoice</th><th>Total</th><th>Jatuh Tempo</th><th>Status</th>
           </tr>
         </thead>
         <tbody id="trackingList">
-          <tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px 20px;">Memuat data dari Google Sheets...</td></tr>
+          <tr><td colspan="4" style="text-align:center;color:var(--text3);padding:40px 20px;">Memuat data dari Google Sheets...</td></tr>
         </tbody>
       </table>
     </div>
@@ -1786,13 +1807,15 @@ function updateStats(data){
 function renderTracking(){
   const list=document.getElementById('trackingList');
   if(!invoices||invoices.length===0){
-    list.innerHTML='<tr><td colspan="6" style="text-align:center;color:var(--text3);padding:40px 20px;">Belum ada invoice.</td></tr>';
+    list.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--text3);padding:40px 20px;">Belum ada invoice.</td></tr>';
     updateStats([]);return;
   }
   const searchVal=document.getElementById('trackingSearch').value.toLowerCase();
   const filterVal=document.getElementById('trackingFilter').value;
   const today=new Date();
-  let filtered=invoices.filter(inv=>{
+  // Sort terbaru di atas
+  const sorted=[...invoices].sort((a,b)=>new Date(b.created_date||0)-new Date(a.created_date||0));
+  let filtered=sorted.filter(inv=>{
     const matchSearch=inv.invoice_number.toLowerCase().includes(searchVal)||inv.student_name.toLowerCase().includes(searchVal);
     const dueDate=parseDate(inv.due_date);
     const isOverdue=dueDate<today&&inv.payment_status!=='paid';
@@ -1830,19 +1853,14 @@ function renderTracking(){
     }else{
       statusCell=`<span class="status-badge status-pending-pay">Belum Bayar</span> <span style="font-size:10px;color:var(--text3);">${sentInfo}${proofIcon}</span>`;
     }
-    return `<tr>
-      <td><strong style="font-size:11px;font-family:'Geist Mono',monospace;">${inv.invoice_number}</strong><br><span style="font-size:10px;color:var(--text3);">${inv.created_by||''}</span></td>
-      <td style="font-size:12px;">${inv.student_name}</td>
-      <td style="font-family:'Geist Mono',monospace;font-size:11px;white-space:nowrap;">${rp(inv.amount)}</td>
-      <td><span style="padding:3px 7px;border-radius:6px;font-size:10px;font-weight:600;background:${dueColor}20;color:${dueColor};white-space:nowrap;">${dueStatus}</span></td>
-      <td>${statusCell}</td>
-      <td><div style="display:flex;gap:4px;align-items:center;justify-content:flex-end;flex-wrap:wrap;">
-        ${isPaid?`<button onclick="downloadInvoicePDF('${inv.__backendId}')" style="background:#e8f7ee;color:#2E9E5B;border:1px solid rgba(46,158,91,.25);border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;">🖨 Cetak</button>`:''}
-        <button onclick="openSendModal('${inv.__backendId}')" style="background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;">Kirim</button>
-        ${!isPaid?`<button onclick="openPaymentModal('${inv.__backendId}')" style="background:#2E9E5B;color:#fff;border:none;border-radius:6px;padding:5px 9px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:600;white-space:nowrap;">Bayar</button>`:''}
-        <button onclick="openEditModal('${inv.__backendId}')" style="background:var(--accent-dim);color:var(--accent);border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;font-family:inherit;">Edit</button>
-        <button onclick="deleteInvoice('${inv.__backendId}')" style="background:var(--danger-dim);color:var(--danger);border:none;border-radius:6px;padding:5px 8px;font-size:11px;cursor:pointer;font-family:inherit;">✕</button>
-      </div></td>
+    return `<tr onclick="openInvDialog('${inv.__backendId}')" style="cursor:pointer;" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background=''">
+      <td>
+        <strong style="font-size:12px;font-family:'Geist Mono',monospace;">${inv.invoice_number}</strong>
+        <div style="font-size:10px;color:var(--text3);">${inv.student_name}</div>
+      </td>
+      <td style="font-family:'Geist Mono',monospace;font-size:12px;font-weight:600;white-space:nowrap;">${rp(inv.amount)}</td>
+      <td><span style="padding:3px 8px;border-radius:6px;font-size:10px;font-weight:700;background:${dueColor}20;color:${dueColor};white-space:nowrap;">${dueStatus}</span></td>
+      <td>${statusCell} <span style="font-size:11px;color:var(--text3);">›</span></td>
     </tr>`;
   }).join('');
 }
@@ -1850,6 +1868,174 @@ function renderTracking(){
 /* ═══════════════════════════════════════════════════════
    SEND MODAL
 ═══════════════════════════════════════════════════════ */
+function openInvDialog(invId){
+  const inv = invoices.find(i=>i.__backendId===invId);
+  if(!inv) return;
+  currentInvoiceId = invId;
+  const isPaid = inv.payment_status==='paid';
+  const isPartial = inv.payment_status==='partial';
+  const isSent = !!inv.sent_via;
+
+  // Template WA belum lunas
+  const phone = inv.student_phone ? String(inv.student_phone).trim().replace(/[^0-9]/g,'') : '';
+  const num = phone.startsWith('62')?phone:phone.startsWith('0')?'62'+phone.substring(1):phone.startsWith('8')?'62'+phone:phone;
+  const bulan = new Date().toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  const waTagihan = `Assalamualaikum, Bunda! 🙏
+Kami ingin mengingatkan saatnya melakukan *pembayaran* bimbel bulan ini
+
+✅ ${bulan}
+📋 No. Invoice: ${inv.invoice_number}
+👦 Siswa: ${inv.student_name}
+💰 Total: ${rp(inv.amount)}
+📅 Jatuh Tempo: ${fmtShort(inv.due_date)}
+
+Cukup via *transfer* atau *cash* seperti biasa ke Kak Elis. 💛
+Butuh info rincian/konfirmasi? Kami siap bantu 💬
+
+*Terima kasih* sudah bersama *Markaz Belajar* 💛`;
+  const waLunas = `Assalamualaikum, Bunda! 🙏
+Terima kasih atas pembayarannya 🎉
+
+✅ Invoice *${inv.invoice_number}* sudah *LUNAS*
+👦 Siswa: ${inv.student_name}
+💰 Total: ${rp(inv.amount)}
+📅 Dibayar: ${inv.payment_date?fmtShort(inv.payment_date):fmtShort(new Date().toISOString())}
+
+Jazakumullahu khairan 💛 Semoga ilmunya berkah!
+*Markaz Belajar*`;
+
+  const statusLabel = isPaid
+    ? `<span class="status-badge status-paid">✓ Lunas</span>`
+    : isPartial
+      ? `<span class="status-badge status-partial">Cicilan</span>`
+      : `<span class="status-badge status-pending-pay">Belum Bayar</span>`;
+
+  const proofSection = inv.payment_proof
+    ? `<button onclick="viewProof('${invId}');closeInvDialog()" class="inv-dialog-action-btn" style="background:#e8f7ee;color:#2E9E5B;">
+        <span class="btn-icon-big">📎</span><span>Lihat Bukti</span></button>`
+    : `<button onclick="closeInvDialog();setTimeout(()=>openProofUpload('${invId}'),200)" class="inv-dialog-action-btn" style="background:var(--surface2);color:var(--text2);">
+        <span class="btn-icon-big">⬆️</span><span>Upload Bukti</span></button>`;
+
+  const cetakBtn = isPaid
+    ? `<button onclick="downloadInvoicePDF('${invId}');closeInvDialog()" class="inv-dialog-action-btn" style="background:#e8f7ee;color:#2E9E5B;">
+        <span class="btn-icon-big">🖨️</span><span>Cetak Lunas</span></button>`
+    : `<button onclick="downloadInvoicePDF('${invId}');closeInvDialog()" class="inv-dialog-action-btn" style="background:var(--surface2);color:var(--text2);">
+        <span class="btn-icon-big">🖨️</span><span>Cetak PDF</span></button>`;
+
+  const bayarBtn = !isPaid
+    ? `<button onclick="closeInvDialog();setTimeout(()=>openPaymentModal('${invId}'),200)" class="inv-dialog-action-btn" style="background:#2E9E5B;color:#fff;">
+        <span class="btn-icon-big">💳</span><span>Input Pembayaran</span></button>`
+    : '';
+
+  const el = document.createElement('div');
+  el.className = 'inv-dialog-overlay';
+  el.id = 'invDialog';
+  el.onclick = e => { if(e.target===el) closeInvDialog(); };
+  el.innerHTML = `
+    <div class="inv-dialog-box">
+      <div class="inv-dialog-header">
+        <div class="inv-dialog-drag"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center;">
+          <div>
+            <div style="font-size:13px;font-weight:700;font-family:'Geist Mono',monospace;">${inv.invoice_number}</div>
+            <div style="font-size:12px;color:var(--text2);">${inv.student_name} · ${rp(inv.amount)}</div>
+          </div>
+          <button onclick="closeInvDialog()" style="background:var(--surface2);border:none;border-radius:50%;width:30px;height:30px;cursor:pointer;font-size:16px;color:var(--text2);">✕</button>
+        </div>
+      </div>
+      <div class="inv-dialog-body">
+
+        <!-- Info -->
+        <div class="inv-dialog-section">
+          <div class="inv-dialog-section-title">Detail Invoice</div>
+          <div class="inv-dialog-info-row"><span class="inv-dialog-info-label">Status</span><span class="inv-dialog-info-value">${statusLabel}</span></div>
+          <div class="inv-dialog-info-row"><span class="inv-dialog-info-label">Jatuh Tempo</span><span class="inv-dialog-info-value">${fmtShort(inv.due_date)}</span></div>
+          <div class="inv-dialog-info-row"><span class="inv-dialog-info-label">Pengiriman</span><span class="inv-dialog-info-value">${isSent?inv.sent_via.toUpperCase():'Belum dikirim'}</span></div>
+          ${isPaid?`<div class="inv-dialog-info-row"><span class="inv-dialog-info-label">Tgl Bayar</span><span class="inv-dialog-info-value">${fmtShort(inv.payment_date)}</span></div>`:''}
+          ${isPaid?`<div class="inv-dialog-info-row"><span class="inv-dialog-info-label">Metode</span><span class="inv-dialog-info-value">${inv.payment_method||'—'}</span></div>`:''}
+        </div>
+
+        <!-- Aksi Utama -->
+        <div class="inv-dialog-section">
+          <div class="inv-dialog-section-title">Aksi</div>
+          <div class="inv-dialog-actions">
+            ${bayarBtn}
+            ${proofSection}
+            ${cetakBtn}
+            <button onclick="closeInvDialog();setTimeout(()=>openEditModal('${invId}'),200)" class="inv-dialog-action-btn" style="background:var(--accent-dim);color:var(--accent);">
+              <span class="btn-icon-big">✏️</span><span>Edit Invoice</span></button>
+          </div>
+        </div>
+
+        <!-- Kirim WA -->
+        <div class="inv-dialog-section">
+          <div class="inv-dialog-section-title">Kirim via WhatsApp</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px;">
+            <button onclick="sendWAFromDialog('${invId}','tagihan')" class="inv-dialog-action-btn" style="background:#25D366;color:#fff;">
+              <span class="btn-icon-big">📤</span><span>Tagihan</span></button>
+            <button onclick="sendWAFromDialog('${invId}','lunas')" class="inv-dialog-action-btn" style="background:${isPaid?'#25D366':'var(--surface2)'};color:${isPaid?'#fff':'var(--text3)'};">
+              <span class="btn-icon-big">✅</span><span>Konfirmasi Lunas</span></button>
+          </div>
+          <div class="inv-dialog-wa-label">Preview pesan tagihan:</div>
+          <div class="inv-dialog-wa-text">${waTagihan}</div>
+        </div>
+
+        <!-- Hapus -->
+        <div style="margin-top:8px;">
+          <button onclick="closeInvDialog();setTimeout(()=>deleteInvoice('${invId}'),200)" style="width:100%;padding:11px;background:var(--danger-dim);color:var(--danger);border:1px solid rgba(220,53,69,.15);border-radius:10px;cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;">
+            🗑 Hapus Invoice</button>
+        </div>
+
+      </div>
+    </div>`;
+  document.body.appendChild(el);
+}
+
+function closeInvDialog(){
+  const el = document.getElementById('invDialog');
+  if(el){ el.style.animation='fadeOut .2s ease'; setTimeout(()=>el.remove(),200); }
+}
+
+function sendWAFromDialog(invId, type){
+  const inv = invoices.find(i=>i.__backendId===invId);
+  if(!inv) return;
+  const phone = inv.student_phone ? String(inv.student_phone).trim().replace(/[^0-9]/g,'') : '';
+  if(!phone){ showToast('Nomor HP tidak ditemukan.',false); return; }
+  const num = phone.startsWith('62')?phone:phone.startsWith('0')?'62'+phone.substring(1):'62'+phone;
+  const bulan = new Date().toLocaleDateString('id-ID',{month:'long',year:'numeric'});
+  let msg = '';
+  if(type==='tagihan'){
+    msg = `Assalamualaikum, Bunda! 🙏
+Kami ingin mengingatkan saatnya melakukan *pembayaran* bimbel bulan ini
+
+✅ ${bulan}
+📋 No. Invoice: ${inv.invoice_number}
+👦 Siswa: ${inv.student_name}
+💰 Total: ${rp(inv.amount)}
+📅 Jatuh Tempo: ${fmtShort(inv.due_date)}
+
+Cukup via *transfer* atau *cash* seperti biasa ke Kak Elis. 💛
+Butuh info rincian/konfirmasi? Kami siap bantu 💬
+
+*Terima kasih* sudah bersama *Markaz Belajar* 💛`;
+  } else {
+    msg = `Assalamualaikum, Bunda! 🙏
+Terima kasih atas pembayarannya 🎉
+
+✅ Invoice *${inv.invoice_number}* sudah *LUNAS*
+👦 Siswa: ${inv.student_name}
+💰 Total: ${rp(inv.amount)}
+📅 Dibayar: ${inv.payment_date?fmtShort(inv.payment_date):fmtShort(new Date().toISOString())}
+
+Jazakumullahu khairan 💛 Semoga ilmunya berkah!
+*Markaz Belajar*`;
+  }
+  closeInvDialog();
+  showReminderSheet(num, msg);
+  // Update status sent
+  updateInvoiceInSheets(invId,{sent_via:'whatsapp',sent_date:new Date().toISOString()},document.getElementById('createdBy').value).catch(()=>{});
+}
+
 function openSendModal(invId){
   currentInvoiceId=invId;
   const inv=invoices.find(i=>i.__backendId===invId);
