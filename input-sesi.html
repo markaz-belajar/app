@@ -432,26 +432,33 @@ function pilihAksi(aksi){
   }
 }
 
+// Simpan riwayat di variable global supaya onclick pakai index bukan JSON inline
+let riwayatCache = [];
+
 function gotRiwayat(r){
   const el=document.getElementById('riwayat-list');
   if(!r||!r.ok){el.innerHTML=`<div class="err-box"><div class="err-txt">⚠ ${r?.error||'Gagal'}</div></div>`;return;}
   if(!r.data.length){el.innerHTML=`<div class="empty-txt">Belum ada sesi tercatat.</div>`;return;}
   const sorted=[...r.data].reverse();
-  el.innerHTML=sorted.map(s=>{
+  riwayatCache = sorted;
+  el.innerHTML=sorted.map((s,i)=>{
     const kh=(s.kehadiran||'').toLowerCase();
     const dc=kh.includes('hadir')?'dot-hadir':kh.includes('izin')?'dot-izin':'dot-alpa';
-    return `<div class="riwayat-card" onclick='pilihSesiEdit(${JSON.stringify(s)})'>
+    const kegShort=(s.kegiatan||'(tidak ada keterangan)').replace(/\n/g,' · ').substring(0,80);
+    return `<div class="riwayat-card" onclick="pilihSesiEdit(${i})">
       <div class="riwayat-top">
         <span class="riwayat-sesi">Sesi ${s.sesiKe}</span>
-        <span class="riwayat-tgl">${s.tanggal}</span>
+        <span class="riwayat-tgl">${s.tanggal||'—'}</span>
       </div>
-      <div class="riwayat-kegiatan">${s.kegiatan||'(tidak ada keterangan)'}</div>
+      <div class="riwayat-kegiatan">${kegShort}</div>
       <div class="riwayat-meta"><span class="hadir-dot ${dc}"></span>${s.kehadiran} · ${s.badgeCatat||'-'}</div>
     </div>`;
   }).join('');
 }
 
-function pilihSesiEdit(sesi){
+function pilihSesiEdit(idx){
+  const sesi = riwayatCache[idx];
+  if(!sesi) return;
   curEditSesi=sesi;
   document.getElementById('guru-siswa-nama').textContent=curSiswa.nama;
   document.getElementById('s3-pill').textContent=`Edit Sesi ${sesi.sesiKe}`;
