@@ -2134,6 +2134,33 @@ function handlePaymentProofUpload(e){
   reader.readAsDataURL(file);
 }
 
+/* ── Loading Popup Helpers ── */
+function showLoadingPopup(title,sub){
+  hideLoadingPopup();
+  const el=document.createElement('div');
+  el.id='loadingPopupOverlay';
+  el.className='loading-popup-overlay';
+  el.innerHTML=`<div class="loading-popup-box"><div class="loading-popup-spinner"></div><div class="loading-popup-icon"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M20 6L9 17l-5-5" stroke="#22c55e" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div class="loading-popup-title" id="lpTitle">${title}</div><div class="loading-popup-sub" id="lpSub">${sub}</div></div>`;
+  document.body.appendChild(el);
+}
+function updateLoadingPopup(title,sub){
+  const t=document.getElementById('lpTitle');
+  const s=document.getElementById('lpSub');
+  if(t)t.textContent=title;
+  if(s)s.textContent=sub;
+  if(!document.getElementById('loadingPopupOverlay'))showLoadingPopup(title,sub);
+}
+function successLoadingPopup(title,sub){
+  updateLoadingPopup(title,sub);
+  const box=document.querySelector('.loading-popup-box');
+  if(box)box.classList.add('loading-popup-success');
+  setTimeout(hideLoadingPopup,1500);
+}
+function hideLoadingPopup(){
+  const el=document.getElementById('loadingPopupOverlay');
+  if(el)el.remove();
+}
+
 async function confirmPayment(){
   if(!currentInvoiceId)return;
   const updatedBy=document.getElementById('createdBy').value;
@@ -2143,7 +2170,7 @@ async function confirmPayment(){
 
   if(currentProofData){
     // Tampilkan popup loading di tengah layar
-    showLoadingPopup('Mengupload Bukti Transfer', 'Sedang mengirim gambar ke server... Mohon jangan tutup halaman ini.');
+    showLoadingPopup('Mengupload Bukti Transfer', 'Sedang mengirim gambar ke server...');
     try{
       const inv=invoices.find(i=>i.__backendId===currentInvoiceId);
       const mimeType=currentProofData.split(';')[0].replace('data:','');
@@ -2157,9 +2184,9 @@ async function confirmPayment(){
       const payload=JSON.stringify({base64:cleanB64,mimeType:'image/jpeg',filename});
       // Kirim tanpa await — GAS proses di background
       fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload,cache:'no-store'}).catch(()=>{});
-      // Tunggu 3 detik supaya GAS sempat mulai
-      updateLoadingPopup('Mengupload Bukti Transfer','Gambar sedang diproses di server...');
-      await new Promise(r=>setTimeout(r,3000));
+      // Kurangi delay dari 3000ms → 500ms, GAS tetap jalan di background
+      updateLoadingPopup('Mengupload Bukti Transfer','Gambar dikirim ke server...');
+      await new Promise(r=>setTimeout(r,500));
       proofUrl=filename; // tandai bahwa bukti sudah dikirim
     }catch(e){}
   }
