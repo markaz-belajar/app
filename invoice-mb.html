@@ -69,12 +69,12 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 .notif-dot.show{display:inline-block;}
 
 /* LAYOUT */
-.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 100px;}
+.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 16px;}
 /* ── Tab Slider ── */
-.tab-slider-outer{overflow:hidden;width:100%;}
-.tab-slider-track{display:flex;width:200%;transition:transform .32s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.tab-slider-outer{overflow:hidden;width:100%;position:relative;}
+.tab-slider-track{display:flex;width:200%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
 .tab-slider-track.no-transition{transition:none!important;}
-.tab-slider-pane{width:50%;flex-shrink:0;min-width:0;padding:0;}
+.tab-slider-pane{width:50%;flex-shrink:0;min-width:0;padding:0;overflow-x:hidden;}
 
 /* SECTION */
 .sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:background .3s,border-color .3s;}
@@ -175,7 +175,7 @@ textarea{resize:vertical;min-height:80px;}
 .btn-dashed svg{width:14px;height:14px;flex-shrink:0;}
 .btn-text-label{display:none;}
 @media(min-width:769px){.btn-text-label{display:inline;}}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+.actions{position:sticky;bottom:0;left:0;right:0;z-index:300;display:flex;gap:8px;background:var(--surface);border-top:1px solid var(--border);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));margin:0 -14px -16px;box-shadow:0 -4px 16px rgba(0,0,0,0.07);}
 .actions .btn{flex:1;justify-content:center;min-width:80px;font-size:12px;}
 
 /* INVOICE DOC */
@@ -1595,19 +1595,32 @@ function switchTabById(tabName){
 
 // Real-time drag swipe
 (function initSliderSwipe(){
-  let startX=0, startY=0, curX=0, dragging=false, lockDir=null;
-  const track = ()=> document.getElementById('tabSliderTrack');
+  let startX=0, startY=0, lastX=0, startTime=0, dragging=false, lockDir=null;
+  const MIN_DRAG_PX  = 8;   // px sebelum lock arah
+  const SNAP_PCT     = 0.35; // 35% lebar untuk snap (lebih tinggi = kurang sensitif)
+  const VEL_SNAP     = 0.4;  // px/ms — swipe cepat tetap snap meski < SNAP_PCT
 
-  function baseOffset(){ return _curTabIdx * 50; } // % of track width
+  const track = ()=> document.getElementById('tabSliderTrack');
+  const outer = ()=> document.getElementById('tabSliderOuter');
+  function baseOffset(){ return _curTabIdx * 50; }
+
+  // Cek apakah elemen punya scroll horizontal
+  function hasHScrollParent(el){
+    let node = el;
+    while(node && node !== document.body){
+      const st = window.getComputedStyle(node);
+      const ox = st.overflowX;
+      if((ox==='auto'||ox==='scroll') && node.scrollWidth > node.clientWidth+2) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
 
   document.addEventListener('touchstart', e=>{
     if(document.querySelector('.modal-overlay.open')) return;
-    // Skip jika touch di dalam elemen scroll horizontal (tabel)
-    const target = e.target.closest('[style*="overflow-x"],[style*="overflow: auto"],[style*="overflow:auto"]');
-    if(target) return;
-    startX = e.touches[0].clientX;
+    startX = lastX = e.touches[0].clientX;
     startY = e.touches[0].clientY;
-    curX   = startX;
+    startTime = Date.now();
     dragging = true;
     lockDir  = null;
     const t = track();
@@ -1618,34 +1631,56 @@ function switchTabById(tabName){
     if(!dragging) return;
     const dx = e.touches[0].clientX - startX;
     const dy = e.touches[0].clientY - startY;
-    // Lock arah setelah 5px
-    if(!lockDir && (Math.abs(dx)>5 || Math.abs(dy)>5)){
-      lockDir = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    lastX = e.touches[0].clientX;
+
+    // Lock arah setelah MIN_DRAG_PX
+    if(!lockDir && (Math.abs(dx)>MIN_DRAG_PX || Math.abs(dy)>MIN_DRAG_PX)){
+      // Kalau lebih vertikal, atau ada hscroll parent → lock ke y
+      if(Math.abs(dy) > Math.abs(dx) || hasHScrollParent(e.target)){
+        lockDir = 'y';
+      } else {
+        lockDir = 'x';
+      }
     }
     if(lockDir !== 'x') return;
-    curX = e.touches[0].clientX;
-    const totalW = document.getElementById('tabSliderOuter')?.offsetWidth || window.innerWidth;
-    // Convert px drag ke % dari track (track = 200% lebar)
+
+    const totalW = outer()?.offsetWidth || window.innerWidth;
     const dragPct = (dx / totalW) * 100;
     let offset = baseOffset() - dragPct;
-    // Tambah resistance di ujung
-    if(offset < 0)   offset = offset * 0.2;
-    if(offset > 50)  offset = 50 + (offset-50) * 0.2;
+    // Rubber-band resistance di ujung
+    if(offset < 0)  offset = offset * 0.15;
+    if(offset > 50) offset = 50 + (offset-50) * 0.15;
     const t = track();
     if(t) t.style.transform = `translateX(-${offset}%)`;
   }, {passive:true});
 
   document.addEventListener('touchend', e=>{
-    if(!dragging || lockDir !== 'x'){ dragging=false; lockDir=null; return; }
+    if(!dragging){ dragging=false; return; }
     dragging = false;
-    lockDir  = null;
-    const dx    = e.changedTouches[0].clientX - startX;
-    const totalW = document.getElementById('tabSliderOuter')?.offsetWidth || window.innerWidth;
-    const threshold = totalW * 0.25; // 25% lebar untuk snap
+
+    const t = track();
+    if(lockDir !== 'x'){
+      lockDir = null;
+      if(t){ t.classList.remove('no-transition'); t.style.transform=`translateX(-${baseOffset()}%)`; }
+      return;
+    }
+    lockDir = null;
+    if(t) t.classList.remove('no-transition');
+
+    const dx       = lastX - startX;
+    const dt       = Date.now() - startTime;
+    const velocity = Math.abs(dx) / dt; // px/ms
+    const totalW   = outer()?.offsetWidth || window.innerWidth;
+    const pct      = Math.abs(dx) / totalW;
 
     let nextIdx = _curTabIdx;
-    if(dx < -threshold && _curTabIdx < TAB_ORDER.length-1) nextIdx++;
-    if(dx >  threshold && _curTabIdx > 0)                  nextIdx--;
+    const goRight = dx < 0; // geser kiri = ke tracking
+    const goLeft  = dx > 0; // geser kanan = ke create
+
+    if((pct > SNAP_PCT || velocity > VEL_SNAP)){
+      if(goRight && _curTabIdx < TAB_ORDER.length-1) nextIdx++;
+      if(goLeft  && _curTabIdx > 0)                  nextIdx--;
+    }
 
     switchTabById(TAB_ORDER[nextIdx]);
   }, {passive:true});
