@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#1B6CA8" />
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -48,8 +48,13 @@
     .header-logo { height: 90px; width: auto; object-fit: contain; filter: drop-shadow(0 2px 12px rgba(0,0,0,0.25)); }
     .header-mascot { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 1; }
 
-    .header-text { width: 100%; padding-left: 30px; text-align: left; }
-    .header-title { font-size: 34px; font-weight: 700; color: #fff; line-height: 1.1; letter-spacing: -0.5px; text-shadow: 0 2px 8px rgba(0,0,0,0.3); }
+    /* ROBOTIC TEXT */
+    .robot-text-wrap { position: absolute; bottom: 60px; left: 20px; z-index: 4; }
+    .robot-line1, .robot-line2 { font-size: 18px; font-weight: 700; color: #fff; line-height: 1.2; text-shadow: 0 2px 12px rgba(0,0,0,0.35); font-family: "Share Tech Mono", monospace; letter-spacing: 1px; }
+    .robot-line1 { margin-bottom: 2px; min-height: 22px; }
+    .robot-line2 { min-height: 44px; }
+    .robot-cursor { display: inline-block; width: 2px; height: 0.85em; background: rgba(255,255,255,0.9); margin-left: 2px; vertical-align: middle; animation: blink .55s step-end infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
 
     /* TAB BAR */
     .tabs-wrap { padding: 0 16px; margin-top: 14px; position: relative; z-index: 10; }
@@ -175,6 +180,10 @@
     <div class="header-deco deco2"></div>
     <div class="header-deco deco3"></div>
     <div class="header-inner">
+      <div class="robot-text-wrap">
+        <div class="robot-line1" id="robotLine1"></div>
+        <div class="robot-line2" id="robotLine2"><span class="robot-cursor"></span></div>
+      </div>
     </div>
     <img class="header-mascot" src="mascot_t.r.webp" alt="Libro Mascot" onerror="this.style.display='none'" />
   </div>
@@ -520,6 +529,64 @@ async function loadSiswa() {
   }
 }
 
+
+// ── ROBOTIC TEXT ANIMATION ──
+(function() {
+  const greetings = [
+    { line1: 'hello', line2: 'Teacher' },
+    { line1: 'good morning', line2: 'Teacher' },
+    { line1: "it's time", line2: 'to Shine' },
+    { line1: 'hello, i am', line2: 'Libro' },
+    { line1: 'pretty hot', line2: 'out there huh?' },
+    { line1: "don't forget", line2: 'anything!' },
+  ];
+  const line2b = { line1: 'you can input', line2: 'your Report\nhere' };
+
+  const el1 = document.getElementById('robotLine1');
+  const el2 = document.getElementById('robotLine2');
+  const CURSOR = '<span class="robot-cursor"></span>';
+
+  function typeText(el, text, speed, done, showCursor) {
+    let i = 0;
+    el.innerHTML = showCursor ? CURSOR : '';
+    const iv = setInterval(() => {
+      if (i >= text.length) { clearInterval(iv); if (done) done(); return; }
+      const displayed = text.substring(0, i+1).replace(/\n/g, '<br>');
+      el.innerHTML = displayed + (showCursor ? CURSOR : '');
+      i++;
+    }, speed);
+  }
+
+  function eraseText(el, speed, done, showCursor) {
+    let text = el.innerText || el.textContent;
+    let i = text.length;
+    const iv = setInterval(() => {
+      if (i <= 0) { el.innerHTML = showCursor ? CURSOR : ''; clearInterval(iv); if (done) done(); return; }
+      el.innerHTML = text.substring(0, i-1) + (showCursor ? CURSOR : '');
+      i--;
+    }, speed);
+  }
+
+  let idx = Math.floor(Math.random() * greetings.length);
+  const g = greetings[idx];
+
+  // Phase 1: type greeting — cursor only on line2
+  typeText(el1, g.line1, 60, () => {
+    typeText(el2, g.line2, 70, () => {
+      setTimeout(() => {
+        eraseText(el2, 40, () => {
+          eraseText(el1, 40, () => {
+            setTimeout(() => {
+              typeText(el1, line2b.line1, 55, () => {
+                typeText(el2, line2b.line2, 65, null, true);
+              }, false);
+            }, 200);
+          }, false);
+        }, true);
+      }, 1800);
+    }, true);
+  }, false);
+})();
 init();
 // Langsung load siswa di background supaya tab Laporan sudah siap saat dibuka
 loadSiswa();
