@@ -120,6 +120,10 @@ textarea{resize:vertical;min-height:80px;}
 .modal{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:20px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;}
 .modal-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
 .modal-title svg{width:16px;height:16px;color:var(--accent);}
+.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
+.modal-header .modal-title{margin-bottom:0;}
+.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--surface2);color:var(--text3);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
+.modal-close:hover{background:var(--border);}
 .modal-body{margin-bottom:20px;}
 .modal-field{margin-bottom:14px;}
 .modal-actions{display:flex;gap:10px;margin-top:16px;}
@@ -2949,11 +2953,16 @@ function openManageDiscounts(){
     modal=document.createElement('div');
     modal.id='manageDiscountsModal';
     modal.className='modal-overlay';
+    // Klik backdrop → tutup
+    modal.addEventListener('click', e=>{ if(e.target===modal) closeModal('manageDiscountsModal'); });
     modal.innerHTML=`
       <div class="modal" style="max-width:400px;width:92%;">
-        <div class="modal-title">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-          Kelola Preset Diskon
+        <div class="modal-header">
+          <div class="modal-title">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+            Kelola Preset Diskon
+          </div>
+          <button class="modal-close" onclick="closeModal('manageDiscountsModal')">✕</button>
         </div>
         <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
           <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;">
@@ -2972,9 +2981,6 @@ function openManageDiscounts(){
             <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">Preset Tersimpan</div>
             <div id="discountPresetList" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;"></div>
           </div>
-        </div>
-        <div class="modal-actions">
-          <button class="btn btn-ghost" onclick="closeModal('manageDiscountsModal')">Tutup</button>
         </div>
       </div>`;
     document.body.appendChild(modal);
