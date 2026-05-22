@@ -578,7 +578,17 @@ async function loadSiswa() {
           eraseText(el1, 40, () => {
             setTimeout(() => {
               typeText(el1, line2b.line1, 55, () => {
-                typeText(el2, line2b.line2, 65, null, true);
+                typeText(el2, line2b.line2, 65, () => {
+                  // After second message, pause then erase everything
+                  setTimeout(() => {
+                    eraseText(el2, 40, () => {
+                      eraseText(el1, 40, () => {
+                        el1.innerHTML = '';
+                        el2.innerHTML = '';
+                      }, false);
+                    }, false);
+                  }, 2000);
+                }, true);
               }, false);
             }, 200);
           }, false);
