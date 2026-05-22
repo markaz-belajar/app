@@ -69,11 +69,12 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 .notif-dot.show{display:inline-block;}
 
 /* LAYOUT */
-.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 40px;}
-.tab-content{display:none;animation-duration:.22s;animation-timing-function:ease;animation-fill-mode:both;}
-.tab-content.active{display:block;}
-.tab-content.tab-fade-in{animation-name:tabFadeIn;}
-@keyframes tabFadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 100px;}
+/* ── Tab Slider ── */
+.tab-slider-outer{overflow:hidden;width:100%;}
+.tab-slider-track{display:flex;width:200%;transition:transform .32s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.tab-slider-track.no-transition{transition:none!important;}
+.tab-slider-pane{width:50%;flex-shrink:0;min-width:0;padding:0;}
 
 /* SECTION */
 .sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:background .3s,border-color .3s;}
@@ -487,10 +488,11 @@ textarea{resize:vertical;min-height:80px;}
 </div>
 </div><!-- /sticky -->
 
-<div class="tab-wrap">
+<div class="tab-slider-outer" id="tabSliderOuter">
+<div class="tab-slider-track" id="tabSliderTrack">
 
-<!-- ══ TAB: BUAT INVOICE ══ -->
-<div id="tab-create" class="tab-content active">
+<!-- ══ PANE 0: BUAT INVOICE ══ -->
+<div class="tab-slider-pane" id="tab-create"><div class="wrap">
 
   <!-- Notif permission card — digantikan oleh popup dialog -->
   <div class="notif-perm-card" id="notifPermCard" style="display:none !important;">
@@ -719,10 +721,10 @@ textarea{resize:vertical;min-height:80px;}
       <span class="btn-text-label">Buat Invoice</span>
     </button>
   </div>
-</div><!-- /tab-create -->
+</div></div><!-- /wrap /tab-create pane -->
 
-<!-- ══ TAB: TRACKING ══ -->
-<div id="tab-tracking" class="tab-content">
+<!-- ══ PANE 1: TRACKING ══ -->
+<div class="tab-slider-pane" id="tab-tracking"><div class="wrap">
   <div class="sec">
     <div class="sec-title" style="flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <span style="display:flex;align-items:center;gap:7px;width:100%;justify-content:space-between;">
@@ -816,7 +818,10 @@ textarea{resize:vertical;min-height:80px;}
 </button>
     </div>
   </div>
-</div>
+</div></div><!-- /wrap /tab-tracking pane -->
+
+</div><!-- /tab-slider-track -->
+</div><!-- /tab-slider-outer -->
 
 <!-- MODAL: PEMBAYARAN -->
 <div class="modal-overlay" id="paymentModal">
@@ -1559,62 +1564,91 @@ function updateHeaderCard(tabName){
   title.style.opacity='0';sub.style.opacity='0';
   setTimeout(()=>{title.innerHTML=d.title;sub.innerHTML=d.sub;if(badge){badge.textContent=d.badge;badge.className='hdr-greeting-badge'+(tabName==='tracking'?' live':'');}title.style.opacity='1';sub.style.opacity='1';},180);
 }
-function switchTab(tabName,btn){
+/* ═══════════════════════════════════════════════════════
+   TAB SLIDER — real-time drag like native app
+═══════════════════════════════════════════════════════ */
+const TAB_ORDER = ['create','tracking'];
+let _curTabIdx = 0;
+
+function _getTrack(){ return document.getElementById('tabSliderTrack'); }
+
+function switchTab(tabName, btn){
   switchTabById(tabName);
-  if(tabName==='tracking')clearTrackingDot();
+  if(tabName==='tracking') clearTrackingDot();
 }
+
 function switchTabById(tabName){
-  const next = document.getElementById('tab-'+tabName);
-  if(!next) return;
-  // Sembunyikan semua tab
-  document.querySelectorAll('.tab-content').forEach(t=>{
-    t.classList.remove('active','tab-fade-in');
-  });
-  // Tampilkan tab yang dipilih
-  next.classList.add('active','tab-fade-in');
+  const idx = TAB_ORDER.indexOf(tabName);
+  if(idx < 0) return;
+  _curTabIdx = idx;
+  const track = _getTrack();
+  if(track){
+    track.classList.remove('no-transition');
+    track.style.transform = `translateX(-${idx * 50}%)`;
+  }
   // Update nav buttons
-  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   const navBtn = document.querySelector(`.nav-tab[onclick*="${tabName}"]`);
   if(navBtn) navBtn.classList.add('active');
   updateHeaderCard(tabName);
 }
 
-/* ═══════════════════════════════════════════════════════
-   SWIPE TABS — geser kiri/kanan untuk pindah tab
-═══════════════════════════════════════════════════════ */
-(function initSwipeTabs(){
-  const TAB_ORDER = ['create','tracking'];
-  let tsx=0, tsy=0, tsEdge=false;
-  const EDGE_ZONE = 40; // px dari pinggir layar
-  const MIN_SWIPE = 80; // minimum jarak horizontal
+// Real-time drag swipe
+(function initSliderSwipe(){
+  let startX=0, startY=0, curX=0, dragging=false, lockDir=null;
+  const track = ()=> document.getElementById('tabSliderTrack');
 
-  function getActiveTab(){
-    const el=document.querySelector('.tab-content.active');
-    return el ? el.id.replace('tab-','') : TAB_ORDER[0];
-  }
+  function baseOffset(){ return _curTabIdx * 50; } // % of track width
 
-  document.addEventListener('touchstart',e=>{
-    if(document.querySelector('.modal-overlay.open'))return;
-    tsx=e.touches[0].clientX;
-    tsy=e.touches[0].clientY;
-    // Hanya aktif kalau mulai dari tepi kiri atau kanan layar
-    tsEdge = tsx <= EDGE_ZONE || tsx >= window.innerWidth - EDGE_ZONE;
-  },{passive:true});
+  document.addEventListener('touchstart', e=>{
+    if(document.querySelector('.modal-overlay.open')) return;
+    // Skip jika touch di dalam elemen scroll horizontal (tabel)
+    const target = e.target.closest('[style*="overflow-x"],[style*="overflow: auto"],[style*="overflow:auto"]');
+    if(target) return;
+    startX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    curX   = startX;
+    dragging = true;
+    lockDir  = null;
+    const t = track();
+    if(t) t.classList.add('no-transition');
+  }, {passive:true});
 
-  document.addEventListener('touchend',e=>{
-    if(!tsEdge)return;
-    const dx=e.changedTouches[0].clientX - tsx;
-    const dy=e.changedTouches[0].clientY - tsy;
-    if(Math.abs(dx) < MIN_SWIPE || Math.abs(dy) > Math.abs(dx)*0.6)return;
+  document.addEventListener('touchmove', e=>{
+    if(!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    // Lock arah setelah 5px
+    if(!lockDir && (Math.abs(dx)>5 || Math.abs(dy)>5)){
+      lockDir = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y';
+    }
+    if(lockDir !== 'x') return;
+    curX = e.touches[0].clientX;
+    const totalW = document.getElementById('tabSliderOuter')?.offsetWidth || window.innerWidth;
+    // Convert px drag ke % dari track (track = 200% lebar)
+    const dragPct = (dx / totalW) * 100;
+    let offset = baseOffset() - dragPct;
+    // Tambah resistance di ujung
+    if(offset < 0)   offset = offset * 0.2;
+    if(offset > 50)  offset = 50 + (offset-50) * 0.2;
+    const t = track();
+    if(t) t.style.transform = `translateX(-${offset}%)`;
+  }, {passive:true});
 
-    const cur=getActiveTab();
-    const idx=TAB_ORDER.indexOf(cur);
-    let next=null;
-    if(dx<0 && idx<TAB_ORDER.length-1) next=TAB_ORDER[idx+1];
-    if(dx>0 && idx>0)                  next=TAB_ORDER[idx-1];
-    if(next) switchTabById(next);
-    tsEdge=false;
-  },{passive:true});
+  document.addEventListener('touchend', e=>{
+    if(!dragging || lockDir !== 'x'){ dragging=false; lockDir=null; return; }
+    dragging = false;
+    lockDir  = null;
+    const dx    = e.changedTouches[0].clientX - startX;
+    const totalW = document.getElementById('tabSliderOuter')?.offsetWidth || window.innerWidth;
+    const threshold = totalW * 0.25; // 25% lebar untuk snap
+
+    let nextIdx = _curTabIdx;
+    if(dx < -threshold && _curTabIdx < TAB_ORDER.length-1) nextIdx++;
+    if(dx >  threshold && _curTabIdx > 0)                  nextIdx--;
+
+    switchTabById(TAB_ORDER[nextIdx]);
+  }, {passive:true});
 })();
 
 /* ═══════════════════════════════════════════════════════
