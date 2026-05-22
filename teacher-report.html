@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="theme-color" content="#1B6CA8" />
-  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500;600;700;800&family=Share+Tech+Mono&family=Orbitron:wght@700&display=swap" rel="stylesheet">
 
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
@@ -56,6 +56,22 @@
     .robot-cursor { display: inline-block; width: 2px; height: 0.85em; background: rgba(255,255,255,0.9); margin-left: 2px; vertical-align: middle; animation: blink .55s step-end infinite; }
     @keyframes blink { 50% { opacity: 0; } }
 
+
+    /* TOP-LEFT LIBRO.G2 */
+    .hud-topleft {
+      position: absolute; top: 14px; left: 14px; z-index: 5;
+      font-family: 'Orbitron', sans-serif; font-size: 13px; font-weight: 700;
+      color: rgba(255,255,255,0.92); letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(255,255,255,0.3);
+    }
+
+    /* TOP-RIGHT SPEC TEXT */
+    .hud-topright {
+      position: absolute; top: 12px; right: 12px; z-index: 5;
+      font-family: 'Share Tech Mono', monospace; font-size: 7px;
+      color: rgba(255,255,255,0.45); line-height: 1.7;
+      text-align: right; letter-spacing: 0.5px;
+    }
     /* TAB BAR */
     .tabs-wrap { padding: 0 16px; margin-top: 14px; position: relative; z-index: 10; }
     .tab-bar-pill {
@@ -179,6 +195,12 @@
     <div class="header-deco deco1"></div>
     <div class="header-deco deco2"></div>
     <div class="header-deco deco3"></div>
+    <div class="hud-topleft" id="hudTitle"></div>
+    <div class="hud-topright">
+      SPESIFICATION.ID//LIBRO.G2//SYS.VER.4.02<br>
+      CORE.MODULE.V2.MB.QS//FUNCTION:<br>
+      INTERVACE ACCET. NO.4//LOG.08.HOLDING.PLAT
+    </div>
     <div class="header-inner">
       <div class="robot-text-wrap">
         <div class="robot-line1" id="robotLine1"></div>
@@ -597,6 +619,45 @@ async function loadSiswa() {
     }, true);
   }, false);
 })();
+
+// ── LIBRO.G2 TOP-LEFT PULSE ──
+(function() {
+  const el = document.getElementById('hudTitle');
+  const text = 'LIBRO.G2';
+  let visible = true;
+
+  function showHide() {
+    if (visible) {
+      // type in
+      let i = 0;
+      el.textContent = '';
+      const iv = setInterval(() => {
+        el.textContent = text.substring(0, ++i);
+        if (i >= text.length) {
+          clearInterval(iv);
+          // hold then erase
+          setTimeout(erase, 2200);
+        }
+      }, 55);
+    }
+  }
+
+  function erase() {
+    let i = el.textContent.length;
+    const iv = setInterval(() => {
+      el.textContent = text.substring(0, --i);
+      if (i <= 0) {
+        clearInterval(iv);
+        visible = true;
+        // pause then show again
+        setTimeout(showHide, 1800);
+      }
+    }, 40);
+  }
+
+  showHide();
+})();
+
 init();
 // Langsung load siswa di background supaya tab Laporan sudah siap saat dibuka
 loadSiswa();
