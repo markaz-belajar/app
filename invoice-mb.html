@@ -1586,6 +1586,10 @@ function switchTabById(tabName){
     track.classList.remove('no-transition');
     track.style.transform = `translateX(-${idx * 50}%)`;
   }
+  // Scroll pane tujuan ke atas
+  const pane = document.getElementById('tab-'+tabName);
+  if(pane) pane.scrollTop = 0;
+  window.scrollTo(0, 0);
   // Update nav buttons
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
   const navBtn = document.querySelector(`.nav-tab[onclick*="${tabName}"]`);
