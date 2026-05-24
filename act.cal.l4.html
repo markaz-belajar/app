@@ -9,25 +9,25 @@
 :root {
   --bg:#FDFAF4;--surface:#FFFFFF;--surface2:#F0EBE3;--border:#EDE9DF;--border2:#D8D1C7;
   --text:#1C2B3A;--text2:#4A6070;--text3:#8FA4B4;
-  --accent:#059669;--accent-dim:rgba(5,150,105,0.10);
+  --accent:#0686c7;--accent-dim:rgba(6,134,199,0.10);
   --success:#2E9E5B;--success-dim:rgba(46,158,91,0.10);
   --warning:#F59F00;--warning-dim:rgba(245,159,0,0.12);
   --r:10px;--rl:16px;
-  --hdr-bg:#059669;--outer-bg:#059669;
+  --hdr-bg:#0686c7;--outer-bg:#0686c7;
 }
 [data-theme="dark"]{
   --bg:#0F1923;--surface:#1A2535;--surface2:#222F40;--border:#2A3A4E;--border2:#344A60;
   --text:#E8EEF4;--text2:#8FA4B4;--text3:#506070;
-  --accent:#34d399;--accent-dim:rgba(52,211,153,0.12);
+  --accent:#4db8e8;--accent-dim:rgba(6,134,199,0.12);
   --success:#3BBF6E;--success-dim:rgba(59,191,110,0.12);
   --warning:#F59F00;--warning-dim:rgba(245,159,0,0.12);
-  --hdr-bg:#064e3b;--outer-bg:#064e3b;
+  --hdr-bg:#0a2d4a;--outer-bg:#0a2d4a;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
-body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#059669;color:var(--text);font-size:14px;line-height:1.5;transition:background .3s,color .3s;}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#0686c7;color:var(--text);font-size:14px;line-height:1.5;transition:background .3s,color .3s;}
 ::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
-.page-outer{max-width:1200px;margin:0 auto;min-height:100vh;background:#059669;box-shadow:0 0 40px rgba(28,43,58,0.10);}
+.page-outer{max-width:1200px;margin:0 auto;min-height:100vh;background:#0686c7;box-shadow:0 0 40px rgba(28,43,58,0.10);}
 .hdr{background:var(--hdr-bg);overflow:hidden;position:relative;transition:background .3s;}
 .hdr-topbar{position:absolute;top:0;left:0;right:0;z-index:10;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
 .hdr-topbar-left{display:flex;align-items:center;gap:8px;}
@@ -38,18 +38,18 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#059669;col
 .hdr-greeting-card{background:#fff;border-radius:20px;box-shadow:0 4px 24px rgba(28,43,58,0.12);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;}
 .hdr-greeting-card h2{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:#1C2B3A;line-height:1.2;}
 .hdr-greeting-card p{font-size:12px;color:#8FA4B4;margin-top:2px;}
-.hdr-greeting-badge{background:#ECFDF5;color:#059669;font-size:11px;font-weight:600;padding:5px 12px;border-radius:50px;white-space:nowrap;}
+.hdr-greeting-badge{background:#e6f4fb;color:#0686c7;font-size:11px;font-weight:600;padding:5px 12px;border-radius:50px;white-space:nowrap;}
 .sticky-nav{position:relative;}
 .nav-tabs{padding:12px 14px 12px;background:var(--hdr-bg);transition:background .3s;}
 .tab-bar-pill{background:rgba(255,255,255,0.18);border-radius:50px;padding:4px;display:flex;gap:2px;border:1.5px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px);}
 .nav-tab{flex:1;padding:9px 0;border:none;background:transparent;border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.65);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;}
 .nav-tab:hover{color:#fff;background:rgba(255,255,255,0.1);}
-.nav-tab.active{background:#fff;color:#059669;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+.nav-tab.active{background:#fff;color:#0686c7;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
 .wrap{max-width:1200px;margin:0 auto;padding:16px 14px 40px;background:transparent;}
 .month-selector{display:flex;flex-wrap:wrap;gap:8px;padding:14px 14px 10px;background:transparent;border-bottom:1px solid rgba(255,255,255,0.3);margin-bottom:14px;}
 .mth-btn{padding:7px 14px;border-radius:50px;border:1.5px solid rgba(255,255,255,0.4);background:rgba(255,255,255,0.15);color:#ffffff;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap;}
 .mth-btn:hover{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.7);}
-.mth-btn.active{background:#ffffff;color:#059669;border-color:#ffffff;}
+.mth-btn.active{background:#ffffff;color:#0686c7;border-color:#ffffff;}
 .sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:background .3s,border-color .3s;}
 .sec-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:7px;margin-bottom:14px;}
 .sec-title svg{width:13px;height:13px;flex-shrink:0;}
@@ -84,10 +84,10 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#059669;col
 .pill-rutin{background:var(--surface2);color:var(--text2);}
 .pill-review{background:#E6F1FB;color:#185FA5;}
 .pill-menulis{background:#FEF0E6;color:#7A3000;}
-.pill-berhitung{background:#ECFDF5;color:#065f46;}
+.pill-berhitung{background:#e6f4fb;color:#045a8a;}
 .pill-baca{background:#FFF3CD;color:#7A5000;}
 .pill-kelompok{background:#FBEAF0;color:#993556;}
-.pill-presentasi{background:#F0FFF4;color:#166534;}
+.pill-presentasi{background:#F0FFF4;color:#045a8a;}
 .pill-proyek{background:#EFF6FF;color:#1e40af;}
 .act-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3;}
 .act-desc{font-size:12px;color:var(--text2);line-height:1.55;}
@@ -222,10 +222,10 @@ function showMonth(idx,btn){
 const MONTHS=[
 
 // ── BULAN 1: TRANSPORTASI & TEKNOLOGI ──────────────────
-month('Bulan 1','#ECFDF5','#065f46','Transportasi & Teknologi',
+month('Bulan 1','#e6f4fb','#045a8a','Transportasi & Teknologi',
   'kendaraan darat/laut/udara · kalimat cerita · berhitung 1–20 review · angka 21–30',
 
-  card('b1t1','🚗','#ECFDF5','Sesi 1–2','Kendaraan Darat','mobil · kereta · bus · kalimat deskripsi · angka 21–25',
+  card('b1t1','🚗','#e6f4fb','Sesi 1–2','Kendaraan Darat','mobil · kereta · bus · kalimat deskripsi · angka 21–25',
     slbl('Sesi 1')+BUKA+
     fonik('5–20\'','Kosakata kendaraan darat: mobil, kereta, bus, sepeda motor','Guru tunjuk gambar aneka kendaraan. Anak sebut nama dan fungsinya. "Kereta bisa angkut berapa orang? Banyak sekali!"')+
     baca('20–40\'','Cerita: "Perjalanan Naik Kereta"','Cerita 8 kalimat bergambar. Anak baca bergantian per kalimat. Guru tanya: "Kemana tujuan perjalanan mereka? Apa yang mereka lihat?"')+
@@ -239,7 +239,7 @@ month('Bulan 1','#ECFDF5','#065f46','Transportasi & Teknologi',
     obs('Apakah bisa membaca cerita 8 kalimat dengan lancar?','Apakah kalimat panjang ditulis dengan ejaan dan spasi yang benar?','Apakah memahami konsep angka 21–25?')
   )+
 
-  card('b1t2','✈️','#ECFDF5','Sesi 3–4','Kendaraan Laut & Udara','kapal · pesawat · helikopter · kalimat informasi · angka 26–30',
+  card('b1t2','✈️','#e6f4fb','Sesi 3–4','Kendaraan Laut & Udara','kapal · pesawat · helikopter · kalimat informasi · angka 26–30',
     slbl('Sesi 3')+BUKA+
     fonik('5–18\'','Kosakata: pesawat, kapal, helikopter, pelabuhan, bandara','Guru tunjuk gambar. "Pesawat terbang di mana? Di udara! Kapal berlayar di mana? Di laut!" Diskusi bebas penuh semangat.')+
     baca('18–40\'','Cerita informasi: "Pilot Hebat"','8 kalimat tentang seorang pilot. Anak baca mandiri 2 menit, lalu bersama. Diskusi 3 pertanyaan pemahaman.')+
@@ -253,7 +253,7 @@ month('Bulan 1','#ECFDF5','#065f46','Transportasi & Teknologi',
     obs('Apakah bisa menulis 2 kalimat tentang cita-cita dengan struktur yang benar?','Apakah memahami angka 26–30 dan operasinya?','Apakah percaya diri saat presentasi singkat?')
   )+
 
-  card('b1t3','💡','#ECFDF5','Sesi 5–6','Teknologi di Sekitar Kita','HP · komputer · televisi · kalimat sebab-akibat · berhitung 21–30',
+  card('b1t3','💡','#e6f4fb','Sesi 5–6','Teknologi di Sekitar Kita','HP · komputer · televisi · kalimat sebab-akibat · berhitung 21–30',
     slbl('Sesi 5')+BUKA+
     fonik('5–18\'','Kosakata teknologi: HP, komputer, televisi, internet, listrik','Diskusi: "Teknologi apa yang ada di rumahmu? Untuk apa?" Anak cerita bebas, guru catat kosakata di papan.')+
     baca('18–40\'','Cerita: "Adi Belajar Pakai Komputer"','8 kalimat. Anak baca bergantian. Fokus: kalimat sebab-akibat. "Adi rajin belajar karena... sehingga..."')+
@@ -267,7 +267,7 @@ month('Bulan 1','#ECFDF5','#065f46','Transportasi & Teknologi',
     obs('Apakah memahami konsep sebab-akibat dalam kalimat?','Apakah bisa mengerjakan soal 3 langkah?','Apakah bisa mengungkapkan pendapat dalam diskusi kelompok?')
   )+
 
-  card('b1t4','🔢','#ECFDF5','Sesi 7–8','Berhitung 21–30 Komprehensif','urutan · operasi · soal cerita · pola bilangan lanjut',
+  card('b1t4','🔢','#e6f4fb','Sesi 7–8','Berhitung 21–30 Komprehensif','urutan · operasi · soal cerita · pola bilangan lanjut',
     BUKA+
     hitung('5–22\'','Urutan & penulisan angka 21–30','Kartu angka acak 21–30. Anak urutkan dari kecil ke besar dan sebaliknya. Tulis di lembar kosong.')+
     hitung('22–42\'','Operasi campuran + dan − sampai 30','10 soal campuran. Anak kerjakan mandiri, lalu koreksi bersama. Guru bahas soal yang banyak salah.')+
@@ -278,10 +278,10 @@ month('Bulan 1','#ECFDF5','#065f46','Transportasi & Teknologi',
 ),
 
 // ── BULAN 2: ALAM & LINGKUNGAN HIDUP ───────────────────
-month('Bulan 2','#F0FDF4','#166534','Alam & Lingkungan Hidup',
+month('Bulan 2','#e6f4fb','#045a8a','Alam & Lingkungan Hidup',
   'hutan · gunung · sungai · daur ulang · kalimat persuasif · berhitung 31–40',
 
-  card('b2t1','🌳','#F0FDF4','Sesi 1–2','Hutan & Gunung','ekosistem hutan · satwa langka · kalimat penjelas · angka 31–35',
+  card('b2t1','🌳','#e6f4fb','Sesi 1–2','Hutan & Gunung','ekosistem hutan · satwa langka · kalimat penjelas · angka 31–35',
     slbl('Sesi 1')+BUKA+
     fonik('5–20\'','Kosakata: hutan, gunung, satwa langka, melindungi, ekosistem','Guru tunjuk gambar hutan tropis Indonesia. "Apa yang kamu lihat? Siapa yang tinggal di sini?" Anak eksplorasi kata.')+
     baca('20–40\'','Cerita: "Si Orangutan dan Hutannya"','10 kalimat cerita dengan gambar. Anak baca mandiri 3 menit, lalu bersama. Diskusi: "Mengapa hutan perlu dijaga?"')+
@@ -295,7 +295,7 @@ month('Bulan 2','#F0FDF4','#166534','Alam & Lingkungan Hidup',
     obs('Apakah bisa membaca cerita 10 kalimat dengan pemahaman?','Apakah kalimat penjelas logis dan menggunakan kata sendiri?','Apakah presentasi dilakukan dengan percaya diri?')
   )+
 
-  card('b2t2','♻️','#F0FDF4','Sesi 3–4','Daur Ulang & Sampah','sampah organik/anorganik · 3R · kalimat instruksi · angka 36–40',
+  card('b2t2','♻️','#e6f4fb','Sesi 3–4','Daur Ulang & Sampah','sampah organik/anorganik · 3R · kalimat instruksi · angka 36–40',
     slbl('Sesi 3')+BUKA+
     fonik('5–18\'','Kosakata: daur ulang, organik, anorganik, Reduce, Reuse, Recycle','Guru tunjuk 2 kotak sampah berbeda warna. Anak kelompokkan gambar sampah ke kotak yang benar.')+
     baca('18–40\'','Teks instruksi: "Cara Membuat Pot dari Botol Bekas"','8 langkah bergambar. Anak baca urutan instruksi. Guru tanya: "Langkah ke-4 apa? Setelah langkah 6, kita lakukan apa?"')+
@@ -309,7 +309,7 @@ month('Bulan 2','#F0FDF4','#166534','Alam & Lingkungan Hidup',
     obs('Apakah bisa menulis instruksi 4 langkah dengan kata transisi yang benar?','Apakah bisa menghitung selisih dua angka di rentang 36–40?','Apakah antusias dan kreatif dalam proyek daur ulang?')
   )+
 
-  card('b2t3','🌊','#F0FDF4','Sesi 5–6','Sungai & Air','siklus air · manfaat air · kalimat fakta · membaca teks sains',
+  card('b2t3','🌊','#e6f4fb','Sesi 5–6','Sungai & Air','siklus air · manfaat air · kalimat fakta · membaca teks sains',
     slbl('Sesi 5')+BUKA+
     fonik('5–18\'','Kosakata: siklus air, evaporasi, hujan, sungai, irigasi','Guru tunjuk diagram siklus air sederhana. "Air yang kita minum dulu ada di mana? Bagaimana bisa sampai ke sini?"')+
     baca('18–40\'','Teks sains: "Perjalanan Setetes Air"','10 kalimat teks informasi. Anak baca mandiri 3 menit, lalu bergantian nyaring. Temukan 3 fakta baru.')+
@@ -323,7 +323,7 @@ month('Bulan 2','#F0FDF4','#166534','Alam & Lingkungan Hidup',
     obs('Apakah bisa membedakan kalimat fakta dan kalimat pendapat?','Apakah bisa menulis laporan eksperimen dengan bahasa sendiri?','Apakah memahami konsep siklus air dasar?')
   )+
 
-  card('b2t4','🔢','#F0FDF4','Sesi 7–8','Berhitung 31–40 + Soal Cerita Panjang','operasi · soal 3 langkah · pengenalan konsep waktu',
+  card('b2t4','🔢','#e6f4fb','Sesi 7–8','Berhitung 31–40 + Soal Cerita Panjang','operasi · soal 3 langkah · pengenalan konsep waktu',
     BUKA+
     hitung('5–22\'','Review operasi 1–40 kilat','Flash kartu soal + dan −. Target: 20 soal dalam 8 menit. Anak jawab, guru catat waktu dan jumlah benar.')+
     hitung('22–42\'','Soal cerita 3 langkah bertema alam','5 soal: "Di taman ada 32 pohon. Ditanam 8 lagi, lalu 5 mati kena hama. Sekarang ada berapa?" Kerjakan bertahap.')+
@@ -334,10 +334,10 @@ month('Bulan 2','#F0FDF4','#166534','Alam & Lingkungan Hidup',
 ),
 
 // ── BULAN 3: KOMUNITAS & KEWARGANEGARAAN ───────────────
-month('Bulan 3','#F0FDFA','#134e4a','Komunitas & Kewarganegaraan',
+month('Bulan 3','#e6f4fb','#045a8a','Komunitas & Kewarganegaraan',
   'hak & kewajiban · aturan · pemimpin · kalimat argumen · berhitung 41–50',
 
-  card('b3t1','🏫','#F0FDFA','Sesi 1–2','Sekolah & Aturan','hak & kewajiban murid · tata tertib · kalimat aturan · angka 41–45',
+  card('b3t1','🏫','#e6f4fb','Sesi 1–2','Sekolah & Aturan','hak & kewajiban murid · tata tertib · kalimat aturan · angka 41–45',
     slbl('Sesi 1')+BUKA+
     fonik('5–18\'','Kosakata: hak, kewajiban, aturan, tata tertib, tanggung jawab','Guru tanya: "Apa hakmu di sekolah? Apa kewajibanmu?" Diskusi terbuka, guru tulis di papan.')+
     baca('18–40\'','Cerita: "Sekolah yang Nyaman"','10 kalimat tentang kelas yang tertib. Anak baca bergantian. Diskusi: "Apa yang membuat kelas nyaman? Siapa yang bertanggung jawab?"')+
@@ -351,7 +351,7 @@ month('Bulan 3','#F0FDFA','#134e4a','Komunitas & Kewarganegaraan',
     obs('Apakah bisa membedakan hak dan kewajiban dengan contoh nyata?','Apakah bisa menulis aturan beserta alasannya?','Apakah aktif dalam proses demokratis (diskusi, vote)?')
   )+
 
-  card('b3t2','👮','#F0FDFA','Sesi 3–4','Pemimpin & Pahlawan','tokoh pemimpin · pahlawan nasional · kalimat biografi · angka 46–50',
+  card('b3t2','👮','#e6f4fb','Sesi 3–4','Pemimpin & Pahlawan','tokoh pemimpin · pahlawan nasional · kalimat biografi · angka 46–50',
     slbl('Sesi 3')+BUKA+
     fonik('5–18\'','Kosakata: pahlawan, perjuangan, kemerdekaan, berjasa, menginspirasi','Guru tunjuk gambar pahlawan nasional. "Siapa yang kamu kenal? Apa yang mereka lakukan untuk Indonesia?"')+
     baca('18–40\'','Biografi mini: "Kisah Soekarno Muda"','10 kalimat biografi sederhana. Anak baca mandiri 3 menit. Guru tanya: "Siapa, kapan lahir, apa perjuangannya?"')+
@@ -365,7 +365,7 @@ month('Bulan 3','#F0FDFA','#134e4a','Komunitas & Kewarganegaraan',
     obs('Apakah bisa memahami dan menceritakan kembali biografi singkat?','Apakah angka 41–50 sudah dikuasai dengan operasi dasarnya?','Apakah mampu mengungkapkan apresiasi kepada orang di sekitarnya?')
   )+
 
-  card('b3t3','🗳️','#F0FDFA','Sesi 5–6','Gotong Royong & Kerja Sama','nilai kebersamaan · proyek bersama · presentasi tim · review 1–50',
+  card('b3t3','🗳️','#e6f4fb','Sesi 5–6','Gotong Royong & Kerja Sama','nilai kebersamaan · proyek bersama · presentasi tim · review 1–50',
     slbl('Sesi 5')+BUKA+
     fonik('5–15\'','Kosakata: gotong royong, kerja sama, kompak, kontribusi, musyawarah','Diskusi: "Apa itu gotong royong? Pernah ikut gotong royong di mana?" Anak cerita pengalaman.')+
     baca('15–35\'','Cerita: "Kampung Bersih Karena Gotong Royong"','10 kalimat. Anak baca bergantian. Temukan: siapa saja yang terlibat, apa yang mereka lakukan, apa hasilnya.')+
@@ -379,7 +379,7 @@ month('Bulan 3','#F0FDFA','#134e4a','Komunitas & Kewarganegaraan',
     obs('Apakah bisa berkolaborasi dengan peran yang jelas tanpa konflik?','Apakah review 1–50 menunjukkan penguasaan yang baik?','Apakah bisa menulis refleksi yang bermakna dan personal?')
   )+
 
-  card('b3t4','🔢','#F0FDFA','Sesi 7–8','Berhitung 1–50 + Konsep Uang & Waktu','uang koin/lembar · membaca jam · soal cerita kehidupan nyata',
+  card('b3t4','🔢','#e6f4fb','Sesi 7–8','Berhitung 1–50 + Konsep Uang & Waktu','uang koin/lembar · membaca jam · soal cerita kehidupan nyata',
     BUKA+
     hitung('5–22\'','Pengenalan uang: koin 500, 1000, 2000, 5000','Guru bawa replika uang. "Ini 500 rupiah. Kalau 2 koin 500, berapa total?" Anak hitung dengan uang mainan.')+
     hitung('22–40\'','Soal cerita belanja sederhana','Soal: "Jajan 2000, beli pensil 1500. Kembaliannya berapa?" Anak pakai uang mainan untuk simulasi.')+
@@ -390,10 +390,10 @@ month('Bulan 3','#F0FDFA','#134e4a','Komunitas & Kewarganegaraan',
 ),
 
 // ── BULAN 4: TUBUHKU & KESEHATANKU ─────────────────────
-month('Bulan 4','#ECFDF5','#065f46','Tubuhku & Kesehatanku',
+month('Bulan 4','#e6f4fb','#045a8a','Tubuhku & Kesehatanku',
   'anggota tubuh · gizi · olahraga · kalimat saran · berhitung + konsep sederhana',
 
-  card('b4t1','🏃','#ECFDF5','Sesi 1–2','Olahraga & Kebugaran','manfaat olahraga · jenis olahraga · kalimat saran · berhitung kalori sederhana',
+  card('b4t1','🏃','#e6f4fb','Sesi 1–2','Olahraga & Kebugaran','manfaat olahraga · jenis olahraga · kalimat saran · berhitung kalori sederhana',
     slbl('Sesi 1')+BUKA+
     fonik('5–18\'','Kosakata: olahraga, sehat, bugar, otot, stamina, disiplin','Guru tanya: "Olahraga apa yang kamu suka? Mengapa olahraga itu penting?" Diskusi hangat.')+
     baca('18–38\'','Buku: "Rahasia Tubuh Sehat Farhan"','10 kalimat. Anak baca mandiri 3 menit. Diskusi: "Apa kebiasaan baik Farhan? Apa yang bisa kita tiru?"')+
@@ -407,7 +407,7 @@ month('Bulan 4','#ECFDF5','#065f46','Tubuhku & Kesehatanku',
     obs('Apakah kalimat saran menggunakan kata yang tepat?','Apakah bisa mengerjakan soal multi-langkah yang melibatkan perkalian dasar (hitung berulang)?','Apakah bisa mengisi tabel dengan benar?')
   )+
 
-  card('b4t2','🥗','#ECFDF5','Sesi 3–4','Makanan Bergizi','piramida gizi · protein/karbohidrat/vitamin · menu sehat · kalimat rekomendasi',
+  card('b4t2','🥗','#e6f4fb','Sesi 3–4','Makanan Bergizi','piramida gizi · protein/karbohidrat/vitamin · menu sehat · kalimat rekomendasi',
     slbl('Sesi 3')+BUKA+
     fonik('5–20\'','Kosakata: gizi, protein, karbohidrat, vitamin, mineral, porsi','Guru tunjuk piramida makanan bergambar. "Makanan ini masuk kelompok apa? Berapa porsi yang dianjurkan?"')+
     baca('20–40\'','Teks informasi: "Isi Piringku"','10 kalimat teks kesehatan. Anak baca bergantian. Identifikasi 4 kelompok makanan yang disebut dalam teks.')+
@@ -421,7 +421,7 @@ month('Bulan 4','#ECFDF5','#065f46','Tubuhku & Kesehatanku',
     obs('Apakah bisa membedakan kelompok gizi dengan benar?','Apakah bisa mengerjakan soal cerita dengan perkalian sederhana (×7 hari)?','Apakah presentasi menunjukkan pemahaman tentang gizi?')
   )+
 
-  card('b4t3','🩺','#ECFDF5','Sesi 5–6','Kebersihan & Kesehatan Diri','cuci tangan · sikat gigi · sakit & obat · kalimat prosedur',
+  card('b4t3','🩺','#e6f4fb','Sesi 5–6','Kebersihan & Kesehatan Diri','cuci tangan · sikat gigi · sakit & obat · kalimat prosedur',
     slbl('Sesi 5')+BUKA+
     fonik('5–15\'','Kosakata: kebersihan, kuman, prosedur, mencegah, penyakit','Diskusi: "Kapan kamu harus cuci tangan? Mengapa penting?" Anak cerita kebiasaan sehari-hari.')+
     baca('15–35\'','Teks prosedur: "Cara Cuci Tangan yang Benar"','7 langkah bergambar. Anak baca, lalu coba praktikkan gerakannya.')+
@@ -435,7 +435,7 @@ month('Bulan 4','#ECFDF5','#065f46','Tubuhku & Kesehatanku',
     obs('Apakah prosedur ditulis dengan kata transisi yang benar?','Apakah bisa mengerjakan soal perkalian sederhana dalam konteks nyata?','Apakah berani tampil dalam role play?')
   )+
 
-  card('b4t4','🔢','#ECFDF5','Sesi 7–8','Penguatan Berhitung: Konsep Pola & Awal Perkalian','pola × · hitung berulang · soal konteks kehidupan nyata',
+  card('b4t4','🔢','#e6f4fb','Sesi 7–8','Penguatan Berhitung: Konsep Pola & Awal Perkalian','pola × · hitung berulang · soal konteks kehidupan nyata',
     BUKA+
     hitung('5–22\'','Hitung berulang sebagai dasar perkalian','Guru: "2+2+2+2 = 8. Artinya 4 kali 2 = 8." Anak coba dengan benda konkret: susun 3 kelompok 4 kancing.')+
     hitung('22–42\'','Soal hitung berulang: 2s, 3s, 5s','Lembar kerja: "Ada 5 tangan, tiap tangan 5 jari. Total ada berapa jari?" Anak hitung dengan gambar, tulis penjumlahan berulangnya.')+
@@ -446,10 +446,10 @@ month('Bulan 4','#ECFDF5','#065f46','Tubuhku & Kesehatanku',
 ),
 
 // ── BULAN 5: KREATIVITAS & EKSPRESI DIRI ───────────────
-month('Bulan 5','#F7FEE7','#365314','Kreativitas & Ekspresi Diri',
+month('Bulan 5','#e6f4fb','#045a8a','Kreativitas & Ekspresi Diri',
   'seni · musik · cerita imaginatif · presentasi proyek · review menyeluruh',
 
-  card('b5t1','🎨','#F7FEE7','Sesi 1–2','Seni & Kreativitas','jenis seni · ekspresi diri · menulis cerita imajinatif · membaca nyaring',
+  card('b5t1','🎨','#e6f4fb','Sesi 1–2','Seni & Kreativitas','jenis seni · ekspresi diri · menulis cerita imajinatif · membaca nyaring',
     slbl('Sesi 1')+BUKA+
     fonik('5–15\'','Kosakata: seni, kreasi, imajinasi, ekspresi, inspirasi','Diskusi: "Apa hobi kreatifmu? Menggambar? Bernyanyi? Menari?" Anak cerita. Guru tulis kosakata baru.')+
     baca('15–38\'','Buku bergambar: "Anak Ajaib yang Suka Melukis"','12 kalimat cerita. Anak baca mandiri 3 menit, lalu bergantian nyaring dengan intonasi. Diskusi perasaan tokoh.')+
@@ -463,7 +463,7 @@ month('Bulan 5','#F7FEE7','#365314','Kreativitas & Ekspresi Diri',
     obs('Apakah cerita memiliki struktur awal-tengah-akhir yang jelas?','Apakah bisa memberi dan menerima feedback dengan dewasa?','Apakah membaca 12 kalimat dengan intonasi yang tepat?')
   )+
 
-  card('b5t2','🎤','#F7FEE7','Sesi 3–4','Presentasi & Public Speaking','berbicara di depan umum · intonasi · kontak mata · percaya diri',
+  card('b5t2','🎤','#e6f4fb','Sesi 3–4','Presentasi & Public Speaking','berbicara di depan umum · intonasi · kontak mata · percaya diri',
     slbl('Sesi 3')+BUKA+
     rutin('5–15\'','Teknik presentasi: suara, kontak mata, postur','Guru demonstrasikan: presentasi tanpa intonasi vs dengan intonasi. Anak bedakan. Bahas: berdiri tegak, lihat audiens, suara jelas.')+
     baca('15–35\'','Latihan membaca nyaring: teks pilihan','Anak memilih salah satu teks yang pernah dibaca. Berlatih membaca nyaring dengan ekspresif selama 3 menit sendiri.')+
@@ -477,7 +477,7 @@ month('Bulan 5','#F7FEE7','#365314','Kreativitas & Ekspresi Diri',
     obs('Apakah bisa berbicara di depan kelas dengan suara jelas dan kontak mata?','Apakah bisa memberi apresiasi yang spesifik kepada teman?','Apakah menunjukkan pertumbuhan dalam kepercayaan diri?')
   )+
 
-  card('b5t3','📚','#F7FEE7','Sesi 5–6','Proyek Buku Kelas','kolaborasi · buku cerita bersama · ilustrasi · pameran mini',
+  card('b5t3','📚','#e6f4fb','Sesi 5–6','Proyek Buku Kelas','kolaborasi · buku cerita bersama · ilustrasi · pameran mini',
     slbl('Sesi 5')+BUKA+
     kelompok('5–15\'','Brainstorm tema buku kelas','Seluruh kelas vote tema buku bersama: petualangan, fantasi, sekolah, alam? Guru fasilitasi voting demokratis.')+
     menulis('15–45\'','Menulis bab masing-masing','Tiap anak atau pasangan menulis 1 bab (4–5 kalimat) dari buku kelas sesuai tema terpilih. Guru koordinasi alur cerita.')+
@@ -491,7 +491,7 @@ month('Bulan 5','#F7FEE7','#365314','Kreativitas & Ekspresi Diri',
     obs('Apakah kontribusi tulisan kohesif dengan cerita keseluruhan?','Apakah semua anak aktif dalam proses kolaborasi?','Apakah bangga dan antusias dengan hasil karya bersama?')
   )+
 
-  card('b5t4','🔢','#F7FEE7','Sesi 7–8','Review Berhitung 1–50 + Hitung Berulang','asesmen · soal cerita kompleks · persiapan graduasi',
+  card('b5t4','🔢','#e6f4fb','Sesi 7–8','Review Berhitung 1–50 + Hitung Berulang','asesmen · soal cerita kompleks · persiapan graduasi',
     BUKA+
     hitung('5–22\'','Asesmen berhitung: 30 soal campuran','Lembar asesmen: 10 soal +, 10 soal −, 5 hitung berulang, 5 soal cerita. Kerjakan mandiri 15 menit.')+
     hitung('22–38\'','Koreksi dan analisis bersama','Bahas setiap soal. Anak yang benar jelaskan caranya. Guru catat kemajuan tiap anak.')+
@@ -503,10 +503,10 @@ month('Bulan 5','#F7FEE7','#365314','Kreativitas & Ekspresi Diri',
 ),
 
 // ── BULAN 6: AKU SIAP SD! ──────────────────────────────
-month('Bulan 6','#DCFCE7','#166534','Aku Siap SD!',
+month('Bulan 6','#e6f4fb','#045a8a','Aku Siap SD!',
   'asesmen akhir · pameran karya · graduation · siap Sekolah Dasar',
 
-  card('b6t1','📝','#DCFCE7','Sesi 1–2','Asesmen Membaca & Menulis Akhir','membaca cerita lancar · menulis kalimat mandiri · asesmen individual',
+  card('b6t1','📝','#e6f4fb','Sesi 1–2','Asesmen Membaca & Menulis Akhir','membaca cerita lancar · menulis kalimat mandiri · asesmen individual',
     slbl('Sesi 1')+BUKA+
     baca('5–30\'','Asesmen membaca: cerita 12–15 kalimat','Satu per satu anak membaca teks asesmen kepada guru. Guru catat: kata yang salah, intonasi, kecepatan, pemahaman cerita.')+
     fonik('30–48\'','Review kosakata: 50 kartu kata','Anak membaca 50 kartu kata dari semua tema Level 4. Guru catat berapa yang terbaca lancar.')+
@@ -520,7 +520,7 @@ month('Bulan 6','#DCFCE7','#166534','Aku Siap SD!',
     obs('Berapa kata salah dalam asesmen baca (target ≤3 dari 15 kalimat)?','Apakah karangan bebas memiliki awal-tengah-akhir?','Apakah 50 kartu kata terbaca ≥45?')
   )+
 
-  card('b6t2','🔢','#DCFCE7','Sesi 3–4','Asesmen Berhitung & Konsep Akhir','1–50 · waktu · uang · hitung berulang · asesmen menyeluruh',
+  card('b6t2','🔢','#e6f4fb','Sesi 3–4','Asesmen Berhitung & Konsep Akhir','1–50 · waktu · uang · hitung berulang · asesmen menyeluruh',
     slbl('Sesi 3')+BUKA+
     hitung('5–30\'','Asesmen berhitung komprehensif: 35 soal','Lembar asesmen final: 10 soal + (1–50), 10 soal − (1–50), 5 hitung berulang, 5 soal waktu, 5 soal uang. Mandiri.')+
     hitung('30–48\'','Koreksi, analisis, dan catatan guru','Bahas semua soal. Guru catat pencapaian tiap anak. Rayakan: "Kamu sudah bisa mengerjakan angka sampai 50!"')+
@@ -534,7 +534,7 @@ month('Bulan 6','#DCFCE7','#166534','Aku Siap SD!',
     obs('Berapa soal benar dari 35 (target ≥28)?','Apakah bisa mengerjakan simulasi belanja dengan benar?','Apakah mencoba soal SD dengan percaya diri?')
   )+
 
-  card('b6t3','🎨','#DCFCE7','Sesi 5–6','Pameran Karya Akhir','semua karya Level 4 · presentasi kepada orang tua · apresiasi',
+  card('b6t3','🎨','#e6f4fb','Sesi 5–6','Pameran Karya Akhir','semua karya Level 4 · presentasi kepada orang tua · apresiasi',
     slbl('Sesi 5')+BUKA+
     rutin('5–20\'','Setup pameran: tata semua karya','Anak menata semua karya Level 4: buku cerita, poster, karya seni, portfolio tulisan, proyek daur ulang. Latih tanggung jawab.')+
     kelompok('20–45\'','Latihan menjadi pemandu pameran','Tiap anak berlatih menjelaskan karya mereka: "Ini karya saya tentang... Saya membuatnya dengan cara... Yang saya pelajari adalah..."')+
@@ -548,7 +548,7 @@ month('Bulan 6','#DCFCE7','#166534','Aku Siap SD!',
     obs('Apakah bisa menjelaskan karya sendiri kepada orang tua dengan lengkap?','Apakah mampu tampil percaya diri di depan audiens yang lebih besar?','Apakah bangga dan bahagia dengan perjalanan Level 4?')
   )+
 
-  card('b6t4','🏆','#DCFCE7','Sesi 7–8','Graduation Level 4 — Siap SD!','wisuda preschool · badge achievement · perayaan · doa',
+  card('b6t4','🏆','#e6f4fb','Sesi 7–8','Graduation Level 4 — Siap SD!','wisuda preschool · badge achievement · perayaan · doa',
     rutin('0–15\'','Persiapan graduation','Anak berpakaian rapi atau mengenakan toga mini. Kelas didekorasi. Kursi disusun untuk audiens. Musik perayaan diputar.')+
     baca('15–35\'','Pembacaan pencapaian tiap anak','Guru membacakan nama tiap anak dan pencapaian spesifik mereka: "Dia sudah bisa membaca cerita 15 kalimat dan menulis karangan sendiri!"')+
     output('35–52\'','Pemberian badge & sertifikat Graduation','Badge: Achievement Riser, Public Speaker, Story Reader, Story Writer, Creative Maker, Graduation Star Finisher. Anak maju satu per satu dengan bangga.')+
@@ -610,12 +610,12 @@ const INFO_HTML=`
     </div>
     <div style="display:flex;flex-direction:column;gap:8px;">
       ${[
-        ['ECFDF5','065f46','🚗','Bulan 1 — Transportasi & Teknologi','Kendaraan darat/laut/udara, teknologi, kalimat sebab-akibat, angka 21–30'],
-        ['F0FDF4','166534','🌳','Bulan 2 — Alam & Lingkungan Hidup','Hutan, daur ulang, siklus air, kalimat instruksi & persuasif, angka 31–40'],
-        ['F0FDFA','134e4a','🏫','Bulan 3 — Komunitas & Kewarganegaraan','Hak & kewajiban, pahlawan, gotong royong, konsep uang & waktu, angka 41–50'],
-        ['ECFDF5','065f46','🏃','Bulan 4 — Tubuhku & Kesehatanku','Olahraga, gizi, prosedur kebersihan, kalimat saran, dasar hitung berulang'],
-        ['F7FEE7','365314','🎨','Bulan 5 — Kreativitas & Ekspresi Diri','Cerita imajinatif, public speaking, proyek buku kelas, asesmen berhitung'],
-        ['DCFCE7','166534','🏆','Bulan 6 — Aku Siap SD!','Asesmen akhir membaca-menulis-berhitung, pameran karya, graduation Creator'],
+        ['e6f4fb','0686c7','🚗','Bulan 1 — Transportasi & Teknologi','Kendaraan darat/laut/udara, teknologi, kalimat sebab-akibat, angka 21–30'],
+        ['e6f4fb','0686c7','🌳','Bulan 2 — Alam & Lingkungan Hidup','Hutan, daur ulang, siklus air, kalimat instruksi & persuasif, angka 31–40'],
+        ['e6f4fb','0686c7','🏫','Bulan 3 — Komunitas & Kewarganegaraan','Hak & kewajiban, pahlawan, gotong royong, konsep uang & waktu, angka 41–50'],
+        ['e6f4fb','0686c7','🏃','Bulan 4 — Tubuhku & Kesehatanku','Olahraga, gizi, prosedur kebersihan, kalimat saran, dasar hitung berulang'],
+        ['e6f4fb','0686c7','🎨','Bulan 5 — Kreativitas & Ekspresi Diri','Cerita imajinatif, public speaking, proyek buku kelas, asesmen berhitung'],
+        ['e6f4fb','0686c7','🏆','Bulan 6 — Aku Siap SD!','Asesmen akhir membaca-menulis-berhitung, pameran karya, graduation Creator'],
       ].map(([bg,txt,ic,name,desc])=>`
         <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#${bg};border-radius:var(--r);border-left:3px solid #${txt};">
           <div style="font-size:18px;">${ic}</div>
