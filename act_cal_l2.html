@@ -1,0 +1,950 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markaz Belajar — Tema Map Calistung L2</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:         #FDFAF4;
+  --surface:    #FFFFFF;
+  --surface2:   #F0EBE3;
+  --border:     #EDE9DF;
+  --border2:    #D8D1C7;
+  --text:       #1C2B3A;
+  --text2:      #4A6070;
+  --text3:      #8FA4B4;
+  --accent:     #1B6CA8;
+  --accent-dim: rgba(27,108,168,0.10);
+  --success:    #2E9E5B;
+  --success-dim:rgba(46,158,91,0.10);
+  --warning:    #F59F00;
+  --warning-dim:rgba(245,159,0,0.12);
+  --r: 10px; --rl: 16px;
+  --hdr-bg:     #1B6CA8;
+  --outer-bg:   #1B6CA8;
+
+  --teal:       #1D9E75;
+  --teal-light: #E1F5EE;
+  --teal-dark:  #0F6E56;
+  --blue:       #378ADD;
+  --blue-light: #E6F1FB;
+  --blue-dark:  #185FA5;
+  --amber:      #EF9F27;
+  --amber-light:#FAEEDA;
+  --amber-dark: #854F0B;
+  --pink:       #D4537E;
+  --pink-light: #FBEAF0;
+  --pink-dark:  #993556;
+  --green:      #1B6CA8;
+  --green-light:#E8F4FD;
+  --green-dark: #0D4A8A;
+  --purple:     #7F3FBF;
+  --purple-light:#F0E6FF;
+  --purple-dark:#4A1A80;
+  --orange:     #E8640A;
+  --orange-light:#FEF0E6;
+  --orange-dark:#7A3000;
+}
+
+[data-theme="dark"] {
+  --bg:         #0F1923;
+  --surface:    #1A2535;
+  --surface2:   #222F40;
+  --border:     #2A3A4E;
+  --border2:    #344A60;
+  --text:       #E8EEF4;
+  --text2:      #8FA4B4;
+  --text3:      #506070;
+  --accent:     #4DA3D4;
+  --accent-dim: rgba(77,163,212,0.12);
+  --success:    #3BBF6E;
+  --success-dim:rgba(59,191,110,0.12);
+  --warning:    #F59F00;
+  --warning-dim:rgba(245,159,0,0.12);
+  --hdr-bg:     #0D1520;
+  --outer-bg:   #0D1520;
+  --teal-light: rgba(29,158,117,0.15);
+  --blue-light: rgba(55,138,221,0.15);
+  --amber-light:rgba(239,159,39,0.15);
+  --pink-light: rgba(212,83,126,0.15);
+  --green-light:rgba(46,125,79,0.15);
+  --purple-light:rgba(127,63,191,0.15);
+  --orange-light:rgba(232,100,10,0.15);
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body { height: 100%; }
+body {
+  font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+  background: #1B6CA8;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  transition: background .3s, color .3s;
+}
+
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+.page-outer {
+  max-width: 1200px;
+  margin: 0 auto;
+  min-height: 100vh;
+  background: #1B6CA8;
+  box-shadow: 0 0 40px rgba(28,43,58,0.10);
+}
+
+/* ── HEADER ── */
+.hdr { background: var(--hdr-bg); overflow: hidden; position: relative; transition: background .3s; }
+.hdr-topbar { position: absolute; top: 0; left: 0; right: 0; z-index: 10; padding: 10px 14px; display: flex; align-items: center; justify-content: space-between; }
+.hdr-topbar-left { display: flex; align-items: center; gap: 8px; }
+.hdr-sync { display: flex; align-items: center; gap: 5px; font-size: 11px; color: rgba(255,255,255,0.8); font-weight: 500; }
+.hdr-inner { position: relative; z-index: 2; padding: 28px 20px 46px; display: flex; flex-direction: column; align-items: center; }
+.hdr-logo-img { width: 90px; margin-bottom: 0; }
+.hdr-logo-fallback { display: none; width: 80px; height: 80px; background: rgba(255,255,255,0.15); border-radius: 20px; align-items: center; justify-content: center; }
+
+.hdr-greeting { margin: 0 14px; margin-top: -24px; position: relative; z-index: 10; }
+.hdr-greeting-card { background: #fff; border-radius: 20px; box-shadow: 0 4px 24px rgba(28,43,58,0.12); padding: 15px 18px; display: flex; align-items: center; justify-content: space-between; }
+.hdr-greeting-card h2 { font-family: 'Baloo 2', sans-serif; font-size: 16px; font-weight: 800; color: #1C2B3A; line-height: 1.2; }
+.hdr-greeting-card p { font-size: 12px; color: #8FA4B4; margin-top: 2px; }
+.hdr-greeting-badge { background: #E8F4FD; color: #1B6CA8; font-size: 11px; font-weight: 600; padding: 5px 12px; border-radius: 50px; white-space: nowrap; }
+
+/* ── NAV TABS ── */
+.sticky-nav { position: relative; }
+.nav-tabs { padding: 12px 14px 12px; background: var(--hdr-bg); transition: background .3s; }
+.tab-bar-pill { background: rgba(255,255,255,0.18); border-radius: 50px; padding: 4px; display: flex; gap: 2px; border: 1.5px solid rgba(255,255,255,0.2); backdrop-filter: blur(8px); }
+.nav-tab { flex: 1; padding: 9px 0; border: none; background: transparent; border-radius: 50px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 13px; font-weight: 600; color: rgba(255,255,255,0.65); cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: all .2s; }
+.nav-tab:hover { color: #fff; background: rgba(255,255,255,0.1); }
+.nav-tab.active { background: #fff; color: #1B6CA8; box-shadow: 0 2px 8px rgba(0,0,0,0.15); }
+
+/* ── LAYOUT ── */
+.wrap { max-width: 1200px; margin: 0 auto; padding: 16px 14px 40px; background: transparent; }
+
+/* ── MONTH SELECTOR ── */
+.month-selector { display: flex; flex-wrap: wrap; gap: 8px; padding: 14px 14px 10px; background: transparent; border-bottom: 1px solid rgba(255,255,255,0.3); margin-bottom: 14px; }
+.mth-btn { padding: 7px 14px; border-radius: 50px; border: 1.5px solid rgba(255,255,255,0.4); background: rgba(255,255,255,0.15); color: #ffffff; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; transition: all .18s; white-space: nowrap; }
+.mth-btn:hover { background: rgba(255,255,255,0.25); border-color: rgba(255,255,255,0.7); }
+.mth-btn.active { background: #ffffff; color: #1B6CA8; border-color: #ffffff; }
+
+/* ── SECTION ── */
+.sec { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--rl); padding: 18px; margin-bottom: 14px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); transition: background .3s, border-color .3s; }
+.sec-title { font-size: 11px; font-weight: 600; color: var(--text3); text-transform: uppercase; letter-spacing: .07em; display: flex; align-items: center; gap: 7px; margin-bottom: 14px; }
+.sec-title svg { width: 13px; height: 13px; flex-shrink: 0; }
+
+/* ── LEGEND ── */
+.legend-wrap { display: flex; gap: 10px; flex-wrap: wrap; padding: 10px 0 4px; }
+.leg { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--text2); }
+.leg-dot { width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+
+/* ── MONTH SECTION ── */
+.month-section { margin-bottom: 6px; }
+.month-hdr { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; margin-top: 16px; padding: 0 2px; }
+.month-badge { font-size: 10px; font-weight: 700; padding: 3px 10px; border-radius: 20px; letter-spacing: 0.3px; flex-shrink: 0; background: rgba(255,255,255,0.2) !important; color: #ffffff !important; }
+.month-name { font-family: 'Baloo 2', sans-serif; font-size: 15px; font-weight: 700; color: #ffffff; }
+.month-focus { font-size: 11px; color: rgba(255,255,255,0.65); padding: 0 2px; margin-bottom: 6px; }
+
+/* ── TEMA CARD ── */
+.tema-card { background: var(--surface); border: 1.5px solid var(--border); border-radius: var(--rl); margin-bottom: 8px; overflow: hidden; transition: box-shadow .2s, border-color .2s; }
+.tema-card.open { box-shadow: 0 4px 20px rgba(0,0,0,0.10); }
+.tema-btn { width: 100%; background: none; border: none; padding: 13px 15px; cursor: pointer; display: flex; align-items: center; gap: 12px; text-align: left; }
+.tema-emoji { font-size: 20px; flex-shrink: 0; width: 38px; height: 38px; display: flex; align-items: center; justify-content: center; border-radius: 10px; }
+.tema-info { flex: 1; min-width: 0; }
+.tema-sesi { font-size: 10px; font-weight: 700; color: var(--text3); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 2px; }
+.tema-nama { font-family: 'Baloo 2', sans-serif; font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 2px; }
+.tema-kosa { font-size: 11px; color: var(--text2); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tema-chevron { font-size: 18px; color: var(--text3); flex-shrink: 0; transition: transform .25s; }
+.tema-card.open .tema-chevron { transform: rotate(180deg); }
+
+/* ── TEMA BODY ── */
+.tema-body { display: none; padding: 0 14px 14px; border-top: 1.5px solid var(--border); }
+.tema-card.open .tema-body { display: block; }
+
+.sesi-lbl { font-size: 9px; font-weight: 800; color: var(--text3); text-transform: uppercase; letter-spacing: 1px; margin: 14px 0 8px; padding: 4px 8px; background: var(--surface2); border-radius: 6px; display: inline-block; }
+
+/* ── ACTIVITY ── */
+.act-list { margin-top: 8px; }
+.act-item { display: flex; gap: 10px; margin-bottom: 9px; align-items: flex-start; width: 100%; }
+.act-time { font-size: 10px; font-weight: 700; color: var(--text3); min-width: 32px; max-width: 32px; padding-top: 3px; flex-shrink: 0; font-family: 'Geist Mono', monospace; }
+.act-content { flex: 1; min-width: 0; overflow: hidden; }
+.act-type-pill { display: inline-block; font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 20px; margin-bottom: 3px; letter-spacing: .3px; text-transform: uppercase; max-width: 100%; }
+.act-name { word-wrap: break-word; }
+.act-desc { word-wrap: break-word; overflow-wrap: break-word; }
+.pill-motorik  { background: #E1F5EE; color: #0F6E56; }
+.pill-fonik    { background: #EEEDFE; color: #534AB7; }
+.pill-output   { background: var(--amber-light); color: var(--amber-dark); }
+.pill-rutin    { background: var(--surface2); color: var(--text2); }
+.pill-review   { background: var(--blue-light); color: var(--blue-dark); }
+.pill-menulis  { background: #FEF0E6; color: #7A3000; }
+.pill-berhitung{ background: #F0E6FF; color: #4A1A80; }
+.pill-kata     { background: #E8F4FD; color: #0D4A8A; }
+.act-name { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; line-height: 1.3; }
+.act-desc { font-size: 12px; color: var(--text2); line-height: 1.55; }
+
+.act-divider { height: 1px; background: var(--border); margin: 12px 0; }
+
+/* ── OBS BOX ── */
+.obs-box { background: var(--accent-dim); border-radius: var(--r); padding: 10px 12px; margin-top: 12px; border: 1px solid var(--border); }
+.obs-title { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--accent); margin-bottom: 6px; }
+.obs-item { font-size: 11px; color: var(--text2); line-height: 1.55; margin-bottom: 3px; padding-left: 12px; position: relative; }
+.obs-item::before { content: '·'; position: absolute; left: 3px; color: var(--accent); font-size: 16px; line-height: 1; top: 1px; }
+
+/* ── MILESTONE BOX ── */
+.milestone-box { background: var(--surface2); border-radius: var(--r); padding: 12px 14px; margin-top: 12px; border: 1px solid var(--border); }
+.milestone-title { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: .8px; color: var(--text3); margin-bottom: 8px; }
+.milestone-item { font-size: 11px; color: var(--text2); line-height: 1.55; margin-bottom: 3px; padding-left: 18px; position: relative; }
+.milestone-item::before { content: '✓'; position: absolute; left: 2px; color: var(--success); font-size: 11px; font-weight: 700; }
+
+/* ── BUTTON UTIL ── */
+.icon-btn { width: 34px; height: 34px; border-radius: 50%; border: 1.5px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; cursor: pointer; color: #fff; flex-shrink: 0; }
+
+/* ── DARK OVERRIDES ── */
+[data-theme="dark"] .hdr-greeting-card { background: var(--surface); box-shadow: 0 4px 24px rgba(0,0,0,0.4); }
+[data-theme="dark"] .hdr-greeting-card h2 { color: var(--text); }
+[data-theme="dark"] .hdr-greeting-card p { color: var(--text3); }
+[data-theme="dark"] .hdr-greeting-badge { background: var(--accent-dim); color: var(--accent); }
+[data-theme="dark"] .nav-tab.active { background: rgba(255,255,255,0.15); color: #fff; }
+[data-theme="dark"] .pill-motorik { background: rgba(29,158,117,0.2); }
+[data-theme="dark"] .pill-fonik { background: rgba(127,119,221,0.2); }
+[data-theme="dark"] .pill-menulis { background: rgba(232,100,10,0.15); }
+[data-theme="dark"] .pill-berhitung { background: rgba(127,63,191,0.15); }
+[data-theme="dark"] .pill-kata { background: rgba(46,125,79,0.15); }
+
+/* ── LEVEL BADGE ── */
+.level-badge-bar { display: flex; align-items: center; gap: 8px; padding: 10px 14px 0; }
+.level-dot { width: 8px; height: 8px; border-radius: 50%; background: rgba(255,255,255,0.35); }
+.level-dot.active { background: #ffffff; }
+
+@keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+.spin { animation: spin 1s linear infinite; }
+
+@media (max-width: 480px) {
+  .nav-tab { font-size: 12px; }
+  .tema-nama { font-size: 13px; }
+}
+</style>
+</head>
+<body>
+
+<div class="page-outer">
+
+  <div class="sticky-nav">
+    <header class="hdr">
+      <div class="hdr-topbar">
+        <div class="hdr-topbar-left">
+          <div class="hdr-sync"></div>
+        </div>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <button class="icon-btn" onclick="toggleDark()" title="Dark/Light">
+            <svg id="darkIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="hdr-inner">
+        <img class="hdr-logo-img" src="Open_MB_Icon.png" alt="Markaz Belajar"
+          onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex';">
+        <div id="logo-fb" class="hdr-logo-fallback">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+      </div>
+    </header>
+
+    <div class="hdr-greeting">
+      <div class="hdr-greeting-card">
+        <div>
+          <h2 id="hdrTitle">Tema Map</h2>
+          <p id="hdrSub">Calistung Preschool · Level 2</p>
+        </div>
+        <div class="hdr-greeting-badge" id="hdrBadge">● 6 Bulan</div>
+      </div>
+    </div>
+
+    <div class="nav-tabs">
+      <div class="tab-bar-pill">
+        <button class="nav-tab active" onclick="switchTab('map', this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+          Tema Map
+        </button>
+        <button class="nav-tab" onclick="switchTab('info', this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Info Program
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div id="main-content"></div>
+  </div>
+</div>
+
+<script>
+  const HDR = {
+    map:  { title: 'Tema Map', sub: 'Calistung Preschool · Level 2', badge: '● 6 Bulan' },
+    info: { title: 'Info Program', sub: 'Calistung Preschool · Level 2', badge: '● Detail' },
+  };
+
+  const a = (time, type, cls, name, desc) =>
+    `<div class="act-item"><div class="act-time">${time}</div><div class="act-content"><span class="act-type-pill ${cls}">${type}</span><div class="act-name">${name}</div><div class="act-desc">${desc}</div></div></div>`;
+
+  const rutin    = (t,n,d) => a(t,'Rutinitas','pill-rutin',n,d);
+  const motor    = (t,n,d) => a(t,'Motorik','pill-motorik',n,d);
+  const fonik    = (t,n,d) => a(t,'Fonik & Kosakata','pill-fonik',n,d);
+  const output   = (t,n,d) => a(t,'Output','pill-output',n,d);
+  const review   = (t,n,d) => a(t,'Review','pill-review',n,d);
+  const menulis  = (t,n,d) => a(t,'Menulis','pill-menulis',n,d);
+  const hitung   = (t,n,d) => a(t,'Berhitung','pill-berhitung',n,d);
+  const kata     = (t,n,d) => a(t,'Membaca Kata','pill-kata',n,d);
+
+  const BUKA  = rutin('0–5\'','Pembukaan & Doa','Salam, simpan tas, duduk melingkar. Doa belajar bersama. Guru tanya kabar dan recall singkat sesi sebelumnya.');
+  const TUTUP = rutin('55–60\'','Doa Penutup & Beres-beres','Beresin alat, rapikan meja, doa penutup, salam pulang.');
+  const TUTUP2= rutin('58–60\'','Doa Penutup & Beres-beres','Beresin alat, rapikan meja, doa penutup, salam pulang.');
+
+  const obs = (...items) => `<div class="obs-box"><div class="obs-title">Catatan Observasi Guru</div>${items.map(i=>`<div class="obs-item">${i}</div>`).join('')}</div>`;
+  const divider = '<div class="act-divider"></div>';
+  const slbl = t => `<div class="sesi-lbl">${t}</div>`;
+
+  function card(id, emoji, ebg, sesi, nama, kosa, body) {
+    return `<div class="tema-card" id="${id}">
+      <button class="tema-btn" onclick="toggle('${id}')">
+        <div class="tema-emoji" style="background:${ebg}">${emoji}</div>
+        <div class="tema-info">
+          <div class="tema-sesi">${sesi}</div>
+          <div class="tema-nama">${nama}</div>
+          <div class="tema-kosa">${kosa}</div>
+        </div>
+        <div class="tema-chevron">▾</div>
+      </button>
+      <div class="tema-body">${body}</div>
+    </div>`;
+  }
+
+  function month(badge, bgColor, txtColor, name, focus, cards) {
+    return `<div class="month-section">
+      <div class="month-hdr">
+        <span class="month-badge" style="background:${bgColor};color:${txtColor};">${badge}</span>
+        <span class="month-name">${name}</span>
+      </div>
+      <div class="month-focus">${focus}</div>
+      ${cards}
+    </div>`;
+  }
+
+  function showMonth(idx, btn) {
+    document.querySelectorAll('.mth-btn').forEach(b => b.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const mc = document.getElementById('month-content');
+    if (mc) mc.innerHTML = MONTHS[idx];
+  }
+
+  // ════════════════════════════════════════════════════════
+  // MONTHS DATA
+  // ════════════════════════════════════════════════════════
+
+  const MONTHS = [
+
+    // ── BULAN 1: DUNIA BINATANG (Huruf A–G) ──────────────
+    month('Bulan 1','#EEEDFE','#534AB7','Dunia Binatang','huruf A–G · nama hewan · suara · gerak binatang · angka 6–10',
+
+      card('b1t1','🐾','#EEEDFE','Sesi 1–2','Hewan Peliharaan — A, B, C','Anjing · Burung · Cicak · sandpaper · bunyi fonik · tracing',
+        slbl('Sesi 1') +
+        BUKA +
+        fonik('5–15\'','Recall huruf vokal dari Level 1','Review cepat: A I U E O sambil tepuk tangan. Guru tanya siapa ingat bunyi tiap vokal.') +
+        motor('15–30\'','Sandpaper A, B, C — tema hewan','Guru perkenalkan kartu sandpaper A B C. A=Anjing, B=Burung, C=Cicak. Anak menelusuri huruf dengan jari.') +
+        fonik('30–45\'','Suara hewan & huruf awalnya','"Anjing bunyinya guk-guk! Huruf apa? A!" Guru tirukan suara hewan, anak tebak hewan dan huruf awalnya.') +
+        output('45–57\'','Menebalkan A, B, C — kartu hewan','Lembar bertitik huruf A B C dengan gambar hewan di sudut. Anak menebalkan sambil menyebut nama hewan.') +
+        TUTUP2 +
+        divider +
+        slbl('Sesi 2') +
+        rutin('0–5\'','Pembukaan & Doa','Salam, doa. Guru tanya: "Kemarin belajar huruf apa? Hewan apa yang hurufnya A?"') +
+        motor('5–20\'','Tracing A, B, C di baki pasir','Anak menulis huruf A B C dengan jari di baki pasir/tepung. Sambil ucap: "A... Anjing!"') +
+        fonik('20–35\'','Hunt Alphabet hewan','Kartu huruf A B C ditempel di gambar hewan yang tersembunyi di ruangan. Anak mencari dan menyebut.') +
+        menulis('35–52\'','Menulis A, B, C di buku latihan','Anak menulis huruf A B C kapital dan kecil dengan panduan. Guru koreksi posisi tangan.') +
+        TUTUP +
+        obs('Apakah arah tracing huruf sudah benar (dari atas)?','Apakah bisa menyebut nama hewan A, B, C?','Apakah posisi memegang pensil sudah membaik?')
+      ) +
+
+      card('b1t2','🦁','#EEEDFE','Sesi 3–4','Hewan Liar — D, E, F','Domba · Elang · Flamingo · habitat · suku kata',
+        slbl('Sesi 3') +
+        BUKA +
+        motor('5–20\'','Sandpaper D, E, F — hewan liar','D=Domba, E=Elang, F=Flamingo. Anak menelusuri kartu sandpaper sambil ucap nama hewan.') +
+        fonik('20–35\'','Habitat hewan — darat & udara','Guru tunjuk gambar: "Domba tinggal di mana? Elang terbang di mana?" Diskusi singkat pengenalan habitat.') +
+        fonik('35–50\'','Suku kata da, di, du — domba','Guru tulis da-di-du di papan. "Do-mba! Kita dengar suku kata apa?" Anak baca bersama.') +
+        output('50–57\'','Kartu D E F + gambar hewan','Anak menebalkan huruf D E F, tempel stiker gambar hewan yang sesuai.') +
+        TUTUP2 +
+        divider +
+        slbl('Sesi 4') +
+        BUKA +
+        fonik('5–20\'','Review A–F lewat flashcard hewan','Guru tunjukkan kartu bergambar hewan. Anak sebut nama hewan dan huruf awalnya.') +
+        menulis('20–40\'','Menulis D, E, F di buku latihan','Anak menulis huruf D E F kapital dan kecil. Guru perhatikan arah penulisan D.') +
+        motor('40–55\'','Gerak tirukan hewan A–F','Guru sebut huruf, anak tirukan gerakan hewan: A=Anjing merangkak, B=Burung mengepak, C=Cicak merayap...') +
+        TUTUP +
+        obs('Apakah bisa menyebut hewan D, E, F?','Apakah bisa membaca suku kata da/di/du?','Apakah antusias saat menirukan gerakan hewan?')
+      ) +
+
+      card('b1t3','🐘','#EEEDFE','Sesi 5–6','Hewan Besar — G + Review A–G','Gajah · review alfabet · moveable alphabet · kosakata hewan',
+        slbl('Sesi 5') +
+        BUKA +
+        motor('5–18\'','Sandpaper G — Gajah!','G=Gajah! Anak menelusuri huruf G sambil tirukan suara gajah. Tracing di pasir.') +
+        fonik('18–35\'','Cerita mini "Gajah yang Baik"','Guru ceritakan 3 kalimat sederhana tentang gajah sambil tunjuk gambar. Anak dengarkan dan jawab pertanyaan.') +
+        menulis('35–52\'','Menulis G di buku latihan','Anak menulis huruf G kapital dan kecil. Guru bantu lengkungan G yang sering tidak tertutup.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 6') +
+        BUKA +
+        fonik('5–20\'','Lomba sebut hewan A–G','Guru sebut huruf, anak berlomba sebut nama hewan yang dimulai huruf itu. Poin untuk yang pertama!') +
+        motor('20–38\'','Moveable Alphabet: susun nama hewan','Anak susun huruf magnetik: G-A-J-A-H. Guru bantu eja perlahan.') +
+        output('38–55\'','Buku Hewan A–G buatanku','Mini booklet: tiap halaman satu huruf, anak gambar hewan dan tulis hurufnya.') +
+        TUTUP +
+        obs('Apakah bisa menyebutkan hewan A–G untuk setiap huruf?','Apakah bisa menulis A–G tanpa melihat contoh?','Apakah bisa menyusun huruf jadi nama hewan sederhana?')
+      ) +
+
+      card('b1t4','🔢','#EEEDFE','Sesi 7–8','Hitung Hewan — Angka 6–10','angka 6–10 · menghitung hewan · benda konkret',
+        slbl('Sesi 7') +
+        BUKA +
+        hitung('5–20\'','Hitung hewan di gambar — angka 6 & 7','Guru tunjuk gambar kandang berisi 6 ayam, 7 bebek. Anak hitung bersama sambil menunjuk satu per satu.') +
+        hitung('20–38\'','Menebalkan angka 6 & 7','Lembar titik-titik angka 6 dan 7. Anak menebalkan sambil mengucap "enam ekor... tujuh ekor..."') +
+        motor('38–55\'','Permainan: jadilah hewan sejumlah angka!','Guru sebut angka 6. Anak membentuk kelompok 6 orang, lalu tirukan suara hewan yang disebutkan guru.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 8') +
+        BUKA +
+        hitung('5–20\'','Angka 8, 9, 10 — kandang hewan','Guru buat "kandang" dari kotak. Anak masukkan 8, 9, 10 mainan hewan ke dalam kandang sambil menghitung.') +
+        hitung('20–38\'','Menebalkan & menulis 8, 9, 10','Anak menebalkan lalu menulis mandiri angka 8 9 10 di buku.') +
+        hitung('38–55\'','Kartu angka 1–10 — urut hewan','Kartu angka 1–10 dengan gambar hewan. Anak urutkan dari terkecil ke terbesar.') +
+        TUTUP +
+        obs('Apakah bisa menghitung hewan sampai 10 dengan menunjuk?','Apakah mengenal simbol angka 6–10?','Apakah antusias saat permainan kelompok hewan?')
+      )
+    ),
+
+    // ── BULAN 2: MAKANAN & MINUMANKU (Huruf H–N) ────────
+    month('Bulan 2','#E6F1FB','#185FA5','Makanan & Minumanku','huruf H–N · nama makanan · suku kata · penjumlahan awal',
+
+      card('b2t1','🍚','#E6F1FB','Sesi 1–2','Makanan Pokok — H, I, J','Ikan · Jagung · suku kata ha-hi-hu · kata ikan',
+        slbl('Sesi 1') +
+        BUKA +
+        review('5–15\'','Flash review A–G hewan','Kartu kilat A–G hewan. Anak sebut huruf dan nama hewan. Cepat dan menyenangkan!') +
+        motor('15–30\'','Sandpaper H, I, J — makanan','H=Hummus/Himpit, I=Ikan, J=Jagung. Anak menelusuri sambil guru sebut nama makanan.') +
+        fonik('30–45\'','Suku kata ha, hi, hu, he, ho','Guru tulis di papan: ha-hi-hu-he-ho. Anak baca bersama sambil tepuk tangan. "ha! hi! hu! he! ho!"') +
+        menulis('45–57\'','Menulis H, I, J di buku latihan','Anak menulis huruf H I J kapital dan kecil. Guru koreksi dua garis tegak huruf H.') +
+        TUTUP2 +
+        divider +
+        slbl('Sesi 2') +
+        BUKA +
+        fonik('5–20\'','Suku kata ja, ji, ju + kata jagung','Guru tulis ja-ji-ju. Anak baca. Susun kartu suku kata: "ja-gung". Apa kata itu?') +
+        motor('20–38\'','Tracing H, I, J di baki pasir','Variasi: tulis dengan kuas dan air di atas kertas gelap — seperti "menulis di sawah"!') +
+        output('38–55\'','Gambar piring makanku','Anak menggambar "piring makan siang" berisi nasi, ikan, dan sayur. Guru label nama makanan.') +
+        TUTUP +
+        obs('Apakah bisa membaca suku kata ha/hi/hu?','Apakah penulisan H sudah benar?','Apakah bisa menyebut nama makanan yang dimulai I dan J?')
+      ) +
+
+      card('b2t2','🥕','#E6F1FB','Sesi 3–4','Sayur & Buah — K, L, M','Kangkung · Labu · Mangga · suku kata · kata kaki/mata',
+        slbl('Sesi 3') +
+        BUKA +
+        motor('5–20\'','Sandpaper K, L, M — sayur & buah','K=Kangkung, L=Labu, M=Mangga. Anak menelusuri dan sebut nama.') +
+        fonik('20–35\'','Suku kata ka, la, ma + contoh makanan','Guru tulis: ka-cang, la-bu, ma-ngga. Anak baca bersama. Tunjuk gambar tiap makanan.') +
+        kata('35–50\'','Baca kata: kacang, labu, mangga','Guru tunjuk kartu kata satu per satu. Anak membaca dengan menunjuk tiap suku kata.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 4') +
+        BUKA +
+        menulis('5–22\'','Menulis K, L, M di buku latihan','Anak menulis K L M kapital dan kecil. Perhatikan sudut huruf K yang sering melengkung.') +
+        kata('22–42\'','Matching kartu kata + gambar makanan','Kartu kata: kangkung, labu, mangga, kacang. Anak cocokkan dengan kartu gambar.') +
+        motor('42–57\'','Bermain warung kecil — beli sayur','Anak bergantian jadi penjual dan pembeli. "Mau beli apa?" "Mau beli kangkung!" Latihan percakapan.') +
+        TUTUP2 +
+        obs('Apakah bisa membaca kata 2 suku kata makanan?','Apakah antusias saat bermain warung?','Apakah menulis K L M dengan proporsional?')
+      ) +
+
+      card('b2t3','🍜','#E6F1FB','Sesi 5–6','Masakan & Minuman — N + Review H–N','Nasi · minuman · kata nasi/susu · review alfabet H–N',
+        slbl('Sesi 5') +
+        BUKA +
+        motor('5–18\'','Sandpaper N — Nasi!','N=Nasi! "nnn... nasi!" Anak menelusuri dan buat suara N.') +
+        fonik('18–35\'','Suku kata na, ni, nu, ne, no','Guru tulis dan baca bersama: na-si, nu-get, ne-nes. Tepuk tangan tiap suku kata.') +
+        kata('35–52\'','Kata: nasi, susu, minum, makan','Anak membaca 4 kata baru. Guru tanya: "Nasi dimakan atau diminum?" Diskusi seru!') +
+        TUTUP +
+        divider +
+        slbl('Sesi 6') +
+        BUKA +
+        review('5–20\'','Alfabet parade H–N + makanan','Anak pegang kartu huruf H–N. Guru sebut makanan, anak yang pegang huruf awalnya berdiri.') +
+        kata('20–38\'','Kalimat: "Aku makan nasi"','Guru tulis di papan. Anak baca bersama. "Siapa yang suka nasi? Aku! Siapa yang suka susu?"') +
+        hitung('38–55\'','Penjumlahan dengan benda makanan','Manik atau kancing sebagai "makanan". 3 buah + 2 buah = ? Anak praktik langsung.') +
+        TUTUP +
+        obs('Apakah bisa membaca kalimat "Aku makan nasi"?','Apakah mengerti konsep penjumlahan lewat konteks makanan?','Apakah bisa menyebutkan makanan H–N untuk setiap huruf?')
+      ) +
+
+      card('b2t4','🔢','#E6F1FB','Sesi 7–8','Hitung Makanan — Penjumlahan 1–5','penjumlahan konkret · soal makanan · angka 1–10',
+        slbl('Sesi 7') +
+        BUKA +
+        hitung('5–20\'','Penjumlahan lewat buah & sayur','Guru siapkan gambar buah. "Ada 2 mangga + 3 jeruk = berapa buah?" Anak hitung dengan menyentuh gambar.') +
+        hitung('20–38\'','Kartu soal bergambar makanan','Kartu bergambar: piring kiri 2 sendok, piring kanan 3 sendok. Anak tulis total.') +
+        motor('38–55\'','Lompat ke angka penjumlahan','Kotak angka di lantai. Guru sebut "2+3", anak melompat ke 2 dulu, lanjut 3 langkah, mendarat di 5!') +
+        TUTUP +
+        divider +
+        slbl('Sesi 8') +
+        BUKA +
+        hitung('5–22\'','Review angka 1–10 + urutan','Anak mengurutkan kartu angka 1–10. Variasi: kartu bergambar makanan (1 apel, 2 jeruk, dst).') +
+        hitung('22–42\'','Lembar kerja penjumlahan bergambar makanan','10 soal bergambar makanan. Anak hitung dan tulis jawaban.') +
+        output('42–55\'','Menu makanku — buku kecil','Anak membuat "buku menu": tiap halaman 1 makanan favorit, gambar + tulis nama + tulis angka "aku makan 2 buah mangga".') +
+        TUTUP +
+        obs('Apakah bisa menjumlahkan 1–5 secara mandiri?','Apakah memahami soal cerita bertema makanan?','Apakah buku menu dibuat dengan antusias dan rapi?')
+      )
+    ),
+
+
+    // ── BULAN 3: ALAM & CUACA (Huruf O–T) ─────────────────
+    month('Bulan 3','#E6F4F1','#0F5C4A','Alam & Cuaca','huruf O–T · langit · hujan · laut · pohon · kalimat 2 kata',
+
+      card('b3t1','☁️','#E6F4F1','Sesi 1–2','Langit & Awan — O, P','Ombak · Pelangi · suku kata pa-pi-pu · kata pelangi',
+        slbl('Sesi 1') +
+        BUKA +
+        review('5–15\'','Flash review H–N makanan','Kartu kilat hewan A–G dan makanan H–N. Anak sebut nama dan huruf awalnya.') +
+        motor('15–30\'','Sandpaper O, P — langit','O=Ombak, P=Pelangi. Anak menelusuri huruf sambil guru cerita: "Di langit ada pelangi setelah hujan!"') +
+        fonik('30–45\'','Suku kata pa, pi, pu, pe, po','Guru tulis di papan. Baca bersama sambil tepuk tangan. "pa! pi! pu! pe! po!" Contoh: pe-lan-gi.') +
+        output('45–57\'','Mewarnai pelangi — label warna','Anak mewarnai gambar pelangi dengan 7 warna. Guru tulis nama warna, anak menebalkan huruf awalnya.') +
+        TUTUP2 +
+        divider +
+        slbl('Sesi 2') +
+        BUKA +
+        motor('5–20\'','Tracing O, P di baki pasir','Anak menulis O P di pasir. Variasi O: "buat lingkaran seperti matahari!"') +
+        fonik('20–38\'','Kata: ombak, pohon, pagi, petir','Guru tunjuk kartu kata bergambar. Anak baca suku kata per suku kata. "o-mbak... po-hon..."') +
+        menulis('38–55\'','Menulis O, P di buku latihan','Anak tulis O P kapital dan kecil. Perhatikan O: lingkaran penuh, tidak terbuka.') +
+        TUTUP +
+        obs('Apakah O ditulis lingkaran penuh anti-jarum jam?','Apakah bisa membaca kata "pohon" dan "pagi"?','Apakah bisa menyebutkan fenomena alam dimulai O dan P?')
+      ) +
+
+      card('b3t2','🌧️','#E6F4F1','Sesi 3–4','Hujan & Bumi — Q, R, S','Rintik · Salju · bumi · suku kata ra-ri-ru · kata rasa/hari',
+        slbl('Sesi 3') +
+        BUKA +
+        motor('5–20\'','Sandpaper Q, R, S — cuaca & alam','Q=Quran (langit sebagai anugerah), R=Rintik hujan, S=Sungai. Anak menelusuri dan sebut kata.') +
+        fonik('20–35\'','Suku kata ra, ri, ru + kata hujan','Guru tulis: ri-ntik, hu-jan, su-ngai. Anak baca bersama. "Kalau hujan, apa yang kita dengar?"') +
+        fonik('35–50\'','Diskusi cuaca hari ini','Guru tanya: "Hari ini cuacanya apa? Cerah, mendung, atau hujan?" Anak cerita pengalaman hujan.') +
+        output('50–57\'','Gambar cuaca hariku','Anak menggambar cuaca hari ini — matahari, awan, atau hujan. Tulis 1 kata di bawahnya.') +
+        TUTUP2 +
+        divider +
+        slbl('Sesi 4') +
+        BUKA +
+        menulis('5–22\'','Menulis Q, R, S di buku latihan','Fokus S yang sering terbalik. Guru gunakan panduan warna: mulai dari atas, lengkung kiri, lengkung kanan.') +
+        kata('22–40\'','Kalimat cuaca: "Hari ini hujan"','Guru tulis di papan. Anak baca bersama. Diskusi: "Kalau hujan, kita pakai apa?"') +
+        motor('40–55\'','Eksperimen awan — baking soda & air','Simulasi sederhana: tetes air ke kapas (awan), anak observasi tetesan. Guru jelaskan siklus hujan simpel.') +
+        TUTUP +
+        obs('Apakah S tidak terbalik saat menulis?','Apakah bisa membaca kalimat "Hari ini hujan"?','Apakah antusias saat eksperimen awan?')
+      ) +
+
+      card('b3t3','🌳','#E6F4F1','Sesi 5–6','Pohon & Tanah — T + Review O–T','Tanah · Tumbuhan · review alam · moveable alphabet',
+        slbl('Sesi 5') +
+        BUKA +
+        motor('5–18\'','Sandpaper T — Tanah!','T=Tanah, Tumbuhan, Tetes hujan. Tracing T di pasir: "dua garis, yang atas mendatar!"') +
+        fonik('18–35\'','Suku kata ta, ti, tu, te, to + kata tumbuh','Guru tulis: ta-nah, tu-mbuh, te-tes. Anak baca. "Apa yang tumbuh dari tanah?"') +
+        kata('35–52\'','Membaca kalimat 2 kata alam','Kartu kalimat: "Pohon tinggi." "Hujan deras." "Langit biru." Anak baca bergantian.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 6') +
+        BUKA +
+        review('5–20\'','Alfabet parade O–T + alam','Guru sebut fenomena alam, anak angkat kartu huruf awalnya. "Ombak! — O!" "Tanah! — T!"') +
+        motor('20–38\'','Moveable Alphabet: susun kata alam','Anak susun huruf: T-A-N-A-H, P-O-H-O-N. Siapa lebih dulu selesai?') +
+        output('38–55\'','Buku Alamku O–T','Mini booklet: tiap huruf O–T diwakili gambar alam. Anak gambar + tulis nama + warnai.') +
+        TUTUP +
+        obs('Apakah bisa menyebut kata alam untuk O–T?','Apakah bisa menyusun kata "pohon" dan "tanah" dengan moveable alphabet?','Apakah kalimat 2 kata sudah dibaca lancar?')
+      ) +
+
+      card('b3t4','➕','#E6F4F1','Sesi 7–8','Hitung di Alam — Penjumlahan 1–10','soal cerita alam · lembar kerja · permainan hitung',
+        BUKA +
+        hitung('5–20\'','Soal cerita alam: hitung tetes hujan','Guru cerita: "Ada 4 tetes hujan di daun, lalu turun 3 tetes lagi. Berapa sekarang?" Anak pakai manik.') +
+        hitung('20–38\'','Lembar kerja bergambar alam','Soal bergambar: hitung pohon di kiri + pohon di kanan. Tulis hasilnya. 10 soal.') +
+        motor('38–52\'','Permainan dadu alam','Dadu 2 buah, tiap muka bergambar benda alam. Anak lempar, hitung jumlah gambar yang sama.') +
+        output('52–57\'','Rekap stiker bintang alam','Guru berikan stiker bergambar matahari/hujan/pohon untuk tiap jawaban benar.') +
+        TUTUP2 +
+        obs('Apakah bisa mengerjakan soal penjumlahan bertema alam?','Apakah memahami soal cerita dalam konteks alam?','Apakah antusias dengan permainan dadu?')
+      )
+    ),
+
+    // ── BULAN 4: KENDARAAN & PERJALANAN (Huruf U–Z) ─────
+    month('Bulan 4','#FFF0E6','#7A3500','Kendaraan & Perjalanan','huruf U–Z · kendaraan · alfabet lengkap · angka 11–15',
+
+      card('b4t1','🚗','#FFF0E6','Sesi 1–2','Kendaraan Darat — U, V, W','Unta · Vespa · Wagon · wa-wi-wu · kata uang/warna',
+        slbl('Sesi 1') +
+        BUKA +
+        motor('5–18\'','Sandpaper U, V, W — kendaraan','U=Unta (kendaraan padang pasir!), V=Vespa, W=Wagon. Anak menelusuri dan sebut nama.') +
+        fonik('18–35\'','Suku kata wa, wi, wu, we, wo','Guru tulis di papan. Baca bersama. "wa-gon! wi-sata! wu-sh!" Anak buat suara kendaraan.') +
+        fonik('35–50\'','Diskusi: naik kendaraan apa ke sekolah?','Anak bergantian cerita: "Aku ke sekolah naik motor." Guru tulis kata kendaraan di papan.') +
+        output('50–57\'','Gambar kendaraan favoritku','Anak menggambar kendaraan favorit dan menulis nama kendaraannya dengan bantuan guru.') +
+        TUTUP2 +
+        divider +
+        slbl('Sesi 2') +
+        BUKA +
+        menulis('5–22\'','Menulis U, V, W di buku latihan','Fokus perbedaan U dan V. Guru tunjukkan: "U melengkung di bawah, V runcing!"') +
+        kata('22–40\'','Kata kendaraan darat: mobil, motor, bus','Kartu kata + gambar kendaraan. Anak baca dan cocokkan.') +
+        motor('40–55\'','Bermain "lalu lintas"','Anak berjalan mengikuti jalur di lantai: lurus = mobil, belok = motor, berhenti di lampu merah!') +
+        TUTUP +
+        obs('Apakah bisa membedakan U dan V saat menulis?','Apakah bisa membaca kata "mobil" dan "motor"?','Apakah antusias bermain lalu lintas?')
+      ) +
+
+      card('b4t2','✈️','#FFF0E6','Sesi 3–4','Kendaraan Udara & Laut — X, Y, Z','Yacht · Zeppelin · review perjalanan · alfabet A–Z lengkap',
+        slbl('Sesi 3') +
+        BUKA +
+        motor('5–18\'','Sandpaper X, Y, Z — kendaraan langka','X=Xenon (roket!), Y=Yacht (kapal layar), Z=Zeppelin (balon udara). Guru ceritakan tiap kendaraan.') +
+        fonik('18–35\'','Suku kata ya, yu, yo, za, zi','Guru tulis: ya-cht, za-man, zi-g-zag. Anak baca. Variasi: tirukan gerakan kendaraan saat membaca!') +
+        fonik('35–52\'','Kendaraan udara & laut: pesawat, kapal, perahu','Guru tunjuk gambar. "Pesawat terbang di mana? Kapal berlayar di mana?" Anak jawab.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 4') +
+        BUKA +
+        review('5–22\'','Alfabet lagu A–Z lengkap!','Nyanyikan lagu alfabet A–Z sambil tunjuk kartu. Kali ini anak memimpin! Tempo cepat dan lambat bergantian.') +
+        motor('22–42\'','Moveable Alphabet A–Z mandiri','Anak menyusun seluruh 26 huruf. Tantangan: siapa paling cepat dan urut?') +
+        output('42–55\'','Buku perjalananku A–Z','Anak buat 3 halaman: kendaraan darat, udara, laut. Tiap halaman: gambar + nama kendaraan + huruf awal.') +
+        TUTUP +
+        obs('Apakah bisa menyusun alfabet A–Z tanpa bantuan?','Apakah menulis semua 26 huruf dengan bentuk benar?','Huruf mana yang masih sering terbalik atau salah?')
+      ) +
+
+      card('b4t3','🗺️','#FFF0E6','Sesi 5–6','Pergi ke Mana? — Membaca Kata Kendaraan','kartu kata · kalimat perjalanan · matching',
+        slbl('Sesi 5') +
+        BUKA +
+        kata('5–22\'','Bank kata 15 kata kendaraan & tempat','Kartu kata: pesawat, kapal, mobil, sekolah, pasar, rumah sakit, bandara. Anak baca satu per satu.') +
+        kata('22–40\'','Matching: kendaraan + tujuan perjalanan','Kartu kendaraan di kiri, kartu tempat di kanan. "Naik pesawat ke... bandara!" Anak hubungkan dengan garis.') +
+        menulis('40–55\'','Dikte 5 kata kendaraan','Guru ucapkan 5 kata. Anak tulis di buku. Koreksi bersama sambil sebut huruf tiap kata.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 6') +
+        BUKA +
+        kata('5–25\'','Kalimat perjalanan: "Aku naik mobil ke sekolah"','Guru tulis kalimat panjang di papan. Anak baca bersama. Tunjuk setiap kata. Bahas arti.') +
+        hitung('25–42\'','Angka 11–15 — hitung penumpang','Guru cerita: "Bus punya 11 kursi." Anak hitung gambar kursi di papan. Perkenalkan 11–15 lewat konteks.') +
+        output('42–55\'','Kartu kalimat perjalananku','Anak memilih kendaraan favorit, menulis kalimat: "Aku naik ___ ke ___." Gambar ilustrasi.') +
+        TUTUP +
+        obs('Apakah bisa membaca kalimat 4–5 kata?','Apakah memahami angka 11–15 dalam konteks nyata?','Apakah bisa menulis kalimat sendiri dengan kosakata kendaraan?')
+      ) +
+
+      card('b4t4','🔢','#FFF0E6','Sesi 7–8','Angka 11–15 + Penjumlahan Kendaraan','angka belasan · soal cerita · lembar kerja',
+        BUKA +
+        hitung('5–20\'','Kartu angka 11–15 + benda kendaraan','Guru tempel kartu angka. Anak menghitung benda konkret (mainan kendaraan kecil) sebanyak angka tersebut.') +
+        hitung('20–38\'','Urutan angka 1–15 — jadwal keberangkatan','Kartu angka 1–15. Guru cerita: "Kereta berangkat jam 1 sampai jam 15. Urutkan jadwalnya!"') +
+        hitung('38–55\'','Soal cerita kendaraan: penjumlahan','Guru cerita: "Ada 7 mobil di parkiran, datang 5 lagi. Berapa sekarang?" Anak gunakan kartu angka.') +
+        TUTUP +
+        obs('Apakah bisa menghitung sampai 15 tanpa meloncat angka?','Apakah memahami angka 11–15 melebihi 10?','Apakah soal cerita kendaraan membuat berhitung lebih mudah dipahami?')
+      )
+    ),
+
+
+    // ── BULAN 5: MEMBACA KALIMAT ────────────────────────
+    month('Bulan 5','#FFF3CD','#7A5000','Membaca Kalimat','kalimat sederhana · buku pertama · angka 16–20',
+
+      card('b5t1','📖','#FFF3CD','Sesi 1–2','Buku Bacaan Pertama','baca buku bergambar · kalimat 3 kata · intonasi',
+        slbl('Sesi 1') +
+        BUKA +
+        kata('5–25\'','Baca buku bergambar Level 1','Guru dan anak membaca buku bergambar sederhana bersama. Guru tunjuk setiap kata saat dibaca.') +
+        fonik('25–40\'','Identifikasi huruf dalam kalimat','Guru tulis kalimat di papan. Anak maju dan lingkari huruf yang disebutkan guru.') +
+        menulis('40–55\'','Salin kalimat dari buku','Anak menyalin 1 kalimat dari buku ke buku latihan mereka.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 2') +
+        BUKA +
+        kata('5–25\'','Baca mandiri dengan jari','Anak membaca kalimat sambil menunjuk setiap kata dengan jari. Guru observasi tanpa interupsi.') +
+        kata('25–42\'','Tanya-jawab isi bacaan','Guru tanya: "Siapa yang ada di cerita? Apa yang dia lakukan?" Latihan pemahaman bacaan.') +
+        output('42–55\'','Gambar adegan favorit dari cerita','Anak menggambar adegan yang mereka sukai dari buku. Tulis 1 kalimat deskripsi.') +
+        TUTUP +
+        obs('Apakah bisa membaca kalimat 3 kata dengan intonasi yang benar?','Apakah bisa menjawab pertanyaan sederhana tentang isi cerita?','Apakah jari menunjuk tepat setiap kata?')
+      ) +
+
+      card('b5t2','✍️','#FFF3CD','Sesi 3–4','Menulis Kalimat Sendiri','kalimat dari gambar · kata tanya · spasi antar kata',
+        slbl('Sesi 3') +
+        BUKA +
+        kata('5–20\'','Dari gambar jadi kalimat','Guru tunjuk gambar: "Apa yang ada di gambar ini?" Anak jawab, guru tulis di papan.') +
+        menulis('20–40\'','Anak menulis kalimat dari gambar','Setiap anak dapat 1 gambar. Bimbing menulis 1 kalimat deskripsi. Fokus: spasi antar kata.') +
+        review('40–55\'','Baca kalimat buatan teman','Anak membacakan kalimat buatan mereka ke teman. Teman menebak gambar yang dimaksud.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 4') +
+        BUKA +
+        fonik('5–20\'','Kata tanya: apa, di mana, siapa','Guru perkenalkan kata tanya. "Apa ini? Di mana bola? Siapa itu?" Anak menjawab.') +
+        menulis('20–40\'','Menulis 2 kalimat dari gambar','Anak menulis 2 kalimat tentang gambar yang mereka pilih sendiri.') +
+        kata('40–55\'','Mini show & tell kalimat','Anak maju, tunjuk gambar, baca kalimatnya. Teman memberi tepuk tangan.') +
+        TUTUP +
+        obs('Apakah bisa menulis kalimat dengan spasi yang benar?','Apakah bisa membuat kalimat sendiri dari gambar?','Apakah percaya diri membaca di depan teman?')
+      ) +
+
+      card('b5t3','🔢','#FFF3CD','Sesi 5–6','Angka 16–20','pengenalan 16–20 · menghitung lanjut · penjumlahan',
+        slbl('Sesi 5') +
+        BUKA +
+        hitung('5–20\'','Pengenalan 16, 17, 18 dengan manik','Guru tunjukkan baris manik. "Sepuluh dan enam lagi = enam belas." Anak ikut menghitung.') +
+        hitung('20–38\'','Menebalkan & menulis 16, 17, 18','Lembar latihan angka. Anak menebalkan lalu menulis mandiri.') +
+        motor('38–55\'','Lompat hitung 1–18','Kotak angka di lantai 1–18. Anak melompat sambil menyebutkan angka.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 6') +
+        BUKA +
+        hitung('5–20\'','Pengenalan 19 & 20','Lengkapi urutan. "Satu lagi dari 19 adalah..." Anak tebak. Konfirmasi dengan manik.') +
+        hitung('20–38\'','Urutan angka 1–20 mandiri','Anak menyusun kartu angka 1–20. Variasi: guru cabut 3 kartu, anak tebak yang hilang.') +
+        hitung('38–55\'','Penjumlahan sampai 15','Soal cerita bergambar. "Ada 8 pensil + 6 pensil = ?" Anak gunakan manik atau jari.') +
+        TUTUP +
+        obs('Apakah bisa menghitung dan menulis 1–20?','Apakah memahami pola bilangan belasan?','Apakah bisa menjumlahkan dua angka dengan hasil ≤15?')
+      ) +
+
+      card('b5t4','🌟','#FFF3CD','Sesi 7–8','Proyek Mini — Buku Ceritaku','membuat buku kecil · ilustrasi · presentasi',
+        BUKA +
+        kata('5–15\'','Brainstorm cerita','Guru tanya: "Cerita tentang apa yang mau kamu buat?" Anak bebas pilih topik: keluarga, binatang, makanan.') +
+        menulis('15–35\'','Menulis halaman 1 & 2 buku cerita','Buku kecil 4 halaman (lipatan kertas). Anak menulis 1 kalimat + gambar tiap halaman. Halaman 1 & 2 dulu.') +
+        motor('35–52\'','Ilustrasi halaman buku','Anak mewarnai gambar di buku cerita mereka dengan pensil warna.') +
+        TUTUP +
+        obs('Apakah bisa menulis kalimat sendiri tanpa dieja oleh guru?','Apakah ilustrasi sesuai dengan kalimat yang ditulis?','Apakah semangat dalam proyek buku cerita?')
+      )
+    ),
+
+    // ── BULAN 6: AKU BISA! ──────────────────────────────
+    month('Bulan 6','#FBEAF0','#993556','Aku Bisa! (Level 2)','review · konsolidasi · pameran karya · graduation L2',
+
+      card('b6t1','📝','#FBEAF0','Sesi 1–2','Review Alfabet A–Z','review menyeluruh · dikte · permainan alfabet',
+        slbl('Sesi 1') +
+        BUKA +
+        review('5–25\'','Alfabet challenge A–Z','Guru menyebut bunyi fonik, anak tulis hurufnya di papan kecil. Dilakukan untuk semua 26 huruf.') +
+        fonik('25–45\'','Tebak huruf dari bunyi','Guru ucapkan bunyi fonik tanpa menunjuk huruf. Anak tulis hurufnya. Cek bersama.') +
+        output('45–57\'','Bintang alfabet — stiker pencapaian','Anak yang bisa menulis semua huruf tanpa bantuan mendapat stiker khusus.') +
+        TUTUP2 +
+        divider +
+        slbl('Sesi 2') +
+        BUKA +
+        review('5–20\'','Dikte 10 kata campuran','Guru ucapkan 10 kata yang mencakup semua huruf. Anak menulis di buku.') +
+        kata('20–42\'','Baca kartu kata 30 kata','Kartu kata 30 buah. Anak membaca satu per satu. Hitung berapa yang terbaca tanpa bantuan.') +
+        output('42–55\'','Rekap catatan guru — progress membaca','Guru catat kata mana yang masih butuh latihan untuk tiap anak.') +
+        TUTUP +
+        obs('Berapa kata yang bisa dibaca mandiri dari 30 kartu?','Apakah semua 26 huruf bisa ditulis dari dikte bunyi?','Huruf mana yang masih paling sering salah?')
+      ) +
+
+      card('b6t2','📖','#FBEAF0','Sesi 3–4','Review Membaca Kalimat','baca kalimat · cerita pendek · tanya-jawab',
+        slbl('Sesi 3') +
+        BUKA +
+        kata('5–25\'','Membaca cerita pendek 5 kalimat','Guru siapkan cerita pendek 5 kalimat dengan gambar. Anak membaca bergantian.') +
+        kata('25–42\'','Tanya-jawab pemahaman','Pertanyaan: "Apa yang terjadi di cerita? Siapa tokohnya? Di mana tempatnya?" Anak jawab lisan.') +
+        menulis('42–55\'','Tulis jawaban pertanyaan','Anak menulis jawaban 1 pertanyaan dari guru di buku latihan.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 4') +
+        BUKA +
+        kata('5–30\'','Selesaikan buku ceritaku (dari bulan 5)','Anak menyelesaikan halaman 3 & 4 buku cerita mini yang dimulai bulan lalu.') +
+        kata('30–48\'','Latihan membaca nyaring','Anak membaca buku ceritanya sendiri dengan suara keras dan jelas. Guru koreksi intonasi.') +
+        output('48–57\'','Sampul buku ceritaku','Anak membuat sampul buku cerita: judul + gambar + nama pengarang (nama sendiri).') +
+        TUTUP +
+        obs('Apakah bisa membaca 5 kalimat berturut-turut?','Apakah intonasi membaca sudah natural?','Apakah buku cerita selesai dengan rapi?')
+      ) +
+
+      card('b6t3','🔢','#FBEAF0','Sesi 5–6','Review Berhitung 1–20','penjumlahan konsolidasi · permainan angka · soal cerita',
+        slbl('Sesi 5') +
+        BUKA +
+        hitung('5–22\'','Urutan angka 1–20 kilat','Kartu angka dikocok, anak mengurutkan dengan cepat. Hitung waktu. Mau coba lebih cepat?') +
+        hitung('22–40\'','Penjumlahan 1–10 review kilat','Kartu soal penjumlahan 20 buah. Anak menjawab satu per satu. Cek dengan manik jika ragu.') +
+        motor('40–55\'','Bowling angka','Botol diberi angka 1–10. Anak lempar bola, jumlahkan angka botol yang jatuh.') +
+        TUTUP +
+        divider +
+        slbl('Sesi 6') +
+        BUKA +
+        hitung('5–22\'','Soal cerita campuran penjumlahan','3 soal cerita: "Ibu punya 7 mangga, beli 5 lagi. Jadi berapa?" Anak kerjakan dengan manik.') +
+        hitung('22–40\'','Lembar kerja penjumlahan mandiri','10 soal penjumlahan tanpa bantuan benda konkret. Boleh pakai jari. Koreksi bersama.') +
+        output('40–55\'','Buku angkaku 1–20 edisi final','Anak melengkapi buku angka: tulis 1–20, gambar benda, dan tulis 2 soal penjumlahan buatan sendiri.') +
+        TUTUP +
+        obs('Apakah bisa mengerjakan 10 soal penjumlahan mandiri?','Apakah memahami soal cerita dan tahu operasi yang harus dilakukan?','Apakah sudah tidak perlu benda konkret untuk penjumlahan ≤10?')
+      ) +
+
+      card('b6t4','🎉','#FBEAF0','Sesi 7–8','Pameran Karya & Graduation L2','presentasi buku cerita · badge achievement · graduation',
+        rutin('0–15\'','Setup pameran karya','Anak menata karya-karya terbaik mereka: buku cerita, buku alfabet, buku angka, karya seni. Latihan tanggung jawab.') +
+        kata('15–38\'','Presentasi buku ceritaku','Satu per satu, anak membacakan buku cerita buatan mereka kepada teman-teman. Audiens memberi tepuk tangan.') +
+        output('38–52\'','Pemberian badge & sertifikat Level 2','Guru menyerahkan badge pencapaian Level 2 satu per satu: Task Master, Math Whiz, Reading Explorer, Alphabet Builder, dll.') +
+        review('52–58\'','Doa & perpisahan Level 2','Doa bersama. "Kamu sudah menyelesaikan Level 2! Siap ke Level 3 — Thinker!" Salam dan foto bersama.') +
+        `<div class="milestone-box">
+          <div class="milestone-title">Milestone Level 2 — Checklist Akhir</div>
+          <div class="milestone-item">Mengenal dan menulis semua huruf a–z kapital dan kecil</div>
+          <div class="milestone-item">Membaca suku kata terbuka (ba, bi, bu, dll)</div>
+          <div class="milestone-item">Membaca kata 2 suku kata secara mandiri</div>
+          <div class="milestone-item">Membaca kalimat sederhana 3 kata</div>
+          <div class="milestone-item">Menulis kalimat sederhana dengan spasi yang benar</div>
+          <div class="milestone-item">Mengenal dan menulis angka 1–20</div>
+          <div class="milestone-item">Menjumlahkan angka 1–10 dengan benda konkret</div>
+          <div class="milestone-item">Memahami konsep "tambah" dalam soal cerita sederhana</div>
+          <div class="milestone-item">Menyelesaikan proyek buku cerita mandiri</div>
+          <div class="milestone-item">Merapikan alat secara mandiri setelah sesi</div>
+        </div>`
+      )
+    ),
+  ];
+
+  // ── INFO TAB ─────────────────────────────────────────
+  const INFO_HTML = `
+    <div class="sec">
+      <div class="sec-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        Detail Program
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+        <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Program</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">Calistung Preschool</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Level</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">Level 2 — Builder</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Durasi</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">6 Bulan · 48 Sesi</div>
+        </div>
+        <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+          <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Sesi per Minggu</div>
+          <div style="font-size:13px;font-weight:600;color:var(--text);">2x · 60 menit</div>
+        </div>
+      </div>
+      <div style="background:var(--accent-dim);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Pendekatan Pembelajaran</div>
+        <div style="display:flex;flex-wrap:wrap;gap:6px;">
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Montessori</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Letterland</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">SEL</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Hoikuen/Yōchien</span>
+          <span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">Nilai Islami</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        Peta Bulan Level 2
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#EEEDFE;border-radius:var(--r);border-left:3px solid #7F77DD;">
+          <div style="font-size:18px;">🔤</div>
+          <div><div style="font-size:11px;font-weight:700;color:#534AB7;">Bulan 1 — Dunia Binatang (A–G)</div><div style="font-size:12px;color:var(--text2);">Hewan A–G, suara & gerak binatang, sandpaper, angka 6–10</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#E8F4FD;border-radius:var(--r);border-left:3px solid #1B6CA8;">
+          <div style="font-size:18px;">🏠</div>
+          <div><div style="font-size:11px;font-weight:700;color:#0D4A8A;">Bulan 2 — Makanan & Minumanku (H–N)</div><div style="font-size:12px;color:var(--text2);">Makanan pokok, sayur & buah, warung, kalimat "Aku makan nasi", penjumlahan 1–5</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FEF0E6;border-radius:var(--r);border-left:3px solid #E8640A;">
+          <div style="font-size:18px;">📖</div>
+          <div><div style="font-size:11px;font-weight:700;color:#7A3000;">Bulan 3 — Huruf O–T</div><div style="font-size:12px;color:var(--text2);">Kalimat 2 kata, soal cerita, penjumlahan 1–10</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#F0E6FF;border-radius:var(--r);border-left:3px solid #7F3FBF;">
+          <div style="font-size:18px;">🦓</div>
+          <div><div style="font-size:11px;font-weight:700;color:#4A1A80;">Bulan 4 — Huruf U–Z + Review A–Z</div><div style="font-size:12px;color:var(--text2);">Alfabet lengkap, kalimat 3 kata, angka 11–15</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FFF3CD;border-radius:var(--r);border-left:3px solid #EF9F27;">
+          <div style="font-size:18px;">✍️</div>
+          <div><div style="font-size:11px;font-weight:700;color:#7A5000;">Bulan 5 — Membaca Kalimat</div><div style="font-size:12px;color:var(--text2);">Buku bacaan pertama, menulis kalimat sendiri, angka 16–20, buku cerita mini</div></div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#FBEAF0;border-radius:var(--r);border-left:3px solid #D4537E;">
+          <div style="font-size:18px;">🎉</div>
+          <div><div style="font-size:11px;font-weight:700;color:#993556;">Bulan 6 — Aku Bisa! (Level 2)</div><div style="font-size:12px;color:var(--text2);">Review menyeluruh, pameran buku cerita, graduation badge Level 2</div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec">
+      <div class="sec-title">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+        Tipe Aktivitas Level 2
+      </div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+          <span class="act-type-pill pill-fonik" style="margin:0;flex-shrink:0;">Fonik & Kosakata</span>
+          <span style="font-size:12px;color:var(--text2);">Bunyi huruf, suku kata, kosakata baru lewat gambar</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+          <span class="act-type-pill pill-menulis" style="margin:0;flex-shrink:0;">Menulis</span>
+          <span style="font-size:12px;color:var(--text2);">Tracing, sandpaper, baki pasir, menulis di buku latihan</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+          <span class="act-type-pill pill-kata" style="margin:0;flex-shrink:0;">Membaca Kata</span>
+          <span style="font-size:12px;color:var(--text2);">Kartu kata, matching kata-gambar, kalimat, buku bergambar</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+          <span class="act-type-pill pill-berhitung" style="margin:0;flex-shrink:0;">Berhitung</span>
+          <span style="font-size:12px;color:var(--text2);">Manik abacus, kartu angka, soal cerita, penjumlahan konkret</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+          <span class="act-type-pill pill-motorik" style="margin:0;flex-shrink:0;">Motorik</span>
+          <span style="font-size:12px;color:var(--text2);">Moveable alphabet, lompat angka, baki pasir, permainan fisik</span>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+          <span class="act-type-pill pill-output" style="margin:0;flex-shrink:0;">Output</span>
+          <span style="font-size:12px;color:var(--text2);">Buku cerita mini, buku alfabet, buku angka, kartu kata</span>
+        </div>
+      </div>
+    </div>`;
+
+  // ── MAP HTML ─────────────────────────────────────────
+  const MAP_HTML = `
+    <div class="month-selector">
+      <button class="mth-btn active" onclick="showMonth(0,this)">Dunia Binatang</button>
+      <button class="mth-btn" onclick="showMonth(1,this)">Makanan & Minuman</button>
+      <button class="mth-btn" onclick="showMonth(2,this)">Huruf O–T</button>
+      <button class="mth-btn" onclick="showMonth(3,this)">Huruf U–Z</button>
+      <button class="mth-btn" onclick="showMonth(4,this)">Baca Kalimat</button>
+      <button class="mth-btn" onclick="showMonth(5,this)">Aku Bisa!</button>
+    </div>
+    <div id="month-content"></div>
+  `;
+
+  // ── SWITCH TAB ───────────────────────────────────────
+  let currentTab = null;
+  function switchTab(name, btn) {
+    if (currentTab === name) return;
+    currentTab = name;
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    if (btn) btn.classList.add('active');
+    const mc = document.getElementById('main-content');
+    mc.innerHTML = name === 'map' ? MAP_HTML : INFO_HTML;
+    if (name === 'map') showMonth(0, document.querySelector('.mth-btn'));
+    const d = HDR[name] || HDR.map;
+    const title = document.getElementById('hdrTitle');
+    const sub   = document.getElementById('hdrSub');
+    const badge = document.getElementById('hdrBadge');
+    title.style.opacity = '0'; sub.style.opacity = '0';
+    setTimeout(() => {
+      title.textContent = d.title; sub.textContent = d.sub;
+      if (badge) badge.textContent = d.badge;
+      title.style.transition = 'opacity .2s'; sub.style.transition = 'opacity .2s';
+      title.style.opacity = '1'; sub.style.opacity = '1';
+    }, 180);
+  }
+
+  window.addEventListener('DOMContentLoaded', () => {
+    switchTab('map', document.querySelector('.nav-tab'));
+  });
+
+  // ── ACCORDION ────────────────────────────────────────
+  function toggle(id) {
+    const card = document.getElementById(id);
+    if (!card) return;
+    const isOpen = card.classList.contains('open');
+    document.querySelectorAll('.tema-card.open').forEach(c => c.classList.remove('open'));
+    if (!isOpen) card.classList.add('open');
+  }
+
+  // ── DARK MODE ────────────────────────────────────────
+  (function() {
+    const saved = localStorage.getItem('mb_theme');
+    if (saved === 'dark') document.documentElement.setAttribute('data-theme', 'dark');
+    updateDarkIcon();
+  })();
+
+  function toggleDark() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    if (isDark) {
+      document.documentElement.removeAttribute('data-theme');
+      localStorage.setItem('mb_theme', 'light');
+    } else {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      localStorage.setItem('mb_theme', 'dark');
+    }
+    updateDarkIcon();
+  }
+
+  function updateDarkIcon() {
+    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+    const icon = document.getElementById('darkIcon');
+    if (!icon) return;
+    icon.innerHTML = isDark
+      ? '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+      : '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';
+  }
+</script>
+</body>
+</html>
