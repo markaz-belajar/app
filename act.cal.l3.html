@@ -1,0 +1,714 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Markaz Belajar — Tema Map Calistung L3</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FDFAF4;--surface:#FFFFFF;--surface2:#F0EBE3;--border:#EDE9DF;--border2:#D8D1C7;
+  --text:#1C2B3A;--text2:#4A6070;--text3:#8FA4B4;
+  --accent:#7C3AED;--accent-dim:rgba(124,58,237,0.10);
+  --success:#2E9E5B;--success-dim:rgba(46,158,91,0.10);
+  --warning:#F59F00;--warning-dim:rgba(245,159,0,0.12);
+  --r:10px;--rl:16px;
+  --hdr-bg:#7C3AED;--outer-bg:#7C3AED;
+}
+[data-theme="dark"]{
+  --bg:#0F1923;--surface:#1A2535;--surface2:#222F40;--border:#2A3A4E;--border2:#344A60;
+  --text:#E8EEF4;--text2:#8FA4B4;--text3:#506070;
+  --accent:#A78BFA;--accent-dim:rgba(167,139,250,0.12);
+  --success:#3BBF6E;--success-dim:rgba(59,191,110,0.12);
+  --warning:#F59F00;--warning-dim:rgba(245,159,0,0.12);
+  --hdr-bg:#3B1A7A;--outer-bg:#3B1A7A;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:#7C3AED;color:var(--text);font-size:14px;line-height:1.5;transition:background .3s,color .3s;}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
+.page-outer{max-width:1200px;margin:0 auto;min-height:100vh;background:#7C3AED;box-shadow:0 0 40px rgba(28,43,58,0.10);}
+.hdr{background:var(--hdr-bg);overflow:hidden;position:relative;transition:background .3s;}
+.hdr-topbar{position:absolute;top:0;left:0;right:0;z-index:10;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-topbar-left{display:flex;align-items:center;gap:8px;}
+.hdr-inner{position:relative;z-index:2;padding:28px 20px 46px;display:flex;flex-direction:column;align-items:center;}
+.hdr-logo-img{width:90px;margin-bottom:0;}
+.hdr-logo-fallback{display:none;width:80px;height:80px;background:rgba(255,255,255,0.15);border-radius:20px;align-items:center;justify-content:center;}
+.hdr-greeting{margin:0 14px;margin-top:-24px;position:relative;z-index:10;}
+.hdr-greeting-card{background:#fff;border-radius:20px;box-shadow:0 4px 24px rgba(28,43,58,0.12);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-greeting-card h2{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:#1C2B3A;line-height:1.2;}
+.hdr-greeting-card p{font-size:12px;color:#8FA4B4;margin-top:2px;}
+.hdr-greeting-badge{background:#F3EEFF;color:#7C3AED;font-size:11px;font-weight:600;padding:5px 12px;border-radius:50px;white-space:nowrap;}
+.sticky-nav{position:relative;}
+.nav-tabs{padding:12px 14px 12px;background:var(--hdr-bg);transition:background .3s;}
+.tab-bar-pill{background:rgba(255,255,255,0.18);border-radius:50px;padding:4px;display:flex;gap:2px;border:1.5px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px);}
+.nav-tab{flex:1;padding:9px 0;border:none;background:transparent;border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.65);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,0.1);}
+.nav-tab.active{background:#fff;color:#7C3AED;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 40px;background:transparent;}
+.month-selector{display:flex;flex-wrap:wrap;gap:8px;padding:14px 14px 10px;background:transparent;border-bottom:1px solid rgba(255,255,255,0.3);margin-bottom:14px;}
+.mth-btn{padding:7px 14px;border-radius:50px;border:1.5px solid rgba(255,255,255,0.4);background:rgba(255,255,255,0.15);color:#ffffff;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;transition:all .18s;white-space:nowrap;}
+.mth-btn:hover{background:rgba(255,255,255,0.25);border-color:rgba(255,255,255,0.7);}
+.mth-btn.active{background:#ffffff;color:#7C3AED;border-color:#ffffff;}
+.sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:background .3s,border-color .3s;}
+.sec-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:7px;margin-bottom:14px;}
+.sec-title svg{width:13px;height:13px;flex-shrink:0;}
+.month-section{margin-bottom:6px;}
+.month-hdr{display:flex;align-items:center;gap:10px;margin-bottom:8px;margin-top:16px;padding:0 2px;}
+.month-badge{font-size:10px;font-weight:700;padding:3px 10px;border-radius:20px;letter-spacing:0.3px;flex-shrink:0;background:rgba(255,255,255,0.2)!important;color:#ffffff!important;}
+.month-name{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:700;color:#ffffff;}
+.month-focus{font-size:11px;color:rgba(255,255,255,0.65);padding:0 2px;margin-bottom:6px;}
+.tema-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);margin-bottom:8px;overflow:hidden;transition:box-shadow .2s,border-color .2s;}
+.tema-card.open{box-shadow:0 4px 20px rgba(0,0,0,0.10);}
+.tema-btn{width:100%;background:none;border:none;padding:13px 15px;cursor:pointer;display:flex;align-items:center;gap:12px;text-align:left;}
+.tema-emoji{font-size:20px;flex-shrink:0;width:38px;height:38px;display:flex;align-items:center;justify-content:center;border-radius:10px;}
+.tema-info{flex:1;min-width:0;}
+.tema-sesi{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:2px;}
+.tema-nama{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.tema-kosa{font-size:11px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tema-chevron{font-size:18px;color:var(--text3);flex-shrink:0;transition:transform .25s;}
+.tema-card.open .tema-chevron{transform:rotate(180deg);}
+.tema-body{display:none;padding:0 14px 14px;border-top:1.5px solid var(--border);}
+.tema-card.open .tema-body{display:block;}
+.sesi-lbl{font-size:9px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:1px;margin:14px 0 8px;padding:4px 8px;background:var(--surface2);border-radius:6px;display:inline-block;}
+.act-list{margin-top:8px;}
+.act-item{display:flex;gap:10px;margin-bottom:9px;align-items:flex-start;width:100%;}
+.act-time{font-size:10px;font-weight:700;color:var(--text3);min-width:32px;max-width:32px;padding-top:3px;flex-shrink:0;font-family:'Geist Mono',monospace;}
+.act-content{flex:1;min-width:0;overflow:hidden;}
+.act-type-pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 7px;border-radius:20px;margin-bottom:3px;letter-spacing:.3px;text-transform:uppercase;max-width:100%;}
+.act-name{word-wrap:break-word;}
+.act-desc{word-wrap:break-word;overflow-wrap:break-word;}
+.pill-motorik{background:#E1F5EE;color:#0F6E56;}
+.pill-fonik{background:#EEEDFE;color:#534AB7;}
+.pill-output{background:#FAEEDA;color:#854F0B;}
+.pill-rutin{background:var(--surface2);color:var(--text2);}
+.pill-review{background:#E6F1FB;color:#185FA5;}
+.pill-menulis{background:#FEF0E6;color:#7A3000;}
+.pill-berhitung{background:#F3EEFF;color:#5B21B6;}
+.pill-kata{background:#E6F4EC;color:#1A4D30;}
+.pill-baca{background:#FFF3CD;color:#7A5000;}
+.pill-kelompok{background:#FBEAF0;color:#993556;}
+.act-name{font-size:13px;font-weight:600;color:var(--text);margin-bottom:2px;line-height:1.3;}
+.act-desc{font-size:12px;color:var(--text2);line-height:1.55;}
+.act-divider{height:1px;background:var(--border);margin:12px 0;}
+.obs-box{background:var(--accent-dim);border-radius:var(--r);padding:10px 12px;margin-top:12px;border:1px solid var(--border);}
+.obs-title{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);margin-bottom:6px;}
+.obs-item{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:3px;padding-left:12px;position:relative;}
+.obs-item::before{content:'·';position:absolute;left:3px;color:var(--accent);font-size:16px;line-height:1;top:1px;}
+.milestone-box{background:var(--surface2);border-radius:var(--r);padding:12px 14px;margin-top:12px;border:1px solid var(--border);}
+.milestone-title{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.8px;color:var(--text3);margin-bottom:8px;}
+.milestone-item{font-size:11px;color:var(--text2);line-height:1.55;margin-bottom:3px;padding-left:18px;position:relative;}
+.milestone-item::before{content:'✓';position:absolute;left:2px;color:var(--success);font-size:11px;font-weight:700;}
+.icon-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;}
+[data-theme="dark"] .hdr-greeting-card{background:var(--surface);box-shadow:0 4px 24px rgba(0,0,0,0.4);}
+[data-theme="dark"] .hdr-greeting-card h2{color:var(--text);}
+[data-theme="dark"] .hdr-greeting-card p{color:var(--text3);}
+[data-theme="dark"] .hdr-greeting-badge{background:var(--accent-dim);color:var(--accent);}
+[data-theme="dark"] .nav-tab.active{background:rgba(255,255,255,0.15);color:#fff;}
+[data-theme="dark"] .pill-motorik{background:rgba(29,158,117,0.2);}
+[data-theme="dark"] .pill-fonik{background:rgba(127,119,221,0.2);}
+[data-theme="dark"] .pill-menulis{background:rgba(232,100,10,0.15);}
+[data-theme="dark"] .pill-berhitung{background:rgba(124,58,237,0.15);}
+[data-theme="dark"] .pill-kata{background:rgba(46,125,79,0.15);}
+[data-theme="dark"] .pill-baca{background:rgba(245,159,0,0.15);}
+[data-theme="dark"] .pill-kelompok{background:rgba(212,83,126,0.15);}
+@media(max-width:480px){.nav-tab{font-size:12px;}.tema-nama{font-size:13px;}}
+</style>
+</head>
+<body>
+<div class="page-outer">
+  <div class="sticky-nav">
+    <header class="hdr">
+      <div class="hdr-topbar">
+        <div class="hdr-topbar-left"></div>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <button class="icon-btn" onclick="toggleDark()" title="Dark/Light">
+            <svg id="darkIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </button>
+        </div>
+      </div>
+      <div class="hdr-inner">
+        <img class="hdr-logo-img" src="Open_MB_Icon.png" alt="Markaz Belajar"
+          onerror="this.style.display='none';document.getElementById('logo-fb').style.display='flex';">
+        <div id="logo-fb" class="hdr-logo-fallback">
+          <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" width="36" height="36"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+        </div>
+      </div>
+    </header>
+    <div class="hdr-greeting">
+      <div class="hdr-greeting-card">
+        <div>
+          <h2 id="hdrTitle">Tema Map</h2>
+          <p id="hdrSub">Calistung Preschool · Level 3</p>
+        </div>
+        <div class="hdr-greeting-badge" id="hdrBadge">● 6 Bulan</div>
+      </div>
+    </div>
+    <div class="nav-tabs">
+      <div class="tab-bar-pill">
+        <button class="nav-tab active" onclick="switchTab('map',this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3h7v7H3z"/><path d="M14 3h7v7h-7z"/><path d="M14 14h7v7h-7z"/><path d="M3 14h7v7H3z"/></svg>
+          Tema Map
+        </button>
+        <button class="nav-tab" onclick="switchTab('info',this)">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          Info Program
+        </button>
+      </div>
+    </div>
+  </div>
+  <div class="wrap"><div id="main-content"></div></div>
+</div>
+
+<script>
+const HDR={
+  map:{title:'Tema Map',sub:'Calistung Preschool · Level 3',badge:'● 6 Bulan'},
+  info:{title:'Info Program',sub:'Calistung Preschool · Level 3',badge:'● Detail'},
+};
+
+const a=(time,type,cls,name,desc)=>
+  `<div class="act-item"><div class="act-time">${time}</div><div class="act-content"><span class="act-type-pill ${cls}">${type}</span><div class="act-name">${name}</div><div class="act-desc">${desc}</div></div></div>`;
+
+const rutin   =(t,n,d)=>a(t,'Rutinitas','pill-rutin',n,d);
+const motor   =(t,n,d)=>a(t,'Motorik','pill-motorik',n,d);
+const fonik   =(t,n,d)=>a(t,'Fonik & Kosakata','pill-fonik',n,d);
+const output  =(t,n,d)=>a(t,'Output','pill-output',n,d);
+const review  =(t,n,d)=>a(t,'Review','pill-review',n,d);
+const menulis =(t,n,d)=>a(t,'Menulis','pill-menulis',n,d);
+const hitung  =(t,n,d)=>a(t,'Berhitung','pill-berhitung',n,d);
+const kata    =(t,n,d)=>a(t,'Membaca Kata','pill-kata',n,d);
+const baca    =(t,n,d)=>a(t,'Membaca Cerita','pill-baca',n,d);
+const kelompok=(t,n,d)=>a(t,'Kerja Kelompok','pill-kelompok',n,d);
+
+const BUKA  = rutin('0–5\'','Pembukaan & Doa','Salam, simpan tas, duduk melingkar. Doa belajar. Guru recall sesi sebelumnya dengan pertanyaan singkat.');
+const TUTUP = rutin('55–60\'','Doa Penutup & Beres-beres','Beresin alat, rapikan meja, doa penutup, salam pulang.');
+const TUTUP2= rutin('58–60\'','Doa Penutup & Beres-beres','Beresin alat, rapikan meja, doa penutup, salam pulang.');
+const obs=(...items)=>`<div class="obs-box"><div class="obs-title">Catatan Observasi Guru</div>${items.map(i=>`<div class="obs-item">${i}</div>`).join('')}</div>`;
+const divider='<div class="act-divider"></div>';
+const slbl=t=>`<div class="sesi-lbl">${t}</div>`;
+
+function card(id,emoji,ebg,sesi,nama,kosa,body){
+  return `<div class="tema-card" id="${id}">
+    <button class="tema-btn" onclick="toggle('${id}')">
+      <div class="tema-emoji" style="background:${ebg}">${emoji}</div>
+      <div class="tema-info">
+        <div class="tema-sesi">${sesi}</div>
+        <div class="tema-nama">${nama}</div>
+        <div class="tema-kosa">${kosa}</div>
+      </div>
+      <div class="tema-chevron">▾</div>
+    </button>
+    <div class="tema-body">${body}</div>
+  </div>`;}
+
+function month(badge,bgColor,txtColor,name,focus,cards){
+  return `<div class="month-section">
+    <div class="month-hdr">
+      <span class="month-badge" style="background:${bgColor};color:${txtColor};">${badge}</span>
+      <span class="month-name">${name}</span>
+    </div>
+    <div class="month-focus">${focus}</div>
+    ${cards}
+  </div>`;}
+
+function showMonth(idx,btn){
+  document.querySelectorAll('.mth-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const mc=document.getElementById('month-content');
+  if(mc)mc.innerHTML=MONTHS[idx];}
+
+// ═══════════════════════════════════════════════════════
+// MONTHS DATA — LEVEL 3 THINKER (PEMIKIR KECIL)
+// ═══════════════════════════════════════════════════════
+
+const MONTHS=[
+
+// ── BULAN 1: PROFESI & PEKERJAAN ────────────────────────
+month('Bulan 1','#FFF3CD','#7A5000','Profesi & Pekerjaan',
+  'dokter · guru · petani · nelayan · membaca kata profesi · penjumlahan & pengurangan awal',
+
+  card('b1t1','👨‍⚕️','#FFF3CD','Sesi 1–2','Dokter & Guru','profesi penolong · alat kerja · kata dokter/guru · kalimat sederhana',
+    slbl('Sesi 1')+BUKA+
+    fonik('5–20\'','Kosakata profesi: dokter, guru, suster','Guru tunjuk gambar masing-masing profesi. Anak menyebutkan nama profesi dan satu alat yang digunakan. "Dokter pakai... stetoskop!"')+
+    kata('20–38\'','Membaca kata: dokter, guru, obat, murid','Kartu kata 4 buah. Anak membaca satu per satu. Coba baca tanpa mengeja — langsung per suku kata.')+
+    menulis('38–55\'','Menulis kalimat: "Dokter menolong orang sakit"','Guru tulis di papan, anak menebalkan di lembar bergaris. Fokus: spasi antar kata dan huruf kapital awal.')+
+    TUTUP+divider+
+    slbl('Sesi 2')+BUKA+
+    baca('5–25\'','Cerita mini "Dokter Budi yang Baik Hati"','Cerita 4–5 kalimat bergambar. Anak membaca bergantian per kalimat. Guru tanya: "Mengapa Budi jadi dokter?"')+
+    kelompok('25–42\'','Bermain peran: dokter & pasien','Anak bergantian jadi dokter dan pasien. "Apa yang sakit?" "Perut saya sakit, Dok." Latihan percakapan & empati.')+
+    output('42–55\'','Gambar cita-citaku','Anak menggambar profesi yang mereka inginkan dan menulis kalimat: "Aku ingin jadi ___."')+
+    TUTUP+
+    obs('Apakah bisa membaca kata profesi tanpa mengeja per huruf?','Apakah kalimat ditulis dengan spasi dan huruf kapital yang benar?','Apakah berani tampil saat bermain peran?')
+  )+
+
+  card('b1t2','👨‍🌾','#FFF3CD','Sesi 3–4','Petani & Nelayan','profesi alam · alat kerja · kalimat aksi · kosakata baru',
+    slbl('Sesi 3')+BUKA+
+    fonik('5–20\'','Kosakata: petani, nelayan, sawah, laut','Guru tunjuk gambar. "Petani kerja di mana? Di sawah! Nelayan cari apa? Ikan!" Diskusi bebas.')+
+    kata('20–38\'','Membaca kata: sawah, panen, jaring, perahu','Kartu kata baru. Anak membaca dan cocokkan dengan gambar alat/tempat kerja.')+
+    menulis('38–55\'','Menulis kalimat: "Petani menanam padi di sawah"','Kalimat lebih panjang. Anak menulis mandiri di buku latihan. Guru cek per anak.')+
+    TUTUP+divider+
+    slbl('Sesi 4')+BUKA+
+    baca('5–25\'','Cerita: "Pak Tani dan Panennya"','5 kalimat. Fokus: anak membaca sendiri dulu 1 menit, lalu baca bersama. Latihan membaca mandiri.')+
+    kelompok('25–42\'','Proyek mini: poster profesi','Kelompok 2–3 anak buat poster satu profesi: gambar, nama profesi, alat kerja, kalimat deskripsi.')+
+    hitung('42–55\'','Penjumlahan konteks panen: 8+7=?','Soal cerita: "Pak Tani panen 8 ikat padi pagi, 7 ikat sore. Berapa total?" Anak gunakan manik.')+
+    TUTUP+
+    obs('Apakah bisa menulis kalimat 5 kata tanpa bantuan?','Apakah bisa bekerja sama dalam kelompok kecil?','Apakah mengerti soal cerita penjumlahan dalam konteks profesi?')
+  )+
+
+  card('b1t3','🧑‍🍳','#FFF3CD','Sesi 5–6','Koki & Arsitek','profesi kreatif · alat · kosakata baru · membaca 2 kalimat sekaligus',
+    slbl('Sesi 5')+BUKA+
+    fonik('5–18\'','Kosakata: koki, arsitek, resep, gambar bangunan','Guru tunjuk gambar. Diskusi: "Siapa yang pernah masak di rumah? Apa yang dibuat?"')+
+    baca('18–38\'','Baca buku mini "Koki Cilik"','Buku 6 kalimat bergambar. Anak baca sendiri 2 menit, lalu bergantian nyaring. Hitung kalimat yang dibaca lancar.')+
+    menulis('38–55\'','Menulis dua kalimat tentang koki','Anak menulis 2 kalimat sendiri tentang koki. Contoh: "Koki memasak makanan. Makanannya enak sekali."')+
+    TUTUP+divider+
+    slbl('Sesi 6')+BUKA+
+    kelompok('5–25\'','Show & tell: profesi keluargaku','Anak bercerita tentang pekerjaan orang tua/keluarga. 2–3 kalimat lisan. Teman menyimak dan bertanya.')+
+    hitung('25–42\'','Pengurangan awal: konteks profesi','Soal: "Koki punya 10 telur, dipakai 4. Sisa berapa?" Guru perkenalkan konsep pengurangan dengan benda konkret.')+
+    output('42–55\'','Buku profesi mini (cover + 2 halaman)','Anak mulai buku profesi: cover dengan nama sendiri, halaman 1 profesi impian, halaman 2 alat kerjanya.')+
+    TUTUP+
+    obs('Apakah bisa menulis 2 kalimat mandiri dengan kohesif?','Apakah mengerti konsep pengurangan dengan benda konkret?','Apakah percaya diri saat show & tell?')
+  )+
+
+  card('b1t4','🔢','#FFF3CD','Sesi 7–8','Penjumlahan & Pengurangan 1–10','operasi dasar · soal cerita profesi · lembar kerja mandiri',
+    BUKA+
+    hitung('5–22\'','Penguatan pengurangan 1–10 dengan manik','Guru tunjukkan pengurangan dengan abacus: 9–3=? Anak geser manik ke belakang dan hitung sisa.')+
+    hitung('22–40\'','Kartu soal campuran + & −','20 kartu soal campuran penjumlahan dan pengurangan. Anak jawab bergantian. Gunakan manik jika perlu.')+
+    hitung('40–55\'','Lembar kerja mandiri 10 soal','Anak mengerjakan 10 soal campuran sendiri. Koreksi bersama, hitung berapa yang benar.')+
+    TUTUP+
+    obs('Apakah bisa membedakan operasi + dan − dari soal cerita?','Apakah mampu mengerjakan 10 soal mandiri tanpa manik?','Berapa soal yang benar dari 10?')
+  )
+),
+
+// ── BULAN 2: NEGARA & BUDAYA ──────────────────────────
+month('Bulan 2','#E6F7EE','#1A7A48','Negara & Budaya',
+  'nama negara · pakaian adat · makanan khas · membaca kalimat informasi · berhitung 11–20',
+
+  card('b2t1','🇮🇩','#E6F7EE','Sesi 1–2','Indonesia & Keindahannya','pulau · budaya · pakaian adat · kalimat informasi',
+    slbl('Sesi 1')+BUKA+
+    fonik('5–20\'','Kosakata: Indonesia, pulau, budaya, adat','Guru tunjuk peta Indonesia sederhana. "Indonesia punya berapa pulau? Sangat banyak!" Diskusi penuh semangat.')+
+    kata('20–38\'','Membaca: Jawa, Sumatera, Bali, Kalimantan','Kartu nama pulau. Anak membaca dan tempelkan ke posisi di peta bergambar.')+
+    menulis('38–55\'','Kalimat: "Indonesia adalah negara kepulauan"','Anak menebalkan lalu menulis mandiri. Guru bahas arti kata "kepulauan".')+
+    TUTUP+divider+
+    slbl('Sesi 2')+BUKA+
+    baca('5–25\'','Cerita: "Aku Bangga Jadi Anak Indonesia"','6 kalimat dengan gambar pakaian adat. Anak baca bergantian. Diskusi: "Kamu dari suku apa?"')+
+    kelompok('25–42\'','Proyek peta budaya kelompok','Kelompok 2–3 anak gambar satu pulau besar, tulis nama pulau dan 1 keunikannya (makanan/pakaian/tari).')+
+    output('42–55\'','Mewarnai pakaian adat & menulis nama daerah','Lembar pakaian adat dari berbagai daerah. Anak warnai dan tulis nama daerahnya.')+
+    TUTUP+
+    obs('Apakah bisa menyebut minimal 3 nama pulau di Indonesia?','Apakah bisa membaca kata nama tempat (kapital di awal)?','Apakah antusias saat diskusi budaya?')
+  )+
+
+  card('b2t2','🌏','#E6F7EE','Sesi 3–4','Negara Tetangga','Malaysia · Singapura · Jepang · kosakata negara · kalimat deskripsi',
+    slbl('Sesi 3')+BUKA+
+    fonik('5–20\'','Kosakata: negara, bendera, bahasa, ibu kota','Guru tunjuk gambar bendera. Anak tebak negara. "Merah putih = Indonesia! Merah hitam kuning?"')+
+    kata('20–38\'','Membaca: Malaysia, Singapura, Jepang, Arab','Kartu kata nama negara. Anak membaca. Perhatikan huruf kapital nama negara.')+
+    menulis('38–55\'','Kalimat deskripsi negara: "Jepang terkenal dengan bunga sakura"','Guru tulis contoh, anak tulis kalimat negara pilihan mereka sendiri.')+
+    TUTUP+divider+
+    slbl('Sesi 4')+BUKA+
+    baca('5–25\'','Buku mini: "Anak-anak di Berbagai Negara"','6 kalimat tentang anak-anak dari 3 negara berbeda. Anak baca bergantian. Diskusi perbedaan & persamaan.')+
+    kelompok('25–42\'','Kuis budaya kelompok','Guru beri 5 pertanyaan (gambar bendera, makanan khas). Kelompok diskusi dan menjawab bersama.')+
+    hitung('42–55\'','Berhitung 11–20 dengan konteks populasi','Guru cerita: "Di kelas ada 15 anak. Di kelas sebelah 13 anak." Anak hitung dan bandingkan angka.')+
+    TUTUP+
+    obs('Apakah bisa menyebut 3 negara tetangga?','Apakah menggunakan huruf kapital yang benar untuk nama negara?','Apakah aktif dalam kuis kelompok?')
+  )+
+
+  card('b2t3','🍜','#E6F7EE','Sesi 5–6','Makanan Khas Nusantara','rendang · soto · sate · gado-gado · membaca resep sederhana',
+    slbl('Sesi 5')+BUKA+
+    fonik('5–20\'','Kosakata makanan khas: rendang, soto, gado-gado','Guru tunjuk gambar dan sebut nama. "Rendang dari mana? Sumatera Barat!" Anak menirukan dan mengingat.')+
+    baca('20–40\'','Baca resep sederhana "Cara Buat Es Jeruk"','Resep 5 langkah dengan gambar. Anak baca urutan langkah. Guru tanya: "Langkah ke-3 apa?"')+
+    menulis('40–55\'','Menulis resep singkat buatan sendiri','Anak menulis 3 langkah membuat minuman favorit mereka. Boleh kreatif!')+
+    TUTUP+divider+
+    slbl('Sesi 6')+BUKA+
+    kelompok('5–28\'','Proyek buku resep mini kelompok','Kelompok 3 anak buat buku resep: cover + 2 resep sederhana + gambar. Setiap anak tulis 1 resep.')+
+    hitung('28–45\'','Berhitung 11–20: bahan masakan','Soal: "Ibu pakai 12 cabai, sisa 8. Berapa total cabai tadi?" Anak hitung dengan manik.')+
+    output('45–55\'','Presentasi resep ke kelas','Tiap kelompok presentasi 1 menit: "Resep kami adalah... Bahan-bahannya..."')+
+    TUTUP2+
+    obs('Apakah bisa membaca teks instruksional (resep) dengan urutan yang benar?','Apakah bisa menulis 3 langkah dengan kalimat yang kohesif?','Apakah percaya diri saat presentasi?')
+  )+
+
+  card('b2t4','🔢','#E6F7EE','Sesi 7–8','Berhitung 11–20 + Pengurangan','angka 11–20 · operasi campuran · soal cerita budaya',
+    BUKA+
+    hitung('5–22\'','Penguatan angka 11–20: kartu & manik','Anak urutkan kartu 11–20 sambil hitung manik baris. Konsep "sepuluh dan berapa lagi" diperkuat.')+
+    hitung('22–40\'','Pengurangan dengan angka 11–20','Soal: 15−6=? 18−9=? Anak gunakan manik. Guru tunjukkan cara pengurangan dengan membuang manik.')+
+    hitung('40–55\'','Soal cerita budaya campuran','5 soal cerita bertema budaya: "Di festival ada 17 penari, 8 sudah pulang. Sisa berapa?" Anak tulis jawaban.')+
+    TUTUP+
+    obs('Apakah bisa mengerjakan pengurangan dengan angka 11–20?','Apakah memahami soal cerita campuran + dan −?','Apakah menulis angka 11–20 sudah rapi dan benar?')
+  )
+),
+
+// ── BULAN 3: LUAR ANGKASA & SAINS ────────────────────
+month('Bulan 3','#EDE9FE','#5B21B6','Luar Angkasa & Sains',
+  'planet · bintang · eksperimen · kalimat sains · berhitung lanjut',
+
+  card('b3t1','🪐','#EDE9FE','Sesi 1–2','Planet & Bintang','tata surya · nama planet · kalimat fakta · kosakata sains',
+    slbl('Sesi 1')+BUKA+
+    fonik('5–20\'','Kosakata: planet, bintang, bulan, matahari','Guru tunjuk poster tata surya. "Bumi itu planet ketiga dari matahari!" Anak antusias menjelajah.')+
+    kata('20–38\'','Membaca: Bumi, Mars, Jupiter, Saturnus','Kartu kata nama planet. Anak membaca dan tempel di poster tata surya sesuai posisi.')+
+    menulis('38–55\'','Kalimat fakta: "Matahari adalah bintang terbesar di tata surya"','Anak menebalkan, lalu menulis 1 fakta planet pilihan mereka sendiri.')+
+    TUTUP+divider+
+    slbl('Sesi 2')+BUKA+
+    baca('5–28\'','Buku mini: "Petualangan ke Luar Angkasa"','8 kalimat bergambar planet. Anak baca bergantian. Diskusi: "Kalau bisa ke satu planet, mana pilihanmu?"')+
+    kelompok('28–45\'','Proyek planet kelompok','Kelompok 2 anak: gambar satu planet, tulis nama + 2 fakta. Dipresentasikan singkat ke kelas.')+
+    output('45–55\'','Model planet dari plastisin','Anak membuat model planet pilihan mereka dari plastisin/tanah liat. Tempel label nama.')+
+    TUTUP2+
+    obs('Apakah bisa menyebut minimal 4 nama planet?','Apakah bisa menulis kalimat fakta dengan data yang benar?','Apakah antusias dalam proyek kelompok planet?')
+  )+
+
+  card('b3t2','🔭','#EDE9FE','Sesi 3–4','Eksperimen Sains Sederhana','hipotesis · observasi · mencatat hasil · kalimat sains',
+    slbl('Sesi 3')+BUKA+
+    fonik('5–18\'','Kosakata sains: eksperimen, hipotesis, hasil, observasi','Guru jelaskan dengan bahasa anak: "Hipotesis itu tebakan pintarmu sebelum mencoba."')+
+    kelompok('18–42\'','Eksperimen: Vulkano Soda & Cuka','Kelompok 3 anak buat gunung meletus kecil dengan soda kue + cuka. Anak prediksi dulu: "Kira-kira apa yang terjadi?" Catat hasil.')+
+    menulis('42–55\'','Menulis laporan eksperimen sederhana','Lembar laporan: nama eksperimen, bahan, hipotesis, hasil. Anak isi dengan kalimat sendiri.')+
+    TUTUP+divider+
+    slbl('Sesi 4')+BUKA+
+    baca('5–25\'','Baca laporan eksperimen teman','Anak bertukar laporan dengan teman. Baca laporan teman, lalu ceritakan kembali ke kelas.')+
+    kelompok('25–42\'','Eksperimen 2: tenggelam & mengapung','Anak test 5 benda: mana yang tenggelam? mana yang mengapung? Catat hasil di tabel sederhana.')+
+    hitung('42–55\'','Hitung data eksperimen: berapa tenggelam vs mengapung?','Anak hitung dari tabel: "3 benda tenggelam + 2 mengapung = 5 benda total." Latihan membaca data.')+
+    TUTUP+
+    obs('Apakah bisa menulis laporan eksperimen sederhana?','Apakah bisa membaca dan memahami tabel data?','Apakah bisa membuat prediksi (hipotesis) sebelum eksperimen?')
+  )+
+
+  card('b3t3','⭐','#EDE9FE','Sesi 5–6','Bintang & Konstelasi','konstelasi · cerita bintang · membaca teks imajinatif',
+    slbl('Sesi 5')+BUKA+
+    fonik('5–20\'','Kosakata: konstelasi, galaksi, angkasa, gravitasi','Guru tunjuk gambar konstelasi. "Ini bintang-bintang yang membentuk gambar singa!"')+
+    baca('20–40\'','Cerita: "Si Bintang Kecil dan Mimpinya"','8 kalimat cerita imajinatif. Anak baca dengan intonasi. Diskusi perasaan tokoh: "Bintang kecil merasa sedih karena...?"')+
+    menulis('40–55\'','Menulis akhir cerita sendiri','Cerita diberhentikan di tengah. Anak melanjutkan dengan 2–3 kalimat versi mereka sendiri.')+
+    TUTUP+divider+
+    slbl('Sesi 6')+BUKA+
+    kelompok('5–28\'','Buat konstelasi dari titik-titik','Kelompok anak buat konstelasi imajinasi: hubungkan titik-titik, beri nama, tulis cerita 2 kalimat.')+
+    hitung('28–45\'','Hitung bintang: penjumlahan & pengurangan','Lembar gambar bintang. "Ada 14 bintang, 6 tertutup awan. Kelihatan berapa?" Anak hitung.')+
+    output('45–55\'','Buku "Alam Semesta Menurut Aku"','Anak melengkapi 2 halaman buku: gambar tata surya + 3 fakta yang mereka ingat.')+
+    TUTUP2+
+    obs('Apakah bisa membaca cerita 8 kalimat dengan intonasi yang benar?','Apakah bisa menulis kelanjutan cerita yang kohesif?','Apakah memahami konsep bintang dan konstelasi?')
+  )+
+
+  card('b3t4','🔢','#EDE9FE','Sesi 7–8','Berhitung Lanjut: Pola & Operasi','pola bilangan · soal 2 langkah · angka 1–20 komprehensif',
+    BUKA+
+    hitung('5–22\'','Pola bilangan: 2,4,6,8... dan 1,3,5,7...','Guru buat kartu pola. "Angka apa yang akan muncul selanjutnya?" Anak tebak dan verifikasi dengan manik.')+
+    hitung('22–40\'','Soal 2 langkah sederhana','Soal: "Ada 5 roket + 3 roket = ? Lalu 2 meledak. Sisa berapa?" Anak kerjakan 2 langkah.')+
+    hitung('40–55\'','Review komprehensif 1–20','Lembar kerja: urutan angka berlubang, soal +, soal −, pola. Anak kerjakan mandiri.')+
+    TUTUP+
+    obs('Apakah bisa mengidentifikasi pola bilangan ganjil/genap?','Apakah bisa mengerjakan soal 2 langkah?','Apakah review 1–20 sudah dikuasai dengan baik?')
+  )
+),
+
+// ── BULAN 4: PANTAI & KEHIDUPAN LAUT ─────────────────
+month('Bulan 4','#E6F1FB','#185FA5','Pantai & Kehidupan Laut',
+  'biota laut · lingkungan pantai · kalimat deskripsi · berhitung 1–20 + pengurangan',
+
+  card('b4t1','🐠','#E6F1FB','Sesi 1–2','Ikan & Biota Laut','terumbu karang · gurita · lumba-lumba · kalimat deskripsi',
+    slbl('Sesi 1')+BUKA+
+    fonik('5–20\'','Kosakata: terumbu karang, gurita, lumba-lumba, kerang','Guru tunjuk gambar penuh warna. "Gurita punya berapa tangan? Delapan! Kita hitung bersama!"')+
+    kata('20–38\'','Membaca: terumbu, karang, lumba, gurita','Kartu kata. Fokus kata bersuku banyak. Anak baca perlahan per suku kata, lalu lancar.')+
+    menulis('38–55\'','Kalimat deskripsi: "Lumba-lumba adalah hewan laut yang cerdas"','Anak menebalkan, lalu tulis kalimat deskripsi binatang laut pilihan sendiri.')+
+    TUTUP+divider+
+    slbl('Sesi 2')+BUKA+
+    baca('5–28\'','Buku: "Petualangan di Bawah Laut"','8 kalimat + gambar penuh warna. Anak baca bergantian. Fokus intonasi tanda seru dan tanda tanya.')+
+    kelompok('28–45\'','Diorama laut mini kelompok','Kelompok 2–3 anak buat diorama laut di kotak: gambar/tempel biota laut, tulis nama masing-masing.')+
+    hitung('45–55\'','Hitung biota laut di gambar','Lembar gambar laut penuh. Anak hitung: berapa ikan, berapa kerang, berapa karang. Tulis angkanya.')+
+    TUTUP2+
+    obs('Apakah bisa membaca kata bersuku banyak (ter-um-bu)?','Apakah bisa menulis kalimat deskripsi mandiri?','Apakah antusias membuat diorama laut?')
+  )+
+
+  card('b4t2','🏖️','#E6F1FB','Sesi 3–4','Pantai & Lingkungan','sampah laut · menjaga lingkungan · kalimat ajakan · SEL peduli',
+    slbl('Sesi 3')+BUKA+
+    fonik('5–18\'','Kosakata: sampah, bersih, rusak, jaga, selamatkan','Guru tunjuk 2 gambar: pantai bersih vs pantai kotor. Anak bandingkan dan ekspresikan perasaan.')+
+    baca('18–38\'','Cerita: "Ayo Jaga Lautku!"','7 kalimat tentang anak yang membersihkan pantai. Anak baca bergantian. Diskusi: "Apa yang bisa kita lakukan?"')+
+    menulis('38–55\'','Menulis kalimat ajakan: "Ayo buang sampah pada tempatnya!"','Anak menulis 2 kalimat ajakan menjaga lingkungan pantai. Kreatif dan dari hati.')+
+    TUTUP+divider+
+    slbl('Sesi 4')+BUKA+
+    kelompok('5–28\'','Proyek poster "Selamatkan Lautku"','Kelompok buat poster: gambar laut + kalimat ajakan yang mereka tulis sendiri. Dipajang di kelas.')+
+    hitung('28–45\'','Operasi campuran: sampah di pantai','Soal: "Ada 16 botol plastik, 9 sudah dipungut. Sisa berapa? Lalu teman tambah 4 botol lagi. Jadi?"')+
+    output('45–55\'','Sumpah penjaga laut','Anak menulis satu kalimat komitmen: "Aku berjanji akan ___ untuk menjaga laut." Tempel di papan kelas.')+
+    TUTUP2+
+    obs('Apakah memahami konsep menjaga lingkungan?','Apakah bisa menulis kalimat ajakan yang bermakna?','Apakah menyelesaikan soal operasi campuran 2 langkah?')
+  )+
+
+  card('b4t3','🌊','#E6F1FB','Sesi 5–6','Nelayan & Kehidupan Pesisir','komunitas pantai · profesi laut · membaca cerita informatif',
+    slbl('Sesi 5')+BUKA+
+    fonik('5–18\'','Kosakata: pelabuhan, ombak, pasir, bakau, kapal','Guru tunjuk gambar desa nelayan. "Di sini ada apa saja? Apa yang dilakukan orang-orang di sini?"')+
+    baca('18–40\'','Buku: "Sehari Bersama Pak Nelayan"','8 kalimat cerita informatif. Anak baca mandiri 2 menit, lalu bersama. Guru tanya 3 pertanyaan pemahaman.')+
+    menulis('40–55\'','Menulis 3 kalimat tentang kehidupan nelayan','Anak menulis dari informasi yang mereka serap dari cerita. Tidak boleh menyalin — harus dengan kata sendiri.')+
+    TUTUP+divider+
+    slbl('Sesi 6')+BUKA+
+    kelompok('5–25\'','Diskusi kelompok: nelayan vs petani','Guru minta tiap kelompok bandingkan: apa kesamaan nelayan dan petani? Apa bedanya? Presentasi singkat.')+
+    baca('25–45\'','Membaca teks deskripsi: "Ekosistem Mangrove"','Teks informasi 5 kalimat. Anak baca dan temukan 3 kata baru. Guru jelaskan artinya.')+
+    hitung('45–55\'','Hitung hasil tangkapan nelayan','Soal grafik sederhana: tabel ikan yang ditangkap 4 hari. Anak hitung total dan selisih.')+
+    TUTUP+
+    obs('Apakah bisa menulis dengan kata sendiri (bukan menyalin)?','Apakah mampu membandingkan dua topik dalam diskusi?','Apakah bisa membaca grafik/tabel data sederhana?')
+  )+
+
+  card('b4t4','🔢','#E6F1FB','Sesi 7–8','Review Operasi 1–20 + Soal Cerita','penjumlahan & pengurangan · soal 2 langkah · tabel data',
+    BUKA+
+    hitung('5–22\'','Review operasi 1–20 kilat','Flash kartu soal + dan − dengan angka 1–20. Anak jawab cepat. Siapa paling banyak benar?')+
+    hitung('22–42\'','Soal cerita 2 langkah bertema laut','5 soal: "Di akuarium ada 18 ikan. Ditambah 5, lalu 7 dipindah. Sisa berapa?" Anak kerjakan langkah per langkah.')+
+    output('42–55\'','Kartu soal buatan sendiri','Anak membuat 2 soal cerita bertema laut sendiri, berikan ke teman untuk dijawab.')+
+    TUTUP+
+    obs('Apakah soal cerita 2 langkah bisa dikerjakan mandiri?','Apakah bisa membuat soal cerita yang logis?','Apakah sudah tidak perlu manik untuk operasi 1–20?')
+  )
+),
+
+// ── BULAN 5: MEMBACA & MENULIS CERITA ────────────────
+month('Bulan 5','#FBEAF0','#993556','Membaca & Menulis Cerita',
+  'membaca teks panjang · menulis cerita sendiri · buku cerita kelompok · angka 1–20 komprehensif',
+
+  card('b5t1','📖','#FBEAF0','Sesi 1–2','Membaca Teks Lebih Panjang','teks 10 kalimat · intonasi · pemahaman cerita · pertanyaan 5W+1H',
+    slbl('Sesi 1')+BUKA+
+    baca('5–30\'','Buku bergambar 10 kalimat','Anak membaca buku bergambar 10 kalimat secara bergantian. Guru observasi kelancaran dan intonasi masing-masing anak.')+
+    fonik('30–45\'','5W+1H dari cerita','Guru perkenalkan: Siapa, Apa, Di mana, Kapan, Mengapa, Bagaimana. Anak menjawab tiap pertanyaan dari cerita.')+
+    menulis('45–55\'','Tulis 3 jawaban 5W dari cerita','Anak memilih 3 pertanyaan 5W dan menulis jawabannya di buku.')+
+    TUTUP2+divider+
+    slbl('Sesi 2')+BUKA+
+    baca('5–25\'','Membaca mandiri 3 menit','Anak memilih buku dari rak/koleksi. Membaca sendiri tanpa bantuan 3 menit. Guru observasi.')+
+    kelompok('25–42\'','Ceritakan kembali ke pasangan','Anak bercerita kepada pasangan: "Buku yang aku baca tadi tentang..." Pasangan boleh bertanya.')+
+    menulis('42–55\'','Ringkasan buku 3 kalimat','Anak menulis ringkasan: tokoh siapa, apa yang terjadi, bagaimana akhirnya.')+
+    TUTUP+
+    obs('Apakah bisa membaca 10 kalimat dengan lancar dan intonasi baik?','Apakah memahami 5W+1H dari cerita?','Apakah bisa membuat ringkasan 3 kalimat yang akurat?')
+  )+
+
+  card('b5t2','✍️','#FBEAF0','Sesi 3–4','Menulis Cerita Sendiri','struktur cerita · awal-tengah-akhir · kalimat kompleks · editing',
+    slbl('Sesi 3')+BUKA+
+    fonik('5–18\'','Struktur cerita: awal, tengah, akhir','Guru jelaskan dengan contoh cerita pendek. Gambar 3 kotak di papan: awal → tengah → akhir. Anak identifikasi dari cerita yang dibaca.')+
+    menulis('18–45\'','Draft cerita sendiri (awal & tengah)','Setiap anak menulis cerita mereka sendiri. Bebas memilih tema. Awal & tengah dulu: 3–4 kalimat.')+
+    kelompok('45–55\'','Feedback teman: "Aku suka bagian..."','Anak membacakan draft ke teman, teman memberi satu komentar positif.')+
+    TUTUP+divider+
+    slbl('Sesi 4')+BUKA+
+    menulis('5–30\'','Lanjutkan cerita: bagian akhir','Anak menyelesaikan cerita dengan bagian akhir: 2 kalimat. Total cerita ~5–6 kalimat.')+
+    kelompok('30–45\'','Editing bersama: cek ejaan & spasi','Anak bertukar cerita dengan teman. Cari 1 kata yang salah eja atau spasi yang salah.')+
+    output('45–55\'','Buat sampul cerita','Anak membuat sampul: judul + gambar + nama pengarang.')+
+    TUTUP+
+    obs('Apakah cerita punya awal, tengah, dan akhir yang jelas?','Apakah bisa memberikan dan menerima feedback konstruktif?','Apakah ejaan dan spasi sudah lebih baik dari bulan sebelumnya?')
+  )+
+
+  card('b5t3','📚','#FBEAF0','Sesi 5–6','Buku Cerita Kelompok','kolaborasi · menulis bagian · menyatukan cerita · presentasi',
+    slbl('Sesi 5')+BUKA+
+    kelompok('5–15\'','Brainstorm cerita kelompok','Kelompok 3 anak tentukan: tokoh, tempat, masalah, solusi. Guru fasilitasi 10 menit.')+
+    menulis('15–45\'','Menulis bagian masing-masing','Anak 1: tulis awal (2 kalimat). Anak 2: tulis tengah (2 kalimat). Anak 3: tulis akhir (2 kalimat).')+
+    kelompok('45–55\'','Gabungkan & baca cerita bersama','Ketiga bagian digabung. Baca bersama. Apakah ceritanya nyambung? Revisi singkat jika perlu.')+
+    TUTUP+divider+
+    slbl('Sesi 6')+BUKA+
+    kelompok('5–20\'','Buat ilustrasi buku cerita','Tiap anak menggambar ilustrasi untuk bagian cerita yang mereka tulis. Warnai dengan pensil warna.')+
+    output('20–42\'','Jilid buku cerita kelompok','Guru bantu menjilid halaman menjadi buku kecil. Buat sampul bersama.')+
+    baca('42–55\'','Baca buku cerita kelompok ke kelas lain','Kelompok membacakan buku cerita mereka ke kelas lain atau kepada guru kepala.')+
+    TUTUP2+
+    obs('Apakah bisa berkolaborasi menulis cerita yang kohesif?','Apakah bisa membaca cerita kelompok dengan lancar di depan umum?','Apakah semua anggota kelompok berkontribusi aktif?')
+  )+
+
+  card('b5t4','🔢','#FBEAF0','Sesi 7–8','Review Berhitung 1–20 Komprehensif','semua operasi · soal cerita · membuat soal sendiri',
+    BUKA+
+    hitung('5–20\'','Challenge: 20 soal dalam 10 menit','Lembar 20 soal campuran + dan −. Anak kerjakan secepat mungkin. Guru catat waktu masing-masing anak.')+
+    hitung('20–38\'','Soal cerita kreatif bertema bebas','3 soal cerita panjang. "Dalam lemari ada 13 buku. Dipinjam 5, lalu dikembalikan 2. Sekarang ada berapa?" 3 langkah.')+
+    kelompok('38–52\'','Turnamen soal kelompok','2 kelompok berlomba. Guru baca soal, kelompok yang lebih dulu menjawab benar dapat poin.')+
+    output('52–55\'','Rekap progress berhitung','Guru dan anak review bersama: apa yang sudah bisa, apa yang perlu latihan lagi.')+
+    TUTUP2+
+    obs('Berapa soal yang benar dari 20 dalam 10 menit?','Apakah bisa mengerjakan soal 3 langkah?','Apakah ada peningkatan kecepatan dibanding bulan lalu?')
+  )
+),
+
+// ── BULAN 6: AKU BISA! LEVEL 3 ───────────────────────
+month('Bulan 6','#F3EEFF','#5B21B6','Aku Bisa! (Level 3)',
+  'review menyeluruh · ujian baca · pameran karya · graduation Level 3',
+
+  card('b6t1','📝','#F3EEFF','Sesi 1–2','Review Membaca Menyeluruh','teks 12 kalimat · pemahaman · intonasi · kecepatan baca',
+    slbl('Sesi 1')+BUKA+
+    baca('5–30\'','Asesmen membaca: teks 12 kalimat','Satu per satu anak membaca teks 12 kalimat kepada guru. Guru catat: kata yang salah, intonasi, kecepatan, pemahaman.')+
+    fonik('30–48\'','Review kosakata 4 tema','Flash kartu kata dari semua tema: profesi, budaya, sains, laut. Anak sebut kata dan buat 1 kalimat.')+
+    output('48–55\'','Grafik kemajuan membacaku','Guru dan anak isi bersama grafik sederhana: bulan 1–5, berapa kalimat yang bisa dibaca lancar.')+
+    TUTUP2+divider+
+    slbl('Sesi 2')+BUKA+
+    baca('5–28\'','Membaca berpasangan: saling koreksi','Pasangan membaca cerita bergantian per kalimat. Jika ada yang salah, pasangan membantu dengan lembut.')+
+    menulis('28–45\'','Dikte 8 kalimat','Guru ucapkan 8 kalimat pendek. Anak menulis di buku. Koreksi bersama.')+
+    output('45–55\'','Bintang pembaca — rekap kartu kata','Anak membaca 40 kartu kata. Hitung berapa yang terbaca lancar. Guru catat kemajuan tiap anak.')+
+    TUTUP+
+    obs('Berapa kalimat bisa dibaca lancar (target ≥10 dari 12)?','Apakah dikte 8 kalimat ditulis dengan ejaan yang benar ≥80%?','Apakah 40 kartu kata terbaca ≥35?')
+  )+
+
+  card('b6t2','🔢','#F3EEFF','Sesi 3–4','Review Berhitung Menyeluruh','operasi 1–20 · soal cerita · pola bilangan · asesmen mandiri',
+    slbl('Sesi 3')+BUKA+
+    hitung('5–25\'','Asesmen berhitung: 25 soal campuran','Lembar asesmen: 10 soal +, 10 soal −, 5 pola bilangan. Dikerjakan mandiri.')+
+    hitung('25–45\'','Koreksi dan analisis bersama','Bahas setiap soal. Anak yang benar menjelaskan caranya kepada yang salah.')+
+    output('45–55\'','Target berhitung bulan depan','Anak menulis sendiri: "Aku akan berlatih lebih banyak soal ___." Self-goal setting.')+
+    TUTUP2+divider+
+    slbl('Sesi 4')+BUKA+
+    hitung('5–25\'','Permainan matematika kelompok','Permainan kartu angka: anak susun 3 angka menjadi soal + atau − yang hasilnya paling besar. Siapa menang?')+
+    kelompok('25–45\'','Turnamen berhitung final','3 ronde soal cerita. Kelompok yang menang dapat trofi mini kertas buatan guru.')+
+    output('45–55\'','Sertifikat ahli hitung','Guru berikan sertifikat kecil: "Ahli Hitung Level 3 — sudah bisa + dan − sampai 20!"')+
+    TUTUP+
+    obs('Berapa soal benar dari 25 (target ≥20)?','Apakah bisa menjelaskan cara menghitung kepada teman?','Apakah menunjukkan kepercayaan diri dalam kompetisi?')
+  )+
+
+  card('b6t3','🎨','#F3EEFF','Sesi 5–6','Pameran Karya Level 3','semua karya ditampilkan · presentasi · apresiasi',
+    slbl('Sesi 5')+BUKA+
+    rutin('5–20\'','Setup pameran karya','Anak menata semua karya: buku cerita kelompok, poster profesi, model planet, poster laut, buku resep. Latihan tanggung jawab.')+
+    kelompok('20–45\'','Latihan presentasi karya','Tiap kelompok berlatih menjelaskan karya mereka: "Ini karya kami tentang... Kami membuatnya dengan cara..."')+
+    output('45–55\'','Label karya & dekorasi kelas','Anak membuat label nama untuk setiap karya. Tempel di papan pameran dengan rapi.')+
+    TUTUP2+divider+
+    slbl('Sesi 6')+BUKA+
+    kelompok('5–30\'','Hari pameran: kunjungan antar kelas','Kelas lain atau orang tua mengunjungi pameran. Anak menjadi "pemandu" dan menjelaskan karya mereka.')+
+    baca('30–45\'','Baca karya terfavorit','Setiap anak membacakan 1 kalimat terbaik yang pernah mereka tulis selama Level 3.')+
+    output('45–55\'','Buku kenangan Level 3','Anak menandatangani buku kenangan teman-teman. Tulis 1 kata pujian untuk setiap teman.')+
+    TUTUP+
+    obs('Apakah bisa menjelaskan karya sendiri dengan percaya diri?','Apakah semua anggota kelompok ikut berperan saat pameran?','Apakah anak bangga dengan pencapaiannya?')
+  )+
+
+  card('b6t4','🏆','#F3EEFF','Sesi 7–8','Graduation Level 3','badge achievement · sertifikat · doa & perayaan',
+    rutin('0–15\'','Persiapan graduation','Anak berpakaian rapi. Kelas didekorasi. Kursi disusun. Musik perayaan ringan diputar.')+
+    baca('15–35\'','Pembacaan pencapaian tiap anak','Guru menyebut nama tiap anak dan menyebutkan pencapaian spesifik mereka: "Dia sudah bisa membaca 12 kalimat berturut-turut!"')+
+    output('35–52\'','Pemberian badge & sertifikat Level 3','Badge per kategori: Confident Kid, King/Queen of Discipline, Team Commander, Word Reader, Math Whiz (lanjut), Level Finisher. Anak maju satu per satu.')+
+    rutin('52–60\'','Doa penutup Level 3','Doa bersama. "Kalian adalah Thinker — Pemikir Kecil! Siap menuju Level 4 — Creator!" Foto bersama, salam, dan pelukan.')+
+    `<div class="milestone-box">
+      <div class="milestone-title">Milestone Level 3 — Checklist Akhir</div>
+      <div class="milestone-item">Membaca kalimat panjang (8–12 kalimat) dengan lancar dan intonasi yang benar</div>
+      <div class="milestone-item">Memahami isi bacaan dan menjawab pertanyaan 5W+1H</div>
+      <div class="milestone-item">Menulis cerita sendiri dengan struktur awal–tengah–akhir</div>
+      <div class="milestone-item">Menulis kalimat deskripsi, fakta, dan ajakan secara mandiri</div>
+      <div class="milestone-item">Penjumlahan dan pengurangan 1–20 secara mandiri</div>
+      <div class="milestone-item">Mengerjakan soal cerita 2–3 langkah</div>
+      <div class="milestone-item">Mengidentifikasi pola bilangan ganjil/genap</div>
+      <div class="milestone-item">Berkolaborasi dalam proyek kelompok dengan aktif</div>
+      <div class="milestone-item">Berani presentasi di depan kelas dan tamu</div>
+      <div class="milestone-item">Menunjukkan empati dan kepedulian terhadap lingkungan</div>
+    </div>`
+  )
+),
+];
+
+// ── INFO TAB ──────────────────────────────────────────
+const INFO_HTML=`
+  <div class="sec">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      Detail Program
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+      <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Program</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Calistung Preschool</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Level</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">Level 3 — Thinker</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Durasi</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">6 Bulan · 48 Sesi</div>
+      </div>
+      <div style="background:var(--surface2);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+        <div style="font-size:10px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:4px;">Sesi per Minggu</div>
+        <div style="font-size:13px;font-weight:600;color:var(--text);">2x · 60 menit</div>
+      </div>
+    </div>
+    <div style="background:var(--accent-dim);border-radius:var(--r);padding:12px;border:1px solid var(--border);">
+      <div style="font-size:10px;color:var(--accent);font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin-bottom:6px;">Pendekatan Pembelajaran</div>
+      <div style="display:flex;flex-wrap:wrap;gap:6px;">
+        ${['Montessori','Letterland','SEL','Hoikuen/Yōchien','Nilai Islami'].map(p=>`<span style="font-size:11px;padding:3px 9px;border-radius:20px;background:var(--surface);border:1px solid var(--border);color:var(--text2);font-weight:600;">${p}</span>`).join('')}
+      </div>
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Peta Bulan Level 3
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${[
+        ['FFF3CD','7A5000','👨‍⚕️','Bulan 1 — Profesi & Pekerjaan','Dokter, guru, petani, nelayan, koki, kalimat profesi, pengurangan awal'],
+        ['E6F7EE','1A7A48','🌏','Bulan 2 — Negara & Budaya','Indonesia, negara tetangga, makanan khas, resep, angka 11–20'],
+        ['EDE9FE','5B21B6','🪐','Bulan 3 — Luar Angkasa & Sains','Planet, eksperimen, konstelasi, pola bilangan, soal 2 langkah'],
+        ['E6F1FB','185FA5','🐠','Bulan 4 — Pantai & Kehidupan Laut','Biota laut, lingkungan, teks deskripsi, operasi campuran'],
+        ['FBEAF0','993556','📖','Bulan 5 — Membaca & Menulis Cerita','Teks 10 kalimat, struktur cerita, buku cerita kelompok, review berhitung'],
+        ['F3EEFF','5B21B6','🏆','Bulan 6 — Aku Bisa! (Level 3)','Asesmen baca-tulis-hitung, pameran karya, graduation badge L3'],
+      ].map(([bg,txt,ic,name,desc])=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:#${bg};border-radius:var(--r);border-left:3px solid #${txt};">
+          <div style="font-size:18px;">${ic}</div>
+          <div><div style="font-size:11px;font-weight:700;color:#${txt};">${name}</div><div style="font-size:12px;color:var(--text2);">${desc}</div></div>
+        </div>`).join('')}
+    </div>
+  </div>
+  <div class="sec">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      Tipe Aktivitas Baru Level 3
+    </div>
+    <div style="display:flex;flex-direction:column;gap:8px;">
+      ${[
+        ['pill-baca','Membaca Cerita','Teks 8–12 kalimat, buku bergambar, cerita informatif, pemahaman 5W+1H'],
+        ['pill-kelompok','Kerja Kelompok','Proyek bersama, diskusi, buku cerita kolaboratif, presentasi tim'],
+        ['pill-fonik','Fonik & Kosakata','Kosakata tematik baru: profesi, sains, budaya, laut'],
+        ['pill-menulis','Menulis','Kalimat deskripsi, fakta, ajakan, cerita sendiri, laporan eksperimen'],
+        ['pill-berhitung','Berhitung','Penjumlahan & pengurangan 1–20, soal 2–3 langkah, pola bilangan'],
+        ['pill-output','Output','Poster, diorama, buku cerita, model plastisin, laporan sains'],
+      ].map(([cls,name,desc])=>`
+        <div style="display:flex;align-items:center;gap:10px;padding:8px 12px;background:var(--surface2);border-radius:8px;">
+          <span class="act-type-pill ${cls}" style="margin:0;flex-shrink:0;">${name}</span>
+          <span style="font-size:12px;color:var(--text2);">${desc}</span>
+        </div>`).join('')}
+    </div>
+  </div>`;
+
+// ── MAP HTML ──────────────────────────────────────────
+const MAP_HTML=`
+  <div class="month-selector">
+    <button class="mth-btn active" onclick="showMonth(0,this)">Profesi</button>
+    <button class="mth-btn" onclick="showMonth(1,this)">Negara & Budaya</button>
+    <button class="mth-btn" onclick="showMonth(2,this)">Luar Angkasa</button>
+    <button class="mth-btn" onclick="showMonth(3,this)">Pantai & Laut</button>
+    <button class="mth-btn" onclick="showMonth(4,this)">Baca & Tulis</button>
+    <button class="mth-btn" onclick="showMonth(5,this)">Aku Bisa!</button>
+  </div>
+  <div id="month-content"></div>`;
+
+// ── SWITCH TAB ────────────────────────────────────────
+let currentTab=null;
+function switchTab(name,btn){
+  if(currentTab===name)return;
+  currentTab=name;
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const mc=document.getElementById('main-content');
+  mc.innerHTML=name==='map'?MAP_HTML:INFO_HTML;
+  if(name==='map')showMonth(0,document.querySelector('.mth-btn'));
+  const d=HDR[name]||HDR.map;
+  const title=document.getElementById('hdrTitle');
+  const sub=document.getElementById('hdrSub');
+  const badge=document.getElementById('hdrBadge');
+  title.style.opacity='0';sub.style.opacity='0';
+  setTimeout(()=>{
+    title.textContent=d.title;sub.textContent=d.sub;
+    if(badge)badge.textContent=d.badge;
+    title.style.transition='opacity .2s';sub.style.transition='opacity .2s';
+    title.style.opacity='1';sub.style.opacity='1';
+  },180);}
+
+window.addEventListener('DOMContentLoaded',()=>{
+  switchTab('map',document.querySelector('.nav-tab'));});
+
+// ── ACCORDION ─────────────────────────────────────────
+function toggle(id){
+  const card=document.getElementById(id);
+  if(!card)return;
+  const isOpen=card.classList.contains('open');
+  document.querySelectorAll('.tema-card.open').forEach(c=>c.classList.remove('open'));
+  if(!isOpen)card.classList.add('open');}
+
+// ── DARK MODE ─────────────────────────────────────────
+(function(){
+  const saved=localStorage.getItem('mb_theme');
+  if(saved==='dark')document.documentElement.setAttribute('data-theme','dark');
+  updateDarkIcon();})();
+
+function toggleDark(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  if(isDark){document.documentElement.removeAttribute('data-theme');localStorage.setItem('mb_theme','light');}
+  else{document.documentElement.setAttribute('data-theme','dark');localStorage.setItem('mb_theme','dark');}
+  updateDarkIcon();}
+
+function updateDarkIcon(){
+  const isDark=document.documentElement.getAttribute('data-theme')==='dark';
+  const icon=document.getElementById('darkIcon');
+  if(!icon)return;
+  icon.innerHTML=isDark
+    ?'<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>'
+    :'<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>';}
+</script>
+</body>
+</html>
