@@ -69,12 +69,9 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 .notif-dot.show{display:inline-block;}
 
 /* LAYOUT */
-.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 16px;}
-/* ── Tab Slider ── */
-.tab-slider-outer{overflow:hidden;width:100%;position:relative;}
-.tab-slider-track{display:flex;width:200%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
-.tab-slider-track.no-transition{transition:none!important;}
-.tab-slider-pane{width:50%;flex-shrink:0;min-width:0;padding:0;overflow-x:hidden;}
+.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 40px;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
 
 /* SECTION */
 .sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:background .3s,border-color .3s;}
@@ -120,10 +117,6 @@ textarea{resize:vertical;min-height:80px;}
 .modal{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:20px;max-width:500px;width:90%;max-height:80vh;overflow-y:auto;}
 .modal-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
 .modal-title svg{width:16px;height:16px;color:var(--accent);}
-.modal-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;}
-.modal-header .modal-title{margin-bottom:0;}
-.modal-close{width:30px;height:30px;border-radius:50%;border:none;background:var(--surface2);color:var(--text3);cursor:pointer;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:background .15s;}
-.modal-close:hover{background:var(--border);}
 .modal-body{margin-bottom:20px;}
 .modal-field{margin-bottom:14px;}
 .modal-actions{display:flex;gap:10px;margin-top:16px;}
@@ -179,7 +172,7 @@ textarea{resize:vertical;min-height:80px;}
 .btn-dashed svg{width:14px;height:14px;flex-shrink:0;}
 .btn-text-label{display:none;}
 @media(min-width:769px){.btn-text-label{display:inline;}}
-.actions{position:sticky;bottom:0;left:0;right:0;z-index:300;display:flex;gap:8px;background:var(--surface);border-top:1px solid var(--border);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));margin:0 -14px -16px;box-shadow:0 -4px 16px rgba(0,0,0,0.07);}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
 .actions .btn{flex:1;justify-content:center;min-width:80px;font-size:12px;}
 
 /* INVOICE DOC */
@@ -445,12 +438,6 @@ textarea{resize:vertical;min-height:80px;}
             </span>
             <span>Reload Data</span>
           </button>
-          <button onclick="openManageDiscounts();closeHamburger()" style="width:100%;padding:11px 16px;background:none;border:none;border-top:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--text);font-family:inherit;font-size:13px;font-weight:500;">
-            <span style="width:30px;height:30px;border-radius:8px;background:#dcfce7;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-            </span>
-            <span>Kelola Diskon</span>
-          </button>
           <a href="https://markaz-belajar.github.io/invoice-mb/expense" style="width:100%;padding:11px 16px;background:none;border:none;display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--text);font-family:inherit;font-size:13px;font-weight:500;text-decoration:none;">
             <span style="width:30px;height:30px;border-radius:8px;background:var(--danger-dim);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
@@ -492,11 +479,10 @@ textarea{resize:vertical;min-height:80px;}
 </div>
 </div><!-- /sticky -->
 
-<div class="tab-slider-outer" id="tabSliderOuter">
-<div class="tab-slider-track" id="tabSliderTrack">
+<div class="wrap">
 
-<!-- ══ PANE 0: BUAT INVOICE ══ -->
-<div class="tab-slider-pane" id="tab-create"><div class="wrap">
+<!-- ══ TAB: BUAT INVOICE ══ -->
+<div id="tab-create" class="tab-content active">
 
   <!-- Notif permission card — digantikan oleh popup dialog -->
   <div class="notif-perm-card" id="notifPermCard" style="display:none !important;">
@@ -606,39 +592,6 @@ textarea{resize:vertical;min-height:80px;}
       </div>
     </div>
     <div id="studentCard" class="student-empty">Pilih siswa untuk melihat detail.</div>
-
-    <!-- Diskon -->
-    <div id="discountRow" style="margin-top:12px;display:none;flex-direction:column;gap:8px;">
-      <div style="display:flex;align-items:center;justify-content:space-between;">
-        <label style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin:0;">🏷️ Diskon</label>
-        <button onclick="clearDiscount()" id="btnClearDiscount" style="display:none;font-size:10px;color:var(--danger);background:none;border:none;cursor:pointer;font-family:inherit;font-weight:600;padding:2px 6px;">✕ Hapus</button>
-      </div>
-      <select id="discountSelect" onchange="onDiscountSelectChange()" style="width:100%;padding:9px 11px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface2);color:var(--text);font-family:inherit;font-size:13px;">
-        <option value="">— Tidak ada diskon —</option>
-        <option value="__manual__">✏️ Input manual...</option>
-      </select>
-      <!-- Field manual -->
-      <div id="discountManualFields" style="display:none;flex-direction:column;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:10px;">
-        <input type="text" id="discountName" placeholder="Nama diskon (contoh: Beasiswa Yatim)" style="width:100%;">
-        <div style="display:flex;gap:8px;">
-          <div style="flex:1;">
-            <div style="display:flex;gap:6px;margin-bottom:6px;">
-              <button id="discTypeRp" onclick="setDiscountType('nominal')" style="flex:1;padding:7px 6px;border-radius:var(--r);border:2px solid var(--accent);background:var(--accent);color:#fff;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;">Rp</button>
-              <button id="discTypePct" onclick="setDiscountType('persen')" style="flex:1;padding:7px 6px;border-radius:var(--r);border:2px solid var(--border);background:var(--surface);color:var(--text2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;">%</button>
-            </div>
-          </div>
-          <div style="flex:2;position:relative;">
-            <span id="discountPrefix" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);font-size:12px;font-weight:600;color:var(--text3);pointer-events:none;">Rp</span>
-            <input type="number" id="discountValue" min="0" placeholder="0" oninput="recalcDiscount()" style="width:100%;padding-left:30px;">
-          </div>
-        </div>
-      </div>
-      <!-- Tampilan potongan -->
-      <div id="discountSummary" style="display:none;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;padding:8px 12px;justify-content:space-between;align-items:center;">
-        <span style="font-size:12px;color:#15803d;font-weight:500;" id="discountSummaryLabel">Diskon</span>
-        <span style="font-size:13px;font-weight:700;color:#16a34a;font-family:'Geist Mono',monospace;" id="discountAmountLabel">- Rp 0</span>
-      </div>
-    </div>
   </div>
 
   <!-- Biaya Pendaftaran -->
@@ -656,14 +609,6 @@ textarea{resize:vertical;min-height:80px;}
         </div>
       </div>
       <div class="sw" id="regSw"></div>
-    </div>
-    <!-- Ringkasan diskon aktif -->
-    <div id="discountActiveHint" style="display:none;margin-top:8px;padding:8px 12px;background:#f0fdf4;border:1px solid #bbf7d0;border-radius:8px;display:none;align-items:center;justify-content:space-between;">
-      <span style="font-size:12px;color:#15803d;font-weight:500;">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-        <span id="discountActiveHintLabel">Diskon aktif</span>
-      </span>
-      <button onclick="switchTabToDiscount()" style="font-size:11px;color:#16a34a;background:none;border:none;cursor:pointer;font-weight:600;font-family:inherit;text-decoration:underline;">Ubah</button>
     </div>
   </div>
 
@@ -725,10 +670,10 @@ textarea{resize:vertical;min-height:80px;}
       <span class="btn-text-label">Buat Invoice</span>
     </button>
   </div>
-</div></div><!-- /wrap /tab-create pane -->
+</div>
 
-<!-- ══ PANE 1: TRACKING ══ -->
-<div class="tab-slider-pane" id="tab-tracking"><div class="wrap">
+<!-- ══ TAB: TRACKING ══ -->
+<div id="tab-tracking" class="tab-content">
   <div class="sec">
     <div class="sec-title" style="flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:12px;">
       <span style="display:flex;align-items:center;gap:7px;width:100%;justify-content:space-between;">
@@ -822,10 +767,7 @@ textarea{resize:vertical;min-height:80px;}
 </button>
     </div>
   </div>
-</div></div><!-- /wrap /tab-tracking pane -->
-
-</div><!-- /tab-slider-track -->
-</div><!-- /tab-slider-outer -->
+</div>
 
 <!-- MODAL: PEMBAYARAN -->
 <div class="modal-overlay" id="paymentModal">
@@ -863,29 +805,7 @@ textarea{resize:vertical;min-height:80px;}
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('paymentModal')">Batal</button>
-      <button class="btn btn-success" onclick="showPaymentConfirm()">Simpan</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL: KONFIRMASI PEMBAYARAN -->
-<div class="modal-overlay" id="paymentConfirmModal">
-  <div class="modal" style="max-width:380px;">
-    <div class="modal-title" style="gap:10px;">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-      Konfirmasi Data Pembayaran
-    </div>
-    <div class="modal-body">
-      <p style="font-size:13px;color:var(--text2);margin-bottom:14px;">Pastikan data di bawah sudah benar sebelum disimpan.</p>
-      <div id="paymentConfirmBody" style="display:flex;flex-direction:column;gap:0;border:1px solid var(--border);border-radius:var(--r);overflow:hidden;"></div>
-      <p style="font-size:11px;color:var(--text3);margin-top:12px;text-align:center;">Data ini akan disimpan ke Google Sheets dan tidak bisa diundo otomatis.</p>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="closeModal('paymentConfirmModal')">✏️ Koreksi</button>
-      <button class="btn btn-success" id="btnConfirmPaymentFinal" onclick="proceedConfirmPayment()">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        Ya, Simpan
-      </button>
+      <button class="btn btn-success" onclick="confirmPayment()">Simpan</button>
     </div>
   </div>
 </div>
@@ -943,36 +863,6 @@ textarea{resize:vertical;min-height:80px;}
         <div style="font-size:10px;color:var(--text3);margin-top:4px;">Kosongkan untuk hitung otomatis dari item di atas</div>
       </div>
       <div class="modal-field"><label>Catatan</label><input type="text" id="editNotes" placeholder="Catatan tambahan (opsional)"></div>
-
-      <!-- ── Seksi Pembayaran ── -->
-      <div style="border-top:1px solid var(--border);padding-top:12px;margin-top:4px;">
-        <div style="font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-bottom:10px;">Data Pembayaran</div>
-        <div class="g2" style="margin-bottom:10px;">
-          <div class="modal-field"><label>Status Pembayaran</label>
-            <select id="editPaymentStatus">
-              <option value="pending">Pending</option>
-              <option value="partial">Sebagian</option>
-              <option value="paid">Lunas</option>
-            </select>
-          </div>
-          <div class="modal-field"><label>Metode Pembayaran</label>
-            <select id="editPaymentMethod">
-              <option value="">— Pilih metode —</option>
-              <option value="cash">Tunai / Cash</option>
-              <option value="transfer">Transfer Bank</option>
-              <option value="dana">Dana</option>
-              <option value="gopay">GoPay</option>
-              <option value="ovo">OVO</option>
-            </select>
-          </div>
-        </div>
-        <div class="g2" style="margin-bottom:10px;">
-          <div class="modal-field"><label>Jumlah Dibayar (Rp)</label><input type="number" id="editPaymentAmount" placeholder="0" style="font-family:'Geist Mono',monospace;"></div>
-          <div class="modal-field"><label>Tanggal Bayar</label><input type="date" id="editPaymentDate"></div>
-        </div>
-        <div class="modal-field"><label>Catatan Pembayaran</label><input type="text" id="editPaymentNotes" placeholder="Opsional"></div>
-      </div>
-
     </div>
     <div class="modal-actions">
       <button class="btn btn-ghost" onclick="closeModal('editModal')">Batal</button>
@@ -1013,8 +903,6 @@ let student=null, progs=[], pc=0, regOn=false, prevOpen=false;
 let isManualStudent=false;
 let manualStudentData={name:'',parentName:'',phone:'',alamat:'',jenjang:'Elementary',nomorInduk:''};
 let invoices=[];          // sumber utama: dari Google Sheets
-let discountPresets=[];   // preset diskon dari GAS
-let _discountType='nominal'; // 'nominal' | 'persen'
 let knownInvoiceIds=new Set(); // untuk deteksi invoice baru
 let currentInvoiceId=null;
 let currentSendMethod=null;
@@ -1480,7 +1368,7 @@ async function init(){
   checkNotifPermission();
 
   // Load data siswa & harga paralel
-  await Promise.all([loadStudents(), loadPrograms(), loadDiscountPresets()]);
+  await Promise.all([loadStudents(), loadPrograms()]);
 
   // Sync invoice dari Sheets (pertama kali)
   await syncFromSheets(false);
@@ -1568,131 +1456,21 @@ function updateHeaderCard(tabName){
   title.style.opacity='0';sub.style.opacity='0';
   setTimeout(()=>{title.innerHTML=d.title;sub.innerHTML=d.sub;if(badge){badge.textContent=d.badge;badge.className='hdr-greeting-badge'+(tabName==='tracking'?' live':'');}title.style.opacity='1';sub.style.opacity='1';},180);
 }
-/* ═══════════════════════════════════════════════════════
-   TAB SLIDER — real-time drag like native app
-═══════════════════════════════════════════════════════ */
-const TAB_ORDER = ['create','tracking'];
-let _curTabIdx = 0;
-
-function _getTrack(){ return document.getElementById('tabSliderTrack'); }
-
-function switchTab(tabName, btn){
-  switchTabById(tabName);
-  if(tabName==='tracking') clearTrackingDot();
+function switchTab(tabName,btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tabName).classList.add('active');
+  if(btn)btn.classList.add('active');
+  updateHeaderCard(tabName);
+  if(tabName==='tracking')clearTrackingDot();
 }
-
 function switchTabById(tabName){
-  const idx = TAB_ORDER.indexOf(tabName);
-  if(idx < 0) return;
-  _curTabIdx = idx;
-  const track = _getTrack();
-  if(track){
-    track.classList.remove('no-transition');
-    track.style.transform = `translateX(-${idx * 50}%)`;
-  }
-  // Scroll pane tujuan ke atas
-  const pane = document.getElementById('tab-'+tabName);
-  if(pane) pane.scrollTop = 0;
-  window.scrollTo(0, 0);
-  // Update nav buttons
-  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  const navBtn = document.querySelector(`.nav-tab[onclick*="${tabName}"]`);
-  if(navBtn) navBtn.classList.add('active');
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+tabName).classList.add('active');
+  document.querySelector(`.nav-tab[onclick*="${tabName}"]`)?.classList.add('active');
   updateHeaderCard(tabName);
 }
-
-// Real-time drag swipe
-(function initSliderSwipe(){
-  let startX=0, startY=0, lastX=0, startTime=0, dragging=false, lockDir=null;
-  const MIN_DRAG_PX  = 8;   // px sebelum lock arah
-  const SNAP_PCT     = 0.35; // 35% lebar untuk snap (lebih tinggi = kurang sensitif)
-  const VEL_SNAP     = 0.4;  // px/ms — swipe cepat tetap snap meski < SNAP_PCT
-
-  const track = ()=> document.getElementById('tabSliderTrack');
-  const outer = ()=> document.getElementById('tabSliderOuter');
-  function baseOffset(){ return _curTabIdx * 50; }
-
-  // Cek apakah elemen punya scroll horizontal
-  function hasHScrollParent(el){
-    let node = el;
-    while(node && node !== document.body){
-      const st = window.getComputedStyle(node);
-      const ox = st.overflowX;
-      if((ox==='auto'||ox==='scroll') && node.scrollWidth > node.clientWidth+2) return true;
-      node = node.parentElement;
-    }
-    return false;
-  }
-
-  document.addEventListener('touchstart', e=>{
-    if(document.querySelector('.modal-overlay.open')) return;
-    startX = lastX = e.touches[0].clientX;
-    startY = e.touches[0].clientY;
-    startTime = Date.now();
-    dragging = true;
-    lockDir  = null;
-    const t = track();
-    if(t) t.classList.add('no-transition');
-  }, {passive:true});
-
-  document.addEventListener('touchmove', e=>{
-    if(!dragging) return;
-    const dx = e.touches[0].clientX - startX;
-    const dy = e.touches[0].clientY - startY;
-    lastX = e.touches[0].clientX;
-
-    // Lock arah setelah MIN_DRAG_PX
-    if(!lockDir && (Math.abs(dx)>MIN_DRAG_PX || Math.abs(dy)>MIN_DRAG_PX)){
-      // Kalau lebih vertikal, atau ada hscroll parent → lock ke y
-      if(Math.abs(dy) > Math.abs(dx) || hasHScrollParent(e.target)){
-        lockDir = 'y';
-      } else {
-        lockDir = 'x';
-      }
-    }
-    if(lockDir !== 'x') return;
-
-    const totalW = outer()?.offsetWidth || window.innerWidth;
-    const dragPct = (dx / totalW) * 100;
-    let offset = baseOffset() - dragPct;
-    // Rubber-band resistance di ujung
-    if(offset < 0)  offset = offset * 0.15;
-    if(offset > 50) offset = 50 + (offset-50) * 0.15;
-    const t = track();
-    if(t) t.style.transform = `translateX(-${offset}%)`;
-  }, {passive:true});
-
-  document.addEventListener('touchend', e=>{
-    if(!dragging){ dragging=false; return; }
-    dragging = false;
-
-    const t = track();
-    if(lockDir !== 'x'){
-      lockDir = null;
-      if(t){ t.classList.remove('no-transition'); t.style.transform=`translateX(-${baseOffset()}%)`; }
-      return;
-    }
-    lockDir = null;
-    if(t) t.classList.remove('no-transition');
-
-    const dx       = lastX - startX;
-    const dt       = Date.now() - startTime;
-    const velocity = Math.abs(dx) / dt; // px/ms
-    const totalW   = outer()?.offsetWidth || window.innerWidth;
-    const pct      = Math.abs(dx) / totalW;
-
-    let nextIdx = _curTabIdx;
-    const goRight = dx < 0; // geser kiri = ke tracking
-    const goLeft  = dx > 0; // geser kanan = ke create
-
-    if((pct > SNAP_PCT || velocity > VEL_SNAP)){
-      if(goRight && _curTabIdx < TAB_ORDER.length-1) nextIdx++;
-      if(goLeft  && _curTabIdx > 0)                  nextIdx--;
-    }
-
-    switchTabById(TAB_ORDER[nextIdx]);
-  }, {passive:true});
-})();
 
 /* ═══════════════════════════════════════════════════════
    INVOICE NUMBER
@@ -1804,14 +1582,10 @@ function updateManualStudent(){
 function renderStudentCard(){
   const el=document.getElementById('studentCard');
   const activeStudent = isManualStudent ? manualStudentData : student;
-  const discRow=document.getElementById('discountRow');
   if(!activeStudent||!activeStudent.name){
     el.outerHTML='<div id="studentCard" class="student-empty">'+(isManualStudent?'Isi data siswa di atas.':'Pilih siswa untuk melihat detail.')+'</div>';
-    if(discRow)discRow.style.display='none';
     return;
   }
-  // Tampilkan discount row saat siswa sudah dipilih
-  if(discRow)discRow.style.display='flex';
   const s=activeStudent;
   el.outerHTML=`<div id="studentCard" class="student-card">
     <div><div class="sf-lbl">Nama Siswa</div><div class="sf-val">${s.name}</div></div>
@@ -1917,13 +1691,7 @@ function togglePreview(){
 function buildInvHTML(d){
   const rows=d.items.length?d.items.map(it=>`<tr><td style="font-size:11px;">${it.label}</td><td style="font-size:11px;">${it.type||'—'}</td><td style="font-size:11px;">${it.dur?it.dur+' Bulan':'—'}</td><td style="text-align:right;font-family:'Geist Mono',monospace;font-size:11px;">${rp(it.price)}</td></tr>`).join(''):`<tr><td colspan="4" style="text-align:center;color:#bbb;padding:16px;font-size:11px;">Belum ada item</td></tr>`;
   const ibuPrefix = n => (n && n !== '—') ? 'Ibu ' + n : n;
-  const discAmt=d.discount_amount||0;
-  const grandTotal=d.subtotal-discAmt;
-  const discRow=discAmt>0?`<div class="inv-trow" style="color:#16a34a;font-weight:600;"><span>Diskon${d.discount_name?' ('+d.discount_name+')':''}</span><span>- ${rp(discAmt)}</span></div>`:'';
-  const totalSection=discAmt>0
-    ?`<div class="inv-totals"><div class="inv-trow"><span>Subtotal</span><span>${rp(d.subtotal)}</span></div>${discRow}<div class="inv-tfinal"><span class="inv-tflbl">Total</span><span class="inv-tfval">${rp(grandTotal)}</span></div></div>`
-    :`<div class="inv-totals"><div class="inv-trow"><span>Subtotal</span><span>${rp(d.subtotal)}</span></div><div class="inv-tfinal"><span class="inv-tflbl">Total</span><span class="inv-tfval">${rp(d.subtotal)}</span></div></div>`;
-  return `<div class="inv-doc"><div class="inv-top"><div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><img src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" style="height:52px;width:auto;object-fit:contain;" onerror="this.style.display='none'"><div class="inv-title-block"><div class="inv-title-word">Invoice</div><div class="inv-num">${d.invNum}</div>${d.nomorInduk?`<div style="font-size:9px;color:rgba(28,44,58,.45);font-family:'Geist Mono',monospace;margin-top:3px;">${d.nomorInduk}</div>`:''}</div></div></div><div class="inv-body"><div class="inv-parties"><div><div class="inv-plbl">Dari</div><div class="inv-pname">Markaz Belajar</div><div class="inv-psub">Jl.Raya Sirih Rt 01 Rw 05<br>Des. Kamasan, Kec. Cinangka<br>Kab. Serang – Banten<br>08366583082</div></div><div><div class="inv-plbl">Tagihan Kepada</div><div class="inv-pname">${ibuPrefix(d.pName)}</div><div class="inv-psub">${d.sName}${d.jenjang?' · '+d.jenjang:''}${d.guru?' · Guru: '+d.guru:''}</div>${d.alamat?`<div class="inv-psub" style="margin-top:4px;">${d.alamat}</div>`:''}</div></div><div class="inv-meta"><div class="inv-mb"><div class="inv-ml">Tanggal</div><div class="inv-mv">${fmtShort(d.invDate)}</div></div><div class="inv-mb"><div class="inv-ml">Jatuh Tempo</div><div class="inv-mv" style="color:#dc2626;">${fmtShort(d.dueDate)}</div></div><div class="inv-mb"><div class="inv-ml">Dibuat Oleh</div><div class="inv-mv">${d.creator}</div></div></div><table class="inv-tbl"><thead><tr><th>Program</th><th>Tipe</th><th>Durasi</th><th>Harga</th></tr></thead><tbody>${rows}</tbody></table>${totalSection}<div class="inv-bank"><div class="inv-bank-ttl">Informasi Pembayaran</div><div class="inv-bank-row"><span class="inv-bname">Dana</span><span class="inv-bnum">0838-665-830-82</span></div><div class="inv-bank-row"><span class="inv-bname">BCA</span><span class="inv-bnum">651-065-92-26</span></div><div class="inv-ban">a.n Elis Rosmiati</div></div>${d.notes?`<div class="inv-notes">Catatan: ${d.notes}</div>`:''}<div class="inv-created">Dibuat oleh: ${d.creator} · ${fmtShort(d.invDate)}</div></div><div class="inv-footer"><span style="font-size:9px;color:#aaa;">Terima kasih atas kepercayaan Anda</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:#1c1c1c;letter-spacing:-.02em;">Markaz Belajar</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em;">Powered by Qazas Studio</span></div></div>`;
+  return `<div class="inv-doc"><div class="inv-top"><div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><img src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" style="height:52px;width:auto;object-fit:contain;" onerror="this.style.display='none'"><div class="inv-title-block"><div class="inv-title-word">Invoice</div><div class="inv-num">${d.invNum}</div>${d.nomorInduk?`<div style="font-size:9px;color:rgba(28,44,58,.45);font-family:'Geist Mono',monospace;margin-top:3px;">${d.nomorInduk}</div>`:''}</div></div></div><div class="inv-body"><div class="inv-parties"><div><div class="inv-plbl">Dari</div><div class="inv-pname">Markaz Belajar</div><div class="inv-psub">Jl.Raya Sirih Rt 01 Rw 05<br>Des. Kamasan, Kec. Cinangka<br>Kab. Serang – Banten<br>08366583082</div></div><div><div class="inv-plbl">Tagihan Kepada</div><div class="inv-pname">${ibuPrefix(d.pName)}</div><div class="inv-psub">${d.sName}${d.jenjang?' · '+d.jenjang:''}${d.guru?' · Guru: '+d.guru:''}</div>${d.alamat?`<div class="inv-psub" style="margin-top:4px;">${d.alamat}</div>`:''}</div></div><div class="inv-meta"><div class="inv-mb"><div class="inv-ml">Tanggal</div><div class="inv-mv">${fmtShort(d.invDate)}</div></div><div class="inv-mb"><div class="inv-ml">Jatuh Tempo</div><div class="inv-mv" style="color:#dc2626;">${fmtShort(d.dueDate)}</div></div><div class="inv-mb"><div class="inv-ml">Dibuat Oleh</div><div class="inv-mv">${d.creator}</div></div></div><table class="inv-tbl"><thead><tr><th>Program</th><th>Tipe</th><th>Durasi</th><th>Harga</th></tr></thead><tbody>${rows}</tbody></table><div class="inv-totals"><div class="inv-trow"><span>Subtotal</span><span>${rp(d.subtotal)}</span></div><div class="inv-tfinal"><span class="inv-tflbl">Total</span><span class="inv-tfval">${rp(d.subtotal)}</span></div></div><div class="inv-bank"><div class="inv-bank-ttl">Informasi Pembayaran</div><div class="inv-bank-row"><span class="inv-bname">Dana</span><span class="inv-bnum">0838-665-830-82</span></div><div class="inv-bank-row"><span class="inv-bname">BCA</span><span class="inv-bnum">651-065-92-26</span></div><div class="inv-ban">a.n Elis Rosmiati</div></div>${d.notes?`<div class="inv-notes">Catatan: ${d.notes}</div>`:''}<div class="inv-created">Dibuat oleh: ${d.creator} · ${fmtShort(d.invDate)}</div></div><div class="inv-footer"><span style="font-size:9px;color:#aaa;">Terima kasih atas kepercayaan Anda</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:#1c1c1c;letter-spacing:-.02em;">Markaz Belajar</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em;">Powered by Qazas Studio</span></div></div>`;
 }
 
 function buildInv(){
@@ -1932,7 +1700,6 @@ function buildInv(){
   if(regOn)items.push({label:'Biaya Pendaftaran',type:'—',dur:'',price:REG_FEE});
   if(activeStudent&&progs.length>0)progs.forEach(p=>{items.push({label:p.prog,type:p.type,dur:p.dur,price:getProgPrice(p)});});
   const subtotal=items.reduce((s,i)=>s+i.price,0);
-  const disc=getDiscountInfo(subtotal);
   return buildInvHTML({
     invNum:document.getElementById('invoiceNumber').value,
     creator:document.getElementById('createdBy').value,
@@ -1945,9 +1712,7 @@ function buildInv(){
     guru:(!isManualStudent&&student)?student.guru:'',
     alamat:activeStudent?activeStudent.alamat:'',
     nomorInduk:activeStudent?activeStudent.nomorInduk:'',
-    items,subtotal,
-    discount_name:disc.name,discount_type:disc.type,
-    discount_value:disc.value,discount_amount:disc.amount
+    items,subtotal
   });
 }
 function renderPrev(){document.getElementById('previewDoc').innerHTML=buildInv();}
@@ -1982,9 +1747,6 @@ async function finishInvoice(){
   if(regOn)invoiceItems.push({label:'Biaya Pendaftaran',type:'—',dur:'',price:REG_FEE});
   progs.forEach(p=>{invoiceItems.push({label:p.prog,type:p.type,dur:p.dur,price:getProgPrice(p)});});
 
-  const disc=getDiscountInfo(subtotal);
-  const grandTotal=subtotal-disc.amount;
-
   const invData={
     __backendId: 'gs_'+Date.now()+'_'+Math.random().toString(36).slice(2,7),
     invoice_number:       document.getElementById('invoiceNumber').value,
@@ -1999,12 +1761,7 @@ async function finishInvoice(){
     due_date:             document.getElementById('dueDateVal').value,
     created_by:           document.getElementById('createdBy').value,
     notes:                document.getElementById('notes').value,
-    amount:               grandTotal,
-    subtotal:             subtotal,
-    discount_name:        disc.name,
-    discount_type:        disc.type,
-    discount_value:       disc.value,
-    discount_amount:      disc.amount,
+    amount:               subtotal,
     invoice_items:        invoiceItems,
     status:               'created',
     payment_status:       'pending',
@@ -2136,7 +1893,7 @@ function openInvDialog(invId){
       ? `<span class="status-badge status-partial">Cicilan</span>`
       : `<span class="status-badge status-pending-pay">Belum Bayar</span>`;
 
-  const proofSection = (inv.payment_proof && (isPaid || isPartial))
+  const proofSection = inv.payment_proof
     ? `<button onclick="viewProof('${invId}');closeInvDialog()" class="inv-dialog-action-btn" style="background:#e8f7ee;color:#2E9E5B;">
         <span class="btn-icon-big"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4 11 11 11 11-11 11-11-4-11-11-11-11 11-11 11z"/><circle cx="12" cy="12" r="3"/></svg></span><span>Lihat Bukti</span></button>`
     : `<button onclick="closeInvDialog();setTimeout(()=>openProofUpload('${invId}'),200)" class="inv-dialog-action-btn" style="background:var(--surface2);color:var(--text2);">
@@ -2404,55 +2161,6 @@ function hideLoadingPopup(){
   if(el)el.remove();
 }
 
-/* ═══════════════════════════════════════════════════════
-   KONFIRMASI SEBELUM SIMPAN PEMBAYARAN
-═══════════════════════════════════════════════════════ */
-function showPaymentConfirm(){
-  const inv = invoices.find(i=>i.__backendId===currentInvoiceId);
-  if(!inv) return;
-
-  const status  = document.getElementById('paymentStatus').value;
-  const amount  = parseInt(document.getElementById('paymentAmount').value)||0;
-  const date    = document.getElementById('paymentDate').value;
-  const method  = document.getElementById('paymentMethod').value;
-  const notes   = document.getElementById('paymentNotes').value;
-
-  const statusLabel = {pending:'⏳ Menunggu', partial:'⚠️ Sebagian', paid:'✅ Lunas'}[status]||status;
-  const methodLabel = {transfer:'Transfer Bank', dana:'Dana', gopay:'GoPay', ovo:'OVO', cash:'Tunai / Cash'}[method]||method||'—';
-  const dateLabel   = date ? new Date(date).toLocaleDateString('id-ID',{day:'numeric',month:'long',year:'numeric'}) : '—';
-  const hasProof    = !!currentProofData || !!inv.payment_proof;
-
-  const rows = [
-    ['Invoice',    inv.invoice_number],
-    ['Siswa',      inv.student_name],
-    ['Total Tagihan', rp(inv.amount)],
-    ['Status',     statusLabel],
-    ['Jumlah Bayar', rp(amount)],
-    ['Tanggal',    dateLabel],
-    ['Metode',     methodLabel],
-    ['Bukti',      hasProof ? '✓ Ada' : '✗ Belum ada'],
-    ...(notes ? [['Catatan', notes]] : []),
-  ];
-
-  const body = document.getElementById('paymentConfirmBody');
-  body.innerHTML = rows.map((r,i)=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 12px;background:${i%2===0?'var(--surface)':'var(--surface2)'};">
-      <span style="font-size:11px;color:var(--text3);font-weight:600;text-transform:uppercase;letter-spacing:.04em;">${r[0]}</span>
-      <span style="font-size:13px;font-weight:600;color:var(--text);text-align:right;max-width:60%;">${r[1]}</span>
-    </div>`).join('');
-
-  // Warna border sesuai status
-  const colors = {paid:'#16a34a', partial:'#f59e0b', pending:'#6b7280'};
-  body.style.borderColor = colors[status]||'var(--border)';
-
-  document.getElementById('paymentConfirmModal').classList.add('open');
-}
-
-function proceedConfirmPayment(){
-  closeModal('paymentConfirmModal');
-  confirmPayment();
-}
-
 async function confirmPayment(){
   if(!currentInvoiceId)return;
   const updatedBy=document.getElementById('createdBy').value;
@@ -2461,25 +2169,31 @@ async function confirmPayment(){
   let proofUrl=null;
 
   if(currentProofData){
-    // Tampilkan popup loading di tengah layar
     showLoadingPopup('Mengupload Bukti Transfer', 'Sedang mengirim gambar ke server...');
     try{
       const inv=invoices.find(i=>i.__backendId===currentInvoiceId);
-      const mimeType=currentProofData.split(';')[0].replace('data:','');
-      // Fire and forget — GAS butuh ~20 detik, browser throw error tapi data tetap masuk
       const TARGET=60000;
       const steps=[{maxPx:800,q:0.7},{maxPx:600,q:0.6},{maxPx:480,q:0.5},{maxPx:360,q:0.4},{maxPx:260,q:0.35}];
       let compressed=currentProofData;
       try{for(const {maxPx,q} of steps){compressed=await compressImageBase64(compressed,maxPx,q);if(compressed.length<=TARGET)break;}}catch(e){}
       const cleanB64=compressed.includes(',')?compressed.split(',')[1]:compressed;
-      const filename='bukti_'+(inv?.invoice_number||Date.now())+'.jpg';
+      const filename='bukti_'+(inv?.invoice_number||Date.now()).toString().replace(/\//g,'-')+'.jpg';
       const payload=JSON.stringify({base64:cleanB64,mimeType:'image/jpeg',filename});
-      // Kirim tanpa await — GAS proses di background
-      fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload,cache:'no-store'}).catch(()=>{});
-      // Kurangi delay dari 3000ms → 500ms, GAS tetap jalan di background
       updateLoadingPopup('Mengupload Bukti Transfer','Gambar dikirim ke server...');
-      await new Promise(r=>setTimeout(r,500));
-      proofUrl=filename; // tandai bahwa bukti sudah dikirim
+      // Tunggu response GAS untuk dapat URL asli (timeout 25 detik)
+      try{
+        const controller=new AbortController();
+        const tid=setTimeout(()=>controller.abort(),25000);
+        const resp=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload,cache:'no-store',signal:controller.signal});
+        clearTimeout(tid);
+        const result=await resp.json();
+        if(result.viewUrl||result.url){
+          proofUrl=result.viewUrl||result.url; // URL Google Drive yang bisa dibuka
+        }
+      }catch(e){
+        // GAS timeout — simpan filename saja, gambar tetap terupload di background
+        proofUrl=filename;
+      }
     }catch(e){}
   }
 
@@ -2513,11 +2227,25 @@ async function confirmPayment(){
 function viewProof(invId){
   const inv=invoices.find(i=>i.__backendId===invId);
   if(!inv||!inv.payment_proof){showToast('Tidak ada bukti pembayaran.',false);return;}
-  if(inv.payment_proof.startsWith('http')){window.open(inv.payment_proof,'_blank');return;}
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  modal.innerHTML=`<div style="position:relative;background:#fff;border-radius:12px;padding:16px;max-width:90%;max-height:90%;"><button style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:24px;cursor:pointer;" onclick="this.closest('[style*=fixed]').remove();">✕</button><img src="${inv.payment_proof}" style="max-width:100%;max-height:calc(90vh - 60px);border-radius:8px;object-fit:contain;"></div>`;
-  document.body.appendChild(modal);
+
+  const proof=inv.payment_proof;
+
+  // Kalau URL lengkap → buka di tab baru
+  if(proof.startsWith('http')){
+    // Konversi lh3.googleusercontent.com atau drive URL ke format yang bisa ditampilkan
+    let url=proof;
+    // drive.google.com/uc?id=xxx → bisa langsung dibuka
+    // lh3.googleusercontent.com/d/xxx → convert ke drive viewer
+    if(url.includes('lh3.googleusercontent.com/d/')){
+      const fileId=url.split('/d/')[1].split('?')[0].split('/')[0];
+      url=`https://drive.google.com/file/d/${fileId}/view`;
+    }
+    window.open(url,'_blank');
+    return;
+  }
+
+  // Filename saja (upload lama yang belum dapat URL) → buka folder Drive
+  showToast('URL bukti tidak tersedia. Cek folder Drive Markaz.',false);
 }
 
 function openProofUpload(invId){
@@ -2640,13 +2368,6 @@ function openEditModal(invId){
   document.getElementById('editNotes').value=inv.notes||'';
   document.getElementById('editTotal').value=inv.amount||0;
 
-  // Isi field pembayaran
-  document.getElementById('editPaymentStatus').value = inv.payment_status||'pending';
-  document.getElementById('editPaymentMethod').value = inv.payment_method||'';
-  document.getElementById('editPaymentAmount').value = inv.payment_amount||0;
-  document.getElementById('editPaymentDate').value   = inv.payment_date||'';
-  document.getElementById('editPaymentNotes').value  = inv.payment_notes||'';
-
   // Load items
   editItems=(inv.invoice_items&&inv.invoice_items.length>0)
     ?inv.invoice_items.map((it,i)=>({id:i+1,label:it.label||'',type:it.type||'—',dur:it.dur||'',price:it.price||0}))
@@ -2744,11 +2465,6 @@ async function confirmEdit(){
     notes:               document.getElementById('editNotes').value,
     amount:              finalTotal,
     invoice_items:       editItems,
-    payment_status:      document.getElementById('editPaymentStatus').value,
-    payment_method:      document.getElementById('editPaymentMethod').value,
-    payment_amount:      parseInt(document.getElementById('editPaymentAmount').value)||0,
-    payment_date:        document.getElementById('editPaymentDate').value,
-    payment_notes:       document.getElementById('editPaymentNotes').value,
   };
 
   try{
@@ -2777,262 +2493,13 @@ function downloadInvoicePDF(invId){
   const inv=invoices.find(i=>i.__backendId===invId);if(!inv)return;
   const st=STUDENTS.find(s=>s.id===inv.student_id);
   const items=inv.invoice_items&&inv.invoice_items.length>0?inv.invoice_items:[{label:'Layanan Bimbingan Belajar',type:'—',dur:'',price:inv.amount}];
-  const discAmt=inv.discount_amount||0;
-  const baseSubtotal=discAmt>0?(inv.subtotal||(inv.amount+discAmt)):inv.amount;
-  const html=buildInvHTML({invNum:inv.invoice_number,creator:inv.created_by,notes:inv.notes||'',invDate:inv.created_date,dueDate:inv.due_date,pName:inv.student_parent||(st?st.parentName:inv.student_name),sName:inv.student_name,jenjang:inv.student_jenjang||'',guru:st?st.guru:'',alamat:inv.student_alamat||(st?st.alamat:''),nomorInduk:inv.student_nomor_induk||(st?st.nomorInduk:''),items,subtotal:baseSubtotal,discount_name:inv.discount_name||'',discount_type:inv.discount_type||'',discount_value:inv.discount_value||0,discount_amount:discAmt});
+  const html=buildInvHTML({invNum:inv.invoice_number,creator:inv.created_by,notes:inv.notes||'',invDate:inv.created_date,dueDate:inv.due_date,pName:inv.student_parent||(st?st.parentName:inv.student_name),sName:inv.student_name,jenjang:inv.student_jenjang||'',guru:st?st.guru:'',alamat:inv.student_alamat||(st?st.alamat:''),nomorInduk:inv.student_nomor_induk||(st?st.nomorInduk:''),items,subtotal:inv.amount});
   _renderPDF(html,inv.invoice_number+(inv.payment_status==='paid'?'_LUNAS':'')+'.pdf',inv.payment_status==='paid');
 }
 
 /* ═══════════════════════════════════════════════════════
    RESET FORM
 ═══════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════
-   DISCOUNT
-═══════════════════════════════════════════════════════ */
-function setDiscountType(type){
-  _discountType=type;
-  const btnRp=document.getElementById('discTypeRp');
-  const btnPct=document.getElementById('discTypePct');
-  const prefix=document.getElementById('discountPrefix');
-  if(!btnRp)return;
-  const on='flex:1;padding:7px 6px;border-radius:var(--r);border:2px solid var(--accent);background:var(--accent);color:#fff;font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;';
-  const off='flex:1;padding:7px 6px;border-radius:var(--r);border:2px solid var(--border);background:var(--surface);color:var(--text2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer;';
-  btnRp.style.cssText=type==='nominal'?on:off;
-  btnPct.style.cssText=type==='persen'?on:off;
-  if(prefix)prefix.textContent=type==='persen'?'%':'Rp';
-  recalcDiscount();
-}
-
-function getSubtotalNow(){
-  let sub=0;
-  if(regOn)sub+=REG_FEE;
-  progs.forEach(p=>{sub+=getProgPrice(p);});
-  return sub;
-}
-
-function recalcDiscount(){
-  const val=parseFloat(document.getElementById('discountValue')?.value||0)||0;
-  const sub=getSubtotalNow();
-  let amt=0;
-  if(_discountType==='persen')amt=Math.round(sub*Math.min(val,100)/100);
-  else amt=Math.min(val,sub);
-  const lbl=document.getElementById('discountAmountLabel');
-  if(lbl)lbl.textContent='- '+rp(amt);
-  const nameEl=document.getElementById('discountName');
-  const summLbl=document.getElementById('discountSummaryLabel');
-  const discName=(nameEl?.value||'Diskon');
-  const discSuffix=amt>0&&_discountType==='persen'?' ('+val+'%)':'';
-  if(summLbl)summLbl.textContent=discName+discSuffix;
-  const summ=document.getElementById('discountSummary');
-  if(summ)summ.style.display=amt>0?'flex':'none';
-
-  // Sync hint di seksi Biaya Pendaftaran
-  const hint=document.getElementById('discountActiveHint');
-  const hintLbl=document.getElementById('discountActiveHintLabel');
-  const sel=document.getElementById('discountSelect')?.value||'';
-  if(hint&&hintLbl){
-    if(sel&&amt>0){
-      hintLbl.textContent='🏷️ '+discName+discSuffix+' — '+(amt>0?'- '+rp(amt):'');
-      hint.style.display='flex';
-    } else {
-      hint.style.display='none';
-    }
-  }
-
-  if(prevOpen)renderPrev();
-}
-
-// Scroll ke area diskon di seksi "Tagihan Kepada"
-function switchTabToDiscount(){
-  const discRow=document.getElementById('discountRow');
-  if(discRow)discRow.scrollIntoView({behavior:'smooth',block:'center'});
-}
-
-function getDiscountInfo(subtotal){
-  const sel=document.getElementById('discountSelect')?.value||'';
-  if(!sel)return{name:'',type:'',value:0,amount:0};
-  const name=(document.getElementById('discountName')?.value||'').trim();
-  const val=parseFloat(document.getElementById('discountValue')?.value||0)||0;
-  const type=_discountType;
-  let amount=0;
-  if(type==='persen')amount=Math.round(subtotal*Math.min(val,100)/100);
-  else amount=Math.min(val,subtotal);
-  return{name,type,value:val,amount};
-}
-
-function onDiscountSelectChange(){
-  const sel=document.getElementById('discountSelect').value;
-  const manual=document.getElementById('discountManualFields');
-  const clearBtn=document.getElementById('btnClearDiscount');
-  if(!sel){
-    manual.style.display='none';
-    document.getElementById('discountSummary').style.display='none';
-    if(clearBtn)clearBtn.style.display='none';
-    if(prevOpen)renderPrev();
-    return;
-  }
-  if(clearBtn)clearBtn.style.display='inline';
-  if(sel==='__manual__'){
-    manual.style.display='flex';
-    document.getElementById('discountName').readOnly=false;
-    document.getElementById('discountValue').readOnly=false;
-    document.getElementById('discountName').value='';
-    document.getElementById('discountValue').value='';
-    setDiscountType('nominal');
-  } else {
-    const preset=discountPresets.find(p=>p.__id===sel);
-    if(preset){
-      manual.style.display='flex';
-      document.getElementById('discountName').value=preset.name;
-      document.getElementById('discountName').readOnly=true;
-      document.getElementById('discountValue').value=preset.value;
-      document.getElementById('discountValue').readOnly=true;
-      setDiscountType(preset.type||'nominal');
-    }
-  }
-  recalcDiscount();
-}
-
-function clearDiscount(){
-  const sel=document.getElementById('discountSelect');
-  if(sel)sel.value='';
-  document.getElementById('discountManualFields').style.display='none';
-  document.getElementById('discountSummary').style.display='none';
-  const hint=document.getElementById('discountActiveHint');
-  if(hint)hint.style.display='none';
-  document.getElementById('btnClearDiscount').style.display='none';
-  if(prevOpen)renderPrev();
-}
-
-function populateDiscountSelect(){
-  const sel=document.getElementById('discountSelect');
-  if(!sel)return;
-  const cur=sel.value;
-  while(sel.options.length>2)sel.remove(2);
-  discountPresets.forEach(p=>{
-    const opt=document.createElement('option');
-    opt.value=p.__id;
-    opt.textContent='🏷️ '+p.name+(p.type==='persen'?' ('+p.value+'%)':' ('+rp(p.value)+')');
-    sel.appendChild(opt);
-  });
-  if([...sel.options].some(o=>o.value===cur))sel.value=cur;
-}
-
-async function loadDiscountPresets(){
-  if(!hasGasUrl())return;
-  try{
-    const resp=await fetch(`${GAS_URL}?action=getDiscounts&t=${Date.now()}`,{cache:'no-store'});
-    const data=await resp.json();
-    discountPresets=data.discounts||[];
-    populateDiscountSelect();
-  }catch(e){console.warn('loadDiscountPresets:',e);}
-}
-
-async function saveDiscountPreset(name,type,value){
-  const preset={__id:'dp_'+Date.now()+'_'+Math.random().toString(36).slice(2,6),name,type,value:Number(value)};
-  const payload=JSON.stringify({action:'saveDiscount',discount:preset});
-  const url=`${GAS_URL}?payload=${encodeURIComponent(payload)}`;
-  const resp=await fetch(url,{cache:'no-store'});
-  const data=await resp.json();
-  if(data.ok){discountPresets.push(preset);populateDiscountSelect();}
-  return data;
-}
-
-async function deleteDiscountPreset(id){
-  const payload=JSON.stringify({action:'deleteDiscount',discountId:id});
-  const url=`${GAS_URL}?payload=${encodeURIComponent(payload)}`;
-  const resp=await fetch(url,{cache:'no-store'});
-  const data=await resp.json();
-  if(data.ok){discountPresets=discountPresets.filter(p=>p.__id!==id);populateDiscountSelect();}
-  return data;
-}
-
-function openManageDiscounts(){
-  let modal=document.getElementById('manageDiscountsModal');
-  if(!modal){
-    modal=document.createElement('div');
-    modal.id='manageDiscountsModal';
-    modal.className='modal-overlay';
-    // Klik backdrop → tutup
-    modal.addEventListener('click', e=>{ if(e.target===modal) closeModal('manageDiscountsModal'); });
-    modal.innerHTML=`
-      <div class="modal" style="max-width:400px;width:92%;">
-        <div class="modal-header">
-          <div class="modal-title">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-            Kelola Preset Diskon
-          </div>
-          <button class="modal-close" onclick="closeModal('manageDiscountsModal')">✕</button>
-        </div>
-        <div class="modal-body" style="display:flex;flex-direction:column;gap:14px;">
-          <div style="background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;gap:10px;">
-            <div style="font-size:12px;font-weight:600;color:var(--text2);">Tambah Preset Baru</div>
-            <input type="text" id="newDiscName" placeholder="Nama diskon (contoh: Beasiswa Yatim)">
-            <div style="display:flex;gap:8px;">
-              <select id="newDiscType" style="flex:1;padding:9px 11px;border-radius:var(--r);border:1px solid var(--border);background:var(--surface);color:var(--text);font-family:inherit;font-size:13px;">
-                <option value="nominal">Rp Nominal</option>
-                <option value="persen">% Persen</option>
-              </select>
-              <input type="number" id="newDiscValue" min="0" placeholder="Nilai" style="flex:1;">
-            </div>
-            <button id="btnAddDiscount" onclick="addDiscountPreset()" style="padding:9px;border-radius:var(--r);border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">+ Tambah Preset</button>
-          </div>
-          <div>
-            <div style="font-size:12px;font-weight:600;color:var(--text2);margin-bottom:8px;">Preset Tersimpan</div>
-            <div id="discountPresetList" style="display:flex;flex-direction:column;gap:6px;max-height:220px;overflow-y:auto;"></div>
-          </div>
-        </div>
-      </div>`;
-    document.body.appendChild(modal);
-  }
-  renderDiscountPresetList();
-  document.getElementById('manageDiscountsModal').classList.add('open');
-}
-
-function renderDiscountPresetList(){
-  const list=document.getElementById('discountPresetList');
-  if(!list)return;
-  if(discountPresets.length===0){
-    list.innerHTML='<div style="text-align:center;color:var(--text3);font-size:12px;padding:16px;">Belum ada preset diskon</div>';
-    return;
-  }
-  list.innerHTML=discountPresets.map(p=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);">
-      <div>
-        <div style="font-size:13px;font-weight:600;color:var(--text);">${p.name}</div>
-        <div style="font-size:11px;color:var(--text3);">${p.type==='persen'?p.value+'%':rp(p.value)}</div>
-      </div>
-      <button onclick="removeDiscountPreset('${p.__id}')" style="width:30px;height:30px;border-radius:6px;border:1px solid var(--danger);background:var(--danger-dim);color:var(--danger);cursor:pointer;font-size:16px;display:flex;align-items:center;justify-content:center;line-height:1;">×</button>
-    </div>`).join('');
-}
-
-async function addDiscountPreset(){
-  const name=document.getElementById('newDiscName').value.trim();
-  const type=document.getElementById('newDiscType').value;
-  const value=parseFloat(document.getElementById('newDiscValue').value)||0;
-  if(!name){showToast('Nama diskon wajib diisi.',false);return;}
-  if(!value){showToast('Nilai diskon wajib diisi.',false);return;}
-  const btn=document.getElementById('btnAddDiscount');
-  btn.textContent='Menyimpan...';btn.disabled=true;
-  try{
-    await saveDiscountPreset(name,type,value);
-    document.getElementById('newDiscName').value='';
-    document.getElementById('newDiscValue').value='';
-    renderDiscountPresetList();
-    showToast('Preset diskon tersimpan! ✓',true);
-  }catch(e){showToast('Gagal: '+e.message,false);
-  }finally{btn.textContent='+ Tambah Preset';btn.disabled=false;}
-}
-
-async function removeDiscountPreset(id){
-  if(!confirm('Hapus preset diskon ini?'))return;
-  try{
-    await deleteDiscountPreset(id);
-    renderDiscountPresetList();
-    showToast('Preset dihapus.',true);
-  }catch(e){showToast('Gagal hapus: '+e.message,false);}
-}
-
 function resetForm(){
   student=null;progs=[];regOn=false;prevOpen=false;
   document.getElementById('studentSel').value='';
@@ -3050,9 +2517,6 @@ function resetForm(){
   if(selWrap)selWrap.style.display='block';
   isManualStudent=false;
   renderStudentCard();renderProgList();
-  // Reset diskon
-  clearDiscount();
-  document.getElementById('discountRow').style.display='none';
   document.getElementById('previewPanel').classList.remove('open');
   document.getElementById('previewToggleBtn').classList.remove('open');
   const span=document.querySelector('#previewToggleBtn .ptb-left');
