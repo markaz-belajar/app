@@ -2461,25 +2461,29 @@ async function confirmPayment(){
   let proofUrl=null;
 
   if(currentProofData){
-    // Tampilkan popup loading di tengah layar
     showLoadingPopup('Mengupload Bukti Transfer', 'Sedang mengirim gambar ke server...');
     try{
       const inv=invoices.find(i=>i.__backendId===currentInvoiceId);
-      const mimeType=currentProofData.split(';')[0].replace('data:','');
-      // Fire and forget — GAS butuh ~20 detik, browser throw error tapi data tetap masuk
       const TARGET=60000;
       const steps=[{maxPx:800,q:0.7},{maxPx:600,q:0.6},{maxPx:480,q:0.5},{maxPx:360,q:0.4},{maxPx:260,q:0.35}];
       let compressed=currentProofData;
       try{for(const {maxPx,q} of steps){compressed=await compressImageBase64(compressed,maxPx,q);if(compressed.length<=TARGET)break;}}catch(e){}
       const cleanB64=compressed.includes(',')?compressed.split(',')[1]:compressed;
-      const filename='bukti_'+(inv?.invoice_number||Date.now())+'.jpg';
+      const filename='bukti_'+(inv?.invoice_number||Date.now()).toString().replace(/\//g,'-')+'.jpg';
       const payload=JSON.stringify({base64:cleanB64,mimeType:'image/jpeg',filename});
-      // Kirim tanpa await — GAS proses di background
-      fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload,cache:'no-store'}).catch(()=>{});
-      // Kurangi delay dari 3000ms → 500ms, GAS tetap jalan di background
       updateLoadingPopup('Mengupload Bukti Transfer','Gambar dikirim ke server...');
-      await new Promise(r=>setTimeout(r,500));
-      proofUrl=filename; // tandai bahwa bukti sudah dikirim
+      // Tunggu response GAS untuk dapat URL Drive (timeout 30 detik)
+      try{
+        const controller=new AbortController();
+        const tid=setTimeout(()=>controller.abort(),30000);
+        const resp=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload,cache:'no-store',signal:controller.signal});
+        clearTimeout(tid);
+        const result=await resp.json();
+        if(result.viewUrl||result.url) proofUrl=result.viewUrl||result.url;
+        else proofUrl=filename; // fallback
+      }catch(e){
+        proofUrl=filename; // timeout/error — tetap simpan filename
+      }
     }catch(e){}
   }
 
@@ -2513,11 +2517,24 @@ async function confirmPayment(){
 function viewProof(invId){
   const inv=invoices.find(i=>i.__backendId===invId);
   if(!inv||!inv.payment_proof){showToast('Tidak ada bukti pembayaran.',false);return;}
-  if(inv.payment_proof.startsWith('http')){window.open(inv.payment_proof,'_blank');return;}
-  const modal=document.createElement('div');
-  modal.style.cssText='position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);z-index:9999;display:flex;align-items:center;justify-content:center;';
-  modal.innerHTML=`<div style="position:relative;background:#fff;border-radius:12px;padding:16px;max-width:90%;max-height:90%;"><button style="position:absolute;top:8px;right:8px;background:none;border:none;font-size:24px;cursor:pointer;" onclick="this.closest('[style*=fixed]').remove();">✕</button><img src="${inv.payment_proof}" style="max-width:100%;max-height:calc(90vh - 60px);border-radius:8px;object-fit:contain;"></div>`;
-  document.body.appendChild(modal);
+  const proof=inv.payment_proof;
+  if(proof.startsWith('http')){
+    let url=proof;
+    // lh3.googleusercontent.com/d/FILE_ID → konversi ke Drive viewer
+    if(url.includes('lh3.googleusercontent.com/d/')){
+      const fileId=url.split('/d/')[1].split('?')[0].split('/')[0];
+      url=`https://drive.google.com/file/d/${fileId}/view`;
+    }
+    // drive.google.com/uc?id=FILE_ID → konversi ke Drive viewer
+    if(url.includes('drive.google.com/uc?')){
+      const m=url.match(/[?&]id=([^&]+)/);
+      if(m) url=`https://drive.google.com/file/d/${m[1]}/view`;
+    }
+    window.open(url,'_blank');
+    return;
+  }
+  // Filename lama (belum dapat URL) — info user
+  showToast('Bukti lama tidak tersimpan URL-nya. Silakan upload ulang.',false);
 }
 
 function openProofUpload(invId){
