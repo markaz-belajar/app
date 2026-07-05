@@ -2472,17 +2472,15 @@ async function confirmPayment(){
       const filename='bukti_'+(inv?.invoice_number||Date.now()).toString().replace(/\//g,'-')+'.jpg';
       const payload=JSON.stringify({base64:cleanB64,mimeType:'image/jpeg',filename});
       updateLoadingPopup('Mengupload Bukti Transfer','Gambar dikirim ke server...');
-      // Tunggu response GAS untuk dapat URL Drive (timeout 30 detik)
       try{
         const controller=new AbortController();
         const tid=setTimeout(()=>controller.abort(),30000);
         const resp=await fetch(GAS_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:payload,cache:'no-store',signal:controller.signal});
         clearTimeout(tid);
         const result=await resp.json();
-        if(result.viewUrl||result.url) proofUrl=result.viewUrl||result.url;
-        else proofUrl=filename; // fallback
+        proofUrl=result.viewUrl||result.url||filename;
       }catch(e){
-        proofUrl=filename; // timeout/error — tetap simpan filename
+        proofUrl=filename; // timeout — tetap simpan filename sebagai fallback
       }
     }catch(e){}
   }
@@ -2516,10 +2514,10 @@ async function confirmPayment(){
 ═══════════════════════════════════════════════════════ */
 function viewProof(invId){
   const inv=invoices.find(i=>i.__backendId===invId);
-  if(!inv||!inv.payment_proof){showToast('Tidak ada bukti pembayaran.',false);return;}
+  if(!inv||!inv.payment_proof){_showReuploadPrompt(invId);return;}
   const proof=inv.payment_proof;
 
-  // URL lengkap → buka langsung
+  // URL lengkap → konversi ke format yang bisa dibuka, lalu buka
   if(proof.startsWith('http')){
     let url=proof;
     if(url.includes('lh3.googleusercontent.com/d/')){
@@ -2534,26 +2532,42 @@ function viewProof(invId){
     return;
   }
 
-  // Filename saja → coba cari di Drive via GAS
+  // Bukan URL (filename lama) → coba cari di Drive dulu
   showToast('Mencari bukti di Google Drive...', true);
-  const filename = proof.replace(/^bukti_/,''); // strip prefix jika ada
-  const searchName = proof; // gunakan nama asli
-  const gasUrl = `${GAS_URL}?action=findProof&filename=${encodeURIComponent(searchName)}`;
-  fetch(gasUrl,{cache:'no-store'})
+  fetch(`${GAS_URL}?action=findProof&filename=${encodeURIComponent(proof)}`,{cache:'no-store'})
     .then(r=>r.json())
     .then(data=>{
       if(data.url){
-        // Update di Sheets supaya next time langsung ada URL
+        // Ketemu → update Sheets supaya next time langsung ada URL
         updateInvoiceInSheets(invId,{payment_proof:data.url},document.getElementById('createdBy').value).catch(()=>{});
-        // Update local
-        const localInv=invoices.find(i=>i.__backendId===invId);
-        if(localInv) localInv.payment_proof=data.url;
+        const loc=invoices.find(i=>i.__backendId===invId);
+        if(loc) loc.payment_proof=data.url;
         window.open(data.url,'_blank');
       } else {
-        showToast('File tidak ditemukan di Drive. Silakan upload ulang.',false);
+        _showReuploadPrompt(invId);
       }
     })
-    .catch(()=>showToast('Gagal mencari bukti. Coba upload ulang.',false));
+    .catch(()=>_showReuploadPrompt(invId));
+}
+
+function _showReuploadPrompt(invId){
+  let m=document.getElementById('reuploadModal');
+  if(m) m.remove();
+  m=document.createElement('div');
+  m.id='reuploadModal';
+  m.className='modal-overlay open';
+  m.addEventListener('click',e=>{ if(e.target===m) m.remove(); });
+  m.innerHTML=`
+    <div class="modal" style="max-width:320px;text-align:center;padding:28px 20px;">
+      <div style="font-size:36px;margin-bottom:12px;">📎</div>
+      <div style="font-size:15px;font-weight:700;color:var(--text);margin-bottom:8px;">Bukti Tidak Ditemukan</div>
+      <div style="font-size:13px;color:var(--text3);margin-bottom:20px;line-height:1.6;">File bukti tidak tersimpan sebagai link.<br>Silakan upload ulang bukti pembayaran.</div>
+      <div style="display:flex;gap:8px;">
+        <button onclick="document.getElementById('reuploadModal').remove()" style="flex:1;padding:10px;border-radius:var(--r);border:1.5px solid var(--border);background:var(--surface2);color:var(--text2);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">Batal</button>
+        <button onclick="document.getElementById('reuploadModal').remove();setTimeout(()=>openProofUpload('${invId}'),100)" style="flex:1;padding:10px;border-radius:var(--r);border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">📤 Upload Ulang</button>
+      </div>
+    </div>`;
+  document.body.appendChild(m);
 }
 
 function openProofUpload(invId){
