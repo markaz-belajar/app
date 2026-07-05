@@ -2518,14 +2518,14 @@ function viewProof(invId){
   const inv=invoices.find(i=>i.__backendId===invId);
   if(!inv||!inv.payment_proof){showToast('Tidak ada bukti pembayaran.',false);return;}
   const proof=inv.payment_proof;
+
+  // URL lengkap → buka langsung
   if(proof.startsWith('http')){
     let url=proof;
-    // lh3.googleusercontent.com/d/FILE_ID → konversi ke Drive viewer
     if(url.includes('lh3.googleusercontent.com/d/')){
       const fileId=url.split('/d/')[1].split('?')[0].split('/')[0];
       url=`https://drive.google.com/file/d/${fileId}/view`;
     }
-    // drive.google.com/uc?id=FILE_ID → konversi ke Drive viewer
     if(url.includes('drive.google.com/uc?')){
       const m=url.match(/[?&]id=([^&]+)/);
       if(m) url=`https://drive.google.com/file/d/${m[1]}/view`;
@@ -2533,8 +2533,27 @@ function viewProof(invId){
     window.open(url,'_blank');
     return;
   }
-  // Filename lama (belum dapat URL) — info user
-  showToast('Bukti lama tidak tersimpan URL-nya. Silakan upload ulang.',false);
+
+  // Filename saja → coba cari di Drive via GAS
+  showToast('Mencari bukti di Google Drive...', true);
+  const filename = proof.replace(/^bukti_/,''); // strip prefix jika ada
+  const searchName = proof; // gunakan nama asli
+  const gasUrl = `${GAS_URL}?action=findProof&filename=${encodeURIComponent(searchName)}`;
+  fetch(gasUrl,{cache:'no-store'})
+    .then(r=>r.json())
+    .then(data=>{
+      if(data.url){
+        // Update di Sheets supaya next time langsung ada URL
+        updateInvoiceInSheets(invId,{payment_proof:data.url},document.getElementById('createdBy').value).catch(()=>{});
+        // Update local
+        const localInv=invoices.find(i=>i.__backendId===invId);
+        if(localInv) localInv.payment_proof=data.url;
+        window.open(data.url,'_blank');
+      } else {
+        showToast('File tidak ditemukan di Drive. Silakan upload ulang.',false);
+      }
+    })
+    .catch(()=>showToast('Gagal mencari bukti. Coba upload ulang.',false));
 }
 
 function openProofUpload(invId){
