@@ -2137,7 +2137,7 @@ function openInvDialog(invId){
       : `<span class="status-badge status-pending-pay">Belum Bayar</span>`;
 
   const proofSection = (inv.payment_proof && (isPaid || isPartial))
-    ? `<button onclick="viewProof('${invId}');closeInvDialog()" class="inv-dialog-action-btn" style="background:#e8f7ee;color:#2E9E5B;">
+    ? `<button onclick="closeInvDialog();setTimeout(()=>viewProof('${invId}'),200)" class="inv-dialog-action-btn" style="background:#e8f7ee;color:#2E9E5B;">
         <span class="btn-icon-big"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4 11 11 11 11-11 11-11-4-11-11-11-11 11-11 11z"/><circle cx="12" cy="12" r="3"/></svg></span><span>Lihat Bukti</span></button>`
     : `<button onclick="closeInvDialog();setTimeout(()=>openProofUpload('${invId}'),200)" class="inv-dialog-action-btn" style="background:var(--surface2);color:var(--text2);">
         <span class="btn-icon-big"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg></span><span>Upload Bukti</span></button>`;
