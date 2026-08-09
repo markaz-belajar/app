@@ -95,22 +95,29 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .btn-danger{background:var(--danger);color:#fff;}
 .btn-danger:hover{opacity:.9;}
 .btn-small{padding:6px 10px;font-size:11px;border-radius:8px;}
-.btn-icon{background:var(--surface2);border:1px solid var(--border);padding:6px;border-radius:8px;color:var(--text3);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;}
+.btn-icon{background:var(--surface2);border:1px solid var(--border);padding:0;width:32px;height:32px;border-radius:50%;color:var(--text3);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
 .btn-icon:hover{background:var(--danger-dim);color:var(--danger);}
 .btn-full{width:100%;justify-content:center;}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
 .actions .btn{flex:1;justify-content:center;min-width:120px;}
 
 /* TABLE / LIST */
-.kw-row{display:flex;align-items:center;gap:10px;padding:12px 10px;border-bottom:1px solid var(--border);}
+.kw-row{display:flex;align-items:center;gap:12px;padding:13px 10px;border-bottom:1px solid var(--border);flex-wrap:wrap;}
 .kw-row:last-child{border-bottom:none;}
 .kw-row:hover{background:rgba(27,108,168,0.04);}
-.kw-row-main{flex:1;min-width:0;}
+.kw-row-main{flex:1;min-width:160px;}
 .kw-row-no{font-family:'Geist Mono',monospace;font-size:11.5px;color:var(--accent);font-weight:700;}
 .kw-row-name{font-size:13px;font-weight:600;color:var(--text);margin-top:2px;}
-.kw-row-sub{font-size:11px;color:var(--text3);margin-top:2px;}
-.kw-row-amt{font-family:'Geist Mono',monospace;font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;}
-.kw-row-actions{display:flex;gap:4px;flex-shrink:0;}
+.kw-row-sub{font-size:11px;color:var(--text3);margin-top:2px;cursor:help;display:inline-block;}
+.kw-row-right{display:flex;align-items:center;gap:10px;flex-shrink:0;margin-left:auto;}
+.kw-row-amt{font-family:'Geist Mono',monospace;font-size:13.5px;font-weight:700;color:var(--text);white-space:nowrap;}
+.kw-row-actions{display:flex;gap:6px;flex-shrink:0;}
+
+/* DETAIL POPOVER (hover desktop / long-press mobile) */
+.detail-popover{display:none;position:fixed;z-index:8500;max-width:280px;background:#1C2B3A;color:#fff;padding:11px 14px;border-radius:12px;font-size:12.5px;line-height:1.55;box-shadow:0 10px 28px rgba(0,0,0,.3);pointer-events:none;}
+.detail-popover.show{display:block;}
+.detail-popover .dp-label{font-size:9.5px;opacity:.55;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.detail-popover .dp-block + .dp-block{margin-top:9px;}
 
 /* FILTER BAR */
 .filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
@@ -426,6 +433,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 </div>
 
 <div id="toast" class="toast"></div>
+<div id="detailPopover" class="detail-popover"></div>
 
 <!-- OVERLAY VERIFIKASI (muncul saat kuitansi di-scan via QR, ?verify=NO_KUITANSI) -->
 <div id="verifyOverlay" class="verify-overlay">
@@ -736,11 +744,11 @@ function renderList() {
       <div class="kw-row-main">
         <div class="kw-row-no">${k.no_kuitansi}</div>
         <div class="kw-row-name">${k.diterima_dari}</div>
-        <div class="kw-row-sub">${fmtDateShort(k.date)} · ${(k.untuk_pembayaran||'').slice(0,48)}${(k.untuk_pembayaran||'').length>48?'…':''}</div>
+        <div class="kw-row-sub" data-detail-id="${k.__id}">${fmtDateShort(k.date)} · ${(k.untuk_pembayaran||'').slice(0,44)}${(k.untuk_pembayaran||'').length>44?'…':''}</div>
       </div>
-      <div style="text-align:right;">
+      <div class="kw-row-right">
         <div class="kw-row-amt">${rp(k.jumlah)}</div>
-        <div class="kw-row-actions" style="margin-top:6px;">
+        <div class="kw-row-actions">
           <button class="btn-icon" title="Cetak ulang" onclick='printKuitansi(${JSON.stringify(k).replace(/'/g,"&apos;")})'>
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
           </button>
@@ -754,6 +762,58 @@ function renderList() {
       </div>
     </div>
   `).join('');
+}
+
+// ══════════════════════════════════════
+// DETAIL POPOVER — hover (desktop) / tekan-tahan (mobile) pada baris Riwayat
+// menampilkan nama pembuat + keterangan pembayaran lengkap
+// ══════════════════════════════════════
+function showDetailPopover(x, y, k) {
+  const pop = document.getElementById('detailPopover');
+  let html = `<div class="dp-block"><div class="dp-label">Untuk Pembayaran</div>${nl2br(k.untuk_pembayaran) || '—'}</div>`;
+  if (k.catatan) html += `<div class="dp-block"><div class="dp-label">Catatan</div>${nl2br(k.catatan)}</div>`;
+  html += `<div class="dp-block"><div class="dp-label">Dibuat Oleh</div>${esc(k.created_by) || '—'}</div>`;
+  pop.innerHTML = html;
+  pop.classList.add('show');
+
+  const rect = pop.getBoundingClientRect();
+  let left = x, top = y;
+  if (left + rect.width > window.innerWidth - 12) left = window.innerWidth - rect.width - 12;
+  if (left < 12) left = 12;
+  if (top + rect.height > window.innerHeight - 12) top = y - rect.height - 16;
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+}
+function hideDetailPopover() {
+  document.getElementById('detailPopover').classList.remove('show');
+}
+
+let detailLongPressTimer = null;
+function initDetailPopoverEvents() {
+  const wrap = document.getElementById('listWrap');
+  wrap.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-detail-id]');
+    if (!el) return;
+    const k = kuitansiList.find(x => x.__id === el.dataset.detailId);
+    if (!k) return;
+    const rect = el.getBoundingClientRect();
+    showDetailPopover(rect.left, rect.bottom + 8, k);
+  });
+  wrap.addEventListener('mouseout', e => {
+    if (e.target.closest('[data-detail-id]')) hideDetailPopover();
+  });
+  wrap.addEventListener('touchstart', e => {
+    const el = e.target.closest('[data-detail-id]');
+    if (!el) return;
+    const touch = e.touches[0];
+    clearTimeout(detailLongPressTimer);
+    detailLongPressTimer = setTimeout(() => {
+      const k = kuitansiList.find(x => x.__id === el.dataset.detailId);
+      if (k) showDetailPopover(Math.min(touch.clientX, window.innerWidth - 200), touch.clientY - 10, k);
+    }, 420);
+  }, { passive: true });
+  wrap.addEventListener('touchend', () => { clearTimeout(detailLongPressTimer); hideDetailPopover(); });
+  wrap.addEventListener('touchmove', () => { clearTimeout(detailLongPressTimer); hideDetailPopover(); });
 }
 
 // ══════════════════════════════════════
@@ -1152,6 +1212,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (localStorage.getItem('mrkz_theme') === 'dark') document.getElementById('darkModeLabel').textContent = 'Mode Terang';
   loadAll();
   renderLivePreview();
+  initDetailPopoverEvents();
 
   const verifyNo = new URLSearchParams(window.location.search).get('verify');
   if (verifyNo) runVerification(verifyNo);
