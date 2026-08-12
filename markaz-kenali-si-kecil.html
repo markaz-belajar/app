@@ -1,0 +1,1251 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Kenali Si Kecil — Markz Belajar</title>
+<style>
+:root {
+  --blue:#0686c7;--blue-dark:#055a96;--blue-light:#e8f4fc;--blue-mid:#b3d9f0;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --green:#16a34a;--green-light:#dcfce7;
+  --gray:#6b7280;--gray-light:#f3f4f6;
+  --border:#e5e7eb;--text:#111827;--text-2:#6b7280;--text-3:#9ca3af;
+  --bg:#f0f7fd;--card:#ffffff;--r:12px;--r-sm:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Segoe UI',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100vh;}
+
+/* HEADER */
+.header{background:var(--blue);padding:16px 16px 14px;position:sticky;top:0;z-index:100;}
+.header-top{display:flex;align-items:center;justify-content:space-between;}
+.header-brand{display:flex;align-items:center;gap:10px;}
+.header-logo{width:36px;height:36px;border-radius:8px;background:rgba(255,255,255,0.2);display:flex;align-items:center;justify-content:center;}
+.header-logo svg{width:20px;height:20px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;}
+.header-title{color:#fff;font-size:15px;font-weight:700;line-height:1.2;}
+.header-sub{color:rgba(255,255,255,0.75);font-size:11px;margin-top:1px;}
+.progress-pill{background:rgba(255,255,255,0.2);border-radius:20px;padding:6px 12px;color:#fff;font-size:13px;font-weight:600;white-space:nowrap;}
+.header-bar{margin-top:12px;height:5px;background:rgba(255,255,255,0.25);border-radius:3px;overflow:hidden;}
+.header-bar-fill{height:100%;background:#fff;border-radius:3px;width:0%;transition:width 0.4s ease;}
+
+/* BODY */
+.body{padding:16px;max-width:640px;margin:0 auto;}
+
+/* WELCOME POPUP */
+.welcome-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.6);z-index:300;display:flex;align-items:center;justify-content:center;padding:20px;}
+.welcome-overlay.hidden{display:none;}
+.welcome-popup{background:var(--card);border-radius:var(--r);width:100%;max-width:480px;overflow:hidden;animation:popIn 0.25s ease;}
+@keyframes popIn{from{transform:scale(0.92);opacity:0;}to{transform:scale(1);opacity:1;}}
+.welcome-banner{background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:24px 20px 18px;text-align:center;}
+.welcome-banner-icon{width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:16px;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;}
+.welcome-banner-icon svg{width:28px;height:28px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;}
+.welcome-banner h1{color:#fff;font-size:18px;font-weight:700;margin-bottom:4px;}
+.welcome-banner p{color:rgba(255,255,255,0.85);font-size:13px;line-height:1.5;}
+.welcome-body{padding:16px 20px 8px;}
+.welcome-body p{font-size:13px;color:var(--text-2);line-height:1.75;margin-bottom:10px;}
+.welcome-body strong{color:var(--blue);}
+.welcome-chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px;}
+.welcome-chip{display:flex;align-items:center;gap:5px;padding:6px 10px;background:var(--blue-light);border-radius:20px;font-size:11.5px;color:var(--blue-dark);font-weight:500;}
+.welcome-chip svg{width:12px;height:12px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;}
+.welcome-footer{padding:14px 20px 20px;display:flex;flex-direction:column;gap:8px;}
+.btn-start{display:flex;align-items:center;justify-content:center;gap:8px;padding:14px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-sm);font-size:15px;font-weight:700;cursor:pointer;width:100%;font-family:inherit;transition:all 0.15s;}
+.btn-start:active{transform:scale(0.98);}
+.btn-start svg{width:17px;height:17px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
+.welcome-note{font-size:11px;color:var(--text-3);text-align:center;line-height:1.6;}
+
+/* AGE PICKER */
+.age-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin-bottom:16px;}
+.age-card-title{font-size:13px;font-weight:600;color:var(--blue);margin-bottom:6px;display:flex;align-items:center;gap:6px;}
+.age-card-title svg{width:15px;height:15px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;}
+.age-card-sub{font-size:12px;color:var(--text-3);margin-bottom:12px;}
+.age-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.age-btn{padding:12px 10px;border:2px solid var(--border);border-radius:var(--r-sm);background:var(--gray-light);cursor:pointer;text-align:center;transition:all 0.15s;font-family:inherit;}
+.age-btn:active{transform:scale(0.97);}
+.age-btn-range{font-size:15px;font-weight:700;color:var(--text);display:block;}
+.age-btn-label{font-size:11px;color:var(--text-3);margin-top:2px;display:block;}
+.age-btn.selected{border-color:var(--blue);background:var(--blue-light);}
+.age-btn.selected .age-btn-range{color:var(--blue);}
+.age-btn.selected .age-btn-label{color:var(--blue-dark);}
+
+/* INFO CARD */
+.info-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px;margin-bottom:16px;}
+.info-card-title{font-size:13px;font-weight:600;color:var(--blue);margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.info-card-title svg{width:15px;height:15px;stroke:var(--blue);fill:none;stroke-width:2;stroke-linecap:round;}
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.info-field label{display:block;font-size:11px;color:var(--text-2);margin-bottom:4px;font-weight:500;}
+.info-field input,.info-field select{width:100%;padding:9px 10px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;color:var(--text);background:var(--gray-light);outline:none;-webkit-appearance:none;font-family:inherit;}
+.info-field input:focus,.info-field select:focus{border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(6,134,199,0.12);}
+.info-field.full{grid-column:1/-1;}
+
+/* DOMAIN */
+.domain{background:var(--card);border:1px solid var(--border);border-radius:var(--r);margin-bottom:12px;overflow:hidden;}
+.domain-head{background:var(--blue);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.domain-head-left{display:flex;align-items:center;gap:10px;}
+.domain-head-icon{width:30px;height:30px;background:rgba(255,255,255,0.2);border-radius:7px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.domain-head-icon svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;}
+.domain-head-title{font-size:13px;font-weight:700;color:#fff;}
+.domain-head-sub{font-size:11px;color:rgba(255,255,255,0.75);margin-top:1px;}
+.domain-badge{background:rgba(255,255,255,0.2);color:#fff;font-size:12px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+
+/* ITEM */
+.item{padding:14px;border-bottom:1px solid var(--border);}
+.item:last-child{border-bottom:none;}
+.item-num-row{display:flex;align-items:flex-start;gap:8px;margin-bottom:10px;}
+.item-num{width:22px;height:22px;border-radius:50%;background:var(--blue-light);color:var(--blue);font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px;}
+.item-text{font-size:14px;color:var(--text);line-height:1.5;font-weight:500;}
+.item-example-box{background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:9px 12px;margin-bottom:10px;font-size:12.5px;color:var(--blue-dark);line-height:1.6;}
+.item-example-box span{font-weight:700;color:var(--blue);font-size:11px;display:block;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.5px;}
+
+/* OPTIONS */
+.opts{display:flex;flex-direction:column;gap:6px;}
+.opt-row{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1.5px solid var(--border);border-radius:var(--r-sm);background:var(--gray-light);cursor:pointer;transition:all 0.15s;user-select:none;}
+.opt-row:active{transform:scale(0.99);}
+.opt-row input{display:none;}
+.opt-row-dot{width:18px;height:18px;border-radius:50%;border:2px solid var(--border);flex-shrink:0;transition:all 0.15s;background:#fff;}
+.opt-row-text{font-size:13px;color:var(--text-2);line-height:1.4;flex:1;}
+.opt-row.selected{border-color:var(--blue);background:var(--blue-light);}
+.opt-row.selected .opt-row-dot{background:var(--blue);border-color:var(--blue);}
+.opt-row.selected .opt-row-text{color:var(--blue-dark);font-weight:500;}
+
+/* RESULT ORANG TUA */
+.result-parent{background:var(--card);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:12px;display:none;}
+.result-parent.show{display:block;}
+.result-parent-banner{background:linear-gradient(135deg,var(--blue),var(--blue-dark));padding:20px 16px;text-align:center;}
+.result-parent-banner svg{width:40px;height:40px;stroke:#fff;fill:none;stroke-width:1.5;stroke-linecap:round;margin-bottom:8px;}
+.result-parent-banner h2{color:#fff;font-size:16px;font-weight:700;margin-bottom:4px;}
+.result-parent-banner p{color:rgba(255,255,255,0.85);font-size:13px;line-height:1.5;}
+.result-parent-body{padding:14px;}
+.profile-areas{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+.profile-area{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--r-sm);background:var(--gray-light);}
+.profile-area-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.profile-area-label{font-size:13px;color:var(--text-2);flex:1;}
+.profile-area-bar{width:80px;height:6px;background:var(--border);border-radius:3px;overflow:hidden;}
+.profile-area-fill{height:100%;border-radius:3px;background:var(--blue);transition:width 0.5s;}
+
+/* FLASHCARD FULL-SCREEN */
+.fc-overlay{
+  display:none;
+  position:fixed;inset:0;z-index:500;
+  background:linear-gradient(160deg,var(--blue-dark),var(--blue));
+  flex-direction:column;
+  overflow:hidden;
+}
+.fc-overlay.open{display:flex;}
+.fc-overlay-header{
+  padding:16px 20px 12px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.fc-overlay-brand{font-size:13px;font-weight:700;color:#fff;}
+.fc-overlay-brand span{font-size:11px;font-weight:400;color:rgba(255,255,255,0.6);display:block;margin-top:1px;}
+.fc-overlay-close{
+  width:34px;height:34px;border-radius:50%;
+  background:rgba(255,255,255,0.15);
+  border:none;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  color:#fff;
+}
+.fc-overlay-close svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
+.fc-overlay-meta{
+  padding:0 20px 10px;
+  display:flex;align-items:center;justify-content:space-between;
+  flex-shrink:0;
+}
+.fc-domain-pill{font-size:11px;font-weight:600;padding:4px 12px;background:rgba(255,255,255,0.18);color:#fff;border-radius:20px;}
+.fc-counter{font-size:12px;color:rgba(255,255,255,0.7);font-weight:600;}
+.fc-overlay-body{
+  flex:1;
+  padding:0 16px;
+  display:flex;
+  flex-direction:column;
+  justify-content:center;
+  overflow:hidden;
+}
+.fc-deck{position:relative;flex:1;max-height:560px;margin-bottom:14px;}
+.fc-deck::before,.fc-deck::after{content:'';position:absolute;border-radius:16px;left:50%;transform:translateX(-50%);background:#fff;}
+.fc-deck::after{width:calc(100% - 16px);height:100%;top:10px;opacity:0.3;z-index:1;}
+.fc-deck::before{width:calc(100% - 28px);height:100%;top:18px;opacity:0.15;z-index:0;}
+.fc-card{
+  position:absolute;inset:0;z-index:2;
+  background:#fff;border-radius:16px;
+  box-shadow:0 16px 50px rgba(0,0,0,0.3);
+  padding:18px 16px 14px;
+  overflow-y:auto;overflow-x:hidden;
+  touch-action:pan-y;
+  cursor:grab;user-select:none;
+  will-change:transform;
+  transition:transform 0.32s cubic-bezier(.4,0,.2,1),opacity 0.25s;
+}
+.fc-card:active{cursor:grabbing;}
+.fc-card.dragging{transition:none;}
+.fc-card.fly-left{transform:translateX(-130%) rotate(-8deg)!important;opacity:0;pointer-events:none;}
+.fc-card.fly-right{transform:translateX(130%) rotate(8deg)!important;opacity:0;pointer-events:none;}
+.fc-card.enter-right{transform:translateX(110%);opacity:0;transition:none;}
+.fc-card.enter-left{transform:translateX(-110%);opacity:0;transition:none;}
+.fc-card.settle{transform:translateX(0) rotate(0deg)!important;opacity:1;}
+.fc-hint-prev,.fc-hint-next{position:absolute;top:50%;transform:translateY(-50%);border-radius:10px;padding:7px 12px;font-size:12px;font-weight:700;opacity:0;transition:opacity 0.15s;pointer-events:none;z-index:10;}
+.fc-hint-prev{left:10px;background:#fee2e2;color:#dc2626;}
+.fc-hint-next{right:10px;background:#dcfce7;color:#16a34a;}
+/* Card content */
+.fc-dots-row{display:flex;gap:4px;justify-content:center;margin-bottom:12px;flex-wrap:wrap;}
+.fc-dot{width:6px;height:6px;border-radius:50%;background:#e5e7eb;transition:all 0.2s;flex-shrink:0;cursor:pointer;}
+.fc-dot.answered{background:var(--blue);}
+.fc-dot.current{background:var(--blue);transform:scale(1.6);}
+.fc-answered-badge{display:none;background:var(--green);color:#fff;font-size:10.5px;font-weight:700;padding:3px 9px;border-radius:20px;margin-bottom:8px;width:fit-content;}
+.fc-card.has-answer .fc-answered-badge{display:block;}
+.fc-q-label{font-size:10px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.fc-question{font-size:15px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:10px;}
+.fc-example{background:var(--blue-light);border-left:3px solid var(--blue);border-radius:0 var(--r-sm) var(--r-sm) 0;padding:8px 10px;margin-bottom:12px;font-size:11.5px;color:var(--blue-dark);line-height:1.6;}
+.fc-example span{font-weight:700;font-size:10px;display:block;margin-bottom:2px;text-transform:uppercase;letter-spacing:0.4px;}
+.fc-opts{display:flex;flex-direction:column;gap:6px;}
+.fc-opt{display:flex;align-items:center;gap:10px;padding:9px 12px;border:1.5px solid #e5e7eb;border-radius:var(--r-sm);background:#f9fafb;cursor:pointer;transition:all 0.12s;user-select:none;}
+.fc-opt-dot{width:17px;height:17px;border-radius:50%;border:2px solid #d1d5db;flex-shrink:0;background:#fff;transition:all 0.12s;}
+.fc-opt-text{font-size:12.5px;color:#6b7280;line-height:1.4;flex:1;}
+.fc-opt.selected{border-color:var(--blue);background:var(--blue-light);}
+.fc-opt.selected .fc-opt-dot{background:var(--blue);border-color:var(--blue);}
+.fc-opt.selected .fc-opt-text{color:var(--blue-dark);font-weight:600;}
+.fc-opt.answered-other{opacity:0.4;}
+/* Nav */
+.fc-overlay-nav{
+  padding:0 20px 28px;
+  display:flex;gap:10px;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.fc-nav-btn{display:flex;align-items:center;justify-content:center;gap:5px;padding:9px 20px;border-radius:30px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit;border:none;transition:all 0.15s;}
+.fc-nav-btn:active{transform:scale(0.96);}
+.fc-nav-btn:disabled{opacity:0.3;pointer-events:none;}
+.fc-prev{background:rgba(255,255,255,0.15);color:rgba(255,255,255,0.85);}
+.fc-skip{background:rgba(255,255,255,0.95);color:var(--blue);}
+.fc-skip.done{background:rgba(255,255,255,0.95);color:var(--green);}
+.fc-swipe-hint{text-align:center;font-size:10px;color:rgba(255,255,255,0.3);margin-top:6px;letter-spacing:0.3px;flex-basis:100%;}
+.parea-card{border:1px solid var(--border);border-radius:var(--r-sm);overflow:hidden;margin-bottom:10px;}
+.parea-head{display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--gray-light);}
+.parea-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+.parea-label{font-size:13px;font-weight:600;color:var(--text);flex:1;}
+.parea-pill{font-size:11px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;}
+.parea-pill.low{background:#dcfce7;color:#16a34a;}
+.parea-pill.mid{background:#fef3c7;color:#d97706;}
+.parea-pill.high{background:#fee2e2;color:#dc2626;}
+.parea-bar-wrap{padding:0 12px 4px;}
+.parea-bar-track{height:7px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:6px;}
+.parea-bar-fill{height:100%;border-radius:4px;transition:width 0.5s;}
+.parea-body{padding:10px 12px;border-top:1px solid var(--border);}
+.parea-desc{font-size:13px;color:var(--text-2);line-height:1.65;margin-bottom:8px;}
+.parea-tips{display:flex;flex-direction:column;gap:5px;}
+.parea-tip{display:flex;align-items:flex-start;gap:7px;font-size:12.5px;color:var(--text-2);line-height:1.5;}
+.parea-tip-icon{font-size:13px;flex-shrink:0;margin-top:1px;}
+.parent-note{font-size:13px;color:var(--text-2);line-height:1.7;padding:12px;background:var(--blue-light);border-radius:var(--r-sm);margin-top:4px;}
+.parent-note strong{color:var(--blue);}
+.parent-note{font-size:13px;color:var(--text-2);line-height:1.7;padding:12px;background:var(--blue-light);border-radius:var(--r-sm);margin-top:12px;}
+.parent-note strong{color:var(--blue);}
+.share-section{padding:14px;border-top:1px solid var(--border);}
+
+/* BUTTONS */
+.btn{display:flex;align-items:center;justify-content:center;gap:8px;padding:13px 16px;border-radius:var(--r-sm);font-size:14px;font-weight:600;cursor:pointer;border:none;transition:all 0.15s;width:100%;font-family:inherit;margin-bottom:8px;}
+.btn:active{transform:scale(0.98);}
+.btn:last-child{margin-bottom:0;}
+.btn-wa{background:#25D366;color:#fff;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-gray{background:var(--gray-light);color:var(--text-2);border:1px solid var(--border);}
+.btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+.share-note{font-size:12px;color:var(--text-3);text-align:center;margin-top:6px;line-height:1.6;}
+
+/* TEACHER */
+.teacher-trigger{text-align:center;padding:20px 16px 6px;}
+.teacher-trigger button{background:none;border:none;font-size:11px;color:var(--text-3);cursor:pointer;text-decoration:underline;text-decoration-style:dotted;}
+.teacher-login{display:none;background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:16px;margin:8px 16px 16px;}
+.teacher-login.show{display:block;}
+.teacher-login h3{font-size:13px;font-weight:600;color:var(--text-2);margin-bottom:10px;}
+.teacher-input-row{display:flex;gap:8px;}
+.teacher-input{flex:1;padding:10px 12px;border:1px solid var(--border);border-radius:var(--r-sm);font-size:14px;outline:none;font-family:inherit;-webkit-appearance:none;}
+.teacher-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(6,134,199,0.12);}
+.teacher-input-btn{padding:10px 14px;background:var(--blue);color:#fff;border:none;border-radius:var(--r-sm);font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;white-space:nowrap;}
+.teacher-err{font-size:12px;color:var(--red);margin-top:6px;display:none;}
+
+/* CLINICAL */
+.clinical{display:none;background:var(--card);border:2px solid var(--blue);border-radius:var(--r);margin:0 16px 24px;overflow:hidden;}
+.clinical.show{display:block;}
+.clinical-head{background:var(--blue);padding:12px 14px;display:flex;align-items:center;gap:8px;}
+.clinical-head svg{width:16px;height:16px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;}
+.clinical-head span{font-size:14px;font-weight:700;color:#fff;}
+.clinical-head-sub{font-size:11px;color:rgba(255,255,255,0.75);margin-left:auto;}
+.clinical-student{padding:10px 14px;background:var(--blue-light);border-bottom:1px solid var(--border);font-size:13px;color:var(--blue-dark);}
+.clinical-student strong{color:var(--blue);}
+.score-row{display:grid;grid-template-columns:repeat(3,1fr);border-bottom:1px solid var(--border);}
+.score-cell{padding:12px 14px;border-right:1px solid var(--border);}
+.score-cell:last-child{border-right:none;}
+.score-cell-lbl{font-size:10px;color:var(--text-2);font-weight:600;text-transform:uppercase;letter-spacing:0.4px;margin-bottom:4px;}
+.score-cell-val{font-size:22px;font-weight:700;color:var(--text);}
+.bar-section{padding:12px 14px;border-bottom:1px solid var(--border);}
+.bar-track{height:12px;background:var(--gray-light);border-radius:6px;overflow:hidden;}
+.bar-fill{height:100%;border-radius:6px;background:var(--gray);width:0%;transition:width 0.5s ease,background 0.3s;}
+.bar-labels{display:flex;justify-content:space-between;margin-top:5px;font-size:10px;color:var(--text-3);}
+.interp{padding:14px;font-size:13px;line-height:1.7;color:var(--text-2);border-bottom:1px solid var(--border);}
+.interp strong{color:var(--text);}
+.domain-rows{border-bottom:1px solid var(--border);}
+.domain-row{padding:10px 14px;display:flex;align-items:center;gap:10px;border-bottom:1px solid var(--border);}
+.domain-row:last-child{border-bottom:none;}
+.domain-row-label{font-size:12px;color:var(--text-2);flex:1;}
+.domain-row-bar{width:70px;height:6px;background:var(--gray-light);border-radius:3px;overflow:hidden;}
+.domain-row-fill{height:100%;border-radius:3px;background:var(--gray);transition:width 0.4s;}
+.domain-row-val{font-size:12px;font-weight:700;color:var(--text);min-width:36px;text-align:right;}
+.clinical-actions{padding:14px;}
+.clinical-disclaimer{background:var(--gray-light);padding:12px 14px;font-size:11.5px;color:var(--text-3);line-height:1.6;border-top:1px solid var(--border);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal-overlay.open{display:flex;}
+.modal{background:#fff;border-radius:var(--r);padding:20px 16px;width:100%;max-width:420px;}
+.modal h3{font-size:15px;font-weight:700;margin-bottom:6px;}
+.modal p{font-size:13px;color:var(--text-2);line-height:1.6;margin-bottom:14px;}
+.modal-close{background:none;border:none;font-size:13px;color:var(--text-3);cursor:pointer;text-align:center;width:100%;padding:8px;margin-top:4px;}
+
+.readonly-banner{background:var(--amber-light);border:1px solid #fcd34d;border-radius:var(--r);padding:12px 14px;margin-bottom:16px;font-size:13px;color:var(--amber);line-height:1.6;display:none;}
+.readonly-banner.show{display:block;}
+.readonly-banner strong{color:#92400e;}
+
+@media print{
+  .header{position:static;background:var(--blue)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .clinical-head{background:var(--blue)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  .teacher-trigger,.teacher-login,.modal-overlay,.share-section,.clinical-actions{display:none!important;}
+  .clinical{display:block!important;margin:0;border:1px solid #ccc;}
+  .body{padding:8px;}
+  .domain{break-inside:avoid;}
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <div>
+        <div class="header-title">Markz Belajar</div>
+        <div class="header-sub">Kenali Si Kecil — Profil Tumbuh Kembang</div>
+      </div>
+    </div>
+    <div class="progress-pill" id="hdr-progress">0 / —</div>
+  </div>
+  <div class="header-bar"><div class="header-bar-fill" id="hdr-bar"></div></div>
+</header>
+
+<!-- WELCOME POPUP -->
+<div class="welcome-overlay" id="welcome-overlay">
+  <div class="welcome-popup">
+    <div class="welcome-banner">
+      <div class="welcome-banner-icon">
+        <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      </div>
+      <h1>Kenali Si Kecil 💛</h1>
+      <p>Bantu kami memahami keunikan dan kebutuhan belajar si kecil</p>
+    </div>
+    <div class="welcome-body">
+      <p>Halo Ayah/Bunda! 👋 Formulir ini membantu tim <strong>Markz Belajar</strong> memahami lebih dalam bagaimana si kecil berkembang, berkomunikasi, dan belajar sehari-hari.</p>
+      <p>Pilih jawaban yang paling menggambarkan si kecil dalam <strong>3–6 bulan terakhir</strong>. Tidak ada jawaban yang benar atau salah.</p>
+      <div class="welcome-chips">
+        <div class="welcome-chip"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> 5–7 menit</div>
+        <div class="welcome-chip"><svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg> Privasi terjaga</div>
+        <div class="welcome-chip"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg> 13 pertanyaan</div>
+      </div>
+    </div>
+    <div class="welcome-footer">
+      <button class="btn-start" onclick="closeWelcome()">
+        Mulai Isi Formulir
+        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="welcome-note">Informasi yang Anda berikan hanya digunakan oleh tim Markz Belajar untuk mendampingi si kecil.</div>
+    </div>
+  </div>
+</div>
+
+<div class="body">
+  <div class="readonly-banner" id="readonly-banner">
+    📋 <strong>Mode baca:</strong> Anda membuka hasil yang sudah diisi. Jawaban tidak dapat diubah.
+  </div>
+
+  <!-- INFO SISWA -->
+  <div class="info-card">
+    <div class="info-card-title">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Data si kecil
+    </div>
+    <div class="info-grid">
+      <div class="info-field full"><label>Nama si kecil</label><input type="text" id="f-nama" placeholder="Nama panggilan"></div>
+      <div class="info-field"><label>Usia</label><input type="text" id="f-usia" placeholder="Contoh: 7 tahun"></div>
+      <div class="info-field"><label>Jenis kelamin</label><select id="f-jk"><option value="">Pilih</option><option>Laki-laki</option><option>Perempuan</option></select></div>
+      <div class="info-field full"><label>Nama Ayah/Bunda yang mengisi</label><input type="text" id="f-ortu" placeholder="Nama Anda"></div>
+    </div>
+  </div>
+
+  <!-- AGE PICKER -->
+  <div class="age-card" id="age-card">
+    <div class="age-card-title">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M20 21a8 8 0 1 0-16 0"/></svg>
+      Usia si kecil saat ini
+    </div>
+    <div class="age-card-sub">Pilih rentang usia agar pertanyaan sesuai dengan tahap perkembangannya</div>
+    <div class="age-grid">
+      <button class="age-btn" data-age="A" onclick="selectAge('A')">
+        <span class="age-btn-range">4–5 tahun</span>
+        <span class="age-btn-label">TK / Pra-sekolah</span>
+      </button>
+      <button class="age-btn" data-age="B" onclick="selectAge('B')">
+        <span class="age-btn-range">6–8 tahun</span>
+        <span class="age-btn-label">Kelas 1–2 SD</span>
+      </button>
+      <button class="age-btn" data-age="C" onclick="selectAge('C')">
+        <span class="age-btn-range">9–10 tahun</span>
+        <span class="age-btn-label">Kelas 3–4 SD</span>
+      </button>
+      <button class="age-btn" data-age="D" onclick="selectAge('D')">
+        <span class="age-btn-range">11–12 tahun</span>
+        <span class="age-btn-label">Kelas 5–6 SD</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- FLASHCARD FULL-SCREEN OVERLAY -->
+  <div class="fc-overlay" id="fc-overlay">
+    <div class="fc-overlay-header">
+      <div class="fc-overlay-brand">
+        Markz Belajar
+        <span id="fc-domain-pill">—</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="fc-counter" id="fc-counter">1 / —</div>
+        <button class="fc-overlay-close" onclick="closeOverlay()" title="Kembali ke form">
+          <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="fc-overlay-body">
+      <div class="fc-deck" id="fc-deck">
+        <div class="fc-hint-prev" id="fc-hint-prev">← Kembali</div>
+        <div class="fc-hint-next" id="fc-hint-next">Lanjut →</div>
+        <div class="fc-card settle" id="fc-card"><!-- rendered by JS --></div>
+      </div>
+    </div>
+    <div class="fc-overlay-nav">
+      <button class="fc-nav-btn fc-prev" id="fc-prev" onclick="fcGo(-1)">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        Sebelumnya
+      </button>
+      <button class="fc-nav-btn fc-skip" id="fc-skip" onclick="fcGo(1)">
+        Lewati
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+      <div class="fc-swipe-hint">Geser kartu untuk navigasi</div>
+    </div>
+  </div>
+
+  <!-- HASIL ORANG TUA -->
+  <div class="result-parent" id="result-parent">
+    <div class="result-parent-banner">
+      <svg viewBox="0 0 24 24"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+      <h2>Terima kasih, Ayah/Bunda! 🌟</h2>
+      <p>Formulir sudah lengkap. Tim Markz Belajar akan mempelajari profil si kecil.</p>
+    </div>
+    <div class="share-section">
+      <button class="btn btn-wa" onclick="shareWhatsApp()">
+        <svg viewBox="0 0 24 24" style="fill:#fff;stroke:none;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+        Kirim ke Tim Markz via WhatsApp
+      </button>
+      <div class="share-note">Kirim hasil ini ke tim kami agar si kecil bisa segera kami dampingi 💛</div>
+    </div>
+    <div class="result-parent-body">
+      <p style="font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:12px;">Berikut ringkasan profil si kecil berdasarkan jawaban Ayah/Bunda. Tim Markz Belajar akan mendiskusikan ini bersama Anda.</p>
+      <div class="profile-areas" id="profile-areas"></div>
+      <div class="parent-note">💬 Tim Markz Belajar akan menghubungi Ayah/Bunda untuk mendiskusikan hasil ini dan bagaimana kami bisa <strong>mendampingi si kecil dengan lebih baik</strong> sesuai kebutuhannya yang unik.</div>
+    </div>
+  </div>
+
+  <div id="submit-section" style="margin-bottom:16px;display:none;">
+    <button class="btn btn-blue" onclick="submitForm()">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Selesai & Lihat Hasil
+    </button>
+  </div>
+</div>
+
+<!-- GURU TRIGGER -->
+<div class="teacher-trigger">
+  <button onclick="toggleTeacherLogin()">Akses tim pengajar</button>
+</div>
+<div class="teacher-login" id="teacher-login">
+  <h3>🔒 Masukkan kode akses pengajar</h3>
+  <div class="teacher-input-row">
+    <input type="password" class="teacher-input" id="teacher-code" placeholder="Kode akses" onkeydown="if(event.key==='Enter')checkCode()">
+    <button class="teacher-input-btn" onclick="checkCode()">Masuk</button>
+  </div>
+  <div class="teacher-err" id="teacher-err">Kode tidak tepat. Coba lagi.</div>
+</div>
+
+<!-- CLINICAL PANEL -->
+<div class="clinical" id="clinical">
+  <div class="clinical-head">
+    <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+    <span>Hasil Klinis — Akses Pengajar</span>
+    <span class="clinical-head-sub">Markz Belajar Internal</span>
+  </div>
+  <div class="clinical-student" id="clinical-student">Data siswa belum tersedia.</div>
+  <div class="score-row">
+    <div class="score-cell"><div class="score-cell-lbl">Total skor</div><div class="score-cell-val" id="sc-total">—</div></div>
+    <div class="score-cell"><div class="score-cell-lbl">Persentase</div><div class="score-cell-val" id="sc-pct">—</div></div>
+    <div class="score-cell"><div class="score-cell-lbl">Level indikator</div><div class="score-cell-val" id="sc-level" style="font-size:13px;padding-top:4px;line-height:1.3">—</div></div>
+  </div>
+  <div class="bar-section">
+    <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+    <div class="bar-labels"><span>Minimal</span><span>Perlu pantau</span><span>Moderat</span><span>Kuat</span><span>Sangat kuat</span></div>
+  </div>
+  <div class="interp" id="interp">Data belum tersedia.</div>
+  <div class="domain-rows" id="clinical-domain-rows"></div>
+  <div class="clinical-actions">
+    <button class="btn btn-blue" onclick="window.print()">
+      <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      Cetak / Simpan PDF
+    </button>
+  </div>
+  <div class="clinical-disclaimer">⚠ Data ini bersifat internal dan hanya untuk keperluan observasi awal pengajar Markz Belajar. Bukan pengganti diagnosis profesional. Untuk asesmen formal, rujuk ke psikolog klinis anak atau psikiater anak.</div>
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal">
+    <h3>Kirim ke Tim Markz 💬</h3>
+    <p>Link hasil formulir si kecil sudah siap. Tap tombol di bawah untuk membuka WhatsApp dan kirimkan ke nomor Tim Markz Belajar.</p>
+    <button class="btn btn-wa" onclick="doShare()">
+      <svg viewBox="0 0 24 24" style="fill:#fff;stroke:none;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+      Buka WhatsApp
+    </button>
+    <button class="btn btn-gray" onclick="copyLink()">
+      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Salin link saja
+    </button>
+    <button class="modal-close" onclick="closeModal()">Tutup</button>
+  </div>
+</div>
+
+<div style="height:40px;"></div>
+
+<script>
+const TEACHER_CODE = "MARKZ2025";
+
+const ICONS_SVG = {
+  chat:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  repeat:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>`,
+  sensor:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M6.343 6.343a8 8 0 1 0 11.314 0"/></svg>`,
+  social:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`,
+  grow:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`
+};
+
+// ─── PERTANYAAN PER RENTANG USIA ───────────────────────────────────────────
+
+const ITEMS_BY_AGE = {
+
+  // ── 4–5 TAHUN (TK) ──
+  A: [
+    { domain:"A", label:"Komunikasi di rumah", clinicalLabel:"Bahasa & komunikasi ekspresif", icon:"chat", items:[
+      { q:"Bagaimana cara si kecil mengungkapkan keinginannya?",
+        example:"Misalnya saat lapar, haus, atau ingin mainan — apakah ia bicara dengan kata-kata, menunjuk, menarik tangan Ayah/Bunda, atau diam saja?",
+        opts:["Bicara dengan kalimat pendek yang jelas","Bicara satu kata atau kalimat singkat","Lebih sering menunjuk atau menarik tangan","Hampir tidak pernah mengungkapkan, harus ditebak"] },
+      { q:"Seberapa sering si kecil menyebut nama atau memanggil Ayah/Bunda secara spontan?",
+        example:"Misalnya tiba-tiba memanggil 'Mama!' untuk menunjukkan sesuatu, atau memanggil saat ingin diperhatikan.",
+        opts:["Sering, dengan inisiatif yang tinggi","Kadang-kadang memanggil sendiri","Jarang, biasanya hanya saat diajak bicara dulu","Hampir tidak pernah memanggil sendiri"] },
+      { q:"Apakah si kecil pernah mengulangi kata atau kalimat yang baru didengar berulang-ulang?",
+        example:"Misalnya mengulangi kata dari lagu, iklan TV, atau kalimat yang baru diucapkan orang lain — tanpa konteks yang jelas.",
+        opts:["Tidak, jarang sekali","Sesekali, tapi masih wajar","Cukup sering mengulangi kata atau kalimat orang lain","Sering sekali, seperti rekaman yang diputar ulang"] },
+      { q:"Apakah si kecil langsung merespons saat namanya dipanggil dari jarak dekat?",
+        example:"Misalnya Ayah/Bunda memanggil namanya dari ruangan yang sama — apakah ia langsung menoleh, atau seolah tidak mendengar meski pendengarannya normal?",
+        opts:["Selalu merespons dengan segera","Biasanya merespons, kadang perlu dipanggil 2x","Sering tidak merespons, perlu dipanggil beberapa kali","Hampir tidak pernah merespons panggilan namanya"] },
+      { q:"Apakah si kecil pernah kehilangan kata-kata atau kemampuan bicara yang sebelumnya sudah bisa?",
+        example:"Misalnya dulu bisa menyebut 'mama', 'mau', atau beberapa kata, tapi di usia tertentu kata-kata itu menghilang dan tidak kembali lagi.",
+        opts:["Tidak, kemampuan bicaranya selalu berkembang maju","Ada sedikit fluktuasi tapi tidak signifikan","Ya, pernah kehilangan beberapa kata yang sebelumnya bisa","Ya, ada periode kemampuan bicaranya menurun cukup signifikan"] }
+    ]},
+    { domain:"B", label:"Kebiasaan & rutinitas", clinicalLabel:"Insistence on sameness & restricted interests", icon:"repeat", items:[
+      { q:"Bagaimana reaksi si kecil saat rutinitas hariannya berubah?",
+        example:"Misalnya waktu tidur berubah, makan di tempat yang berbeda, atau urutan kegiatan pagi hari berubah.",
+        opts:["Mudah beradaptasi, tidak masalah","Sedikit rewel tapi cepat menyesuaikan","Cukup terganggu dan butuh waktu lama untuk tenang","Sangat marah atau menangis keras, sulit ditenangkan"] },
+      { q:"Apakah si kecil punya satu mainan atau benda yang selalu harus dibawa ke mana-mana?",
+        example:"Misalnya selalu memegang boneka tertentu, benda kecil yang selalu ada di tangannya, atau panik jika benda itu tidak ada.",
+        opts:["Tidak ada yang seperti itu","Ada benda favorit tapi tidak bergantung berlebihan","Cukup bergantung, rewel jika tidak ada","Sangat bergantung, panik jika kehilangan benda itu"] },
+      { q:"Apakah si kecil sering melakukan gerakan tubuh yang sama berulang-ulang?",
+        example:"Misalnya melompat-lompat di tempat saat senang, mengepakkan tangan, mengayun badan, atau berputar-putar secara berulang.",
+        opts:["Tidak ada gerakan berulang yang menonjol","Kadang-kadang ada tapi masih wajar","Cukup sering dan terlihat menonjol","Sangat sering, terjadi di berbagai situasi"] },
+      { q:"Bagaimana cara si kecil bermain dengan mainannya?",
+        example:"Misalnya apakah ia bermain mobil-mobilan dengan wajar (didorong, dibuat cerita), atau justru hanya memutar rodanya berulang-ulang, membalik mainan, atau menyusun benda dalam barisan panjang?",
+        opts:["Bermain dengan cara yang wajar dan imajinatif","Sebagian besar wajar, kadang ada pola berulang","Cukup sering bermain dengan cara tidak biasa (memutar, membalik, berbaris)","Hampir selalu bermain dengan cara yang tidak fungsional"] }
+    ]},
+    { domain:"C", label:"Kepekaan indera", clinicalLabel:"Sensory processing", icon:"sensor", items:[
+      { q:"Bagaimana reaksi si kecil terhadap suara keras atau lingkungan yang ramai?",
+        example:"Misalnya saat ada suara blender, petasan, atau di tempat ramai seperti pasar — apakah ia sangat terganggu dibanding anak lain seusianya?",
+        opts:["Biasa saja, tidak terganggu","Sedikit terganggu tapi wajar","Sering menutup telinga atau menghindari tempat ramai","Sangat panik atau menangis saat ada suara keras"] },
+      { q:"Apakah si kecil sangat pemilih terhadap makanan — bukan karena tidak suka rasanya, tapi tidak tahan teksturnya?",
+        example:"Misalnya menolak makanan lembek seperti bubur, tidak mau makan sayur berserat, atau selalu muntah saat makan makanan bertekstur tertentu.",
+        opts:["Tidak ada penolakan tekstur yang menonjol","Ada beberapa yang tidak disukai tapi masih wajar","Cukup pemilih, sering menolak tekstur tertentu","Sangat pemilih, hanya mau beberapa jenis makanan saja"] }
+    ]},
+    { domain:"D", label:"Interaksi sosial", clinicalLabel:"Social interaction & joint attention", icon:"social", items:[
+      { q:"Bagaimana si kecil bermain dengan anak-anak lain seusianya?",
+        example:"Misalnya saat ada sepupu atau teman tetangga datang — apakah ia aktif bermain bersama atau memilih bermain sendiri?",
+        opts:["Aktif bergabung dan bermain bersama","Mau bergabung tapi butuh waktu pemanasan","Lebih sering bermain sendiri di dekat mereka","Sama sekali tidak tertarik bermain bersama orang lain"] },
+      { q:"Apakah si kecil suka menunjuk sesuatu untuk berbagi kesenangan — bukan untuk minta, tapi sekadar 'lihat itu!'?",
+        example:"Misalnya menunjuk burung di pohon, pesawat di langit, atau kucing lucu sambil melihat ke Ayah/Bunda seolah ingin berbagi momen.",
+        opts:["Sering, aktif berbagi perhatian seperti ini","Kadang-kadang melakukannya","Jarang sekali","Hampir tidak pernah menunjuk untuk berbagi"] }
+    ]},
+    { domain:"E", label:"Perkembangan & kemandirian", clinicalLabel:"Adaptive behavior & symbolic play", icon:"grow", items:[
+      { q:"Apakah si kecil suka bermain pura-pura?",
+        example:"Misalnya pura-pura masak dengan perabot mainan, berpura-pura boneka sedang tidur, atau menjadi 'dokter' yang memeriksa bonekanya.",
+        opts:["Ya, aktif berimajinasi dan bermain peran","Kadang-kadang mau bermain pura-pura","Jarang, lebih suka bermain yang konkret dan nyata","Hampir tidak pernah bermain pura-pura"] },
+      { q:"Bagaimana si kecil melakukan kontak mata dengan Ayah/Bunda saat diajak bicara?",
+        example:"Misalnya saat Ayah/Bunda memanggil namanya atau berbicara langsung padanya — apakah ia melihat ke mata atau selalu mengalihkan pandangan?",
+        opts:["Kontak mata natural dan nyaman","Kadang mengalihkan pandangan tapi masih wajar","Sering melihat ke arah lain meski diajak bicara langsung","Hampir selalu menghindari kontak mata"] }
+    ]}
+  ],
+
+  // ── 6–8 TAHUN (Kelas 1–2 SD) ──
+  B: [
+    { domain:"A", label:"Komunikasi di rumah & sekolah", clinicalLabel:"Bahasa pragmatik & komunikasi sosial", icon:"chat", items:[
+      { q:"Bagaimana cara si kecil bercerita tentang kejadian di sekolah atau kesehariannya?",
+        example:"Misalnya saat pulang sekolah — apakah ia bercerita sendiri secara runtut, perlu banyak dibantu dengan pertanyaan, atau tidak mau bercerita sama sekali?",
+        opts:["Bercerita sendiri dengan runtut dan detail","Bercerita tapi perlu beberapa pertanyaan pemancing","Hanya menjawab singkat jika ditanya, tidak bercerita sendiri","Sangat sulit diajak bicara tentang pengalamannya"] },
+      { q:"Apakah si kecil bisa mengikuti percakapan dua arah — tidak hanya bicara, tapi juga menyimak dan merespons?",
+        example:"Misalnya saat Ayah/Bunda bercerita atau menjelaskan sesuatu — apakah ia menyimak dan merespons sesuai, atau langsung mengalihkan ke topiknya sendiri?",
+        opts:["Ya, percakapan berjalan dua arah dengan baik","Kadang mengalihkan topik tapi masih bisa diajak kembali","Sering mendominasi dengan topiknya sendiri","Hampir selalu tidak merespons topik orang lain"] },
+      { q:"Apakah si kecil memahami humor ringan atau kalimat tidak harfiah yang biasa dipakai sehari-hari?",
+        example:"Misalnya saat dikatakan 'aduh perutku minta makan nih' atau lelucon ringan — apakah ia tertawa dan paham, atau bingung dan mengartikannya secara harfiah?",
+        opts:["Ya, paham humor dan kiasan dengan baik","Kadang paham, kadang perlu dijelaskan","Sering bingung dengan kalimat tidak harfiah","Hampir selalu mengartikan segala sesuatu secara harfiah"] },
+      { q:"Seberapa konsisten si kecil merespons saat namanya dipanggil di rumah?",
+        example:"Misalnya dipanggil untuk makan, atau Ayah/Bunda ingin memberitahu sesuatu — apakah ia merespons atau sering seperti tidak mendengar?",
+        opts:["Selalu merespons dengan baik","Biasanya merespons, kadang perlu dipanggil ulang","Sering tidak merespons, perlu dipanggil beberapa kali","Hampir tidak pernah merespons meski dipanggil berulang"] },
+      { q:"Apakah si kecil pernah mengalami kemunduran dalam bicara atau kemampuan yang sudah dikuasai sebelumnya?",
+        example:"Misalnya pernah lebih banyak bicara tapi tiba-tiba lebih pendiam, atau kemampuan yang sudah bisa tiba-tiba hilang di periode tertentu.",
+        opts:["Tidak, perkembangannya selalu maju","Ada fluktuasi kecil tapi tidak signifikan","Ya, pernah ada periode kemunduran yang cukup terlihat","Ya, ada kemampuan yang hilang dan tidak kembali"] }
+    ]},
+    { domain:"B", label:"Kebiasaan & rutinitas", clinicalLabel:"Insistence on sameness & restricted interests", icon:"repeat", items:[
+      { q:"Bagaimana reaksi si kecil jika ada perubahan mendadak pada rencana atau rutinitas?",
+        example:"Misalnya jadwal les berubah, rute pulang sekolah berbeda, atau acara yang sudah dinantikan tiba-tiba batal.",
+        opts:["Mudah menerima, cepat beradaptasi","Sedikit kecewa tapi cepat menyesuaikan","Cukup marah atau cemas, butuh waktu lama","Sangat marah atau panik, sulit sekali ditenangkan"] },
+      { q:"Apakah si kecil punya topik atau minat yang sangat ia tekuni secara intens dibanding teman-temannya?",
+        example:"Misalnya hafal semua nama dinosaurus, sangat obsesif dengan satu karakter kartun, atau hanya mau bicara soal satu topik tertentu terus-menerus.",
+        opts:["Ada hobi favorit tapi seimbang dengan kegiatan lain","Ada minat kuat tapi masih bisa dialihkan","Sangat fokus, cukup sulit jika diajak berganti topik/kegiatan","Hanya mau bicara atau melakukan satu hal itu saja"] },
+      { q:"Apakah si kecil melakukan gerakan tubuh berulang di saat-saat tertentu?",
+        example:"Misalnya mengepakkan tangan saat senang atau tegang, menggigit buku/pensil secara berulang, mengayun badan saat duduk, atau mengetuk-ngetuk meja.",
+        opts:["Tidak ada gerakan berulang yang menonjol","Kadang ada tapi masih wajar","Cukup sering terlihat, terutama saat excited atau gelisah","Sering sekali di berbagai situasi"] },
+      { q:"Bagaimana cara si kecil bermain atau menggunakan benda-benda di sekitarnya?",
+        example:"Misalnya apakah ia bermain dengan mainan secara wajar, atau sering memutar benda berulang-ulang, menyusun mainan dalam barisan, atau fokus pada bagian kecil dari suatu benda?",
+        opts:["Bermain dengan cara yang wajar sesuai fungsinya","Sebagian besar wajar, sesekali ada pola berulang","Cukup sering bermain dengan cara tidak biasa yang menonjol","Hampir selalu bermain dengan cara yang tidak fungsional"] }
+    ]},
+    { domain:"C", label:"Kepekaan terhadap lingkungan", clinicalLabel:"Sensory processing", icon:"sensor", items:[
+      { q:"Bagaimana si kecil merespons suara, cahaya, atau keramaian di sekolah atau tempat umum?",
+        example:"Misalnya saat di kantin sekolah, lapangan olahraga, atau mall — apakah ia lebih mudah terganggu atau kewalahan dibanding teman-temannya?",
+        opts:["Tidak ada masalah dengan lingkungan ramai","Kadang terganggu tapi masih bisa diajak","Sering ingin menghindari tempat ramai atau berisik","Sangat terganggu, sering minta pulang atau menangis di tempat ramai"] },
+      { q:"Apakah si kecil sangat pemilih terhadap tekstur makanan atau pakaian tertentu?",
+        example:"Misalnya tidak mau pakai seragam berbahan tertentu, menolak makanan dengan tekstur lembek atau berserat, atau sangat terganggu dengan label baju yang menyentuh kulit.",
+        opts:["Tidak ada pemilihan yang menonjol","Ada preferensi tapi masih wajar","Cukup pemilih sehingga sering jadi masalah sehari-hari","Sangat pemilih, memengaruhi kegiatan sehari-hari dengan signifikan"] }
+    ]},
+    { domain:"D", label:"Interaksi sosial", clinicalLabel:"Peer interaction & social cognition", icon:"social", items:[
+      { q:"Bagaimana hubungan si kecil dengan teman-teman di sekolah atau lingkungan sekitar?",
+        example:"Misalnya saat istirahat sekolah atau bermain di luar — apakah ia punya teman dekat, suka bergabung, atau lebih memilih sendiri?",
+        opts:["Punya teman dekat dan aktif bergaul","Bisa bergaul tapi perlu waktu untuk akrab","Lebih sering menyendiri meski ada teman di sekitarnya","Hampir selalu sendiri, tampak tidak tertarik berteman"] },
+      { q:"Apakah si kecil memahami perasaan teman atau menyadari jika temannya sedih/marah?",
+        example:"Misalnya saat ada teman yang menangis atau marah — apakah ia menyadari dan merespons dengan empati, atau tidak memperhatikan sama sekali?",
+        opts:["Ya, cukup peka terhadap perasaan orang lain","Kadang-kadang memperhatikan perasaan orang lain","Jarang memperhatikan perasaan orang lain","Hampir tidak pernah menyadari kondisi emosi orang lain"] }
+    ]},
+    { domain:"E", label:"Kemandirian & perkembangan", clinicalLabel:"Adaptive behavior & executive function", icon:"grow", items:[
+      { q:"Bagaimana kemandirian si kecil dalam aktivitas sehari-hari dibanding teman seusianya?",
+        example:"Misalnya memakai seragam sendiri, membereskan tas, makan siang di sekolah, atau mengerjakan PR tanpa terus-menerus diingatkan.",
+        opts:["Mandiri sesuai usianya","Butuh sedikit bantuan tapi masih wajar","Butuh bantuan lebih dari teman seusianya","Sangat bergantung, hampir semua aktivitas perlu dibantu"] },
+      { q:"Bagaimana si kecil menjaga kontak mata saat berbicara dengan Ayah/Bunda atau orang dewasa lain yang dikenal?",
+        example:"Misalnya saat diajak ngobrol di rumah atau bertemu guru — apakah ia menatap wajar atau selalu mengalihkan pandangan?",
+        opts:["Kontak mata natural dan wajar","Kadang mengalihkan tapi masih wajar","Sering melihat ke arah lain saat diajak bicara","Hampir selalu menghindari kontak mata"] }
+    ]}
+  ],
+
+  // ── 9–10 TAHUN (Kelas 3–4 SD) ──
+  C: [
+    { domain:"A", label:"Komunikasi & ekspresi diri", clinicalLabel:"Pragmatic language & social communication", icon:"chat", items:[
+      { q:"Bagaimana si kecil mengungkapkan pendapat atau perasaannya kepada Ayah/Bunda?",
+        example:"Misalnya saat ada masalah di sekolah, tidak setuju dengan sesuatu, atau ingin mengungkapkan perasaan — apakah ia bisa mengekspresikan dengan baik atau sulit sekali?",
+        opts:["Bisa mengungkapkan dengan baik dan jelas","Bisa tapi kadang butuh bantuan memformulasikan","Jarang mengungkapkan, harus ditanya dulu","Hampir tidak pernah berbagi perasaan atau pendapat"] },
+      { q:"Apakah si kecil bisa mengikuti dan menikmati percakapan kelompok dengan teman-temannya?",
+        example:"Misalnya saat ngobrol bareng beberapa teman — apakah ia bisa masuk ke percakapan, menunggu giliran, dan merespons yang relevan?",
+        opts:["Ya, bisa ikut percakapan kelompok dengan baik","Kadang bisa, tapi sering tidak pas timing-nya","Kesulitan masuk ke percakapan, lebih banyak diam","Hampir tidak bisa mengikuti percakapan kelompok"] },
+      { q:"Apakah si kecil memahami sindiran, sarkasme, atau konteks sosial yang tidak diucapkan secara langsung?",
+        example:"Misalnya jika teman bilang 'iya iya bagus banget' dengan nada menyindir — apakah si kecil paham atau mengartikannya secara harfiah?",
+        opts:["Paham dengan baik dan bisa merespons sesuai","Kadang paham, kadang perlu dijelaskan","Sering bingung dengan makna tersirat","Selalu mengartikan segala sesuatu secara harfiah"] }
+    ]},
+    { domain:"B", label:"Kebiasaan & pola perilaku", clinicalLabel:"Restricted interests & repetitive behavior", icon:"repeat", items:[
+      { q:"Bagaimana si kecil merespons perubahan rencana atau kejutan yang tidak terduga?",
+        example:"Misalnya liburan yang direncanakan tiba-tiba batal, teman yang sudah janjian tidak jadi datang, atau jadwal harian berubah mendadak.",
+        opts:["Cukup fleksibel dan bisa menerima","Kecewa tapi bisa diajak bicara dan menerima","Cukup terganggu, butuh waktu panjang untuk menerima","Sangat marah atau cemas, sulit sekali pulih"] },
+      { q:"Apakah si kecil punya minat yang sangat mendalam dan intens pada satu bidang tertentu?",
+        example:"Misalnya sangat ahli dalam satu topik tertentu seperti sains, sejarah, atau teknologi — hingga pengetahuannya jauh melampaui teman seusianya di bidang itu.",
+        opts:["Ada minat favorit tapi seimbang","Ada minat kuat tapi masih bisa dialihkan","Minat sangat intens, mendominasi waktu dan pikirannya","Hampir semua energinya tercurah pada satu bidang itu saja"] },
+      { q:"Apakah si kecil masih melakukan gerakan atau perilaku berulang di usianya sekarang?",
+        example:"Misalnya menggoyangkan kaki saat duduk secara intens, mengulang kata tertentu saat sendiri, atau ritual tertentu sebelum melakukan sesuatu.",
+        opts:["Tidak ada yang menonjol","Kadang-kadang ada tapi masih wajar","Cukup sering dan kadang mengganggu kegiatan","Sering sekali dan sudah memengaruhi keseharian"] },
+      { q:"Apakah si kecil merespons dengan baik saat namanya dipanggil atau diajak bicara langsung?",
+        example:"Misalnya dipanggil oleh Ayah/Bunda atau guru — apakah ia langsung merespons, atau sering seperti tidak mendengar meski tidak sedang sibuk?",
+        opts:["Selalu merespons dengan baik","Biasanya merespons, sesekali perlu dipanggil ulang","Sering tidak merespons, perlu usaha ekstra untuk mendapat perhatiannya","Hampir tidak pernah merespons panggilan langsung"] },
+      { q:"Apakah Ayah/Bunda pernah merasa bicara si kecil terdengar 'berbeda' — terlalu formal, terlalu kaku, atau seperti mengulang kalimat yang dihafal?",
+        example:"Misalnya menjawab pertanyaan dengan kalimat lengkap dan formal yang tidak wajar untuk usianya, atau menggunakan frasa yang seperti diambil dari buku atau film.",
+        opts:["Tidak, cara bicaranya natural sesuai usianya","Kadang terdengar sedikit kaku tapi tidak menonjol","Cukup sering terdengar berbeda dari teman seusianya","Hampir selalu terdengar kaku atau seperti hafalan"] }
+    ]},
+    { domain:"C", label:"Kepekaan terhadap lingkungan", clinicalLabel:"Sensory processing", icon:"sensor", items:[
+      { q:"Apakah si kecil mudah kewalahan di lingkungan yang ramai, bising, atau penuh stimulasi?",
+        example:"Misalnya di kantin penuh, pesta ulang tahun, atau kelas yang gaduh — apakah ia lebih cepat lelah, stres, atau minta menyendiri dibanding teman-temannya?",
+        opts:["Tidak, bisa menikmati lingkungan ramai","Kadang perlu istirahat dari keramaian, masih wajar","Sering kewalahan dan butuh waktu menyendiri","Sangat mudah kewalahan, selalu berusaha menghindari keramaian"] },
+      { q:"Apakah si kecil masih memiliki sensitivitas kuat terhadap tekstur, bau, atau sentuhan tertentu?",
+        example:"Misalnya tidak tahan bau tertentu yang bagi orang lain biasa, sangat tidak nyaman dengan pakaian ketat, atau sangat sensitif saat disentuh.",
+        opts:["Tidak ada sensitivitas yang menonjol","Ada beberapa tapi tidak mengganggu keseharian","Cukup sensitif sehingga kadang jadi kendala","Sangat sensitif, memengaruhi banyak aspek keseharian"] }
+    ]},
+    { domain:"D", label:"Persahabatan & empati", clinicalLabel:"Social cognition & peer relationships", icon:"social", items:[
+      { q:"Bagaimana kualitas pertemanan si kecil di sekolah atau lingkungan sekitar?",
+        example:"Misalnya apakah ia punya sahabat dekat, bisa mempertahankan persahabatan jangka panjang, atau lebih sering berganti teman atau tidak punya teman dekat?",
+        opts:["Punya sahabat dekat dan persahabatan yang stabil","Ada teman tapi pertemanan masih permukaan","Jarang punya teman dekat, persahabatan sulit bertahan","Hampir tidak punya teman dekat sama sekali"] },
+      { q:"Apakah si kecil memahami aturan sosial yang tidak tertulis — seperti kapan harus diam, kapan boleh berbicara, atau cara membaca situasi?",
+        example:"Misalnya mengetahui bahwa tidak boleh memotong pembicaraan orang dewasa, atau memahami kapan temannya ingin sendiri tanpa harus diberitahu.",
+        opts:["Cukup paham aturan sosial tidak tertulis","Kadang paham tapi perlu diingatkan","Sering tidak membaca situasi sosial dengan tepat","Hampir selalu melewatkan sinyal sosial tidak tertulis"] }
+    ]},
+    { domain:"E", label:"Kemandirian & regulasi diri", clinicalLabel:"Executive function & adaptive behavior", icon:"grow", items:[
+      { q:"Bagaimana kemampuan si kecil mengatur dirinya sendiri dalam mengerjakan tugas atau PR?",
+        example:"Misalnya apakah ia bisa memulai tugas sendiri, menyelesaikan tanpa terlalu banyak diingatkan, dan mengatur waktu dengan baik?",
+        opts:["Mandiri dan bisa mengatur diri dengan baik","Butuh sedikit dorongan tapi masih bisa","Butuh banyak pengawasan dan pengingat","Sangat sulit memulai atau menyelesaikan tugas tanpa bantuan intensif"] }
+    ]}
+  ],
+
+  // ── 11–12 TAHUN (Kelas 5–6 SD) ──
+  D: [
+    { domain:"A", label:"Komunikasi & ekspresi diri", clinicalLabel:"Pragmatic language & self-expression", icon:"chat", items:[
+      { q:"Bagaimana si kecil mengekspresikan perasaan atau kekhawatirannya kepada Ayah/Bunda?",
+        example:"Misalnya saat ada masalah di sekolah, konflik dengan teman, atau sedang stres — apakah ia bisa bercerita, membutuhkan banyak dorongan, atau sama sekali tidak mau membuka diri?",
+        opts:["Terbuka dan bisa mengekspresikan dengan baik","Mau berbagi tapi butuh banyak dorongan","Jarang sekali berbagi perasaan, harus ditanya dulu","Hampir tidak pernah mau berbagi perasaan"] },
+      { q:"Apakah si kecil bisa berkomunikasi dengan teman sebaya secara alami dan sesuai konteks sosial?",
+        example:"Misalnya saat ngobrol santai, bercanda, atau diskusi kelompok — apakah caranya berkomunikasi terasa natural atau justru kaku dan tidak sesuai situasi?",
+        opts:["Komunikasi terasa natural dan sesuai konteks","Kadang kaku tapi masih bisa beradaptasi","Sering terasa kaku atau tidak sesuai situasi sosial","Komunikasi konsisten terasa kaku atau tidak terbaca teman-temannya"] },
+      { q:"Apakah si kecil sering disalahpahami oleh teman atau guru karena cara bicara atau ekspresinya yang berbeda?",
+        example:"Misalnya sering dianggap kasar padahal tidak bermaksud, atau teman-teman tidak mengerti maksudnya dan sebaliknya.",
+        opts:["Jarang atau tidak pernah disalahpahami","Kadang disalahpahami tapi tidak sering","Cukup sering disalahpahami oleh orang lain","Sering sekali menjadi sumber kesalahpahaman"] }
+    ]},
+    { domain:"B", label:"Pola pikir & kebiasaan", clinicalLabel:"Restricted interests & cognitive rigidity", icon:"repeat", items:[
+      { q:"Seberapa fleksibel si kecil dalam menghadapi perubahan rencana atau ketidakpastian?",
+        example:"Misalnya ujian mendadak, rencana liburan yang batal, atau ada perubahan di kegiatan yang sudah diantisipasi — apakah ia bisa beradaptasi atau sangat terganggu?",
+        opts:["Cukup fleksibel, bisa menerima dengan baik","Kecewa tapi bisa menerima setelah diberi waktu","Cukup sulit menerima, butuh waktu panjang","Sangat sulit menerima, reaksinya berlebihan dibanding situasinya"] },
+      { q:"Apakah si kecil punya bidang minat yang jauh lebih dalam dan luas dari teman-temannya?",
+        example:"Misalnya pengetahuannya tentang satu topik tertentu sangat mendalam hingga bisa dianggap 'ahli', tapi di bidang lain kurang tertarik sama sekali.",
+        opts:["Ada minat favorit tapi seimbang","Ada bidang favorit yang lebih dalam tapi masih wajar","Minat sangat terkonsentrasi, sulit diajak ke bidang lain","Hampir semua energi dan perhatiannya hanya di satu bidang"] },
+      { q:"Apakah si kecil merespons dengan wajar saat namanya dipanggil atau diajak berbicara langsung?",
+        example:"Misalnya saat Ayah/Bunda memanggil dari ruangan lain, atau mengajaknya berbicara saat ia sedang tidak sibuk — apakah ia merespons atau sering tidak mendengar?",
+        opts:["Selalu merespons dengan baik dan wajar","Biasanya merespons, sesekali perlu dipanggil ulang","Sering tidak merespons, perlu usaha ekstra","Hampir tidak pernah merespons panggilan langsung"] },
+      { q:"Apakah ada momen di masa kecilnya di mana kemampuan si kecil — bicara, sosial, atau lainnya — sempat menurun dari yang sebelumnya?",
+        example:"Misalnya pernah lebih banyak bicara lalu tiba-tiba lebih pendiam, atau kemampuan sosial yang sempat berkembang lalu tampak mundur di periode tertentu.",
+        opts:["Tidak, perkembangannya selalu maju secara konsisten","Ada fluktuasi kecil tapi tidak signifikan","Ya, pernah ada periode kemunduran yang cukup terlihat","Ya, ada kemampuan yang hilang dan tidak sepenuhnya kembali"] }
+    ]},
+    { domain:"C", label:"Kepekaan & kenyamanan", clinicalLabel:"Sensory processing & interoception", icon:"sensor", items:[
+      { q:"Apakah si kecil mudah kewalahan secara emosional atau sensorik di situasi tertentu?",
+        example:"Misalnya di keramaian, saat ada tekanan sosial, atau ketika banyak hal terjadi sekaligus — apakah ia lebih cepat kewalahan dibanding teman seusianya?",
+        opts:["Tidak, cukup tahan terhadap tekanan","Kadang kewalahan tapi masih bisa mengelola","Cukup sering kewalahan di situasi yang bagi orang lain biasa","Sangat mudah kewalahan, sering butuh menarik diri"] },
+      { q:"Apakah si kecil menyadari kondisi tubuhnya sendiri — seperti lapar, lelah, atau tidak enak badan — dan bisa mengatasinya?",
+        example:"Misalnya apakah ia tahu saat dirinya sudah lelah, bisa mengenali saat mulai lapar, atau justru tidak menyadari sampai kondisinya sudah parah.",
+        opts:["Ya, cukup sadar dan bisa merespons kondisi tubuhnya","Kadang tidak menyadari, tapi masih wajar","Sering tidak sadar kondisi tubuhnya hingga orang lain yang mengingatkan","Hampir tidak bisa mengenali sinyal tubuhnya sendiri"] }
+    ]},
+    { domain:"D", label:"Hubungan sosial & empati", clinicalLabel:"Social cognition & theory of mind", icon:"social", items:[
+      { q:"Bagaimana kualitas hubungan pertemanan si kecil di usianya sekarang?",
+        example:"Misalnya apakah ia punya sahabat yang benar-benar dekat dan saling percaya, atau lebih banyak kenalan permukaan, atau merasa sulit sekali berteman?",
+        opts:["Punya sahabat dekat dan hubungan yang sehat","Ada teman tapi pertemanan masih permukaan","Jarang punya teman dekat, sering merasa berbeda dari teman-teman","Hampir tidak punya teman dekat, sering merasa tidak cocok dengan siapapun"] },
+      { q:"Apakah si kecil bisa membaca situasi sosial yang kompleks — seperti dinamika kelompok, gosip, atau aturan tidak tertulis pergaulan?",
+        example:"Misalnya memahami bahwa teman sedang pura-pura baik, tahu kapan kelompok sedang tidak nyaman, atau mengerti sinyal-sinyal sosial halus.",
+        opts:["Cukup bisa membaca situasi sosial yang kompleks","Kadang bisa, kadang melewatkan","Sering melewatkan dinamika sosial yang sudah jelas bagi teman-temannya","Hampir selalu kesulitan membaca situasi sosial"] }
+    ]},
+    { domain:"E", label:"Kemandirian & regulasi diri", clinicalLabel:"Executive function & adaptive behavior", icon:"grow", items:[
+      { q:"Bagaimana si kecil mengatur tanggung jawab sekolah secara mandiri di usianya sekarang?",
+        example:"Misalnya mengerjakan PR tanpa diingatkan terus-menerus, menyiapkan bahan belajar sendiri, atau mengatur waktu antara belajar dan bermain.",
+        opts:["Mandiri dan bertanggung jawab sesuai usianya","Butuh sedikit pengingat tapi masih bisa","Butuh pengawasan cukup intensif","Sangat bergantung, hampir semua hal perlu diinisiasi orang tua"] },
+      { q:"Bagaimana si kecil mengelola emosi saat menghadapi situasi yang menekan atau mengecewakan?",
+        example:"Misalnya saat nilai ujian buruk, kalah dalam pertandingan, atau terjadi konflik dengan teman — apakah ia bisa mengelola emosinya dengan baik?",
+        opts:["Bisa mengelola emosi dengan baik","Kadang butuh bantuan tapi umumnya bisa","Sering bereaksi berlebihan atau sangat lama pulih","Sangat sulit mengelola emosi, reaksinya sering jauh melampaui situasi"] }
+    ]}
+  ]
+};
+
+const answers = {};
+let currentAge = null;
+let currentItems = null;
+let isReadOnly = false;
+let loadedData = null;
+let flatQuestions = [];
+let fcIndex = 0;
+let isAnimating = false;
+
+const DOMAIN_LABELS = {A:"Cara komunikasi & ekspresi", B:"Kebiasaan & rutinitas", C:"Kepekaan terhadap lingkungan", D:"Interaksi & hubungan sosial", E:"Perkembangan & kemandirian"};
+const DOMAIN_COLORS = {A:"#0686c7", B:"#d97706", C:"#7c3aed", D:"#16a34a", E:"#dc2626"};
+
+function selectAge(ageKey) {
+  currentAge = ageKey;
+  currentItems = ITEMS_BY_AGE[ageKey];
+  document.querySelectorAll(".age-btn").forEach(b => b.classList.remove("selected"));
+  document.querySelector(`[data-age="${ageKey}"]`).classList.add("selected");
+  Object.keys(answers).forEach(k => delete answers[k]);
+  flatQuestions = [];
+  currentItems.forEach(domain => {
+    domain.items.forEach((item, idx) => {
+      flatQuestions.push({ domain: domain.domain, domainLabel: domain.label, item, idx, key: `${domain.domain}_${idx}` });
+    });
+  });
+  fcIndex = 0;
+  document.getElementById("fc-overlay").classList.add("open");
+  document.body.style.overflow = "hidden";
+  renderCard(0, "none");
+  initSwipe();
+  updateProgress();
+  checkShowSubmit();
+  document.getElementById("result-parent").classList.remove("show");
+  document.getElementById("submit-section").style.display = "none";
+}
+
+function closeOverlay() {
+  document.getElementById("fc-overlay").classList.remove("open");
+  document.body.style.overflow = "";
+}
+
+function renderCard(index, direction) {
+  if(!flatQuestions.length) return;
+  const q = flatQuestions[index];
+  const total = flatQuestions.length;
+  const hasAnswer = answers[q.key] !== undefined;
+
+  document.getElementById("fc-domain-pill").textContent = q.domainLabel;
+  document.getElementById("fc-counter").textContent = `${index + 1} / ${total}`;
+
+  const dotsHtml = flatQuestions.map((fq, i) => {
+    let cls = "fc-dot";
+    if(answers[fq.key] !== undefined) cls += " answered";
+    if(i === index) cls += " current";
+    return `<div class="${cls}" onclick="fcJump(${i})" title="Pertanyaan ${i+1}"></div>`;
+  }).join("");
+
+  const optsHtml = q.item.opts.map((opt, v) => {
+    let cls = "fc-opt";
+    if(hasAnswer && answers[q.key] === v) cls += " selected";
+    else if(hasAnswer) cls += " answered-other";
+    return `<div class="${cls}" onclick="fcSelect('${q.key}',${v})"><div class="fc-opt-dot"></div><div class="fc-opt-text">${opt}</div></div>`;
+  }).join("");
+
+  const newContent = `
+    <div class="fc-dots-row">${dotsHtml}</div>
+    <div class="fc-answered-badge">✓ Terjawab</div>
+    <div class="fc-q-label">Pertanyaan ${index + 1} dari ${total}</div>
+    <div class="fc-question">${q.item.q}</div>
+    <div class="fc-example"><span>💡 Contoh</span>${q.item.example}</div>
+    <div class="fc-opts">${optsHtml}</div>
+  `;
+
+  const card = document.getElementById("fc-card");
+
+  if(direction === "none") {
+    card.className = "fc-card settle" + (hasAnswer ? " has-answer" : "");
+    card.innerHTML = newContent;
+    updateNavBtns();
+    initSwipe();
+    return;
+  }
+
+  isAnimating = true;
+  // Fly out current card
+  card.classList.add(direction === "forward" ? "fly-left" : "fly-right");
+
+  setTimeout(() => {
+    // Set new content, enter from opposite side
+    card.className = "fc-card" + (hasAnswer ? " has-answer" : "") + (direction === "forward" ? " enter-right" : " enter-left");
+    card.innerHTML = newContent;
+    void card.offsetWidth;
+    // Animate in
+    card.classList.add("settle");
+    card.classList.remove("enter-right","enter-left");
+    setTimeout(() => { isAnimating = false; initSwipe(); }, 340);
+  }, 280);
+
+  updateNavBtns();
+}
+
+// ── TOUCH SWIPE ──────────────────────────────────────────────────────────────
+let touchStartX = 0, touchStartY = 0, touchDeltaX = 0, isSwiping = false;
+
+function initSwipe() {
+  const card = document.getElementById("fc-card");
+  if(!card) return;
+  card.addEventListener("touchstart", onTouchStart, { passive: true });
+  card.addEventListener("touchmove", onTouchMove, { passive: false });
+  card.addEventListener("touchend", onTouchEnd, { passive: true });
+}
+
+function onTouchStart(e) {
+  if(isAnimating) return;
+  touchStartX = e.touches[0].clientX;
+  touchStartY = e.touches[0].clientY;
+  touchDeltaX = 0; isSwiping = false;
+}
+
+function onTouchMove(e) {
+  if(isAnimating) return;
+  const dx = e.touches[0].clientX - touchStartX;
+  const dy = e.touches[0].clientY - touchStartY;
+  if(!isSwiping && Math.abs(dy) > Math.abs(dx)) return; // vertical scroll
+  isSwiping = true;
+  e.preventDefault();
+  touchDeltaX = dx;
+  const card = document.getElementById("fc-card");
+  const rotate = (dx / window.innerWidth) * 14;
+  card.style.transform = `translateX(${dx}px) rotate(${rotate}deg)`;
+  card.classList.add("dragging");
+  // Hints
+  const threshold = 60;
+  document.getElementById("fc-hint-prev").style.opacity = dx > threshold ? "1" : "0";
+  document.getElementById("fc-hint-next").style.opacity = dx < -threshold ? "1" : "0";
+}
+
+function onTouchEnd() {
+  if(!isSwiping) return;
+  const card = document.getElementById("fc-card");
+  card.classList.remove("dragging");
+  card.style.transform = "";
+  document.getElementById("fc-hint-prev").style.opacity = "0";
+  document.getElementById("fc-hint-next").style.opacity = "0";
+  const threshold = 80;
+  if(touchDeltaX < -threshold && fcIndex < flatQuestions.length - 1) {
+    fcGo(1);
+  } else if(touchDeltaX > threshold && fcIndex > 0) {
+    fcGo(-1);
+  }
+  isSwiping = false;
+}
+
+function updateNavBtns() {
+  const prev = document.getElementById("fc-prev");
+  const skip = document.getElementById("fc-skip");
+  if(prev) prev.disabled = fcIndex === 0;
+  if(skip) {
+    const isLast = fcIndex === flatQuestions.length - 1;
+    const allAnswered = Object.keys(answers).length === flatQuestions.length;
+    if(isLast) {
+      skip.innerHTML = `Selesai <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>`;
+      skip.style.color = allAnswered ? "var(--green)" : "var(--text-3)";
+      skip.style.borderColor = allAnswered ? "#86efac" : "var(--border)";
+      skip.onclick = () => { if(allAnswered) submitForm(); };
+    } else {
+      skip.innerHTML = `Lewati <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>`;
+      skip.style.color = "var(--blue)";
+      skip.style.borderColor = "var(--blue-mid)";
+      skip.onclick = () => fcGo(1);
+    }
+  }
+}
+
+function fcSelect(key, val) {
+  if(isReadOnly) return;
+  answers[key] = val;
+  document.querySelectorAll(".fc-opt").forEach((el, i) => {
+    el.className = "fc-opt" + (i === val ? " selected" : " answered-other");
+  });
+  document.getElementById("fc-card").classList.add("has-answer");
+  const dots = document.querySelectorAll(".fc-dot");
+  if(dots[fcIndex]) { dots[fcIndex].classList.add("answered"); }
+  updateProgress();
+  updateNavBtns();
+  checkShowSubmit();
+  if(fcIndex < flatQuestions.length - 1) setTimeout(() => fcGo(1), 500);
+}
+
+function fcGo(dir) {
+  if(isAnimating) return;
+  const next = fcIndex + dir;
+  if(next < 0 || next >= flatQuestions.length) return;
+  fcIndex = next;
+  renderCard(fcIndex, dir > 0 ? "forward" : "backward");
+}
+
+function fcJump(index) {
+  if(isAnimating || index === fcIndex) return;
+  const dir = index > fcIndex ? "forward" : "backward";
+  fcIndex = index;
+  renderCard(fcIndex, dir);
+}
+
+function getTotal() {
+  return flatQuestions.length;
+}
+
+function updateProgress() {
+  const total = getTotal();
+  const answered = Object.keys(answers).length;
+  document.getElementById("hdr-progress").textContent = total > 0 ? `${answered} / ${total}` : "0 / —";
+  document.getElementById("hdr-bar").style.width = total > 0 ? Math.round((answered/total)*100)+"%" : "0%";
+}
+
+function checkShowSubmit() {
+  const total = getTotal();
+  const answered = Object.keys(answers).length;
+  document.getElementById("submit-section").style.display = (total>0 && answered===total) ? "block" : "none";
+}
+
+function submitForm() {
+  closeOverlay();
+  document.getElementById("result-parent").classList.add("show");
+  document.getElementById("submit-section").style.display = "none";
+  buildParentProfile();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function buildParentProfile() {
+  const areas = document.getElementById("profile-areas");
+  areas.innerHTML = "";
+  if(!currentItems) return;
+
+  // Per-domain descriptions and tips based on score level
+  const DOMAIN_META = {
+    A: {
+      label: "Cara komunikasi & berbicara",
+      color: "#0686c7",
+      low:  { desc:"Komunikasi si kecil berkembang dengan baik sesuai usianya.", tips:["Terus ajak ngobrol dan bercerita setiap hari","Bacakan buku bersama secara rutin"] },
+      mid:  { desc:"Ada beberapa pola komunikasi yang perlu perhatian lebih — seperti cara mengungkapkan perasaan atau memulai percakapan.", tips:["Beri waktu si kecil untuk merespons, jangan terburu-buru","Latih bercerita dengan 'hari ini aku...' setiap malam","Hindari menjawabkan kebutuhannya sebelum ia mencoba mengungkapkan sendiri"] },
+      high: { desc:"Si kecil menunjukkan pola komunikasi yang berbeda dari teman seusianya di beberapa area penting.", tips:["Gunakan kalimat pendek dan jelas saat memberikan instruksi","Beri label emosi: 'kayaknya kamu sedang sedih ya?'","Ceritakan ke tim Markz — kami bisa bantu rancang pendekatan yang tepat"] }
+    },
+    B: {
+      label: "Kebiasaan & rutinitas",
+      color: "#d97706",
+      low:  { desc:"Si kecil cukup fleksibel dan mudah beradaptasi dengan perubahan.", tips:["Tetap jaga rutinitas harian yang konsisten sebagai fondasi","Perkenalkan variasi kecil secara bertahap agar si kecil semakin lentur"] },
+      mid:  { desc:"Si kecil cenderung nyaman dengan rutinitas tertentu dan bisa cukup terganggu saat ada perubahan.", tips:["Beri tahu perubahan jadwal lebih awal: 'besok kita akan...'","Bantu si kecil membuat jadwal visual hariannya sendiri","Validasi perasaannya: 'memang tidak enak kalau rencana berubah'"] },
+      high: { desc:"Ketergantungan pada rutinitas dan reaksi terhadap perubahan tampak lebih intens dari anak seusianya.", tips:["Gunakan jadwal visual bergambar agar si kecil bisa mengantisipasi","Beri 'aba-aba' transisi: '5 menit lagi kita ganti kegiatan'","Sampaikan ke tim Markz agar kami bisa menyesuaikan pendekatan di sesi"] }
+    },
+    C: {
+      label: "Kepekaan terhadap lingkungan",
+      color: "#7c3aed",
+      low:  { desc:"Si kecil tampak nyaman dengan berbagai rangsangan lingkungan sehari-hari.", tips:["Terus perkenalkan pengalaman sensorik baru secara bertahap","Perhatikan jika ada perubahan kepekaan di kemudian hari"] },
+      mid:  { desc:"Si kecil memiliki sensitivitas tertentu terhadap lingkungan — seperti suara, tekstur, atau keramaian.", tips:["Siapkan 'ruang tenang' di rumah jika si kecil kewalahan","Hormati preferensi tekstur atau bahan pakaiannya jika memungkinkan","Hindari memaksa si kecil masuk ke situasi yang membuatnya kewalahan"] },
+      high: { desc:"Kepekaan sensorik si kecil tampak cukup intens dan memengaruhi kesehariannya.", tips:["Catat situasi apa yang paling memicu ketidaknyamanan","Beri 'pilihan' alih-alih paksaan: 'mau pakai baju A atau B?'","Ceritakan ke tim Markz — kepekaan sensorik bisa dikelola dengan strategi yang tepat"] }
+    },
+    D: {
+      label: "Interaksi & hubungan sosial",
+      color: "#16a34a",
+      low:  { desc:"Si kecil tampak cukup nyaman berinteraksi dan bergaul dengan orang lain.", tips:["Terus fasilitasi kesempatan bermain dengan teman sebaya","Diskusikan situasi sosial sehari-hari bersama si kecil"] },
+      mid:  { desc:"Ada beberapa area dalam interaksi sosial si kecil yang perlu perhatian — seperti cara bergabung dengan teman atau membaca perasaan orang lain.", tips:["Latih 'membaca ekspresi' dari buku bergambar atau saat nonton bersama","Ceritakan situasi sosial: 'tadi temanmu kelihatan sedih, menurutmu kenapa?'","Jangan paksa bergaul — beri ruang dan fasilitasi secara bertahap"] },
+      high: { desc:"Si kecil tampak kesulitan di beberapa aspek interaksi sosial yang lebih menonjol dibanding teman seusianya.", tips:["Mulai dari interaksi satu-satu, bukan kelompok besar","Roleplay situasi sosial sederhana di rumah bersama Ayah/Bunda","Sampaikan ke tim Markz agar kami bisa mendukung di sesi bimbel"] }
+    },
+    E: {
+      label: "Perkembangan & kemandirian",
+      color: "#dc2626",
+      low:  { desc:"Perkembangan dan kemandirian si kecil tampak sesuai dengan usianya.", tips:["Terus beri kesempatan mencoba hal baru secara mandiri","Apresiasi usahanya, bukan hanya hasilnya"] },
+      mid:  { desc:"Ada beberapa area perkembangan atau kemandirian si kecil yang sedikit berbeda dari rata-rata usianya.", tips:["Bagi tugas menjadi langkah-langkah kecil yang konkret","Latih keterampilan sehari-hari dengan konsisten dan sabar","Hindari terlalu cepat membantu — beri waktu si kecil mencoba dulu"] },
+      high: { desc:"Beberapa aspek perkembangan atau kemandirian si kecil tampak membutuhkan dukungan lebih dari anak seusianya.", tips:["Fokus pada satu keterampilan sekaligus, jangan terlalu banyak","Gunakan rutinitas dan pengulangan untuk membangun keterampilan","Ceritakan ke tim Markz — kami bisa bantu rancang target belajar yang realistis"] }
+    }
+  };
+
+  currentItems.forEach(d => {
+    const sum = d.items.reduce((s,_,i)=>s+(answers[`${d.domain}_${i}`]||0),0);
+    const max = d.items.length * 3;
+    const pct = Math.round((sum/max)*100);
+    const meta = DOMAIN_META[d.domain];
+    if(!meta) return;
+
+    const level = pct <= 33 ? "low" : pct <= 66 ? "mid" : "high";
+    const levelLabel = pct <= 33 ? "Berkembang baik" : pct <= 66 ? "Perlu perhatian" : "Perlu dukungan lebih";
+    const pillClass = pct <= 33 ? "low" : pct <= 66 ? "mid" : "high";
+    const barColor = pct <= 33 ? "#16a34a" : pct <= 66 ? "#d97706" : "#dc2626";
+    const info = meta[level];
+
+    const card = document.createElement("div");
+    card.className = "parea-card";
+    card.innerHTML = `
+      <div class="parea-head">
+        <div class="parea-dot" style="background:${meta.color}"></div>
+        <div class="parea-label">${meta.label}</div>
+        <div class="parea-pill ${pillClass}">${levelLabel}</div>
+      </div>
+      <div class="parea-bar-wrap">
+        <div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct}%;background:${barColor}"></div></div>
+      </div>
+      <div class="parea-body">
+        <div class="parea-desc">${info.desc}</div>
+        <div class="parea-tips">
+          ${info.tips.map(t=>`<div class="parea-tip"><span class="parea-tip-icon">💡</span><span>${t}</span></div>`).join("")}
+        </div>
+      </div>
+    `;
+    areas.appendChild(card);
+  });
+}
+
+function shareWhatsApp() {
+  const data = {
+    nama:document.getElementById("f-nama").value||"—",
+    usia:document.getElementById("f-usia").value||"—",
+    jk:document.getElementById("f-jk").value||"—",
+    ortu:document.getElementById("f-ortu").value||"—",
+    ageKey:currentAge,
+    answers:answers
+  };
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(data))));
+  const url = window.location.origin+window.location.pathname+"#d="+encoded;
+  const nama = data.nama!=="—"?data.nama:"siswa";
+  const msg = `Halo Tim Markz Belajar 👋\n\nSaya ${data.ortu}, orang tua dari *${nama}* (${data.usia}, ${data.jk}).\n\nBerikut hasil formulir Kenali Si Kecil:\n${url}\n\nTerima kasih! 😊`;
+  window._shareUrl = url;
+  window._shareMsg = msg;
+  document.getElementById("share-modal").classList.add("open");
+}
+
+function doShare() { window.open("https://wa.me/?text="+encodeURIComponent(window._shareMsg)); closeModal(); }
+function copyLink() {
+  navigator.clipboard.writeText(window._shareUrl).then(()=>alert("Link berhasil disalin!")).catch(()=>prompt("Salin link berikut:",window._shareUrl));
+  closeModal();
+}
+function closeModal() { document.getElementById("share-modal").classList.remove("open"); }
+function closeWelcome() { document.getElementById("welcome-overlay").classList.add("hidden"); }
+function toggleTeacherLogin() { document.getElementById("teacher-login").classList.toggle("show"); }
+
+function checkCode() {
+  const code = document.getElementById("teacher-code").value.trim().toUpperCase();
+  if(code===TEACHER_CODE){ document.getElementById("teacher-err").style.display="none"; document.getElementById("teacher-login").classList.remove("show"); showClinical(); }
+  else document.getElementById("teacher-err").style.display="block";
+}
+
+function showClinical() {
+  document.getElementById("clinical").classList.add("show");
+  buildClinical();
+  document.getElementById("clinical").scrollIntoView({behavior:"smooth"});
+}
+
+function buildClinical() {
+  const src = (isReadOnly&&loadedData)?loadedData.answers:answers;
+  const items = (isReadOnly&&loadedData)?ITEMS_BY_AGE[loadedData.ageKey]:currentItems;
+  const nama = (isReadOnly&&loadedData)?loadedData.nama:document.getElementById("f-nama").value||"—";
+  const usia = (isReadOnly&&loadedData)?loadedData.usia:document.getElementById("f-usia").value||"—";
+  const jk = (isReadOnly&&loadedData)?loadedData.jk:document.getElementById("f-jk").value||"—";
+  const ortu = (isReadOnly&&loadedData)?loadedData.ortu:document.getElementById("f-ortu").value||"—";
+  const ageLabels={A:"4–5 tahun (TK)",B:"6–8 tahun (Kelas 1–2 SD)",C:"9–10 tahun (Kelas 3–4 SD)",D:"11–12 tahun (Kelas 5–6 SD)"};
+  const ageKey = (isReadOnly&&loadedData)?loadedData.ageKey:currentAge;
+  document.getElementById("clinical-student").innerHTML=`<strong>Nama:</strong> ${nama} &nbsp;|&nbsp; <strong>Usia:</strong> ${usia} &nbsp;|&nbsp; <strong>JK:</strong> ${jk} &nbsp;|&nbsp; <strong>Ortu:</strong> ${ortu} &nbsp;|&nbsp; <strong>Kelompok usia:</strong> ${ageLabels[ageKey]||"—"}`;
+  if(!items){document.getElementById("interp").textContent="Data tidak lengkap.";return;}
+  const TOTAL = items.reduce((s,d)=>s+d.items.length,0);
+  const ds={A:0,B:0,C:0,D:0,E:0},dc={A:0,B:0,C:0,D:0,E:0};
+  let total=0,answered=0;
+  Object.entries(src).forEach(([k,v])=>{const d=k[0];ds[d]+=v;dc[d]++;total+=v;answered++;});
+  const maxScore=TOTAL*3;
+  const pct=answered===TOTAL?Math.round((total/maxScore)*100):null;
+  document.getElementById("sc-total").textContent=answered>0?`${total}/${maxScore}`:"—";
+  document.getElementById("sc-pct").textContent=pct!==null?pct+"%":"—";
+  if(answered>0){const fp=Math.round((total/maxScore)*100);const f=document.getElementById("bar-fill");f.style.width=fp+"%";f.style.background=fp<17?"#6b7280":fp<34?"#0686c7":fp<51?"#d97706":fp<67?"#b45309":"#dc2626";}
+  const dr=document.getElementById("clinical-domain-rows");
+  dr.innerHTML="";
+  items.forEach(d=>{
+    const s=ds[d.domain],c=dc[d.domain],max=d.items.length*3,p=c>0?Math.round((s/(c*3))*100):0;
+    const row=document.createElement("div");row.className="domain-row";
+    row.innerHTML=`<div class="domain-row-label">${d.clinicalLabel}</div><div class="domain-row-bar"><div class="domain-row-fill" style="width:${p}%;background:${p<34?"#6b7280":p<51?"#d97706":"#dc2626"}"></div></div><div class="domain-row-val">${c>0?`${s}/${max}`:"—"}</div>`;
+    dr.appendChild(row);
+  });
+  const interp=document.getElementById("interp"),lvl=document.getElementById("sc-level");
+  if(answered<TOTAL){lvl.textContent="Tidak lengkap";lvl.style.color="";interp.innerHTML=`Hanya ${answered} dari ${TOTAL} item terjawab.`;return;}
+  if(pct<=16){lvl.textContent="Minimal";lvl.style.color="#16a34a";interp.style.cssText="background:#dcfce7;border-left:3px solid #16a34a;";interp.innerHTML=`<strong>Indikator minimal (${pct}%)</strong><br>Dari laporan orang tua, indikator tumbuh kembang atipikal tidak tampak menonjol. Lanjutkan pemantauan rutin di sesi bimbel.`;}
+  else if(pct<=33){lvl.textContent="Perlu pantau";lvl.style.color="#0686c7";interp.style.cssText="background:#e8f4fc;border-left:3px solid #0686c7;";interp.innerHTML=`<strong>Perlu observasi lanjut (${pct}%)</strong><br>Beberapa pola terlihat dari laporan orang tua. Kombinasikan dengan observasi guru selama 4–6 minggu. Pertimbangkan diskusi lanjut dengan orang tua.`;}
+  else if(pct<=50){lvl.textContent="Moderat";lvl.style.color="#d97706";interp.style.cssText="background:#fef3c7;border-left:3px solid #d97706;";interp.innerHTML=`<strong>Indikator moderat (${pct}%)</strong><br>Pola cukup konsisten dari laporan orang tua. <strong>Gabungkan dengan hasil observasi guru.</strong> Jika konsisten di keduanya, rekomendasikan diskusi lebih dalam dan pertimbangkan rujukan ke psikolog anak.`;}
+  else if(pct<=66){lvl.textContent="Kuat";lvl.style.color="#b45309";interp.style.cssText="background:#fff7ed;border-left:3px solid #b45309;";interp.innerHTML=`<strong>Indikator kuat (${pct}%)</strong><br>Pola konsisten di beberapa domain penting. <strong>Sangat direkomendasikan:</strong> jadwalkan pertemuan dengan orang tua, siapkan dokumentasi observasi guru, dan rekomendasikan asesmen formal oleh psikolog klinis anak.`;}
+  else{lvl.textContent="Sangat kuat";lvl.style.color="#dc2626";interp.style.cssText="background:#fee2e2;border-left:3px solid #dc2626;";interp.innerHTML=`<strong>Indikator sangat kuat (${pct}%)</strong><br>Pola sangat konsisten dari laporan orang tua di hampir semua domain. <strong>Prioritaskan pertemuan orang tua segera.</strong> Kombinasikan dengan form observasi guru dan rujuk ke psikolog klinis anak atau psikiater anak dengan pendekatan empatik.`;}
+}
+
+function loadFromHash() {
+  const hash=window.location.hash;
+  if(!hash||!hash.startsWith("#d=")) return false;
+  try {
+    const data=JSON.parse(decodeURIComponent(escape(atob(hash.slice(3)))));
+    loadedData=data; isReadOnly=true;
+    document.getElementById("f-nama").value=data.nama||"";
+    document.getElementById("f-usia").value=data.usia||"";
+    document.getElementById("f-jk").value=data.jk||"";
+    document.getElementById("f-ortu").value=data.ortu||"";
+    ["f-nama","f-usia","f-jk","f-ortu"].forEach(id=>{const el=document.getElementById(id);el.disabled=true;el.style.opacity="0.7";});
+    if(data.ageKey){
+      currentAge=data.ageKey; currentItems=ITEMS_BY_AGE[data.ageKey];
+      document.querySelectorAll(".age-btn").forEach(b=>b.classList.remove("selected"));
+      const btn=document.querySelector(`[data-age="${data.ageKey}"]`);
+      if(btn){btn.classList.add("selected");btn.style.pointerEvents="none";}
+      // Flatten for flashcard
+      flatQuestions=[];
+      currentItems.forEach(domain=>{
+        domain.items.forEach((item,idx)=>{
+          flatQuestions.push({domain:domain.domain,domainLabel:domain.label,item,idx,key:`${domain.domain}_${idx}`});
+        });
+      });
+      fcIndex=0;
+      document.getElementById("flashcard-wrap").style.display="block";
+    }
+    Object.entries(data.answers).forEach(([key,val])=>{ answers[key]=val; });
+    if(flatQuestions.length) renderCard(0,"none");
+    document.querySelectorAll(".age-btn").forEach(el=>el.style.pointerEvents="none");
+    document.getElementById("readonly-banner").classList.add("show");
+    document.getElementById("welcome-overlay").classList.add("hidden");
+    document.getElementById("result-parent").classList.add("show");
+    document.getElementById("submit-section").style.display="none";
+    buildParentProfile();
+    updateProgress();
+    return true;
+  } catch(e){ console.error(e); return false; }
+}
+
+// ═══════════════════════════════════════════════════
+// APPS SCRIPT INTEGRATION
+const SCREENING_API = 'https://script.google.com/macros/s/AKfycbwhA4cweMbkHhUYsXj7KewyPSp4p-OuAxaK_84QfEnhM-IMZCpu5hIUTZxALbOxma0m/exec';
+
+function apiScreening(action, params={}) {
+  const url = new URL(SCREENING_API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v==='object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  return fetch(url.toString(), {redirect:'follow'}).then(r=>r.json()).catch(()=>({ok:false}));
+}
+
+function hitungSkor(answersObj, items) {
+  if(!items) return 0;
+  const total = Object.values(answersObj).reduce((s,v)=>s+Number(v),0);
+  const max = items.reduce((s,d)=>s+d.items.length,0)*3;
+  return max>0 ? Math.round((total/max)*100) : 0;
+}
+
+// ── Load dari URL params yang dikirim obs.html ──
+function loadFromURLParams() {
+  const p = new URLSearchParams(window.location.search);
+  const gen=p.get('gen'), nama=p.get('nama'), ibu=p.get('ibu'), wa=p.get('wa'), age=p.get('age');
+  if(!gen && !nama) return false;
+  window._genId=gen||''; window._namaIbu=ibu||''; window._waIbu=wa||'';
+  if(nama){const el=document.getElementById("f-nama");if(el){el.value=nama;el.disabled=true;el.style.opacity="0.8";}}
+  if(ibu){const el=document.getElementById("f-ortu");if(el){el.value=ibu;el.disabled=true;el.style.opacity="0.8";}}
+  if(age && ['A','B','C','D'].includes(age)){
+    setTimeout(()=>{ const btn=document.querySelector(`[data-age="${age}"]`); if(btn) btn.click(); },400);
+  }
+  return true;
+}
+
+// ── Override submitForm: tambah API call ──
+const _origSubmit = submitForm;
+function submitForm() {
+  _origSubmit && _origSubmit();
+  const genId=window._genId||'';
+  if(genId){
+    const skor=hitungSkor(answers,currentItems);
+    apiScreening('saveScreeningOrtu',{
+      genId, skor, ageKey:currentAge||'',
+      namaAnak:document.getElementById("f-nama").value||'',
+      namaIbu:window._namaIbu||document.getElementById("f-ortu").value||'',
+      waIbu:window._waIbu||'',
+      answers:JSON.stringify(answers)
+    }).catch(()=>{});
+  }
+}
+
+if(!loadFromHash()) loadFromURLParams();
+updateProgress();
+</script>
+</body>
+</html>

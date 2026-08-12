@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Observasi Kelas — Markaz Belajar</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --blue:#0686c7;--blue-dark:#055a96;--blue-light:#e8f4fc;--blue-mid:#4DA3D4;
+  --sun:#FFCA28;--sun-deep:#F59F00;
+  --leaf:#2E9E5B;--leaf-light:#E6F7EE;
+  --coral:#E85D4A;--coral-light:#FFF0EE;
+  --ink:#1C2B3A;--ink-mid:#4A6070;--ink-faint:#8FA4B4;
+  --paper:#FDFAF4;--line:#EDE9DF;
+  --white:#FFFFFF;
+  --green:#16a34a;--green-light:#dcfce7;
+  --amber:#d97706;--amber-light:#fef3c7;
+  --red:#dc2626;--red-light:#fee2e2;
+  --gray:#6b7280;--gray-light:#f3f4f6;
+  --r:16px;--r-sm:10px;
+  --shadow:0 4px 24px rgba(28,43,58,0.10);
+  --shadow-sm:0 2px 10px rgba(28,43,58,0.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+body{font-family:'Lato',sans-serif;background:#E9EEF3;color:var(--ink);min-height:100vh;}
+.page{max-width:480px;margin:0 auto;background:var(--paper);min-height:100vh;position:relative;}
+@media(min-width:481px){body{padding:20px 0}.page{border-radius:28px;min-height:auto;box-shadow:0 8px 40px rgba(0,0,0,0.15);overflow:hidden;}}
+
+/* ── LOADING ── */
+.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;}
+.spinner{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.loading-txt{font-size:13px;color:var(--ink-faint);}
+
+/* ── HEADER ── */
+.header{background:var(--blue);padding:20px 20px 56px;position:relative;overflow:hidden;}
+.header::after{content:'';position:absolute;bottom:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none;}
+.header-top{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
+.back-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border:none;}
+.back-btn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
+.header-brand{font-size:12px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:.5px;}
+.header-title{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:6px;}
+.header-sub{font-size:12px;color:rgba(255,255,255,0.75);}
+.stats-row{display:flex;gap:10px;margin-top:12px;}
+.stat-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#fff;}
+.stat-pill-dot{width:7px;height:7px;border-radius:50%;background:#fff;flex-shrink:0;}
+.stat-pill-dot.green{background:#4ade80;}
+.stat-pill-dot.amber{background:var(--sun);}
+.stat-pill-dot.red{background:#f87171;}
+
+/* ── FILTER TABS ── */
+.filter-wrap{margin:-32px 16px 0;position:relative;z-index:10;background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:4px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
+.filter-wrap::-webkit-scrollbar{display:none;}
+.filter-btn{flex-shrink:0;padding:7px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--ink-faint);font-family:'Lato',sans-serif;transition:all .15s;}
+.filter-btn.active{background:var(--blue);color:#fff;}
+
+/* ── STUDENT LIST ── */
+.list-wrap{padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
+.empty{text-align:center;padding:40px 20px;font-size:13px;color:var(--ink-faint);}
+.empty-icon{font-size:36px;margin-bottom:10px;}
+
+.student-row{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;border:1.5px solid transparent;}
+.student-row:active{transform:scale(0.98);}
+.student-row.highlight{border-color:var(--amber);}
+.avatar{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;}
+.student-info{flex:1;min-width:0;}
+.student-name{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.student-meta{font-size:11px;color:var(--ink-faint);margin-top:2px;}
+.status-chip{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
+.chip-belum{background:var(--gray-light);color:var(--gray);}
+.chip-menunggu{background:var(--amber-light);color:var(--amber);}
+.chip-ortu{background:var(--blue-light);color:var(--blue);}
+.chip-selesai{background:var(--green-light);color:var(--green);}
+.chip-lanjut{background:var(--red-light);color:var(--red);}
+
+/* ── BOTTOM SHEET (DETAIL) ── */
+.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:100;pointer-events:none;transition:background .3s;}
+.sheet-overlay.open{background:rgba(0,0,0,0.45);pointer-events:auto;}
+.sheet{position:fixed;bottom:0;left:50%;transform:translate(-50%,100%);width:100%;max-width:480px;background:var(--paper);border-radius:24px 24px 0 0;z-index:101;transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto;padding-bottom:32px;}
+.sheet.open{transform:translate(-50%,0);}
+.sheet-handle{width:36px;height:4px;background:var(--line);border-radius:2px;margin:12px auto 0;}
+.sheet-header{padding:16px 20px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;}
+.sheet-avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
+.sheet-name{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--ink);}
+.sheet-meta{font-size:12px;color:var(--ink-faint);margin-top:2px;}
+.sheet-genid{font-size:10px;font-weight:700;color:var(--blue);margin-top:2px;}
+.sheet-body{padding:16px 20px;}
+
+/* ── STATUS TIMELINE ── */
+.stl{display:flex;flex-direction:column;gap:0;margin-bottom:16px;}
+.stl-item{display:flex;gap:12px;position:relative;}
+.stl-left{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0;}
+.stl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;border:2px solid var(--line);background:var(--white);}
+.stl-dot.done{background:var(--green);border-color:var(--green);color:#fff;}
+.stl-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;}
+.stl-dot.pending{background:var(--gray-light);border-color:var(--line);color:var(--ink-faint);}
+.stl-line{width:2px;flex:1;background:var(--line);min-height:14px;margin:2px 0;}
+.stl-right{flex:1;padding-bottom:16px;}
+.stl-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;}
+.stl-sub{font-size:11.5px;color:var(--ink-faint);}
+.stl-date{font-size:10.5px;color:var(--blue);margin-top:2px;font-weight:600;}
+
+/* ── SCORE CARDS ── */
+.score-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
+.score-card{background:var(--white);border-radius:var(--r-sm);padding:12px 8px;text-align:center;box-shadow:var(--shadow-sm);}
+.score-card-num{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;color:var(--blue);}
+.score-card-lbl{font-size:10px;color:var(--ink-faint);margin-top:2px;line-height:1.3;}
+
+/* ── LEVEL BADGE ── */
+.level-box{border-radius:var(--r-sm);padding:12px 14px;font-size:13px;line-height:1.6;margin-bottom:16px;}
+.level-box strong{display:block;font-family:'Baloo 2',sans-serif;font-size:14px;margin-bottom:3px;}
+.level-minimal{background:var(--green-light);color:var(--green);}
+.level-pantau{background:var(--blue-light);color:var(--blue-dark);}
+.level-moderat{background:var(--amber-light);color:var(--amber);}
+.level-kuat{background:#fff7ed;color:#b45309;}
+.level-sangat{background:var(--red-light);color:var(--red);}
+
+/* ── ACTION BUTTONS ── */
+.action-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r-sm);font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:'Lato',sans-serif;transition:all .15s;margin-bottom:8px;}
+.action-btn:last-child{margin-bottom:0;}
+.action-btn:active{transform:scale(0.98);}
+.btn-wa{background:#25D366;color:#fff;}
+.btn-blue{background:var(--blue);color:#fff;}
+.btn-red{background:var(--red);color:#fff;}
+.btn-outline{background:transparent;color:var(--blue);border:1.5px solid var(--blue);}
+.btn-gray{background:var(--gray-light);color:var(--gray);border:1px solid var(--line);}
+.action-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+.action-btn .wa-icon{fill:#fff;stroke:none;}
+
+/* ── WA POPUP ── */
+.wa-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;}
+.wa-overlay.open{display:flex;}
+.wa-popup{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px 36px;}
+.wa-handle{width:36px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 16px;}
+.wa-title{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
+.wa-title svg{fill:#25D366;}
+.wa-preview{background:#f0f7f0;border-radius:var(--r-sm);padding:12px;font-size:12.5px;color:var(--ink-mid);line-height:1.65;margin-bottom:16px;border-left:3px solid #25D366;max-height:120px;overflow-y:auto;}
+.wa-close{text-align:center;font-size:12.5px;color:var(--ink-faint);cursor:pointer;padding:6px;margin-top:4px;}
+
+/* ── TAGS ── */
+.tags-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
+.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
+.tag-blue{background:var(--blue-light);color:var(--blue);}
+.tag-yellow{background:#FFF8DC;color:#8B6914;}
+
+/* ── SECTION LABEL ── */
+.sec-lbl{font-size:10px;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;}
+
+.bottom-space{height:40px;}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="loading-wrap" id="loading">
+    <div class="spinner"></div>
+    <div class="loading-txt">Memuat data siswa...</div>
+  </div>
+  <div id="main" style="display:none;">
+    <!-- HEADER -->
+    <div class="header">
+      <div class="header-top">
+        <button class="back-btn" onclick="history.back()">
+          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div class="header-brand">MARKAZ BELAJAR</div>
+      </div>
+      <div class="header-title">Observasi Kelas</div>
+      <div class="header-sub">Screening tumbuh kembang siswa</div>
+      <div class="stats-row">
+        <div class="stat-pill"><div class="stat-pill-dot green"></div><span id="stat-selesai">0 selesai</span></div>
+        <div class="stat-pill"><div class="stat-pill-dot amber"></div><span id="stat-proses">0 proses</span></div>
+        <div class="stat-pill"><div class="stat-pill-dot red"></div><span id="stat-perlu">0 perlu lanjut</span></div>
+      </div>
+    </div>
+
+    <!-- FILTER TABS -->
+    <div class="filter-wrap" id="filter-wrap">
+      <button class="filter-btn active" data-filter="semua" onclick="setFilter('semua',this)">Semua</button>
+      <button class="filter-btn" data-filter="belum_kirim" onclick="setFilter('belum_kirim',this)">Belum dikirim</button>
+      <button class="filter-btn" data-filter="menunggu" onclick="setFilter('menunggu',this)">Menunggu ortu</button>
+      <button class="filter-btn" data-filter="ortu_selesai" onclick="setFilter('ortu_selesai',this)">Ortu selesai</button>
+      <button class="filter-btn" data-filter="selesai" onclick="setFilter('selesai',this)">Selesai</button>
+      <button class="filter-btn" data-filter="perlu_lanjut" onclick="setFilter('perlu_lanjut',this)">Perlu lanjut ⚠</button>
+    </div>
+
+    <!-- STUDENT LIST -->
+    <div class="list-wrap" id="list-wrap"></div>
+    <div class="bottom-space"></div>
+  </div>
+</div>
+
+<!-- BOTTOM SHEET DETAIL -->
+<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
+<div class="sheet" id="sheet">
+  <div class="sheet-handle"></div>
+  <div class="sheet-header">
+    <div class="sheet-avatar" id="d-avatar">—</div>
+    <div>
+      <div class="sheet-name" id="d-name">—</div>
+      <div class="sheet-meta" id="d-meta">—</div>
+      <div class="sheet-genid" id="d-genid">—</div>
+    </div>
+  </div>
+  <div class="sheet-body" id="sheet-body">
+    <div class="loading-txt">Memuat detail...</div>
+  </div>
+</div>
+
+<!-- WA POPUP -->
+<div class="wa-overlay" id="wa-overlay">
+  <div class="wa-popup">
+    <div class="wa-handle"></div>
+    <div class="wa-title">
+      <svg width="20" height="20" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+      Kirim Form ke Orang Tua
+    </div>
+    <div class="wa-preview" id="wa-preview-text">—</div>
+    <button class="action-btn btn-wa" onclick="doSendWA()">
+      <svg width="16" height="16" viewBox="0 0 24 24" class="wa-icon"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+      Buka WhatsApp & Kirim
+    </button>
+    <div class="wa-close" onclick="closeWAPopup()">Tutup</div>
+  </div>
+</div>
+
+<script>
+// ════════════════════════════════════════════════════════════
+const API = 'https://script.google.com/macros/s/AKfycbwhA4cweMbkHhUYsXj7KewyPSp4p-OuAxaK_84QfEnhM-IMZCpu5hIUTZxALbOxma0m/exec';
+const FORM_BASE = 'https://markaz-belajar.github.io/observasi-mb/markaz-kenali-si-kecil.html';
+
+function api(action, params={}) {
+  const url = new URL(API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json());
+}
+
+// ════════════════════════════════════════════════════════════
+let allSiswa = [];
+let screeningMap = {}; // genId → screening record
+let currentFilter = 'semua';
+let currentSiswa = null;
+let pendingWAData = null;
+
+// ── Normalize WA number ──
+function normalizeWA(raw) {
+  if (!raw) return '';
+  let n = String(raw).replace(/\D/g,'');
+  if (n.startsWith('0')) n = '62' + n.slice(1);
+  if (!n.startsWith('62')) n = '62' + n;
+  return n;
+}
+
+// ── Status helper ──
+function getStatus(siswa) {
+  const rec = screeningMap[siswa.nomorInduk] || screeningMap[siswa.id];
+  if (!rec) return 'belum_kirim';
+  if (rec.statusGuru === 'selesai') {
+    const pct = Number(rec.skorGabungan) || 0;
+    if (pct > 33) return 'perlu_lanjut';
+    return 'selesai';
+  }
+  if (rec.statusOrtu === 'selesai') return 'ortu_selesai';
+  if (rec.tanggalKirim) return 'menunggu';
+  return 'belum_kirim';
+}
+
+function statusLabel(s) {
+  const map = {
+    belum_kirim: { label:'Belum dikirim', cls:'chip-belum' },
+    menunggu:    { label:'Menunggu ortu', cls:'chip-menunggu' },
+    ortu_selesai:{ label:'Ortu selesai',  cls:'chip-ortu' },
+    selesai:     { label:'Selesai',       cls:'chip-selesai' },
+    perlu_lanjut:{ label:'⚠ Perlu lanjut', cls:'chip-lanjut' },
+  };
+  return map[s] || map.belum_kirim;
+}
+
+// ── Filter ──
+function setFilter(f, btn) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderList();
+}
+
+// ── Render list ──
+function renderList() {
+  const wrap = document.getElementById('list-wrap');
+  const filtered = allSiswa.filter(s => {
+    const st = getStatus(s);
+    return currentFilter === 'semua' || st === currentFilter;
+  });
+
+  if (!filtered.length) {
+    wrap.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>Tidak ada siswa di kategori ini.</div>`;
+    return;
+  }
+
+  // Sort: perlu_lanjut → ortu_selesai → menunggu → belum_kirim → selesai
+  const order = {perlu_lanjut:0, ortu_selesai:1, menunggu:2, belum_kirim:3, selesai:4};
+  filtered.sort((a,b) => (order[getStatus(a)]||5) - (order[getStatus(b)]||5));
+
+  wrap.innerHTML = filtered.map(s => {
+    const st = getStatus(s);
+    const chip = statusLabel(st);
+    const hl = st === 'perlu_lanjut' ? ' highlight' : '';
+    return `
+    <div class="student-row${hl}" onclick="openSheet('${s.id}')">
+      <div class="avatar">${s.inisial||s.nama.charAt(0)}</div>
+      <div class="student-info">
+        <div class="student-name">${s.nama}</div>
+        <div class="student-meta">${s.program||'—'} · ${s.usia||'—'}</div>
+      </div>
+      <div class="status-chip ${chip.cls}">${chip.label}</div>
+    </div>`;
+  }).join('');
+}
+
+// ── Update stats ──
+function updateStats() {
+  const counts = { selesai:0, proses:0, perlu:0 };
+  allSiswa.forEach(s => {
+    const st = getStatus(s);
+    if (st === 'selesai') counts.selesai++;
+    else if (st === 'perlu_lanjut') { counts.selesai++; counts.perlu++; }
+    else if (st !== 'belum_kirim') counts.proses++;
+  });
+  document.getElementById('stat-selesai').textContent = counts.selesai + ' selesai';
+  document.getElementById('stat-proses').textContent  = counts.proses + ' proses';
+  document.getElementById('stat-perlu').textContent   = counts.perlu + ' perlu lanjut';
+}
+
+// ── Open bottom sheet ──
+async function openSheet(id) {
+  currentSiswa = allSiswa.find(s => String(s.id) === String(id));
+  if (!currentSiswa) return;
+
+  // Set header
+  document.getElementById('d-avatar').textContent = currentSiswa.inisial || currentSiswa.nama.charAt(0);
+  document.getElementById('d-name').textContent   = currentSiswa.nama;
+  document.getElementById('d-meta').textContent   = (currentSiswa.program||'—') + ' · ' + (currentSiswa.usia||'—');
+  document.getElementById('d-genid').textContent  = currentSiswa.nomorInduk || currentSiswa.id;
+  document.getElementById('sheet-body').innerHTML = `<div class="loading-txt" style="text-align:center;padding:20px;">Memuat...</div>`;
+
+  document.getElementById('sheet-overlay').classList.add('open');
+  document.getElementById('sheet').classList.add('open');
+  document.body.style.overflow = 'hidden';
+
+  // Fetch detail
+  const genId = currentSiswa.nomorInduk || currentSiswa.id;
+  let rec = null;
+  try {
+    const r = await api('getScreeningDetail', { genId });
+    if (r.ok) rec = r.data;
+  } catch(e) {}
+
+  renderSheetBody(currentSiswa, rec);
+}
+
+function closeSheet() {
+  document.getElementById('sheet-overlay').classList.remove('open');
+  document.getElementById('sheet').classList.remove('open');
+  document.body.style.overflow = '';
+}
+
+// ── Render sheet body ──
+function renderSheetBody(siswa, rec) {
+  const genId   = siswa.nomorInduk || siswa.id;
+  const status  = getStatus(siswa);
+  const namaIbu = siswa.namaIbu || siswa.ibu || '—';
+  const waIbu   = siswa.waIbu || siswa.noWaIbu || '';
+
+  // Status timeline
+  const sentDate   = rec?.tanggalKirim ? fmtDate(rec.tanggalKirim) : null;
+  const ortuDate   = rec?.tanggalOrtu  ? fmtDate(rec.tanggalOrtu)  : null;
+  const guruDate   = rec?.tanggalGuru  ? fmtDate(rec.tanggalGuru)  : null;
+  const skorOrtu   = rec ? Math.round(Number(rec.skorOrtu)||0) : null;
+  const skorGuru   = rec ? Math.round(Number(rec.skorGuru)||0) : null;
+  const skorGab    = rec ? Math.round(Number(rec.skorGabungan)||0) : null;
+  const level      = rec?.levelGabungan || null;
+
+  const step1Done = !!sentDate;
+  const step2Done = !!ortuDate;
+  const step3Done = !!guruDate;
+
+  let html = '';
+
+  // Tags
+  html += `<div class="tags-row" style="margin-bottom:14px;">
+    <span class="tag tag-blue">${siswa.program||'—'}</span>
+    <span class="tag tag-yellow">${siswa.tipe||'Reguler'}</span>
+    <span class="tag tag-blue">${genId}</span>
+  </div>`;
+
+  // Status timeline
+  html += `<div class="sec-lbl">Status Screening</div>
+  <div class="stl">
+    <div class="stl-item">
+      <div class="stl-left">
+        <div class="stl-dot ${step1Done?'done':'pending'}">${step1Done?'✓':'1'}</div>
+        <div class="stl-line"></div>
+      </div>
+      <div class="stl-right">
+        <div class="stl-title">Form dikirim ke orang tua</div>
+        ${step1Done ? `<div class="stl-date">${sentDate}</div>` : `<div class="stl-sub">Belum dikirim</div>`}
+      </div>
+    </div>
+    <div class="stl-item">
+      <div class="stl-left">
+        <div class="stl-dot ${step2Done?'done':step1Done?'active':'pending'}">${step2Done?'✓':'2'}</div>
+        <div class="stl-line"></div>
+      </div>
+      <div class="stl-right">
+        <div class="stl-title">Orang tua mengisi form</div>
+        ${step2Done ? `<div class="stl-date">${ortuDate}</div>` : `<div class="stl-sub">${step1Done?'Menunggu orang tua':'—'}</div>`}
+      </div>
+    </div>
+    <div class="stl-item">
+      <div class="stl-left">
+        <div class="stl-dot ${step3Done?'done':step2Done?'active':'pending'}">${step3Done?'✓':'3'}</div>
+      </div>
+      <div class="stl-right">
+        <div class="stl-title">Guru mengisi form observasi</div>
+        ${step3Done ? `<div class="stl-date">${guruDate}</div>` : `<div class="stl-sub">${step2Done?'Giliran guru mengisi':'—'}</div>`}
+      </div>
+    </div>
+  </div>`;
+
+  // Hasil jika selesai
+  if (step3Done && skorGab !== null) {
+    html += `<div class="sec-lbl">Hasil Screening Gabungan</div>
+    <div class="score-cards">
+      <div class="score-card"><div class="score-card-num">${skorOrtu??'—'}%</div><div class="score-card-lbl">Skor<br>Orang Tua</div></div>
+      <div class="score-card"><div class="score-card-num">${skorGuru??'—'}%</div><div class="score-card-lbl">Skor<br>Guru</div></div>
+      <div class="score-card"><div class="score-card-num" style="color:${getLevelColor(level)}">${skorGab}%</div><div class="score-card-lbl">Skor<br>Gabungan</div></div>
+    </div>
+    <div class="level-box ${getLevelClass(level)}">
+      <strong>${level||'—'}</strong>
+      ${getLevelDesc(level, siswa.nama.split(' ')[0])}
+    </div>`;
+  }
+
+  // Action buttons
+  html += `<div class="sec-lbl" style="margin-top:4px">Tindakan</div>`;
+
+  if (!step1Done) {
+    html += `<button class="action-btn btn-wa" onclick="openWAPopup()">
+      <svg width="16" height="16" viewBox="0 0 24 24" style="fill:#fff;stroke:none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+      Kirim Form ke Orang Tua
+    </button>`;
+  } else if (step1Done && !step2Done) {
+    html += `<button class="action-btn btn-outline" onclick="openWAPopup()">
+      <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Kirimkan Pengingat
+    </button>`;
+  } else if (step2Done && !step3Done) {
+    const formGuruUrl = `https://markaz-belajar.github.io/observasi-mb/markz-observasi-guru.html?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(siswa.nama)}`;
+    html += `<button class="action-btn btn-blue" onclick="window.open('${formGuruUrl}','_blank')">
+      <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      Isi Form Observasi Guru
+    </button>`;
+  } else if (step3Done && level && ['Moderat','Kuat','Sangat kuat'].includes(level)) {
+    html += `<button class="action-btn btn-red" onclick="alert('Form Tahap 2 segera tersedia.')">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      Kirim Form Tahap 2
+    </button>`;
+    html += `<button class="action-btn btn-outline" onclick="openWAPopup()">
+      <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+      Bagikan Hasil ke Orang Tua
+    </button>`;
+  } else if (step3Done) {
+    html += `<button class="action-btn btn-gray" disabled>✓ Screening selesai</button>`;
+  }
+
+  document.getElementById('sheet-body').innerHTML = html;
+
+  // Prepare WA data
+  const formUrl = `${FORM_BASE}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(siswa.nama)}&ibu=${encodeURIComponent(namaIbu)}&wa=${encodeURIComponent(waIbu)}`;
+  const waNum = normalizeWA(waIbu);
+  const namaDepan = siswa.nama.split(' ')[0];
+  const namaIbuDepan = namaIbu.split(' ')[0];
+
+  let waMsg = '';
+  if (step3Done && level) {
+    waMsg = `Assalamualaikum, Bunda ${namaIbuDepan}! 👋\n\nTim Markaz Belajar telah menyelesaikan proses observasi awal untuk *${namaDepan}*.\n\nHasil screening telah tersedia dan tim kami ingin berdiskusi lebih lanjut. Kami akan segera menghubungi Bunda untuk menjadwalkan pertemuan.\n\nTerima kasih atas kepercayaan Bunda! 🌟\n_Tim Markaz Belajar_`;
+  } else {
+    waMsg = `Assalamualaikum, Bunda ${namaIbuDepan}! 👋\n\nTim Markaz Belajar mengundang Bunda untuk mengisi *Formulir Kenali Si Kecil* — formulir singkat untuk membantu kami memahami dan mendampingi *${namaDepan}* dengan lebih baik. 💛\n\n📝 Silakan isi melalui link berikut:\n${formUrl}\n\nHanya butuh ±7 menit. Tidak ada jawaban benar atau salah. 🌟\n\nTerima kasih, Bunda!\n_Tim Markaz Belajar_`;
+  }
+
+  pendingWAData = { waNum, waMsg, genId, namaAnak: siswa.nama, namaIbu, waIbu };
+  document.getElementById('wa-preview-text').textContent = waMsg;
+}
+
+// ── WA Popup ──
+function openWAPopup() {
+  if(!pendingWAData) return;
+  document.getElementById('wa-overlay').classList.add('open');
+}
+function closeWAPopup() {
+  document.getElementById('wa-overlay').classList.remove('open');
+}
+async function doSendWA() {
+  if (!pendingWAData) return;
+  const { waNum, waMsg, genId, namaAnak, namaIbu, waIbu } = pendingWAData;
+  // Mark as sent in sheet
+  try {
+    await api('markScreeningKirim', { genId, namaAnak, namaIbu, waIbu });
+    // Update local screeningMap
+    if (!screeningMap[genId]) screeningMap[genId] = {};
+    if (!screeningMap[genId].tanggalKirim) {
+      screeningMap[genId].tanggalKirim = new Date().toISOString();
+      screeningMap[genId].statusOrtu = 'menunggu';
+    }
+    renderList();
+    updateStats();
+  } catch(e) {}
+  window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(waMsg)}`);
+  closeWAPopup();
+  closeSheet();
+}
+
+// ── Helpers ──
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso;
+  return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+}
+function getLevelColor(l) {
+  const m = {Minimal:'#16a34a','Perlu pantau':'#0686c7',Moderat:'#d97706',Kuat:'#b45309','Sangat kuat':'#dc2626'};
+  return m[l] || '#6b7280';
+}
+function getLevelClass(l) {
+  const m = {Minimal:'level-minimal','Perlu pantau':'level-pantau',Moderat:'level-moderat',Kuat:'level-kuat','Sangat kuat':'level-sangat'};
+  return m[l] || 'level-pantau';
+}
+function getLevelDesc(l, nama) {
+  const m = {
+    Minimal:`Indikator tumbuh kembang atipikal tidak tampak menonjol pada ${nama}. Lanjutkan pemantauan rutin.`,
+    'Perlu pantau':`Beberapa pola perlu diperhatikan pada ${nama}. Lanjutkan observasi dan dokumentasi selama 4–6 minggu ke depan.`,
+    Moderat:`Pola yang cukup konsisten terdeteksi pada ${nama}. Rekomendasikan diskusi lebih dalam dengan orang tua dan pertimbangkan rujukan.`,
+    Kuat:`Pola konsisten di beberapa domain penting pada ${nama}. Segera jadwalkan pertemuan dengan orang tua dan rekomendasikan asesmen formal.`,
+    'Sangat kuat':`Pola sangat konsisten hampir di semua domain pada ${nama}. Prioritaskan pertemuan orang tua dan rujukan ke psikolog klinis anak.`
+  };
+  return m[l] || '';
+}
+
+// ════════════════════════════════════════════════════════════
+// MAIN
+async function init() {
+  try {
+    const [rSiswa, rScreening] = await Promise.all([
+      api('getSiswa'),
+      api('getScreeningStatus'),
+    ]);
+
+    if (!rSiswa.ok) throw new Error(rSiswa.error || 'Gagal load siswa');
+
+    allSiswa = (rSiswa.data || []).filter(s => s.nama && s.id);
+
+    // Build screeningMap by genId (nomorInduk) and id
+    if (rScreening.ok) {
+      (rScreening.data || []).forEach(rec => {
+        if (rec.genId) screeningMap[rec.genId] = rec;
+      });
+    }
+
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('main').style.display = 'block';
+    updateStats();
+    renderList();
+
+  } catch(err) {
+    document.getElementById('loading').innerHTML = `
+      <div style="text-align:center;padding:2rem;">
+        <div style="font-size:36px;margin-bottom:10px;">⚠️</div>
+        <div style="font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--ink);">Gagal memuat data</div>
+        <div style="font-size:12px;color:var(--ink-faint);margin-top:6px;">${err.message}</div>
+        <button onclick="location.reload()" style="margin-top:16px;padding:10px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700;">Coba lagi</button>
+      </div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>

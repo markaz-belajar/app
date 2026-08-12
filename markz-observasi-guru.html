@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Observasi Guru — Markz Belajar</title>
+<style>
+:root {
+  --blue: #0686c7; --blue-dark: #055a96; --blue-light: #e8f4fc; --blue-mid: #b3d9f0;
+  --amber: #d97706; --amber-light: #fef3c7;
+  --red: #dc2626; --red-light: #fee2e2;
+  --green: #16a34a; --green-light: #dcfce7;
+  --gray: #6b7280; --gray-light: #f3f4f6;
+  --border: #e5e7eb; --text: #111827; --text-2: #6b7280; --text-3: #9ca3af;
+  --bg: #f0f7fd; --card: #ffffff; --r: 12px; --r-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+.header { background: var(--blue); padding: 16px 16px 14px; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: center; justify-content: space-between; }
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-logo { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
+.header-logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.header-title { color: #fff; font-size: 15px; font-weight: 700; line-height: 1.2; }
+.header-sub { color: rgba(255,255,255,0.75); font-size: 11px; margin-top: 1px; }
+.progress-pill { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 12px; color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.header-bar { margin-top: 12px; height: 5px; background: rgba(255,255,255,0.25); border-radius: 3px; overflow: hidden; }
+.header-bar-fill { height: 100%; background: #fff; border-radius: 3px; width: 0%; transition: width 0.4s ease; }
+.body { padding: 16px; max-width: 640px; margin: 0 auto; }
+.notice { background: var(--blue-light); border: 1px solid var(--blue-mid); border-radius: var(--r); padding: 12px 14px; font-size: 13px; color: var(--blue-dark); margin-bottom: 16px; line-height: 1.6; }
+.notice strong { color: var(--blue); }
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; margin-bottom: 16px; }
+.info-card-title { font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.info-card-title svg { width: 15px; height: 15px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.info-field label { display: block; font-size: 11px; color: var(--text-2); margin-bottom: 4px; font-weight: 500; }
+.info-field input, .info-field select { width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 14px; color: var(--text); background: var(--gray-light); outline: none; -webkit-appearance: none; font-family: inherit; }
+.info-field input:focus, .info-field select:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(6,134,199,0.12); }
+.info-field.full { grid-column: 1 / -1; }
+.domain { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 12px; overflow: hidden; }
+.domain-head { background: var(--blue); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.domain-head-left { display: flex; align-items: center; gap: 10px; }
+.domain-head-icon { width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.domain-head-icon svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.domain-head-title { font-size: 13px; font-weight: 700; color: #fff; }
+.domain-head-sub { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 1px; }
+.domain-badge { background: rgba(255,255,255,0.2); color: #fff; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+.legend-strip { display: flex; border-bottom: 1px solid var(--border); background: var(--blue-light); }
+.legend-strip span { flex: 1; text-align: center; font-size: 10px; font-weight: 600; padding: 5px 2px; color: var(--blue-dark); }
+.item { padding: 14px; border-bottom: 1px solid var(--border); }
+.item:last-child { border-bottom: none; }
+.item-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.item-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue-light); color: var(--blue); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.item-text { font-size: 14px; color: var(--text); line-height: 1.5; flex: 1; }
+.item-note { font-size: 12px; color: var(--text-3); margin-top: 3px; font-style: italic; }
+.opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.opt input { display: none; }
+.opt-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px 4px; border: 1.5px solid var(--border); border-radius: var(--r-sm); background: var(--gray-light); cursor: pointer; transition: all 0.15s; user-select: none; min-height: 52px; }
+.opt-btn:active { transform: scale(0.96); }
+.opt-num { font-size: 16px; font-weight: 700; color: var(--text-2); }
+.opt-lbl { font-size: 10px; color: var(--text-3); text-align: center; line-height: 1.2; }
+.opt[data-v="0"] input:checked ~ .opt-btn { background: #6b7280; border-color: #6b7280; }
+.opt[data-v="0"] input:checked ~ .opt-btn .opt-num, .opt[data-v="0"] input:checked ~ .opt-btn .opt-lbl { color: #fff; }
+.opt[data-v="1"] input:checked ~ .opt-btn { background: var(--blue); border-color: var(--blue); }
+.opt[data-v="1"] input:checked ~ .opt-btn .opt-num, .opt[data-v="1"] input:checked ~ .opt-btn .opt-lbl { color: #fff; }
+.opt[data-v="2"] input:checked ~ .opt-btn { background: var(--amber); border-color: var(--amber); }
+.opt[data-v="2"] input:checked ~ .opt-btn .opt-num, .opt[data-v="2"] input:checked ~ .opt-btn .opt-lbl { color: #fff; }
+.opt[data-v="3"] input:checked ~ .opt-btn { background: var(--red); border-color: var(--red); }
+.opt[data-v="3"] input:checked ~ .opt-btn .opt-num, .opt[data-v="3"] input:checked ~ .opt-btn .opt-lbl { color: #fff; }
+.basis-btn { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--blue); background: none; border: none; cursor: pointer; padding: 6px 0 0; text-decoration: underline; text-decoration-style: dotted; text-underline-offset: 2px; }
+.basis-box { display: none; font-size: 12px; color: var(--text-2); background: var(--blue-light); border-left: 3px solid var(--blue); border-radius: 0 var(--r-sm) var(--r-sm) 0; padding: 10px 12px; margin-top: 8px; line-height: 1.65; }
+.basis-box.open { display: block; }
+.basis-box cite { font-style: normal; font-weight: 600; color: var(--blue-dark); }
+.note-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; color: var(--text-2); background: none; border: none; cursor: pointer; padding: 4px 0 0; margin-left: 10px; }
+.note-area { display: none; width: 100%; margin-top: 8px; padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 13px; color: var(--text); background: #fff; resize: none; outline: none; font-family: inherit; line-height: 1.5; }
+.note-area.open { display: block; }
+.note-area:focus { border-color: var(--blue); box-shadow: 0 0 0 3px rgba(6,134,199,0.12); }
+.result-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 16px; }
+.result-head { background: var(--blue); padding: 12px 14px; font-size: 14px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+.result-head svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.score-row { display: grid; grid-template-columns: repeat(3, 1fr); border-bottom: 1px solid var(--border); }
+.score-cell { padding: 12px 14px; border-right: 1px solid var(--border); }
+.score-cell:last-child { border-right: none; }
+.score-cell-lbl { font-size: 10px; color: var(--text-2); font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+.score-cell-val { font-size: 22px; font-weight: 700; color: var(--text); }
+.bar-section { padding: 12px 14px; border-bottom: 1px solid var(--border); }
+.bar-track { height: 12px; background: var(--gray-light); border-radius: 6px; overflow: hidden; }
+.bar-fill { height: 100%; border-radius: 6px; background: var(--gray); width: 0%; transition: width 0.5s ease, background 0.3s; }
+.bar-labels { display: flex; justify-content: space-between; margin-top: 5px; font-size: 10px; color: var(--text-3); }
+.interp { padding: 14px; font-size: 13px; line-height: 1.7; color: var(--text-2); border-bottom: 1px solid var(--border); transition: all 0.3s; }
+.interp strong { color: var(--text); }
+.domain-rows { border-bottom: 1px solid var(--border); }
+.domain-row { padding: 10px 14px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border); }
+.domain-row:last-child { border-bottom: none; }
+.domain-row-label { font-size: 12px; color: var(--text-2); flex: 1; }
+.domain-row-bar { width: 70px; height: 6px; background: var(--gray-light); border-radius: 3px; overflow: hidden; }
+.domain-row-fill { height: 100%; border-radius: 3px; background: var(--gray); transition: width 0.4s; }
+.domain-row-val { font-size: 12px; font-weight: 700; color: var(--text); min-width: 36px; text-align: right; }
+.actions { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 16px; border-radius: var(--r-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; width: 100%; font-family: inherit; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-reset { background: var(--gray-light); color: var(--text-2); border: 1px solid var(--border); }
+.btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+.disclaimer { background: var(--gray-light); padding: 12px 14px; font-size: 11.5px; color: var(--text-3); line-height: 1.6; border-top: 1px solid var(--border); }
+
+/* COMBINE SECTION */
+.combine-section { background: var(--card); border: 2px dashed var(--blue-mid); border-radius: var(--r); padding: 16px; margin-bottom: 16px; }
+.combine-title { font-size: 13px; font-weight: 600; color: var(--blue); display: flex; align-items: center; gap: 6px; margin-bottom: 6px; }
+.combine-title svg { width: 15px; height: 15px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; }
+.combine-sub { font-size: 12px; color: var(--text-3); margin-bottom: 10px; line-height: 1.6; }
+.combine-input-row { display: flex; gap: 8px; }
+.combine-input { flex: 1; padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 13px; color: var(--text); background: var(--gray-light); outline: none; font-family: inherit; }
+.combine-input:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(6,134,199,0.12); }
+.combine-btn { padding: 9px 14px; background: var(--blue); color: #fff; border: none; border-radius: var(--r-sm); font-size: 13px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
+.combine-err { font-size: 12px; color: var(--red); margin-top: 6px; display: none; }
+.combine-ok { font-size: 12px; color: var(--green); margin-top: 6px; display: none; font-weight: 500; }
+
+/* COMBINED RESULT */
+.combined-panel { background: var(--card); border: 2px solid var(--blue); border-radius: var(--r); overflow: hidden; margin-bottom: 16px; display: none; }
+.combined-panel.show { display: block; }
+.combined-head { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); padding: 14px 16px; }
+.combined-head-title { font-size: 15px; font-weight: 700; color: #fff; display: flex; align-items: center; gap: 8px; }
+.combined-head-title svg { width: 17px; height: 17px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.combined-head-sub { font-size: 12px; color: rgba(255,255,255,0.8); margin-top: 3px; }
+.combined-sources { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+.combined-source { padding: 12px 14px; border-right: 1px solid var(--border); }
+.combined-source:last-child { border-right: none; }
+.combined-source-lbl { font-size: 10px; font-weight: 600; color: var(--text-3); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+.combined-source-val { font-size: 20px; font-weight: 700; color: var(--text); }
+.combined-source-sub { font-size: 11px; color: var(--text-3); margin-top: 2px; }
+.combined-score-big { padding: 16px; border-bottom: 1px solid var(--border); text-align: center; }
+.combined-score-num { font-size: 40px; font-weight: 800; color: var(--blue); line-height: 1; }
+.combined-score-label { font-size: 12px; color: var(--text-2); margin-top: 4px; }
+.combined-bar-wrap { padding: 0 16px 14px; border-bottom: 1px solid var(--border); }
+.combined-bar-track { height: 14px; background: var(--gray-light); border-radius: 7px; overflow: hidden; }
+.combined-bar-fill { height: 100%; border-radius: 7px; background: var(--gray); width: 0%; transition: width 0.6s ease, background 0.3s; }
+.combined-bar-labels { display: flex; justify-content: space-between; margin-top: 5px; font-size: 10px; color: var(--text-3); }
+.combined-interp { padding: 14px; font-size: 13px; line-height: 1.7; border-bottom: 1px solid var(--border); }
+.combined-interp strong { color: var(--text); }
+.combined-domain-grid { display: grid; grid-template-columns: 1fr 1fr; border-bottom: 1px solid var(--border); }
+.cdom { padding: 10px 14px; border-right: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+.cdom:nth-child(2n) { border-right: none; }
+.cdom:nth-last-child(-n+2) { border-bottom: none; }
+.cdom-label { font-size: 11px; color: var(--text-2); margin-bottom: 5px; }
+.cdom-bars { display: flex; flex-direction: column; gap: 3px; }
+.cdom-bar-row { display: flex; align-items: center; gap: 6px; }
+.cdom-bar-lbl { font-size: 10px; color: var(--text-3); width: 30px; flex-shrink: 0; }
+.cdom-bar-track { flex: 1; height: 5px; background: var(--gray-light); border-radius: 3px; overflow: hidden; }
+.cdom-bar-fill { height: 100%; border-radius: 3px; transition: width 0.4s; }
+.cdom-bar-val { font-size: 10px; font-weight: 600; color: var(--text); width: 28px; text-align: right; flex-shrink: 0; }
+.combined-actions { padding: 14px; display: flex; flex-direction: column; gap: 8px; }
+.combined-disclaimer { background: var(--gray-light); padding: 12px 14px; font-size: 11.5px; color: var(--text-3); line-height: 1.6; }
+.refs { padding: 0 16px 32px; max-width: 640px; margin: 0 auto; }
+.refs-title { font-size: 12px; font-weight: 600; color: var(--text-2); margin-bottom: 8px; }
+.refs p { font-size: 11px; color: var(--text-3); line-height: 1.6; margin-bottom: 4px; }
+
+@media print {
+  .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .domain-head { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .result-head { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .actions { display: none !important; }
+  .basis-box, .note-toggle { display: none !important; }
+  .note-area { display: block !important; border: 1px solid #ccc !important; }
+  .domain { break-inside: avoid; }
+  .body { padding: 8px; }
+  .opt[data-v="0"] input:checked ~ .opt-btn { background: #6b7280 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .opt[data-v="1"] input:checked ~ .opt-btn { background: #0686c7 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .opt[data-v="2"] input:checked ~ .opt-btn { background: #d97706 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .opt[data-v="3"] input:checked ~ .opt-btn { background: #dc2626 !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .opt-num, .opt-lbl { color: #fff !important; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <div>
+        <div class="header-title">Markz Belajar</div>
+        <div class="header-sub">Observasi Guru — Versi Bimbel</div>
+      </div>
+    </div>
+    <div class="progress-pill" id="hdr-progress">0 / 10</div>
+  </div>
+  <div class="header-bar"><div class="header-bar-fill" id="hdr-bar"></div></div>
+</header>
+
+<div class="body">
+  <div class="notice">
+    <strong>Panduan pengisian:</strong> Isi berdasarkan observasi sesi bimbel (2x seminggu, 1 jam/sesi). Pilih frekuensi yang paling sering terlihat. Minimal isi setelah <strong>4 pertemuan</strong> (2 minggu observasi).
+  </div>
+
+  <div class="info-card">
+    <div class="info-card-title">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Data siswa
+    </div>
+    <div class="info-grid">
+      <div class="info-field full"><label>Nama siswa</label><input type="text" id="f-nama" placeholder="Nama lengkap siswa"></div>
+      <div class="info-field"><label>Usia</label><input type="text" id="f-usia" placeholder="Contoh: 6 tahun"></div>
+      <div class="info-field"><label>Jenis kelamin</label><select id="f-jk"><option value="">Pilih</option><option>Laki-laki</option><option>Perempuan</option></select></div>
+      <div class="info-field"><label>Nama guru pengisi</label><input type="text" id="f-guru" placeholder="Nama Anda"></div>
+      <div class="info-field"><label>Tanggal pengisian</label><input type="date" id="f-tanggal"></div>
+      <div class="info-field"><label>Jumlah pertemuan diamati</label><input type="number" id="f-pertemuan" placeholder="Contoh: 6" min="1"></div>
+      <div class="info-field full"><label>Mapel / program bimbel</label><input type="text" id="f-mapel" placeholder="Contoh: Matematika, Membaca"></div>
+    </div>
+  </div>
+
+  <div id="checklist"></div>
+
+  <div class="result-panel">
+    <div class="result-head">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      Hasil observasi
+    </div>
+    <div class="score-row">
+      <div class="score-cell"><div class="score-cell-lbl">Total skor</div><div class="score-cell-val" id="sc-total">—</div></div>
+      <div class="score-cell"><div class="score-cell-lbl">Persentase</div><div class="score-cell-val" id="sc-pct">—</div></div>
+      <div class="score-cell"><div class="score-cell-lbl">Level</div><div class="score-cell-val" id="sc-level" style="font-size:13px;padding-top:4px;line-height:1.3">—</div></div>
+    </div>
+    <div class="bar-section">
+      <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
+      <div class="bar-labels"><span>Minimal</span><span>Moderat</span><span>Kuat</span></div>
+    </div>
+    <div class="interp" id="interp">Jawab semua 10 item untuk melihat interpretasi.</div>
+    <div class="domain-rows" id="domain-rows"></div>
+    <div class="actions">
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Cetak / Simpan PDF
+      </button>
+      <button class="btn btn-reset" onclick="resetForm()">
+        <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>
+        Reset semua
+      </button>
+    </div>
+    <div class="disclaimer">⚠ Form ini hanya untuk keperluan observasi awal di lingkungan bimbel — bukan pengganti diagnosis profesional. Hasil perlu dikombinasikan dengan observasi orang tua dan asesmen formal oleh psikolog anak.</div>
+  </div>
+
+  <!-- GABUNGKAN DATA ORANG TUA -->
+  <div class="combine-section">
+    <div class="combine-title">
+      <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+      Gabungkan dengan data orang tua
+    </div>
+    <div class="combine-sub">Paste link yang dikirim orang tua via WhatsApp untuk melihat hasil gabungan guru + orang tua.</div>
+    <div class="combine-input-row">
+      <input type="text" class="combine-input" id="parent-link" placeholder="Paste link WhatsApp orang tua di sini...">
+      <button class="combine-btn" onclick="loadParentData()">Gabungkan</button>
+    </div>
+    <div class="combine-err" id="combine-err">Link tidak valid atau tidak dapat dibaca. Pastikan link lengkap dari orang tua.</div>
+    <div class="combine-ok" id="combine-ok">✓ Data orang tua berhasil dimuat!</div>
+  </div>
+
+  <!-- HASIL GABUNGAN -->
+  <div class="combined-panel" id="combined-panel">
+    <div class="combined-head">
+      <div class="combined-head-title">
+        <svg viewBox="0 0 24 24"><path d="M9 3H5a2 2 0 0 0-2 2v4m6-6h10a2 2 0 0 1 2 2v4M9 3v18m0 0h10a2 2 0 0 0 2-2V9M9 21H5a2 2 0 0 1-2-2V9m0 0h18"/></svg>
+        Hasil Gabungan — Guru + Orang Tua
+      </div>
+      <div class="combined-head-sub" id="combined-student-info">—</div>
+    </div>
+    <div class="combined-sources">
+      <div class="combined-source">
+        <div class="combined-source-lbl">Observasi Guru</div>
+        <div class="combined-source-val" id="csrc-guru">—</div>
+        <div class="combined-source-sub">sesi bimbel (10 item)</div>
+      </div>
+      <div class="combined-source">
+        <div class="combined-source-lbl">Laporan Orang Tua</div>
+        <div class="combined-source-val" id="csrc-ortu">—</div>
+        <div class="combined-source-sub">observasi di rumah (13 item)</div>
+      </div>
+    </div>
+    <div class="combined-score-big">
+      <div class="combined-score-num" id="combined-pct-num">—</div>
+      <div class="combined-score-label">Skor gabungan (rata-rata tertimbang guru 50% + orang tua 50%)</div>
+    </div>
+    <div class="combined-bar-wrap">
+      <div class="combined-bar-track"><div class="combined-bar-fill" id="combined-bar"></div></div>
+      <div class="combined-bar-labels"><span>Minimal</span><span>Perlu pantau</span><span>Moderat</span><span>Kuat</span><span>Sangat kuat</span></div>
+    </div>
+    <div class="combined-interp" id="combined-interp">—</div>
+    <div class="combined-domain-grid" id="combined-domain-grid"></div>
+    <div class="combined-actions">
+      <button class="btn btn-primary" onclick="window.print()">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Cetak Laporan Gabungan (PDF)
+      </button>
+    </div>
+    <div class="combined-disclaimer">⚠ Hasil gabungan ini adalah alat bantu observasi internal Markz Belajar. Bukan pengganti diagnosis profesional. Rujukan ke psikolog klinis anak tetap diperlukan untuk asesmen formal.</div>
+  </div>
+</div>
+
+<div class="refs">
+  <div class="refs-title">Referensi ilmiah</div>
+  <p>American Psychiatric Association. (2013). Diagnostic and Statistical Manual of Mental Disorders (DSM-5). APA Publishing.</p>
+  <p>Jones, W., & Klin, A. (2013). Attention to eyes is present but in decline in 2–6-month-old infants later diagnosed with autism. Nature, 504, 427–431.</p>
+  <p>Osterling, J., & Dawson, G. (1994). Early recognition of children with autism. J. Autism Dev. Disord., 24(3), 247–257.</p>
+  <p>Prizant, B. M., & Duchan, J. F. (1981). The functions of immediate echolalia in autistic children. J. Speech Hear. Disord., 46(3), 241–249.</p>
+  <p>Tager-Flusberg, H., et al. (2009). Defining spoken language benchmarks for young children with ASD. JADD, 39(5), 729–745.</p>
+  <p>Turner, M. (1999). Annotation: Repetitive behaviour in autism. J. Child Psychol. Psychiatry, 40(6), 839–849.</p>
+  <p>Murray, D., Lesser, M., & Lawson, W. (2005). Attention, monotropism and the diagnostic criteria for autism. Autism, 9(2), 136–156.</p>
+  <p>Mazefsky, C. A., et al. (2013). The role of emotion regulation in autism spectrum disorder. J. Am. Acad. Child Adolesc. Psychiatry, 52(7), 679–688.</p>
+</div>
+
+<script>
+const ITEMS = [
+  { domain:"A", label:"Perhatian & kontak", items:[
+    { text:"Tidak merespons atau lambat merespons saat namanya dipanggil guru", note:"Contoh: perlu dipanggil 2–3x baru bereaksi, atau tidak bereaksi sama sekali", basis:"<cite>Osterling & Dawson (1994)</cite> — kurangnya respons terhadap panggilan nama adalah indikator autisme paling awal dan dapat diamati bahkan sebelum diagnosis formal, terlihat jelas dalam konteks kelas kecil bimbel." },
+    { text:"Menghindari atau sangat jarang melakukan kontak mata saat diajak bicara langsung", note:"Contoh: selalu melihat ke arah lain, ke meja, atau ke benda saat guru berbicara padanya", basis:"<cite>Jones & Klin (2013, Nature)</cite> — defisit kontak mata adalah indikator autisme paling konsisten dan dapat dideteksi bahkan dalam interaksi singkat 1-on-1 selama sesi bimbel." },
+    { text:"Tampak tidak hadir atau sering melamun tanpa stimuli yang jelas", note:"Contoh: menatap kosong dalam waktu lama, tidak bereaksi terhadap aktivitas di sekitarnya", basis:"Terkait pola perhatian atipikal pada autisme — <cite>Keehn et al. (2013)</cite> menemukan perbedaan signifikan dalam orientasi perhatian yang dapat diamati selama sesi instruksi langsung." }
+  ]},
+  { domain:"B", label:"Komunikasi & bahasa", items:[
+    { text:"Kesulitan mengikuti instruksi sederhana yang diberikan guru", note:"Contoh: tidak langsung memahami 'buka halaman 5', perlu diulang atau ditunjukkan secara fisik", basis:"Defisit pemrosesan bahasa reseptif adalah komponen kunci autisme. <cite>Paul (2008)</cite> menunjukkan kesulitan ini spesifik pada pemrosesan pragmatik, berbeda dari sekadar keterlambatan bahasa biasa." },
+    { text:"Mengulangi kata atau kalimat yang baru didengar tanpa konteks yang relevan (echolalia)", note:"Contoh: mengulangi pertanyaan yang baru ditanya guru, mengulang kalimat dari video/buku di luar konteks", basis:"<cite>Prizant & Duchan (1981)</cite> — echolalia pada autisme adalah strategi komunikasi fungsional, bukan sekadar meniru. Dapat dengan jelas diamati dalam percakapan singkat selama sesi." },
+    { text:"Cara berkomunikasi tidak biasa untuk usianya", note:"Contoh: bicara sangat formal/kaku, hanya menjawab satu kata, menggunakan gestur saja tanpa kata", basis:"Atypical pragmatic language adalah DSM-5 Kriteria A. <cite>Tager-Flusberg et al. (2009)</cite> — pola ini konsisten dan dapat dideteksi dalam percakapan pendek sekalipun." },
+    { text:"Cara bicara terasa seperti hafalan atau diambil dari script — bukan percakapan spontan", note:"Contoh: menjawab pertanyaan dengan kalimat lengkap yang terdengar dihafal dari buku/TV, intonasi datar seperti membaca teks, atau menggunakan frasa orang dewasa yang tidak sesuai usianya", basis:"Scripted language adalah fitur linguistik khas autisme yang berbeda dari echolalia — <cite>Prizant (1983)</cite> mendokumentasikan penggunaan bahasa 'borrowed' sebagai strategi komunikasi yang dapat dideteksi dalam percakapan singkat." },
+    { text:"Kesulitan mengikuti instruksi dua langkah sekaligus tanpa diulangi", note:"Contoh: 'ambil bukumu lalu duduk di kursi' — apakah ia hanya melakukan satu langkah, atau perlu instruksi diulang satu per satu?", basis:"Defisit working memory verbal dan pemrosesan instruksi sekuensial konsisten ditemukan pada autisme — <cite>Williams et al. (2006, J. Autism Dev. Disord.)</cite> membedakan ini dari keterlambatan bahasa murni melalui pola respons terhadap instruksi bertingkat." }
+  ]},
+  { domain:"C", label:"Perilaku selama sesi", items:[
+    { text:"Melakukan gerakan tubuh berulang selama sesi belajar (stimming)", note:"Contoh: mengepakkan tangan, mengayun badan, mengetuk-ngetuk meja berulang kali secara konsisten", basis:"<cite>Turner (1999)</cite> — stimming berfungsi sebagai regulasi sensorik pada autisme. Berbeda dari kegelisahan biasa dalam hal pola yang konsisten dan intensitasnya. Sangat terlihat dalam sesi 1 jam." },
+    { text:"Reaksi berlebihan atau tidak biasa saat ada perubahan kecil selama sesi", note:"Contoh: sangat terganggu saat ganti aktivitas, guru berbeda hadir, atau posisi duduk berubah", basis:"Insistence on sameness — DSM-5 Kriteria B.2. Momen transisi antar aktivitas dalam sesi bimbel adalah salah satu kesempatan observasi paling informatif untuk indikator ini." },
+    { text:"Fokus sangat terpaku pada satu hal sambil mengabaikan hal lain sepenuhnya", note:"Contoh: sangat terpaku pada satu soal/benda tapi mengabaikan semua instruksi berikutnya", basis:"Terkait monotropism — <cite>Murray et al. (2005)</cite> — kecenderungan autisme untuk memfokuskan perhatian secara intens pada satu hal sekaligus. Berbeda dari ADHD yang lebih fluktuatif." },
+    { text:"Bermain atau memegang benda dengan cara yang tidak biasa dan berulang", note:"Contoh: memutar pensil terus-menerus, menyusun penghapus dalam barisan sebelum mulai belajar, membolak-balik buku tanpa membaca, atau fokus pada satu bagian benda tertentu secara intens", basis:"Non-functional object use adalah DSM-5 Kriteria B.1 — <cite>Libby et al. (1998, J. Autism Dev. Disord.)</cite> menemukan penggunaan benda tidak fungsional secara konsisten membedakan anak autisme dari anak dengan keterlambatan perkembangan lain." }
+  ]},
+  { domain:"D", label:"Interaksi sosial di bimbel", items:[
+    { text:"Tidak tertarik atau kesulitan berinteraksi dengan teman bimbel lainnya", note:"Contoh: selalu bermain sendiri saat waktu bebas, tidak merespons ajakan teman, tidak memulai obrolan", basis:"DSM-5 Kriteria A.3 — defisit dalam mengembangkan hubungan dengan teman sebaya. Konteks bimbel kelompok kecil memberi kesempatan observasi langsung interaksi peer dalam kondisi semi-natural." },
+    { text:"Respons emosional selama sesi yang tidak sesuai konteks", note:"Contoh: tertawa tanpa sebab jelas, menangis karena hal yang tampak sepele, atau tidak bereaksi saat seharusnya", basis:"<cite>Mazefsky et al. (2013)</cite> — dysregulation emosi pada autisme berbeda dari tantrum biasa dalam hal pola, pemicu, dan durasi. Dapat diamati bahkan dalam interaksi pendek." }
+  ]}
+];
+
+const answers = {}, notes = {};
+const TOTAL = ITEMS.reduce((s,d) => s + d.items.length, 0);
+
+const ICONS = {
+  A:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="8" r="3"/><path d="M6 20v-1a6 6 0 0 1 12 0v1"/></svg>`,
+  B:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>`,
+  C:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4.95"/></svg>`,
+  D:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>`
+};
+
+function build() {
+  const cl = document.getElementById("checklist");
+  const dr = document.getElementById("domain-rows");
+  let n = 0;
+  ITEMS.forEach(domain => {
+    const wrap = document.createElement("div");
+    wrap.className = "domain";
+    let html = `<div class="domain-head"><div class="domain-head-left"><div class="domain-head-icon">${ICONS[domain.domain]}</div><div><div class="domain-head-title">Domain ${domain.domain} — ${domain.label}</div><div class="domain-head-sub">${domain.items.length} indikator</div></div></div><div class="domain-badge" id="dbadge-${domain.domain}">0/${domain.items.length*3}</div></div><div class="legend-strip"><span>0 Tidak pernah</span><span>1 Kadang</span><span>2 Sering</span><span>3 Selalu</span></div>`;
+    domain.items.forEach((item, idx) => {
+      n++;
+      const key = `${domain.domain}_${idx}`;
+      html += `<div class="item"><div class="item-header"><div class="item-num">${n}</div><div class="item-text">${item.text}<div class="item-note">${item.note}</div></div></div><div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${key}" value="${v}" onchange="setAns('${key}',${v})"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-lbl">${["Tidak<br>pernah","Kadang","Sering","Selalu"][v]}</span></div></label>`).join("")}</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;"><button class="basis-btn" onclick="tog('basis-${key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Dasar ilmiah</button><button class="note-toggle" onclick="tog('note-${key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>+ Catatan</button></div><div class="basis-box" id="basis-${key}">${item.basis}</div><textarea class="note-area" id="note-${key}" rows="2" placeholder="Tulis catatan observasi spesifik..." oninput="notes['${key}']=this.value"></textarea></div>`;
+    });
+    wrap.innerHTML = html;
+    cl.appendChild(wrap);
+    const row = document.createElement("div");
+    row.className = "domain-row";
+    row.innerHTML = `<div class="domain-row-label">Domain ${domain.domain} — ${domain.label}</div><div class="domain-row-bar"><div class="domain-row-fill" id="drf-${domain.domain}"></div></div><div class="domain-row-val" id="drv-${domain.domain}">—</div>`;
+    dr.appendChild(row);
+  });
+}
+
+function tog(id) { document.getElementById(id).classList.toggle("open"); }
+function setAns(key, val) { answers[key] = val; updateScore(); }
+
+function updateScore() {
+  const ds = {A:0,B:0,C:0,D:0}, dc = {A:0,B:0,C:0,D:0};
+  let total = 0, answered = 0;
+  Object.entries(answers).forEach(([k,v]) => { const d=k[0]; ds[d]+=v; dc[d]++; total+=v; answered++; });
+  const maxScore = TOTAL * 3;
+  const pct = answered===TOTAL ? Math.round((total/maxScore)*100) : null;
+  document.getElementById("hdr-progress").textContent = `${answered} / ${TOTAL}`;
+  document.getElementById("hdr-bar").style.width = Math.round((answered/TOTAL)*100)+"%";
+  document.getElementById("sc-total").textContent = answered>0 ? `${total}/${maxScore}` : "—";
+  document.getElementById("sc-pct").textContent = pct!==null ? pct+"%" : "—";
+  if(answered>0){ const fp=Math.round((total/maxScore)*100); const f=document.getElementById("bar-fill"); f.style.width=fp+"%"; f.style.background=fp<17?"#6b7280":fp<34?"#0686c7":fp<51?"#d97706":fp<67?"#b45309":"#dc2626"; }
+  ITEMS.forEach(d => { const s=ds[d.domain],c=dc[d.domain],max=d.items.length*3,p=c>0?Math.round((s/(c*3))*100):0; document.getElementById("drv-"+d.domain).textContent=c>0?`${s}/${max}`:"—"; const f=document.getElementById("drf-"+d.domain); f.style.width=p+"%"; f.style.background=p<34?"#6b7280":p<51?"#d97706":"#dc2626"; if(c>0)document.getElementById("dbadge-"+d.domain).textContent=`${s}/${max}`; });
+  const interp=document.getElementById("interp"), lvl=document.getElementById("sc-level");
+  if(answered<TOTAL){ lvl.textContent="—"; lvl.style.color=""; interp.style.cssText=""; interp.innerHTML=`Sudah <strong>${answered} dari ${TOTAL}</strong> item dijawab. Selesaikan semua item untuk melihat interpretasi.`; return; }
+  if(pct<=16){ lvl.textContent="Minimal"; lvl.style.color="#16a34a"; interp.style.cssText="background:#dcfce7;border-left:3px solid #16a34a;"; interp.innerHTML=`<strong>Indikator minimal (${pct}%)</strong><br>Dari sesi bimbel yang diamati, indikator autisme tidak tampak menonjol. Lanjutkan observasi rutin dan catat jika ada perubahan pola perilaku.`; }
+  else if(pct<=33){ lvl.textContent="Perlu pantau"; lvl.style.color="#0686c7"; interp.style.cssText="background:#e8f4fc;border-left:3px solid #0686c7;"; interp.innerHTML=`<strong>Perlu observasi lanjut (${pct}%)</strong><br>Beberapa indikator terlihat tapi belum konsisten. Lanjutkan observasi 4–6 minggu dan dokumentasikan kejadian spesifik. Konsultasikan dengan koordinator Markz Belajar.`; }
+  else if(pct<=50){ lvl.textContent="Moderat"; lvl.style.color="#d97706"; interp.style.cssText="background:#fef3c7;border-left:3px solid #d97706;"; interp.innerHTML=`<strong>Indikator moderat (${pct}%)</strong><br>Pola cukup konsisten di beberapa area. <strong>Rekomendasikan diskusi dengan orang tua</strong> dan pertimbangkan mengisi form observasi orang tua. Rujukan ke psikolog anak perlu disampaikan dengan hati-hati.`; }
+  else if(pct<=66){ lvl.textContent="Kuat"; lvl.style.color="#b45309"; interp.style.cssText="background:#fff7ed;border-left:3px solid #b45309;"; interp.innerHTML=`<strong>Indikator kuat (${pct}%)</strong><br>Pola konsisten di beberapa domain penting. <strong>Segera diskusikan dengan orang tua</strong> dan isi bersama form observasi orang tua. Rujukan ke psikolog klinis anak sangat direkomendasikan.`; }
+  else{ lvl.textContent="Sangat kuat"; lvl.style.color="#dc2626"; interp.style.cssText="background:#fee2e2;border-left:3px solid #dc2626;"; interp.innerHTML=`<strong>Indikator sangat kuat (${pct}%)</strong><br>Pola sangat konsisten di hampir semua area. <strong>Prioritaskan pertemuan dengan orang tua segera.</strong> Siapkan dokumentasi observasi ini dan rekomendasikan rujukan ke psikolog klinis anak atau psikiater anak untuk asesmen formal.`; }
+}
+
+function resetForm() {
+  if(!confirm("Reset semua jawaban dan catatan?")) return;
+  Object.keys(answers).forEach(k=>delete answers[k]);
+  document.querySelectorAll("input[type=radio]").forEach(r=>r.checked=false);
+  document.querySelectorAll(".note-area").forEach(t=>{t.value="";t.classList.remove("open");});
+  document.querySelectorAll(".basis-box").forEach(b=>b.classList.remove("open"));
+  document.getElementById("bar-fill").style.width="0%";
+  updateScore();
+}
+
+function loadParentData() {
+  const input = document.getElementById("parent-link").value.trim();
+  const err = document.getElementById("combine-err");
+  const ok = document.getElementById("combine-ok");
+  err.style.display = "none"; ok.style.display = "none";
+
+  // Extract hash from pasted URL
+  let hash = "";
+  try {
+    if(input.includes("#d=")) {
+      hash = input.split("#d=")[1];
+    } else {
+      err.style.display = "block"; return;
+    }
+    const parentData = JSON.parse(decodeURIComponent(escape(atob(hash))));
+    ok.style.display = "block";
+    buildCombined(parentData);
+  } catch(e) {
+    err.style.display = "block";
+  }
+}
+
+// Domain mapping: parent domains → nearest teacher domains for display
+const PARENT_DOMAIN_LABELS = {
+  A: "Komunikasi & bahasa",
+  B: "Kebiasaan & rutinitas",
+  C: "Kepekaan sensorik",
+  D: "Interaksi sosial",
+  E: "Kemandirian"
+};
+
+const TEACHER_DOMAIN_LABELS = {
+  A: "Perhatian & kontak",
+  B: "Komunikasi & bahasa",
+  C: "Perilaku selama sesi",
+  D: "Interaksi sosial di bimbel"
+};
+
+// Items count per domain for parent form (fixed)
+const PARENT_DOMAIN_COUNTS = {A:3, B:3, C:2, D:2, E:3};
+
+function buildCombined(parentData) {
+  const panel = document.getElementById("combined-panel");
+  panel.classList.add("show");
+
+  // ── GURU SCORES ──
+  const guruTotal = Object.values(answers).reduce((s,v)=>s+v,0);
+  const guruMax = 10 * 3; // 10 items, max 3 each
+  const guruPct = Object.keys(answers).length === 10 ? Math.round((guruTotal/guruMax)*100) : null;
+
+  // ── PARENT SCORES ──
+  const parentAnswers = parentData.answers || {};
+  const parentTotal = Object.values(parentAnswers).reduce((s,v)=>s+v,0);
+  const parentMax = 13 * 3; // 13 items, max 3 each
+  const parentAnsweredCount = Object.keys(parentAnswers).length;
+  const parentPct = parentAnsweredCount === 13 ? Math.round((parentTotal/parentMax)*100) : Math.round((parentTotal/(parentAnsweredCount*3||1))*100);
+
+  // ── COMBINED (50/50 weighted) ──
+  const guruPctFinal = guruPct !== null ? guruPct : Math.round((guruTotal/guruMax)*100);
+  const combinedPct = Math.round((guruPctFinal + parentPct) / 2);
+
+  // Student info
+  const nama = parentData.nama || document.getElementById("f-nama").value || "—";
+  const usia = parentData.usia || document.getElementById("f-usia").value || "—";
+  document.getElementById("combined-student-info").textContent = `${nama} · ${usia}`;
+
+  // Source scores
+  document.getElementById("csrc-guru").textContent = guruPct !== null ? guruPct+"%" : Math.round((guruTotal/guruMax)*100)+"%*";
+  document.getElementById("csrc-ortu").textContent = parentPct+"%";
+
+  // Big score
+  document.getElementById("combined-pct-num").textContent = combinedPct+"%";
+  document.getElementById("combined-pct-num").style.color = combinedPct<17?"#6b7280":combinedPct<34?"#0686c7":combinedPct<51?"#d97706":combinedPct<67?"#b45309":"#dc2626";
+
+  // Bar
+  const bar = document.getElementById("combined-bar");
+  bar.style.width = combinedPct+"%";
+  bar.style.background = combinedPct<17?"#6b7280":combinedPct<34?"#0686c7":combinedPct<51?"#d97706":combinedPct<67?"#b45309":"#dc2626";
+
+  // Interpretation
+  const interp = document.getElementById("combined-interp");
+  if(combinedPct<=16){
+    interp.style.cssText="background:#dcfce7;border-left:3px solid #16a34a;";
+    interp.innerHTML=`<strong>Indikator minimal (${combinedPct}%)</strong><br>Dari kombinasi observasi guru dan laporan orang tua, indikator tumbuh kembang atipikal tidak tampak menonjol. Lanjutkan pemantauan rutin.`;
+  } else if(combinedPct<=33){
+    interp.style.cssText="background:#e8f4fc;border-left:3px solid #0686c7;";
+    interp.innerHTML=`<strong>Perlu observasi lanjut (${combinedPct}%)</strong><br>Beberapa pola konsisten terlihat dari dua sumber. Lanjutkan dokumentasi observasi 4–6 minggu ke depan. Pertimbangkan pertemuan dengan orang tua untuk diskusi awal.`;
+  } else if(combinedPct<=50){
+    interp.style.cssText="background:#fef3c7;border-left:3px solid #d97706;";
+    interp.innerHTML=`<strong>Indikator moderat (${combinedPct}%)</strong><br>Pola cukup konsisten dari kedua sumber. <strong>Rekomendasikan pertemuan khusus dengan orang tua</strong> untuk mendiskusikan temuan ini. Pertimbangkan rujukan ke psikolog anak dengan pendekatan yang empatik dan tidak menghakimi.`;
+  } else if(combinedPct<=66){
+    interp.style.cssText="background:#fff7ed;border-left:3px solid #b45309;";
+    interp.innerHTML=`<strong>Indikator kuat (${combinedPct}%)</strong><br>Pola konsisten dari guru dan orang tua di beberapa domain penting. <strong>Segera jadwalkan pertemuan dengan orang tua.</strong> Siapkan dokumentasi tertulis dan rekomendasikan asesmen formal oleh psikolog klinis anak.`;
+  } else {
+    interp.style.cssText="background:#fee2e2;border-left:3px solid #dc2626;";
+    interp.innerHTML=`<strong>Indikator sangat kuat (${combinedPct}%)</strong><br>Pola sangat konsisten dari dua sumber di hampir semua domain. <strong>Prioritaskan pertemuan orang tua segera.</strong> Rujukan ke psikolog klinis anak atau psikiater anak perlu disampaikan dengan pendekatan yang hangat, empatik, dan tidak menghakimi.`;
+  }
+
+  // Domain comparison grid
+  const grid = document.getElementById("combined-domain-grid");
+  grid.innerHTML = "";
+
+  // Build domain summaries: guru domains A-D, parent domains A-E
+  const guruDomains = ["A","B","C","D"];
+  const parentDomains = ["A","B","C","D","E"];
+
+  // Guru domain sums
+  const guruDS = {A:0,B:0,C:0,D:0};
+  const guruDC = {A:0,B:0,C:0,D:0};
+  Object.entries(answers).forEach(([k,v])=>{const d=k[0];if(guruDS[d]!==undefined){guruDS[d]+=v;guruDC[d]++;}});
+
+  // Parent domain sums
+  const parDS = {A:0,B:0,C:0,D:0,E:0};
+  const parDC = {A:0,B:0,C:0,D:0,E:0};
+  Object.entries(parentAnswers).forEach(([k,v])=>{const d=k[0];if(parDS[d]!==undefined){parDS[d]+=v;parDC[d]++;}});
+
+  // Render combined domains — pair them up
+  const domainPairs = [
+    { label:"Komunikasi & bahasa", guru:{d:"B",max:3}, parent:{d:"A",max:9} },
+    { label:"Interaksi sosial", guru:{d:"D",max:6}, parent:{d:"D",max:6} },
+    { label:"Perilaku & rutinitas", guru:{d:"C",max:9}, parent:{d:"B",max:9} },
+    { label:"Kepekaan sensorik", guru:null, parent:{d:"C",max:6} },
+    { label:"Perhatian & respons", guru:{d:"A",max:9}, parent:null },
+    { label:"Kemandirian", guru:null, parent:{d:"E",max:9} }
+  ];
+
+  domainPairs.forEach(pair => {
+    const el = document.createElement("div");
+    el.className = "cdom";
+    const guruPctD = pair.guru ? (guruDC[pair.guru.d]>0 ? Math.round((guruDS[pair.guru.d]/pair.guru.max)*100) : 0) : null;
+    const parPctD = pair.parent ? (parDC[pair.parent.d]>0 ? Math.round((parDS[pair.parent.d]/pair.parent.max)*100) : 0) : null;
+    const colorFn = p => p<34?"#6b7280":p<51?"#d97706":"#dc2626";
+
+    let barsHtml = "";
+    if(guruPctD !== null) {
+      barsHtml += `<div class="cdom-bar-row"><span class="cdom-bar-lbl">Guru</span><div class="cdom-bar-track"><div class="cdom-bar-fill" style="width:${guruPctD}%;background:${colorFn(guruPctD)}"></div></div><span class="cdom-bar-val">${guruPctD}%</span></div>`;
+    }
+    if(parPctD !== null) {
+      barsHtml += `<div class="cdom-bar-row"><span class="cdom-bar-lbl">Ortu</span><div class="cdom-bar-track"><div class="cdom-bar-fill" style="width:${parPctD}%;background:${colorFn(parPctD)}"></div></div><span class="cdom-bar-val">${parPctD}%</span></div>`;
+    }
+    if(!guruPctD && guruPctD!==0) barsHtml += `<div class="cdom-bar-row" style="opacity:0.4"><span class="cdom-bar-lbl">Guru</span><div class="cdom-bar-track"><div class="cdom-bar-fill" style="width:0%"></div></div><span class="cdom-bar-val">—</span></div>`;
+    if(!parPctD && parPctD!==0) barsHtml += `<div class="cdom-bar-row" style="opacity:0.4"><span class="cdom-bar-lbl">Ortu</span><div class="cdom-bar-track"><div class="cdom-bar-fill" style="width:0%"></div></div><span class="cdom-bar-val">—</span></div>`;
+
+    el.innerHTML = `<div class="cdom-label">${pair.label}</div><div class="cdom-bars">${barsHtml}</div>`;
+    grid.appendChild(el);
+  });
+
+  panel.scrollIntoView({behavior:"smooth"});
+}
+
+document.getElementById("f-tanggal").value = new Date().toISOString().split("T")[0];
+build();
+updateScore();
+</script>
+</body>
+</html>
