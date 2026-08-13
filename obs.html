@@ -228,7 +228,7 @@ body{font-family:'Lato',sans-serif;background:#E9EEF3;color:var(--ink);min-heigh
 <script>
 // ════════════════════════════════════════════════════════════
 // API utama — data siswa (sama dengan dashboard.html)
-const API_MAIN = 'https://script.google.com/macros/s/AKfycbxf3MDtG8mb9PA2qkciC57NziWAPHLTv5jQbLNyvAEa3lnlKpDdLLwzs9vLJDG73rNK/exec';
+const API_MAIN = 'https://script.google.com/macros/s/AKfycbyV94MFG6cqWUaHmBLpHJXB5sUySAItNMqnxpPDW9qgJeFPsuWEwqr1JTRZ_-G35_Y3Lg/exec';
 // API screening — data observasi
 const API_SCREENING = 'https://script.google.com/macros/s/AKfycbzZvATKgQvtgG89yEwOECZxauN9J0NLqO5cSavUpmPaXOjwQT71TT0sHbBJH90yu2WB/exec';
 const FORM_BASE = 'https://markaz-belajar.github.io/app/obs.autism.anak.html';
@@ -577,12 +577,14 @@ async function init() {
     return;
   }
 
-  if (!rSiswa || !rSiswa.ok) {
+  // Handle both {ok:true} and {status:"ok"} response formats
+  const siswaOk = rSiswa && (rSiswa.ok === true || rSiswa.status === 'ok');
+  if (!siswaOk || !rSiswa.data) {
     showErr('Gagal memuat data siswa', 'Respons: ' + JSON.stringify(rSiswa));
     return;
   }
 
-  allSiswa = (rSiswa.data || []).filter(s => s.nama && s.id);
+  allSiswa = (rSiswa.data || rSiswa.siswa || []).filter(s => s.nama && s.id);
 
   // ── Step 2: Load screening status (optional, tidak gagalkan halaman) ──
   try {
