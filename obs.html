@@ -145,6 +145,23 @@ body{font-family:'Lato',sans-serif;background:#E9EEF3;color:var(--ink);min-heigh
 .tag-blue{background:var(--blue-light);color:var(--blue);}
 .tag-yellow{background:#FFF8DC;color:#8B6914;}
 
+/* ── SCREENING TYPE SELECTOR ── */
+.screen-type-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px;}
+.screen-type-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
+.screen-type-btn{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--white);cursor:pointer;transition:all .15s;font-family:'Lato',sans-serif;}
+.screen-type-btn:active{transform:scale(0.98);}
+.screen-type-btn.active{border-color:var(--blue);background:var(--blue-light);}
+.screen-type-btn.soon{opacity:0.5;cursor:not-allowed;}
+.stype-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.stype-info{flex:1;text-align:left;}
+.stype-name{font-size:13px;font-weight:700;color:var(--ink);}
+.stype-desc{font-size:11px;color:var(--ink-faint);margin-top:2px;}
+.stype-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
+.stype-badge.aktif{background:var(--green-light);color:var(--green);}
+.stype-badge.soon{background:var(--gray-light);color:var(--gray);}
+.back-to-menu{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--blue);cursor:pointer;margin-bottom:14px;background:none;border:none;padding:0;font-family:'Lato',sans-serif;}
+.back-to-menu svg{width:14px;height:14px;stroke:var(--blue);fill:none;stroke-width:2.5;stroke-linecap:round;}
+
 /* ── SECTION LABEL ── */
 .sec-lbl{font-size:10px;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;}
 
@@ -166,8 +183,8 @@ body{font-family:'Lato',sans-serif;background:#E9EEF3;color:var(--ink);min-heigh
         </button>
         <div class="header-brand">MARKAZ BELAJAR</div>
       </div>
-      <div class="header-title">Observasi Kelas</div>
-      <div class="header-sub">Screening tumbuh kembang siswa</div>
+      <div class="header-title">Screening Test<br>Tumbuh Kembang</div>
+      <div class="header-sub">Identifikasi kebutuhan siswa Markaz Belajar</div>
       <div class="stats-row">
         <div class="stat-pill"><div class="stat-pill-dot green"></div><span id="stat-selesai">0 selesai</span></div>
         <div class="stat-pill"><div class="stat-pill-dot amber"></div><span id="stat-proses">0 proses</span></div>
@@ -359,6 +376,7 @@ async function openSheet(id) {
   document.getElementById('d-genid').textContent  = currentSiswa.nomorInduk || currentSiswa.id;
   document.getElementById('sheet-body').innerHTML = `<div class="loading-txt" style="text-align:center;padding:20px;">Memuat...</div>`;
 
+  sheetView = 'menu'; // reset ke menu setiap buka sheet
   document.getElementById('sheet-overlay').classList.add('open');
   document.getElementById('sheet').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -381,7 +399,85 @@ function closeSheet() {
 }
 
 // ── Render sheet body ──
+let sheetView = 'menu'; // 'menu' | 'asd'
+
 function renderSheetBody(siswa, rec) {
+  if (sheetView === 'menu') {
+    renderTypeMenu(siswa);
+  } else {
+    renderASDStatus(siswa, rec);
+  }
+}
+
+function renderTypeMenu(siswa) {
+  const genId = siswa.nomorInduk || siswa.id;
+  document.getElementById('sheet-body').innerHTML = `
+    <div class="tags-row" style="margin-bottom:16px;">
+      <span class="tag tag-blue">${siswa.program||'—'}</span>
+      <span class="tag tag-yellow">${siswa.tipe||'Reguler'}</span>
+      <span class="tag tag-blue">${genId}</span>
+    </div>
+    <div class="screen-type-title">Pilih jenis screening:</div>
+    <div class="screen-type-grid">
+      <button class="screen-type-btn active" onclick="selectScreenType('asd')">
+        <div class="stype-icon" style="background:#e8f4fc;">🧩</div>
+        <div class="stype-info">
+          <div class="stype-name">ASD — Autism Spectrum Disorder</div>
+          <div class="stype-desc">Identifikasi indikator autisme melalui observasi guru dan laporan orang tua</div>
+        </div>
+        <span class="stype-badge aktif">Aktif</span>
+      </button>
+      <button class="screen-type-btn soon" onclick="showSoon(this)">
+        <div class="stype-icon" style="background:#fef3c7;">⚡</div>
+        <div class="stype-info">
+          <div class="stype-name">ADHD</div>
+          <div class="stype-desc">Attention Deficit Hyperactivity Disorder</div>
+        </div>
+        <span class="stype-badge soon">Segera</span>
+      </button>
+      <button class="screen-type-btn soon" onclick="showSoon(this)">
+        <div class="stype-icon" style="background:#f0fdf4;">📚</div>
+        <div class="stype-info">
+          <div class="stype-name">Gaya Belajar</div>
+          <div class="stype-desc">Visual, auditori, kinestetik, dan pola preferensi belajar</div>
+        </div>
+        <span class="stype-badge soon">Segera</span>
+      </button>
+      <button class="screen-type-btn soon" onclick="showSoon(this)">
+        <div class="stype-icon" style="background:#fdf2f8;">🔍</div>
+        <div class="stype-info">
+          <div class="stype-name">Disleksia & Diskalkulia</div>
+          <div class="stype-desc">Kesulitan membaca, menulis, dan berhitung spesifik</div>
+        </div>
+        <span class="stype-badge soon">Segera</span>
+      </button>
+    </div>
+  `;
+}
+
+function selectScreenType(type) {
+  if (type !== 'asd') return;
+  sheetView = 'asd';
+  document.getElementById('sheet-body').innerHTML = '<div class="loading-txt" style="text-align:center;padding:20px;">Memuat...</div>';
+  // Re-fetch and render ASD status
+  const siswa = currentSiswa;
+  const genId = siswa.nomorInduk || siswa.id;
+  apiScreening('getScreeningDetail', { genId }).then(r => {
+    renderASDStatus(siswa, r.ok ? r.data : null);
+  }).catch(() => renderASDStatus(siswa, null));
+}
+
+function showSoon(btn) {
+  btn.style.borderColor = 'var(--amber)';
+  const badge = btn.querySelector('.stype-badge');
+  badge.textContent = 'Akan hadir!';
+  setTimeout(() => {
+    btn.style.borderColor = '';
+    badge.textContent = 'Segera';
+  }, 1500);
+}
+
+function renderASDStatus(siswa, rec) {
   const genId   = siswa.nomorInduk || siswa.id;
   const status  = getStatus(siswa);
   const namaIbu = siswa.namaIbu || siswa.ibu || '—';
@@ -402,12 +498,19 @@ function renderSheetBody(siswa, rec) {
 
   let html = '';
 
-  // Tags
-  html += `<div class="tags-row" style="margin-bottom:14px;">
-    <span class="tag tag-blue">${siswa.program||'—'}</span>
-    <span class="tag tag-yellow">${siswa.tipe||'Reguler'}</span>
-    <span class="tag tag-blue">${genId}</span>
-  </div>`;
+  // Back button + Tags
+  html += `
+    <button class="back-to-menu" onclick="sheetView='menu';renderTypeMenu(currentSiswa)">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Pilih jenis screening lain
+    </button>
+    <div class="tags-row" style="margin-bottom:14px;">
+      <span class="tag tag-blue">${siswa.program||'—'}</span>
+      <span class="tag tag-yellow">${siswa.tipe||'Reguler'}</span>
+      <span class="tag tag-blue">${genId}</span>
+    </div>
+    <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:6px;">🧩 ASD — Autism Spectrum Disorder</div>
+  `;
 
   // Status timeline
   html += `<div class="sec-lbl">Status Screening</div>
