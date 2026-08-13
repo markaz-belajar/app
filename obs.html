@@ -227,11 +227,23 @@ body{font-family:'Lato',sans-serif;background:#E9EEF3;color:var(--ink);min-heigh
 
 <script>
 // ════════════════════════════════════════════════════════════
-const API = 'https://script.google.com/macros/s/AKfycbzZvATKgQvtgG89yEwOECZxauN9J0NLqO5cSavUpmPaXOjwQT71TT0sHbBJH90yu2WB/exec';
+// API utama — data siswa (sama dengan dashboard.html)
+const API_MAIN = 'https://script.google.com/macros/s/AKfycbwhA4cweMbkHhUYsXj7KewyPSp4p-OuAxaK_84QfEnhM-IMZCpu5hIUTZxALbOxma0m/exec';
+// API screening — data observasi
+const API_SCREENING = 'https://script.google.com/macros/s/AKfycbzZvATKgQvtgG89yEwOECZxauN9J0NLqO5cSavUpmPaXOjwQT71TT0sHbBJH90yu2WB/exec';
 const FORM_BASE = 'https://markaz-belajar.github.io/app/obs.autism.anak.html';
 
 function api(action, params={}) {
-  const url = new URL(API);
+  const url = new URL(API_MAIN);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json());
+}
+
+function apiScreening(action, params={}) {
+  const url = new URL(API_SCREENING);
   url.searchParams.set('action', action);
   for (const [k,v] of Object.entries(params)) {
     url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
@@ -355,7 +367,7 @@ async function openSheet(id) {
   const genId = currentSiswa.nomorInduk || currentSiswa.id;
   let rec = null;
   try {
-    const r = await api('getScreeningDetail', { genId });
+    const r = await apiScreening('getScreeningDetail', { genId });
     if (r.ok) rec = r.data;
   } catch(e) {}
 
@@ -509,7 +521,7 @@ async function doSendWA() {
   const { waNum, waMsg, genId, namaAnak, namaIbu, waIbu } = pendingWAData;
   // Mark as sent in sheet
   try {
-    await api('markScreeningKirim', { genId, namaAnak, namaIbu, waIbu });
+    await apiScreening('markScreeningKirim', { genId, namaAnak, namaIbu, waIbu });
     // Update local screeningMap
     if (!screeningMap[genId]) screeningMap[genId] = {};
     if (!screeningMap[genId].tanggalKirim) {
@@ -556,7 +568,7 @@ async function init() {
   try {
     const [rSiswa, rScreening] = await Promise.all([
       api('getSiswa'),
-      api('getScreeningStatus'),
+      apiScreening('getScreeningStatus'),
     ]);
 
     if (!rSiswa.ok) throw new Error(rSiswa.error || 'Gagal load siswa');
