@@ -481,7 +481,7 @@ function renderASDStatus(siswa, rec) {
   const genId   = siswa.nomorInduk || siswa.id;
   const status  = getStatus(siswa);
   const namaIbu = siswa.namaIbu || siswa.ibu || '—';
-  const waIbu   = siswa.waIbu || siswa.noWaIbu || '';
+  const waIbu   = siswa.waIbu || siswa.noWaIbu || siswa.wa || '';
 
   // Status timeline
   const sentDate   = rec?.tanggalKirim ? fmtDate(rec.tanggalKirim) : null;
@@ -674,7 +674,7 @@ async function init() {
   let rSiswa;
   try {
     loadingEl.querySelector('.loading-txt').textContent = 'Memuat data siswa...';
-    rSiswa = await api('getSiswa');
+    rSiswa = await apiScreening('getAllSiswa');
   } catch(e) {
     showErr('Koneksi gagal ke server utama', 'Pastikan internet aktif. Error: ' + e.message);
     return;
