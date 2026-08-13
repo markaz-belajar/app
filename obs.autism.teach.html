@@ -552,6 +552,30 @@ function buildCombined(parentData) {
   panel.scrollIntoView({behavior:"smooth"});
 }
 
+
+// ── SCREENING API ──
+const SCREENING_API = 'https://script.google.com/macros/s/AKfycbzZvATKgQvtgG89yEwOECZxauN9J0NLqO5cSavUpmPaXOjwQT71TT0sHbBJH90yu2WB/exec';
+
+function apiScreening(action, params={}) {
+  const url = new URL(SCREENING_API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v==='object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  return fetch(url.toString(), {redirect:'follow'}).then(r=>r.json()).catch(()=>({ok:false}));
+}
+
+// ── Load URL params dari obs.html ──
+(function loadParams() {
+  const p = new URLSearchParams(window.location.search);
+  const gen=p.get('gen'), nama=p.get('nama');
+  if(gen){ window._genId=gen; }
+  if(nama){
+    const el=document.getElementById('f-nama');
+    if(el){ el.value=nama; el.disabled=true; el.style.opacity='0.8'; }
+  }
+})();
+
 document.getElementById("f-tanggal").value = new Date().toISOString().split("T")[0];
 build();
 updateScore();
