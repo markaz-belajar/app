@@ -565,37 +565,53 @@ function getLevelDesc(l, nama) {
 // ════════════════════════════════════════════════════════════
 // MAIN
 async function init() {
+  const loadingEl = document.getElementById('loading');
+
+  // ── Step 1: Load data siswa ──
+  let rSiswa;
   try {
-    const [rSiswa, rScreening] = await Promise.all([
-      api('getSiswa'),
-      apiScreening('getScreeningStatus'),
-    ]);
+    loadingEl.querySelector('.loading-txt').textContent = 'Memuat data siswa...';
+    rSiswa = await api('getSiswa');
+  } catch(e) {
+    showErr('Koneksi gagal ke server utama', 'Pastikan internet aktif. Error: ' + e.message);
+    return;
+  }
 
-    if (!rSiswa.ok) throw new Error(rSiswa.error || 'Gagal load siswa');
+  if (!rSiswa || !rSiswa.ok) {
+    showErr('Gagal memuat data siswa', 'Respons: ' + JSON.stringify(rSiswa));
+    return;
+  }
 
-    allSiswa = (rSiswa.data || []).filter(s => s.nama && s.id);
+  allSiswa = (rSiswa.data || []).filter(s => s.nama && s.id);
 
-    // Build screeningMap by genId (nomorInduk) and id
-    if (rScreening.ok) {
+  // ── Step 2: Load screening status (optional, tidak gagalkan halaman) ──
+  try {
+    loadingEl.querySelector('.loading-txt').textContent = 'Memuat status screening...';
+    const rScreening = await apiScreening('getScreeningStatus');
+    if (rScreening && rScreening.ok) {
       (rScreening.data || []).forEach(rec => {
         if (rec.genId) screeningMap[rec.genId] = rec;
       });
     }
-
-    document.getElementById('loading').style.display = 'none';
-    document.getElementById('main').style.display = 'block';
-    updateStats();
-    renderList();
-
-  } catch(err) {
-    document.getElementById('loading').innerHTML = `
-      <div style="text-align:center;padding:2rem;">
-        <div style="font-size:36px;margin-bottom:10px;">⚠️</div>
-        <div style="font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--ink);">Gagal memuat data</div>
-        <div style="font-size:12px;color:var(--ink-faint);margin-top:6px;">${err.message}</div>
-        <button onclick="location.reload()" style="margin-top:16px;padding:10px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700;">Coba lagi</button>
-      </div>`;
+  } catch(e) {
+    console.warn('Screening status gagal dimuat (tidak kritis):', e.message);
   }
+
+  // ── Tampilkan halaman ──
+  document.getElementById('loading').style.display = 'none';
+  document.getElementById('main').style.display = 'block';
+  updateStats();
+  renderList();
+}
+
+function showErr(title, detail) {
+  document.getElementById('loading').innerHTML = `
+    <div style="text-align:center;padding:2rem;">
+      <div style="font-size:36px;margin-bottom:10px;">⚠️</div>
+      <div style="font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--ink);">${title}</div>
+      <div style="font-size:11px;color:var(--ink-faint);margin-top:8px;padding:8px;background:#f0f0f0;border-radius:8px;text-align:left;word-break:break-all;">${detail}</div>
+      <button onclick="location.reload()" style="margin-top:16px;padding:10px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700;">Coba lagi</button>
+    </div>`;
 }
 
 init();
