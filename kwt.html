@@ -149,11 +149,9 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .empty-state{text-align:center;padding:32px 20px;color:var(--text3);font-size:13px;border:1px dashed var(--border);border-radius:var(--r);}
 .empty-state svg{width:28px;height:28px;margin:0 auto 10px;display:block;opacity:.25;}
 
-/* SYNC BAR */
-.sync-bar{display:flex;align-items:center;gap:6px;padding:8px 12px;border-radius:var(--r);font-size:11px;font-weight:500;margin-bottom:12px;}
-.sync-bar.ok{background:var(--success-dim);color:var(--success);}
-.sync-bar.syncing{background:var(--accent-dim);color:var(--accent);}
-.sync-bar.error{background:var(--danger-dim);color:var(--danger);}
+/* SYNC STATUS (pojok kiri header) */
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
 
 /* TOAST */
 .toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#1C2B3A;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none;}
@@ -210,7 +208,10 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 <header class="hdr">
   <div class="hdr-b1"></div><div class="hdr-b2"></div>
   <div class="hdr-topbar">
-    <div></div>
+    <div id="syncStatus" style="display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;max-width:220px;overflow:hidden;font-weight:500;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+      <span>Memuat...</span>
+    </div>
     <div class="menu-wrap">
       <button class="hdr-topbar-btn" onclick="toggleMenu()" title="Menu">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
@@ -264,8 +265,6 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 </div>
 
 <div class="wrap">
-
-<div id="syncBar" class="sync-bar syncing"><span id="syncBarText">Menyinkronkan…</span></div>
 
 <div id="setupBanner" class="setup-banner" style="display:none;">
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -620,9 +619,17 @@ function generateNextNo(dateYMD) {
 // SYNC — backend Google Sheets (Kuitansi_Code.gs)
 // ══════════════════════════════════════
 function setSync(state, text) {
-  const bar = document.getElementById('syncBar');
-  bar.className = 'sync-bar ' + state;
-  document.getElementById('syncBarText').textContent = text;
+  const icons = {
+    ok: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    syncing: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>`,
+    error: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+  };
+  const colors = { ok:'var(--success)', syncing:'rgba(255,255,255,0.8)', error:'var(--danger)' };
+  const el = document.getElementById('syncStatus');
+  if (el) {
+    el.style.color = colors[state] || 'rgba(255,255,255,0.7)';
+    el.innerHTML = `${icons[state]||''}<span>${text}</span>`;
+  }
 }
 
 async function fetchKuitansiFromSheets() {
@@ -661,18 +668,21 @@ async function deleteKuitansiFromSheets(id) {
 }
 
 async function loadAll() {
-  setSync('syncing', 'Menyinkronkan…');
+  setSync('syncing', 'Memuat...');
   document.getElementById('setupBanner').style.display = hasGasUrl() ? 'none' : 'flex';
   try {
     kuitansiList = await fetchKuitansiFromSheets();
     kuitansiList.sort((a,b) => (b.created_at||'').localeCompare(a.created_at||''));
-    setSync('ok', hasGasUrl() ? `Tersinkron · ${kuitansiList.length} kuitansi` : `Mode lokal · ${kuitansiList.length} kuitansi`);
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    setSync('ok', hasGasUrl() ? `${kuitansiList.length} entri · sync ${timeStr}` : `${kuitansiList.length} entri · lokal`);
     populateFilterBulan();
     renderList();
     document.getElementById('fNo').value = generateNextNo(document.getElementById('fDate').value);
     renderLivePreview();
   } catch(e) {
-    setSync('error', 'Gagal sinkron: ' + e.message);
+    setSync('error', 'Gagal sinkron');
+    showToast('Gagal sinkron: ' + e.message, false);
   }
 }
 function manualRefresh() { loadAll(); showToast('Memuat ulang…', true); }
