@@ -2,721 +2,791 @@
 <html lang="id">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>Observasi Kelas — Markaz Belajar</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700;800&family=Lato:wght@400;700&display=swap" rel="stylesheet">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Screening — Markaz Belajar</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
-  --blue:#0686c7;--blue-dark:#055a96;--blue-light:#e8f4fc;--blue-mid:#4DA3D4;
-  --sun:#FFCA28;--sun-deep:#F59F00;
-  --leaf:#2E9E5B;--leaf-light:#E6F7EE;
-  --coral:#E85D4A;--coral-light:#FFF0EE;
-  --ink:#1C2B3A;--ink-mid:#4A6070;--ink-faint:#8FA4B4;
-  --paper:#FDFAF4;--line:#EDE9DF;
-  --white:#FFFFFF;
-  --green:#16a34a;--green-light:#dcfce7;
-  --amber:#d97706;--amber-light:#fef3c7;
-  --red:#dc2626;--red-light:#fee2e2;
-  --gray:#6b7280;--gray-light:#f3f4f6;
-  --r:16px;--r-sm:10px;
-  --shadow:0 4px 24px rgba(28,43,58,0.10);
-  --shadow-sm:0 2px 10px rgba(28,43,58,0.07);
+  --bg:#FDFAF4;--surface:#FFFFFF;--surface2:#F0EBE3;--border:#EDE9DF;--border2:#D8D1C7;
+  --text:#1C2B3A;--text2:#4A6070;--text3:#8FA4B4;
+  --accent:#1B6CA8;--accent-dim:rgba(27,108,168,0.10);
+  --success:#2E9E5B;--success-dim:rgba(46,158,91,0.10);
+  --danger:#DC3545;--danger-dim:rgba(220,53,69,0.10);
+  --warning:#F59F00;--warning-dim:rgba(245,159,0,0.12);
+  --r:10px;--rl:16px;--hdr-bg:#1B6CA8;--outer-bg:#1B6CA8;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
-body{font-family:'Lato',sans-serif;background:#E9EEF3;color:var(--ink);min-height:100vh;}
-.page{max-width:480px;margin:0 auto;background:var(--paper);min-height:100vh;position:relative;}
-@media(min-width:481px){body{padding:20px 0}.page{border-radius:28px;min-height:auto;box-shadow:0 8px 40px rgba(0,0,0,0.15);overflow:hidden;}}
-
-/* ── LOADING ── */
-.loading-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;gap:14px;}
-.spinner{width:32px;height:32px;border:3px solid var(--line);border-top-color:var(--blue);border-radius:50%;animation:spin .7s linear infinite;}
-@keyframes spin{to{transform:rotate(360deg);}}
-.loading-txt{font-size:13px;color:var(--ink-faint);}
+[data-theme="dark"]{
+  --bg:#0F1923;--surface:#1A2535;--surface2:#222F40;--border:#2A3A4E;--border2:#344A60;
+  --text:#E8EEF4;--text2:#8FA4B4;--text3:#506070;
+  --accent:#4DA3D4;--accent-dim:rgba(77,163,212,0.12);
+  --success:#3BBF6E;--success-dim:rgba(59,191,110,0.12);
+  --danger:#F06070;--danger-dim:rgba(240,96,112,0.12);
+  --warning:#F59F00;--warning-dim:rgba(245,159,0,0.12);
+  --hdr-bg:#0D1520;--outer-bg:#0D1520;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;width:100%;}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer-bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;transition:background .3s,color .3s;}
 
 /* ── HEADER ── */
-.header{background:var(--blue);padding:20px 20px 56px;position:relative;overflow:hidden;}
-.header::after{content:'';position:absolute;bottom:-30px;right:-30px;width:120px;height:120px;border-radius:50%;background:rgba(255,255,255,0.07);pointer-events:none;}
-.header-top{display:flex;align-items:center;gap:12px;margin-bottom:16px;}
-.back-btn{width:36px;height:36px;border-radius:50%;background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;border:none;}
-.back-btn svg{width:18px;height:18px;stroke:#fff;fill:none;stroke-width:2.5;stroke-linecap:round;}
-.header-brand{font-size:12px;font-weight:700;color:rgba(255,255,255,0.7);letter-spacing:.5px;}
-.header-title{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;color:#fff;line-height:1.2;margin-bottom:6px;}
-.header-sub{font-size:12px;color:rgba(255,255,255,0.75);}
-.stats-row{display:flex;gap:10px;margin-top:12px;}
-.stat-pill{display:flex;align-items:center;gap:5px;background:rgba(255,255,255,0.15);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:700;color:#fff;}
-.stat-pill-dot{width:7px;height:7px;border-radius:50%;background:#fff;flex-shrink:0;}
-.stat-pill-dot.green{background:#4ade80;}
-.stat-pill-dot.amber{background:var(--sun);}
-.stat-pill-dot.red{background:#f87171;}
+.hdr{background:var(--hdr-bg);overflow:hidden;transition:background .3s;position:relative;}
+.hdr-b1{position:absolute;top:-30px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.07);}
+.hdr-b2{position:absolute;bottom:-50px;left:-30px;width:130px;height:130px;border-radius:50%;background:rgba(243,213,101,0.12);}
+.hdr-b3{position:absolute;top:40px;left:30%;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,0.05);}
+.hdr-topbar{position:relative;z-index:2;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-topbar-left{display:flex;align-items:center;gap:8px;}
+.hdr-inner{position:relative;z-index:2;padding:4px 20px 46px;display:flex;flex-direction:column;align-items:center;}
+.hdr-logo-img{width:90px;margin-bottom:0;}
+.hdr-greeting{margin:0 14px;margin-top:-24px;position:relative;z-index:10;}
+.hdr-greeting-card{background:#fff;border-radius:20px;box-shadow:0 4px 24px rgba(28,43,58,0.12);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-greeting-card h2{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:#1C2B3A;line-height:1.2;}
+.hdr-greeting-card p{font-size:12px;color:#8FA4B4;margin-top:2px;}
+.hdr-greeting-badge{background:#E8F4FD;color:#1B6CA8;font-size:11px;font-weight:600;padding:5px 12px;border-radius:50px;white-space:nowrap;}
+[data-theme="dark"] .hdr-greeting-card{background:var(--surface);box-shadow:0 4px 24px rgba(0,0,0,0.4);}
+[data-theme="dark"] .hdr-greeting-card h2{color:var(--text);}
+[data-theme="dark"] .hdr-greeting-card p{color:var(--text3);}
+[data-theme="dark"] .hdr-greeting-badge{background:var(--accent-dim);color:var(--accent);}
 
-/* ── FILTER TABS ── */
-.filter-wrap{margin:-32px 16px 0;position:relative;z-index:10;background:var(--white);border-radius:var(--r);box-shadow:var(--shadow);padding:4px;display:flex;gap:4px;overflow-x:auto;scrollbar-width:none;}
-.filter-wrap::-webkit-scrollbar{display:none;}
-.filter-btn{flex-shrink:0;padding:7px 14px;border-radius:var(--r-sm);font-size:12px;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--ink-faint);font-family:'Lato',sans-serif;transition:all .15s;}
-.filter-btn.active{background:var(--blue);color:#fff;}
+/* ── NAV FILTER ── */
+.nav-tabs{padding:12px 14px 10px;background:var(--hdr-bg);position:sticky;top:0;z-index:200;transition:background .3s;}
+.tab-bar-pill{background:rgba(255,255,255,0.18);border-radius:50px;padding:4px;display:flex;gap:2px;border:1.5px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none;}
+.tab-bar-pill::-webkit-scrollbar{display:none;}
+.nav-tab{flex-shrink:0;padding:8px 14px;border:none;background:transparent;border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.65);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap;}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,0.1);}
+.nav-tab.active{background:#fff;color:#1B6CA8;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
 
-/* ── STUDENT LIST ── */
-.list-wrap{padding:12px 16px;display:flex;flex-direction:column;gap:8px;}
-.empty{text-align:center;padding:40px 20px;font-size:13px;color:var(--ink-faint);}
-.empty-icon{font-size:36px;margin-bottom:10px;}
+/* ── SYNC STATUS ── */
+#syncStatus{display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;font-weight:500;}
+.spin{animation:spinR 1s linear infinite;}
+@keyframes spinR{to{transform:rotate(360deg);}}
 
-.student-row{background:var(--white);border-radius:var(--r);box-shadow:var(--shadow-sm);padding:14px;display:flex;align-items:center;gap:12px;cursor:pointer;transition:all .15s;border:1.5px solid transparent;}
-.student-row:active{transform:scale(0.98);}
-.student-row.highlight{border-color:var(--amber);}
-.avatar{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;}
+/* ── LAYOUT ── */
+.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 80px;}
+.sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:background .3s,border-color .3s;}
+.sec-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:7px;margin-bottom:14px;}
+.sec-title svg{width:13px;height:13px;flex-shrink:0;}
+
+/* ── STATS ROW ── */
+.stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px;}
+.stat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:14px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+.stat-num{font-family:'Baloo 2',sans-serif;font-size:28px;font-weight:800;line-height:1;color:var(--text);}
+.stat-lbl{font-size:10px;color:var(--text3);margin-top:4px;font-weight:500;}
+
+/* ── SEARCH ── */
+.search-wrap{margin-bottom:12px;position:relative;}
+.search-input{width:100%;background:var(--surface);border:1.5px solid var(--border);border-radius:50px;padding:9px 14px 9px 38px;color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border-color .15s;}
+.search-input:focus{border-color:var(--accent);}
+.search-icon{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:var(--text3);}
+.search-icon svg{width:15px;height:15px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+
+/* ── STUDENT ROWS ── */
+.student-row{display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--r);cursor:pointer;transition:background .12s;border:1.5px solid transparent;margin-bottom:8px;}
+.student-row:hover{background:var(--surface2);}
+.student-row:active{transform:scale(0.99);}
+.student-row.urgent{border-color:var(--danger);background:var(--danger-dim);}
+.student-avatar{width:44px;height:44px;border-radius:12px;background:linear-gradient(135deg,var(--accent),#4DA3D4);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:#fff;flex-shrink:0;}
 .student-info{flex:1;min-width:0;}
-.student-name{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.student-meta{font-size:11px;color:var(--ink-faint);margin-top:2px;}
-.status-chip{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;white-space:nowrap;flex-shrink:0;}
-.chip-belum{background:var(--gray-light);color:var(--gray);}
-.chip-menunggu{background:var(--amber-light);color:var(--amber);}
-.chip-ortu{background:var(--blue-light);color:var(--blue);}
-.chip-selesai{background:var(--green-light);color:var(--green);}
-.chip-lanjut{background:var(--red-light);color:var(--red);}
+.student-name{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.student-meta{font-size:11px;color:var(--text3);margin-top:1px;}
+.status-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.st-belum{background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
+.st-menunggu{background:var(--warning-dim);color:var(--warning);}
+.st-ortu{background:var(--accent-dim);color:var(--accent);}
+.st-selesai{background:var(--success-dim);color:var(--success);}
+.st-lanjut{background:var(--danger-dim);color:var(--danger);}
 
-/* ── BOTTOM SHEET (DETAIL) ── */
-.sheet-overlay{position:fixed;inset:0;background:rgba(0,0,0,0);z-index:100;pointer-events:none;transition:background .3s;}
-.sheet-overlay.open{background:rgba(0,0,0,0.45);pointer-events:auto;}
-.sheet{position:fixed;bottom:0;left:50%;transform:translate(-50%,100%);width:100%;max-width:480px;background:var(--paper);border-radius:24px 24px 0 0;z-index:101;transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto;padding-bottom:32px;}
-.sheet.open{transform:translate(-50%,0);}
-.sheet-handle{width:36px;height:4px;background:var(--line);border-radius:2px;margin:12px auto 0;}
-.sheet-header{padding:16px 20px 12px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;}
-.sheet-avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--blue),var(--blue-mid));display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
-.sheet-name{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--ink);}
-.sheet-meta{font-size:12px;color:var(--ink-faint);margin-top:2px;}
-.sheet-genid{font-size:10px;font-weight:700;color:var(--blue);margin-top:2px;}
+/* ── EMPTY ── */
+.empty-state{text-align:center;padding:40px 20px;color:var(--text3);}
+.empty-icon{font-size:36px;margin-bottom:10px;}
+.empty-lbl{font-size:13px;}
+
+/* ── BOTTOM SHEET ── */
+.sheet-overlay{position:fixed;inset:0;background:rgba(28,43,58,0);z-index:100;pointer-events:none;transition:background .3s;display:flex;align-items:flex-end;justify-content:center;}
+.sheet-overlay.open{background:rgba(28,43,58,0.55);pointer-events:auto;}
+.sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;z-index:101;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto;padding-bottom:32px;}
+.sheet-overlay.open .sheet{transform:translateY(0);}
+.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0;}
+.sheet-hdr{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.sheet-avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#4DA3D4);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
+.sheet-name{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--text);}
+.sheet-meta{font-size:11.5px;color:var(--text3);margin-top:2px;}
+.sheet-genid{font-size:10px;font-weight:700;color:var(--accent);font-family:'Geist Mono',sans-serif;margin-top:2px;}
 .sheet-body{padding:16px 20px;}
 
-/* ── STATUS TIMELINE ── */
-.stl{display:flex;flex-direction:column;gap:0;margin-bottom:16px;}
-.stl-item{display:flex;gap:12px;position:relative;}
-.stl-left{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0;}
-.stl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;flex-shrink:0;border:2px solid var(--line);background:var(--white);}
-.stl-dot.done{background:var(--green);border-color:var(--green);color:#fff;}
-.stl-dot.active{background:var(--blue);border-color:var(--blue);color:#fff;}
-.stl-dot.pending{background:var(--gray-light);border-color:var(--line);color:var(--ink-faint);}
-.stl-line{width:2px;flex:1;background:var(--line);min-height:14px;margin:2px 0;}
-.stl-right{flex:1;padding-bottom:16px;}
-.stl-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:2px;}
-.stl-sub{font-size:11.5px;color:var(--ink-faint);}
-.stl-date{font-size:10.5px;color:var(--blue);margin-top:2px;font-weight:600;}
+/* ── SCREENING TYPE MENU ── */
+.type-menu-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:12px;}
+.type-card{display:flex;align-items:center;gap:12px;padding:14px;border:1.5px solid var(--border);border-radius:var(--r);background:var(--surface);cursor:pointer;margin-bottom:8px;transition:all .15s;}
+.type-card:hover{border-color:var(--accent);background:var(--accent-dim);}
+.type-card:active{transform:scale(0.98);}
+.type-card.soon{opacity:0.5;cursor:not-allowed;}
+.type-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+.type-info{flex:1;}
+.type-name{font-size:13px;font-weight:700;color:var(--text);}
+.type-desc{font-size:11px;color:var(--text3);margin-top:2px;}
+.type-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;flex-shrink:0;}
+.tb-aktif{background:var(--success-dim);color:var(--success);}
+.tb-soon{background:var(--surface2);color:var(--text3);}
+
+/* ── SCREENING DETAIL (ASD) ── */
+.back-btn-small{display:inline-flex;align-items:center;gap:5px;font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;padding:0 0 12px;font-family:inherit;}
+.back-btn-small svg{width:14px;height:14px;stroke:var(--accent);fill:none;stroke-width:2.5;stroke-linecap:round;}
+.asd-label{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:var(--accent);background:var(--accent-dim);padding:4px 10px;border-radius:20px;margin-bottom:12px;}
+
+/* ── TIMELINE ── */
+.tl{display:flex;flex-direction:column;gap:0;margin-bottom:16px;}
+.tl-item{display:flex;gap:12px;}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:28px;flex-shrink:0;}
+.tl-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;flex-shrink:0;border:2px solid var(--border);background:var(--surface);}
+.tl-dot.done{background:var(--success);border-color:var(--success);color:#fff;}
+.tl-dot.active{background:var(--accent);border-color:var(--accent);color:#fff;}
+.tl-dot.wait{background:var(--surface2);border-color:var(--border2);color:var(--text3);}
+.tl-line{width:2px;flex:1;background:var(--border);min-height:12px;margin:2px 0;}
+.tl-right{flex:1;padding-bottom:14px;}
+.tl-title{font-size:13px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.tl-sub{font-size:11.5px;color:var(--text3);}
+.tl-date{font-size:10.5px;color:var(--accent);margin-top:2px;font-weight:600;font-family:'Geist Mono',sans-serif;}
 
 /* ── SCORE CARDS ── */
-.score-cards{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px;}
-.score-card{background:var(--white);border-radius:var(--r-sm);padding:12px 8px;text-align:center;box-shadow:var(--shadow-sm);}
-.score-card-num{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;color:var(--blue);}
-.score-card-lbl{font-size:10px;color:var(--ink-faint);margin-top:2px;line-height:1.3;}
+.score-row{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:12px;}
+.score-card{background:var(--surface2);border-radius:var(--r);padding:12px 8px;text-align:center;border:1px solid var(--border);}
+.score-num{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;color:var(--accent);}
+.score-lbl{font-size:10px;color:var(--text3);margin-top:2px;line-height:1.3;}
 
-/* ── LEVEL BADGE ── */
-.level-box{border-radius:var(--r-sm);padding:12px 14px;font-size:13px;line-height:1.6;margin-bottom:16px;}
+/* ── LEVEL BOX ── */
+.level-box{border-radius:var(--r);padding:12px 14px;font-size:13px;line-height:1.65;margin-bottom:14px;}
 .level-box strong{display:block;font-family:'Baloo 2',sans-serif;font-size:14px;margin-bottom:3px;}
-.level-minimal{background:var(--green-light);color:var(--green);}
-.level-pantau{background:var(--blue-light);color:var(--blue-dark);}
-.level-moderat{background:var(--amber-light);color:var(--amber);}
-.level-kuat{background:#fff7ed;color:#b45309;}
-.level-sangat{background:var(--red-light);color:var(--red);}
+.lv-min{background:var(--success-dim);color:var(--success);}
+.lv-pan{background:var(--accent-dim);color:var(--accent);}
+.lv-mod{background:var(--warning-dim);color:var(--warning);}
+.lv-kua{background:#fff7ed;color:#b45309;}
+.lv-san{background:var(--danger-dim);color:var(--danger);}
 
-/* ── ACTION BUTTONS ── */
-.action-btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:13px;border-radius:var(--r-sm);font-size:14px;font-weight:700;cursor:pointer;border:none;font-family:'Lato',sans-serif;transition:all .15s;margin-bottom:8px;}
-.action-btn:last-child{margin-bottom:0;}
-.action-btn:active{transform:scale(0.98);}
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:var(--r);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;outline:none;transition:all .15s;white-space:nowrap;}
+.btn svg{width:14px;height:14px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
+.btn-full{width:100%;justify-content:center;padding:13px;}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-accent:hover{opacity:.9;}
+.btn-success{background:var(--success);color:#fff;}
 .btn-wa{background:#25D366;color:#fff;}
-.btn-blue{background:var(--blue);color:#fff;}
-.btn-red{background:var(--red);color:#fff;}
-.btn-outline{background:transparent;color:var(--blue);border:1.5px solid var(--blue);}
-.btn-gray{background:var(--gray-light);color:var(--gray);border:1px solid var(--line);}
-.action-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
-.action-btn .wa-icon{fill:#fff;stroke:none;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-ghost{background:transparent;color:var(--text2);border:1.5px solid var(--border);}
+.btn-ghost:hover{background:var(--surface2);}
+.btn+.btn{margin-top:8px;}
+.btn:active{transform:scale(0.98);}
 
-/* ── WA POPUP ── */
-.wa-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;display:none;align-items:flex-end;justify-content:center;}
-.wa-overlay.open{display:flex;}
-.wa-popup{background:var(--white);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px 36px;}
-.wa-handle{width:36px;height:4px;background:var(--line);border-radius:2px;margin:0 auto 16px;}
-.wa-title{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:var(--ink);margin-bottom:6px;display:flex;align-items:center;gap:8px;}
-.wa-title svg{fill:#25D366;}
-.wa-preview{background:#f0f7f0;border-radius:var(--r-sm);padding:12px;font-size:12.5px;color:var(--ink-mid);line-height:1.65;margin-bottom:16px;border-left:3px solid #25D366;max-height:120px;overflow-y:auto;}
-.wa-close{text-align:center;font-size:12.5px;color:var(--ink-faint);cursor:pointer;padding:6px;margin-top:4px;}
+/* ── WA SHEET ── */
+.wa-overlay{position:fixed;inset:0;background:rgba(28,43,58,0.55);z-index:300;display:none;align-items:flex-end;justify-content:center;}
+.wa-overlay.open{display:flex;animation:fadeIn .2s ease;}
+.wa-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px 36px;}
+.wa-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+.wa-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+.wa-preview{background:var(--surface2);border-radius:var(--r);padding:12px;font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:14px;max-height:120px;overflow-y:auto;border-left:3px solid #25D366;white-space:pre-wrap;}
+.wa-close{text-align:center;font-size:12px;color:var(--text3);cursor:pointer;padding:8px;margin-top:4px;}
+
+/* ── HAMBURGER ── */
+.ham-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;}
+.ham-btn svg{width:15px;height:15px;stroke:#fff;fill:none;stroke-width:2;stroke-linecap:round;}
+.ham-menu{display:none;position:absolute;top:42px;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);overflow:hidden;min-width:180px;z-index:7000;}
+.ham-item{width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--text);font-family:inherit;font-size:13px;font-weight:500;text-align:left;}
+.ham-item:last-child{border-bottom:none;}
+.ham-item-icon{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.ham-item-icon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;}
 
 /* ── TAGS ── */
-.tags-row{display:flex;gap:5px;flex-wrap:wrap;margin-top:6px;}
-.tag{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;}
-.tag-blue{background:var(--blue-light);color:var(--blue);}
-.tag-yellow{background:#FFF8DC;color:#8B6914;}
+.tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:12px;}
+.tag{font-size:10px;font-weight:700;padding:3px 9px;border-radius:20px;}
+.tag-blue{background:var(--accent-dim);color:var(--accent);}
+.tag-yellow{background:var(--warning-dim);color:var(--warning);}
+.tag-mono{font-family:'Geist Mono',sans-serif;}
+.sec-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;}
 
-/* ── SCREENING TYPE SELECTOR ── */
-.screen-type-title{font-size:13px;font-weight:700;color:var(--ink);margin-bottom:12px;}
-.screen-type-grid{display:flex;flex-direction:column;gap:8px;margin-bottom:16px;}
-.screen-type-btn{display:flex;align-items:center;gap:12px;padding:14px;border-radius:var(--r-sm);border:1.5px solid var(--line);background:var(--white);cursor:pointer;transition:all .15s;font-family:'Lato',sans-serif;}
-.screen-type-btn:active{transform:scale(0.98);}
-.screen-type-btn.active{border-color:var(--blue);background:var(--blue-light);}
-.screen-type-btn.soon{opacity:0.5;cursor:not-allowed;}
-.stype-icon{width:40px;height:40px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
-.stype-info{flex:1;text-align:left;}
-.stype-name{font-size:13px;font-weight:700;color:var(--ink);}
-.stype-desc{font-size:11px;color:var(--ink-faint);margin-top:2px;}
-.stype-badge{font-size:10px;font-weight:700;padding:2px 8px;border-radius:20px;flex-shrink:0;}
-.stype-badge.aktif{background:var(--green-light);color:var(--green);}
-.stype-badge.soon{background:var(--gray-light);color:var(--gray);}
-.back-to-menu{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--blue);cursor:pointer;margin-bottom:14px;background:none;border:none;padding:0;font-family:'Lato',sans-serif;}
-.back-to-menu svg{width:14px;height:14px;stroke:var(--blue);fill:none;stroke-width:2.5;stroke-linecap:round;}
-
-/* ── SECTION LABEL ── */
-.sec-lbl{font-size:10px;font-weight:800;color:var(--ink-faint);text-transform:uppercase;letter-spacing:.7px;margin-bottom:10px;}
-
-.bottom-space{height:40px;}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes slideIn{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+@media print{
+  .nav-tabs,.ham-btn,.sheet-overlay,.wa-overlay{display:none!important;}
+}
 </style>
 </head>
 <body>
-<div class="page">
-  <div class="loading-wrap" id="loading">
-    <div class="spinner"></div>
-    <div class="loading-txt">Memuat data siswa...</div>
-  </div>
-  <div id="main" style="display:none;">
-    <!-- HEADER -->
-    <div class="header">
-      <div class="header-top">
-        <button class="back-btn" onclick="history.back()">
-          <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+<div style="max-width:480px;margin:0 auto;min-height:100vh;background:linear-gradient(to bottom,var(--hdr-bg) 0%,var(--hdr-bg) 180px,var(--bg) 180px);box-shadow:0 0 40px rgba(28,43,58,0.15);">
+
+<!-- ── HEADER ── -->
+<div class="hdr">
+  <div class="hdr-b1"></div><div class="hdr-b2"></div><div class="hdr-b3"></div>
+  <div class="hdr-topbar">
+    <div class="hdr-topbar-left">
+      <button onclick="history.back()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+      </button>
+      <div id="syncStatus" style="display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.8);font-weight:500;">
+        <svg class="spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+        <span>Memuat...</span>
+      </div>
+    </div>
+    <div style="position:relative;">
+      <button class="ham-btn" id="hamBtn" onclick="toggleHam()">
+        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div class="ham-menu" id="hamMenu">
+        <button class="ham-item" onclick="toggleDark();closeHam()">
+          <div class="ham-item-icon" style="background:var(--warning-dim);color:var(--warning);">
+            <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+          </div>
+          <span id="darkLbl">Mode Gelap</span>
         </button>
-        <div class="header-brand">MARKAZ BELAJAR</div>
-      </div>
-      <div class="header-title">Screening Test<br>Tumbuh Kembang</div>
-      <div class="header-sub">Identifikasi kebutuhan siswa Markaz Belajar</div>
-      <div class="stats-row">
-        <div class="stat-pill"><div class="stat-pill-dot green"></div><span id="stat-selesai">0 selesai</span></div>
-        <div class="stat-pill"><div class="stat-pill-dot amber"></div><span id="stat-proses">0 proses</span></div>
-        <div class="stat-pill"><div class="stat-pill-dot red"></div><span id="stat-perlu">0 perlu lanjut</span></div>
+        <button class="ham-item" onclick="init();closeHam()">
+          <div class="ham-item-icon" style="background:var(--success-dim);color:var(--success);">
+            <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>
+          </div>
+          Reload Data
+        </button>
       </div>
     </div>
-
-    <!-- FILTER TABS -->
-    <div class="filter-wrap" id="filter-wrap">
-      <button class="filter-btn active" data-filter="semua" onclick="setFilter('semua',this)">Semua</button>
-      <button class="filter-btn" data-filter="belum_kirim" onclick="setFilter('belum_kirim',this)">Belum dikirim</button>
-      <button class="filter-btn" data-filter="menunggu" onclick="setFilter('menunggu',this)">Menunggu ortu</button>
-      <button class="filter-btn" data-filter="ortu_selesai" onclick="setFilter('ortu_selesai',this)">Ortu selesai</button>
-      <button class="filter-btn" data-filter="selesai" onclick="setFilter('selesai',this)">Selesai</button>
-      <button class="filter-btn" data-filter="perlu_lanjut" onclick="setFilter('perlu_lanjut',this)">Perlu lanjut ⚠</button>
-    </div>
-
-    <!-- STUDENT LIST -->
-    <div class="list-wrap" id="list-wrap"></div>
-    <div class="bottom-space"></div>
+  </div>
+  <div class="hdr-inner">
+    <img class="hdr-logo-img" src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" alt="MB" onerror="this.style.display='none'">
   </div>
 </div>
 
-<!-- BOTTOM SHEET DETAIL -->
-<div class="sheet-overlay" id="sheet-overlay" onclick="closeSheet()"></div>
-<div class="sheet" id="sheet">
-  <div class="sheet-handle"></div>
-  <div class="sheet-header">
-    <div class="sheet-avatar" id="d-avatar">—</div>
+<div class="hdr-greeting">
+  <div class="hdr-greeting-card">
     <div>
-      <div class="sheet-name" id="d-name">—</div>
-      <div class="sheet-meta" id="d-meta">—</div>
-      <div class="sheet-genid" id="d-genid">—</div>
+      <h2>Screening Test</h2>
+      <p>Tumbuh kembang siswa Markaz Belajar</p>
     </div>
-  </div>
-  <div class="sheet-body" id="sheet-body">
-    <div class="loading-txt">Memuat detail...</div>
+    <div class="hdr-greeting-badge" id="hdrBadge">● Memuat</div>
   </div>
 </div>
 
-<!-- WA POPUP -->
-<div class="wa-overlay" id="wa-overlay">
-  <div class="wa-popup">
+<!-- ── FILTER TABS ── -->
+<div class="nav-tabs">
+  <div class="tab-bar-pill">
+    <button class="nav-tab active" onclick="setFilter('semua',this)">Semua</button>
+    <button class="nav-tab" onclick="setFilter('belum_kirim',this)">Belum dikirim</button>
+    <button class="nav-tab" onclick="setFilter('menunggu',this)">Menunggu ortu</button>
+    <button class="nav-tab" onclick="setFilter('ortu_selesai',this)">Ortu selesai</button>
+    <button class="nav-tab" onclick="setFilter('selesai',this)">Selesai</button>
+    <button class="nav-tab" onclick="setFilter('perlu_lanjut',this)">⚠ Perlu lanjut</button>
+  </div>
+</div>
+
+<!-- ── MAIN CONTENT ── -->
+<div class="wrap">
+  <!-- Stats -->
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-num" id="st-selesai" style="color:var(--success);">0</div>
+      <div class="stat-lbl">Selesai</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="st-proses" style="color:var(--warning);">0</div>
+      <div class="stat-lbl">Proses</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-num" id="st-lanjut" style="color:var(--danger);">0</div>
+      <div class="stat-lbl">Perlu lanjut</div>
+    </div>
+  </div>
+
+  <!-- Search -->
+  <div class="search-wrap">
+    <div class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+    <input class="search-input" id="searchInput" placeholder="Cari nama siswa..." oninput="renderList()">
+  </div>
+
+  <!-- List -->
+  <div class="sec" style="padding:12px;">
+    <div id="listWrap">
+      <div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-lbl">Memuat data siswa...</div></div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /page -->
+
+<!-- ── BOTTOM SHEET ── -->
+<div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()">
+  <div class="sheet" id="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <div class="sheet-avatar" id="sh-avatar">—</div>
+      <div>
+        <div class="sheet-name" id="sh-name">—</div>
+        <div class="sheet-meta" id="sh-meta">—</div>
+        <div class="sheet-genid" id="sh-genid">—</div>
+      </div>
+    </div>
+    <div class="sheet-body" id="sheetBody">
+      <div class="empty-state" style="padding:20px 0;"><div class="empty-icon">⏳</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── WA SHEET ── -->
+<div class="wa-overlay" id="waOverlay">
+  <div class="wa-sheet">
     <div class="wa-handle"></div>
     <div class="wa-title">
-      <svg width="20" height="20" viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/><path d="M12 2C6.477 2 2 6.477 2 12c0 1.89.525 3.66 1.438 5.168L2 22l4.832-1.438A9.96 9.96 0 0 0 12 22c5.523 0 10-4.477 10-10S17.523 2 12 2z"/></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.57a.75.75 0 0 0 .918.919l5.739-1.479A11.953 11.953 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.953 9.953 0 0 1-5.127-1.417l-.368-.218-3.807.981.999-3.683-.24-.381A9.953 9.953 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
       Kirim Form ke Orang Tua
     </div>
-    <div class="wa-preview" id="wa-preview-text">—</div>
-    <button class="action-btn btn-wa" onclick="doSendWA()">
-      <svg width="16" height="16" viewBox="0 0 24 24" class="wa-icon"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+    <div class="wa-preview" id="waPreview">—</div>
+    <button class="btn btn-wa btn-full" onclick="doSendWA()">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
       Buka WhatsApp & Kirim
     </button>
-    <div class="wa-close" onclick="closeWAPopup()">Tutup</div>
+    <div class="wa-close" onclick="closeWA()">Tutup</div>
   </div>
 </div>
 
 <script>
-// ════════════════════════════════════════════════════════════
-// API utama — data siswa (sama dengan dashboard.html)
-const API_MAIN = 'https://script.google.com/macros/s/AKfycbyV94MFG6cqWUaHmBLpHJXB5sUySAItNMqnxpPDW9qgJeFPsuWEwqr1JTRZ_-G35_Y3Lg/exec';
-// API screening — data observasi
+// ════════════════════════════════════════════════════
+const API_MAIN      = 'https://script.google.com/macros/s/AKfycbyV94MFG6cqWUaHmBLpHJXB5sUySAItNMqnxpPDW9qgJeFPsuWEwqr1JTRZ_-G35_Y3Lg/exec';
 const API_SCREENING = 'https://script.google.com/macros/s/AKfycbxzBIGhnQU-IpEnm7lhaZ8Ou1bV4EMBbm9vi516tS4jQtNRZzjq-5WBBHLNjqGj6XxA/exec';
-const FORM_BASE = 'https://markaz-belajar.github.io/app/obs.autism.anak.html';
+const FORM_ORTU     = 'https://markaz-belajar.github.io/app/obs.autism.anak.html';
+const FORM_GURU     = 'https://markaz-belajar.github.io/app/obs.autism.teach.html';
 
-function api(action, params={}) {
-  const url = new URL(API_MAIN);
-  url.searchParams.set('action', action);
-  for (const [k,v] of Object.entries(params)) {
-    url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
-  }
-  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json());
-}
+let allSiswa = [], screeningMap = {}, currentFilter = 'semua', currentSiswa = null;
+let sheetView = 'menu', pendingWA = null;
 
-function apiScreening(action, params={}) {
-  const url = new URL(API_SCREENING);
-  url.searchParams.set('action', action);
-  for (const [k,v] of Object.entries(params)) {
-    url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
-  }
-  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json());
-}
-
-// ════════════════════════════════════════════════════════════
-let allSiswa = [];
-let screeningMap = {}; // genId → screening record
-let currentFilter = 'semua';
-let currentSiswa = null;
-let pendingWAData = null;
-
-// ── Normalize WA number ──
-function normalizeWA(raw) {
-  if (!raw) return '';
-  let n = String(raw).replace(/\D/g,'');
-  if (n.startsWith('0')) n = '62' + n.slice(1);
-  if (!n.startsWith('62')) n = '62' + n;
-  return n;
+// ── API helpers ──
+function apiGet(base, params) {
+  const u = new URL(base);
+  Object.entries(params).forEach(([k,v]) => u.searchParams.set(k, v));
+  return fetch(u.toString(), { redirect:'follow' }).then(r => r.json()).catch(() => ({ ok:false }));
 }
 
 // ── Status helper ──
-function getStatus(siswa) {
-  const rec = screeningMap[siswa.nomorInduk] || screeningMap[siswa.id];
-  if (!rec) return 'belum_kirim';
-  if (rec.statusGuru === 'selesai') {
-    const pct = Number(rec.skorGabungan) || 0;
-    if (pct > 33) return 'perlu_lanjut';
-    return 'selesai';
+function getStatus(s) {
+  const r = screeningMap[s.nomorInduk] || screeningMap[s.id];
+  if (!r) return 'belum_kirim';
+  if (r.statusGuru === 'selesai') {
+    return Number(r.skorGabungan) > 33 ? 'perlu_lanjut' : 'selesai';
   }
-  if (rec.statusOrtu === 'selesai') return 'ortu_selesai';
-  if (rec.tanggalKirim) return 'menunggu';
+  if (r.statusOrtu === 'selesai') return 'ortu_selesai';
+  if (r.tanggalKirim) return 'menunggu';
   return 'belum_kirim';
 }
 
-function statusLabel(s) {
-  const map = {
-    belum_kirim: { label:'Belum dikirim', cls:'chip-belum' },
-    menunggu:    { label:'Menunggu ortu', cls:'chip-menunggu' },
-    ortu_selesai:{ label:'Ortu selesai',  cls:'chip-ortu' },
-    selesai:     { label:'Selesai',       cls:'chip-selesai' },
-    perlu_lanjut:{ label:'⚠ Perlu lanjut', cls:'chip-lanjut' },
-  };
-  return map[s] || map.belum_kirim;
-}
+const STATUS_META = {
+  belum_kirim:  { label:'Belum dikirim', cls:'st-belum' },
+  menunggu:     { label:'Menunggu ortu', cls:'st-menunggu' },
+  ortu_selesai: { label:'Ortu selesai',  cls:'st-ortu' },
+  selesai:      { label:'Selesai',       cls:'st-selesai' },
+  perlu_lanjut: { label:'⚠ Perlu lanjut', cls:'st-lanjut' },
+};
 
 // ── Filter ──
 function setFilter(f, btn) {
   currentFilter = f;
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderList();
 }
 
 // ── Render list ──
 function renderList() {
-  const wrap = document.getElementById('list-wrap');
-  const filtered = allSiswa.filter(s => {
+  const wrap = document.getElementById('listWrap');
+  const q = document.getElementById('searchInput').value.toLowerCase();
+
+  let data = allSiswa.filter(s => {
     const st = getStatus(s);
-    return currentFilter === 'semua' || st === currentFilter;
+    const matchF = currentFilter === 'semua' || st === currentFilter;
+    const matchQ = !q || s.nama.toLowerCase().includes(q);
+    return matchF && matchQ;
   });
 
-  if (!filtered.length) {
-    wrap.innerHTML = `<div class="empty"><div class="empty-icon">🔍</div>Tidak ada siswa di kategori ini.</div>`;
+  // Sort by urgency
+  const ord = { perlu_lanjut:0, ortu_selesai:1, menunggu:2, belum_kirim:3, selesai:4 };
+  data.sort((a,b) => (ord[getStatus(a)]||5) - (ord[getStatus(b)]||5));
+
+  if (!data.length) {
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-lbl">Tidak ada siswa di kategori ini</div></div>`;
     return;
   }
 
-  // Sort: perlu_lanjut → ortu_selesai → menunggu → belum_kirim → selesai
-  const order = {perlu_lanjut:0, ortu_selesai:1, menunggu:2, belum_kirim:3, selesai:4};
-  filtered.sort((a,b) => (order[getStatus(a)]||5) - (order[getStatus(b)]||5));
-
-  wrap.innerHTML = filtered.map(s => {
+  wrap.innerHTML = data.map(s => {
     const st = getStatus(s);
-    const chip = statusLabel(st);
-    const hl = st === 'perlu_lanjut' ? ' highlight' : '';
-    return `
-    <div class="student-row${hl}" onclick="openSheet('${s.id}')">
-      <div class="avatar">${s.inisial||s.nama.charAt(0)}</div>
+    const sm = STATUS_META[st] || STATUS_META.belum_kirim;
+    const urgent = st === 'perlu_lanjut' ? ' urgent' : '';
+    return `<div class="student-row${urgent}" onclick="openSheet('${s.id}')">
+      <div class="student-avatar">${s.inisial || s.nama.charAt(0)}</div>
       <div class="student-info">
         <div class="student-name">${s.nama}</div>
-        <div class="student-meta">${s.program||'—'} · ${s.usia||'—'}</div>
+        <div class="student-meta">${s.program || s.kelas || '—'} · ${s.usia || '—'}</div>
       </div>
-      <div class="status-chip ${chip.cls}">${chip.label}</div>
+      <span class="status-badge ${sm.cls}">${sm.label}</span>
     </div>`;
   }).join('');
 }
 
 // ── Update stats ──
 function updateStats() {
-  const counts = { selesai:0, proses:0, perlu:0 };
+  let selesai=0, proses=0, lanjut=0;
   allSiswa.forEach(s => {
     const st = getStatus(s);
-    if (st === 'selesai') counts.selesai++;
-    else if (st === 'perlu_lanjut') { counts.selesai++; counts.perlu++; }
-    else if (st !== 'belum_kirim') counts.proses++;
+    if (st === 'selesai') selesai++;
+    else if (st === 'perlu_lanjut') { selesai++; lanjut++; }
+    else if (st !== 'belum_kirim') proses++;
   });
-  document.getElementById('stat-selesai').textContent = counts.selesai + ' selesai';
-  document.getElementById('stat-proses').textContent  = counts.proses + ' proses';
-  document.getElementById('stat-perlu').textContent   = counts.perlu + ' perlu lanjut';
+  document.getElementById('st-selesai').textContent = selesai;
+  document.getElementById('st-proses').textContent = proses;
+  document.getElementById('st-lanjut').textContent = lanjut;
+  document.getElementById('hdrBadge').textContent = `${allSiswa.length} siswa`;
 }
 
 // ── Open bottom sheet ──
 async function openSheet(id) {
   currentSiswa = allSiswa.find(s => String(s.id) === String(id));
   if (!currentSiswa) return;
+  sheetView = 'menu';
 
-  // Set header
-  document.getElementById('d-avatar').textContent = currentSiswa.inisial || currentSiswa.nama.charAt(0);
-  document.getElementById('d-name').textContent   = currentSiswa.nama;
-  document.getElementById('d-meta').textContent   = (currentSiswa.program||'—') + ' · ' + (currentSiswa.usia||'—');
-  document.getElementById('d-genid').textContent  = currentSiswa.nomorInduk || currentSiswa.id;
-  document.getElementById('sheet-body').innerHTML = `<div class="loading-txt" style="text-align:center;padding:20px;">Memuat...</div>`;
+  const s = currentSiswa;
+  document.getElementById('sh-avatar').textContent = s.inisial || s.nama.charAt(0);
+  document.getElementById('sh-name').textContent = s.nama;
+  document.getElementById('sh-meta').textContent = (s.program || s.kelas || '—') + ' · ' + (s.usia || '—');
+  document.getElementById('sh-genid').textContent = s.nomorInduk || ('ID-' + s.id);
+  document.getElementById('sheetBody').innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">⏳</div></div>';
 
-  sheetView = 'menu'; // reset ke menu setiap buka sheet
-  document.getElementById('sheet-overlay').classList.add('open');
-  document.getElementById('sheet').classList.add('open');
+  document.getElementById('sheetOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
 
-  // Fetch detail
-  const genId = currentSiswa.nomorInduk || currentSiswa.id;
-  let rec = null;
-  try {
-    const r = await apiScreening('getScreeningDetail', { genId });
-    if (r.ok) rec = r.data;
-  } catch(e) {}
-
-  renderSheetBody(currentSiswa, rec);
+  renderTypeMenu();
 }
 
 function closeSheet() {
-  document.getElementById('sheet-overlay').classList.remove('open');
-  document.getElementById('sheet').classList.remove('open');
+  document.getElementById('sheetOverlay').classList.remove('open');
   document.body.style.overflow = '';
 }
 
-// ── Render sheet body ──
-let sheetView = 'menu'; // 'menu' | 'asd'
-
-function renderSheetBody(siswa, rec) {
-  if (sheetView === 'menu') {
-    renderTypeMenu(siswa);
-  } else {
-    renderASDStatus(siswa, rec);
-  }
-}
-
-function renderTypeMenu(siswa) {
-  const genId = siswa.nomorInduk || siswa.id;
-  document.getElementById('sheet-body').innerHTML = `
-    <div class="tags-row" style="margin-bottom:16px;">
-      <span class="tag tag-blue">${siswa.program||'—'}</span>
-      <span class="tag tag-yellow">${siswa.tipe||'Reguler'}</span>
-      <span class="tag tag-blue">${genId}</span>
+// ── Type menu ──
+function renderTypeMenu() {
+  const s = currentSiswa;
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  document.getElementById('sheetBody').innerHTML = `
+    <div class="tags">
+      <span class="tag tag-blue">${s.program || s.kelas || '—'}</span>
+      <span class="tag tag-yellow">${s.tipe || 'Reguler'}</span>
+      <span class="tag tag-blue tag-mono">${genId}</span>
     </div>
-    <div class="screen-type-title">Pilih jenis screening:</div>
-    <div class="screen-type-grid">
-      <button class="screen-type-btn active" onclick="selectScreenType('asd')">
-        <div class="stype-icon" style="background:#e8f4fc;">🧩</div>
-        <div class="stype-info">
-          <div class="stype-name">ASD — Autism Spectrum Disorder</div>
-          <div class="stype-desc">Identifikasi indikator autisme melalui observasi guru dan laporan orang tua</div>
-        </div>
-        <span class="stype-badge aktif">Aktif</span>
-      </button>
-      <button class="screen-type-btn soon" onclick="showSoon(this)">
-        <div class="stype-icon" style="background:#fef3c7;">⚡</div>
-        <div class="stype-info">
-          <div class="stype-name">ADHD</div>
-          <div class="stype-desc">Attention Deficit Hyperactivity Disorder</div>
-        </div>
-        <span class="stype-badge soon">Segera</span>
-      </button>
-      <button class="screen-type-btn soon" onclick="showSoon(this)">
-        <div class="stype-icon" style="background:#f0fdf4;">📚</div>
-        <div class="stype-info">
-          <div class="stype-name">Gaya Belajar</div>
-          <div class="stype-desc">Visual, auditori, kinestetik, dan pola preferensi belajar</div>
-        </div>
-        <span class="stype-badge soon">Segera</span>
-      </button>
-      <button class="screen-type-btn soon" onclick="showSoon(this)">
-        <div class="stype-icon" style="background:#fdf2f8;">🔍</div>
-        <div class="stype-info">
-          <div class="stype-name">Disleksia & Diskalkulia</div>
-          <div class="stype-desc">Kesulitan membaca, menulis, dan berhitung spesifik</div>
-        </div>
-        <span class="stype-badge soon">Segera</span>
-      </button>
+    <div class="type-menu-title">Pilih jenis screening:</div>
+
+    <div class="type-card" onclick="selectType('asd')">
+      <div class="type-icon" style="background:#E8F4FD;">🧩</div>
+      <div class="type-info">
+        <div class="type-name">ASD — Autism Spectrum Disorder</div>
+        <div class="type-desc">Identifikasi indikator autisme melalui observasi guru dan laporan orang tua</div>
+      </div>
+      <span class="type-badge tb-aktif">Aktif</span>
+    </div>
+
+    <div class="type-card soon" onclick="showSoonToast()">
+      <div class="type-icon" style="background:#FEF9C3;">⚡</div>
+      <div class="type-info">
+        <div class="type-name">ADHD</div>
+        <div class="type-desc">Attention Deficit Hyperactivity Disorder</div>
+      </div>
+      <span class="type-badge tb-soon">Segera</span>
+    </div>
+
+    <div class="type-card soon" onclick="showSoonToast()">
+      <div class="type-icon" style="background:#F0FDF4;">📚</div>
+      <div class="type-info">
+        <div class="type-name">Gaya Belajar</div>
+        <div class="type-desc">Visual, auditori, kinestetik & preferensi belajar</div>
+      </div>
+      <span class="type-badge tb-soon">Segera</span>
+    </div>
+
+    <div class="type-card soon" onclick="showSoonToast()">
+      <div class="type-icon" style="background:#FDF2F8;">🔍</div>
+      <div class="type-info">
+        <div class="type-name">Disleksia & Diskalkulia</div>
+        <div class="type-desc">Kesulitan membaca, menulis, dan berhitung spesifik</div>
+      </div>
+      <span class="type-badge tb-soon">Segera</span>
     </div>
   `;
 }
 
-function selectScreenType(type) {
+function showSoonToast() {
+  showToast('Fitur ini akan segera hadir!', false);
+}
+
+async function selectType(type) {
   if (type !== 'asd') return;
   sheetView = 'asd';
-  document.getElementById('sheet-body').innerHTML = '<div class="loading-txt" style="text-align:center;padding:20px;">Memuat...</div>';
-  // Re-fetch and render ASD status
-  const siswa = currentSiswa;
-  const genId = siswa.nomorInduk || siswa.id;
-  apiScreening('getScreeningDetail', { genId }).then(r => {
-    renderASDStatus(siswa, r.ok ? r.data : null);
-  }).catch(() => renderASDStatus(siswa, null));
+  document.getElementById('sheetBody').innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">⏳</div></div>';
+
+  const genId = currentSiswa.nomorInduk || ('ID-' + currentSiswa.id);
+  let rec = null;
+  try {
+    const r = await apiGet(API_SCREENING, { action:'getScreeningDetail', genId });
+    if (r.ok) rec = r.data;
+  } catch(e) {}
+
+  renderASDView(currentSiswa, rec);
 }
 
-function showSoon(btn) {
-  btn.style.borderColor = 'var(--amber)';
-  const badge = btn.querySelector('.stype-badge');
-  badge.textContent = 'Akan hadir!';
-  setTimeout(() => {
-    btn.style.borderColor = '';
-    badge.textContent = 'Segera';
-  }, 1500);
-}
+// ── ASD view ──
+function renderASDView(s, rec) {
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  const status = getStatus(s);
+  const namaIbu = s.namaIbu || '—';
+  const waIbu = s.waIbu || '';
 
-function renderASDStatus(siswa, rec) {
-  const genId   = siswa.nomorInduk || siswa.id;
-  const status  = getStatus(siswa);
-  const namaIbu = siswa.namaIbu || siswa.ibu || '—';
-  const waIbu   = siswa.waIbu || siswa.noWaIbu || siswa.wa || '';
+  const sent   = rec?.tanggalKirim;
+  const ortuOk = rec?.statusOrtu === 'selesai';
+  const guruOk = rec?.statusGuru === 'selesai';
+  const skorOrtu = rec ? Math.round(Number(rec.skorOrtu)||0) : null;
+  const skorGuru = rec ? Math.round(Number(rec.skorGuru)||0) : null;
+  const skorGab  = rec ? Math.round(Number(rec.skorGabungan)||0) : null;
+  const level    = rec?.levelGabungan || null;
 
-  // Status timeline
-  const sentDate   = rec?.tanggalKirim ? fmtDate(rec.tanggalKirim) : null;
-  const ortuDate   = rec?.tanggalOrtu  ? fmtDate(rec.tanggalOrtu)  : null;
-  const guruDate   = rec?.tanggalGuru  ? fmtDate(rec.tanggalGuru)  : null;
-  const skorOrtu   = rec ? Math.round(Number(rec.skorOrtu)||0) : null;
-  const skorGuru   = rec ? Math.round(Number(rec.skorGuru)||0) : null;
-  const skorGab    = rec ? Math.round(Number(rec.skorGabungan)||0) : null;
-  const level      = rec?.levelGabungan || null;
-
-  const step1Done = !!sentDate;
-  const step2Done = !!ortuDate;
-  const step3Done = !!guruDate;
-
-  let html = '';
-
-  // Back button + Tags
-  html += `
-    <button class="back-to-menu" onclick="sheetView='menu';renderTypeMenu(currentSiswa)">
+  let html = `
+    <button class="back-btn-small" onclick="sheetView='menu';renderTypeMenu()">
       <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
       Pilih jenis screening lain
     </button>
-    <div class="tags-row" style="margin-bottom:14px;">
-      <span class="tag tag-blue">${siswa.program||'—'}</span>
-      <span class="tag tag-yellow">${siswa.tipe||'Reguler'}</span>
-      <span class="tag tag-blue">${genId}</span>
+    <div class="asd-label">🧩 ASD — Autism Spectrum Disorder</div>
+    <div class="tags" style="margin-bottom:14px;">
+      <span class="tag tag-blue">${s.program || s.kelas || '—'}</span>
+      <span class="tag tag-blue tag-mono">${genId}</span>
     </div>
-    <div style="font-size:11px;font-weight:700;color:var(--blue);margin-bottom:12px;display:flex;align-items:center;gap:6px;">🧩 ASD — Autism Spectrum Disorder</div>
+    <div class="sec-lbl">Status Screening</div>
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot ${sent?'done':''}">${sent?'✓':'1'}</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-title">Form dikirim ke orang tua</div>
+          ${sent ? `<div class="tl-date">${fmtDate(sent)}</div>` : `<div class="tl-sub">Belum dikirim</div>`}
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot ${ortuOk?'done':sent?'active':''}">${ortuOk?'✓':'2'}</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-title">Orang tua mengisi form</div>
+          ${ortuOk ? `<div class="tl-date">${fmtDate(rec.tanggalOrtu)}</div>` : `<div class="tl-sub">${sent?'Menunggu orang tua':'—'}</div>`}
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot ${guruOk?'done':ortuOk?'active':''}">${guruOk?'✓':'3'}</div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-title">Guru mengisi form observasi</div>
+          ${guruOk ? `<div class="tl-date">${fmtDate(rec.tanggalGuru)}</div>` : `<div class="tl-sub">${ortuOk?'Giliran guru mengisi':'—'}</div>`}
+        </div>
+      </div>
+    </div>
   `;
 
-  // Status timeline
-  html += `<div class="sec-lbl">Status Screening</div>
-  <div class="stl">
-    <div class="stl-item">
-      <div class="stl-left">
-        <div class="stl-dot ${step1Done?'done':'pending'}">${step1Done?'✓':'1'}</div>
-        <div class="stl-line"></div>
-      </div>
-      <div class="stl-right">
-        <div class="stl-title">Form dikirim ke orang tua</div>
-        ${step1Done ? `<div class="stl-date">${sentDate}</div>` : `<div class="stl-sub">Belum dikirim</div>`}
-      </div>
-    </div>
-    <div class="stl-item">
-      <div class="stl-left">
-        <div class="stl-dot ${step2Done?'done':step1Done?'active':'pending'}">${step2Done?'✓':'2'}</div>
-        <div class="stl-line"></div>
-      </div>
-      <div class="stl-right">
-        <div class="stl-title">Orang tua mengisi form</div>
-        ${step2Done ? `<div class="stl-date">${ortuDate}</div>` : `<div class="stl-sub">${step1Done?'Menunggu orang tua':'—'}</div>`}
-      </div>
-    </div>
-    <div class="stl-item">
-      <div class="stl-left">
-        <div class="stl-dot ${step3Done?'done':step2Done?'active':'pending'}">${step3Done?'✓':'3'}</div>
-      </div>
-      <div class="stl-right">
-        <div class="stl-title">Guru mengisi form observasi</div>
-        ${step3Done ? `<div class="stl-date">${guruDate}</div>` : `<div class="stl-sub">${step2Done?'Giliran guru mengisi':'—'}</div>`}
-      </div>
-    </div>
-  </div>`;
-
   // Hasil jika selesai
-  if (step3Done && skorGab !== null) {
-    html += `<div class="sec-lbl">Hasil Screening Gabungan</div>
-    <div class="score-cards">
-      <div class="score-card"><div class="score-card-num">${skorOrtu??'—'}%</div><div class="score-card-lbl">Skor<br>Orang Tua</div></div>
-      <div class="score-card"><div class="score-card-num">${skorGuru??'—'}%</div><div class="score-card-lbl">Skor<br>Guru</div></div>
-      <div class="score-card"><div class="score-card-num" style="color:${getLevelColor(level)}">${skorGab}%</div><div class="score-card-lbl">Skor<br>Gabungan</div></div>
-    </div>
-    <div class="level-box ${getLevelClass(level)}">
-      <strong>${level||'—'}</strong>
-      ${getLevelDesc(level, siswa.nama.split(' ')[0])}
-    </div>`;
+  if (guruOk && skorGab !== null) {
+    html += `
+      <div class="sec-lbl">Hasil Screening Gabungan</div>
+      <div class="score-row">
+        <div class="score-card"><div class="score-num">${skorOrtu??'—'}%</div><div class="score-lbl">Skor<br>Orang Tua</div></div>
+        <div class="score-card"><div class="score-num">${skorGuru??'—'}%</div><div class="score-lbl">Skor<br>Guru</div></div>
+        <div class="score-card"><div class="score-num" style="color:${lvColor(level)}">${skorGab}%</div><div class="score-lbl">Skor<br>Gabungan</div></div>
+      </div>
+      <div class="level-box ${lvClass(level)}">
+        <strong>${level||'—'}</strong>${lvDesc(level, s.nama.split(' ')[0])}
+      </div>
+    `;
   }
 
-  // Action buttons
-  html += `<div class="sec-lbl" style="margin-top:4px">Tindakan</div>`;
+  // Tombol aksi
+  html += `<div class="sec-lbl" style="margin-top:4px;">Tindakan</div>`;
 
-  if (!step1Done) {
-    html += `<button class="action-btn btn-wa" onclick="openWAPopup()">
-      <svg width="16" height="16" viewBox="0 0 24 24" style="fill:#fff;stroke:none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+  if (!sent) {
+    html += `<button class="btn btn-wa btn-full" onclick="prepareWA()">
+      <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
       Kirim Form ke Orang Tua
     </button>`;
-  } else if (step1Done && !step2Done) {
-    html += `<button class="action-btn btn-outline" onclick="openWAPopup()">
+  } else if (sent && !ortuOk) {
+    html += `<button class="btn btn-ghost btn-full" onclick="prepareWA()">
       <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
-      Kirimkan Pengingat
+      Kirimkan Pengingat ke Orang Tua
     </button>`;
-  } else if (step2Done && !step3Done) {
-    const formGuruUrl = `https://markaz-belajar.github.io/app/obs.autism.teach.html?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(siswa.nama)}`;
-    html += `<button class="action-btn btn-blue" onclick="window.open('${formGuruUrl}','_blank')">
+  } else if (ortuOk && !guruOk) {
+    html += `<button class="btn btn-accent btn-full" onclick="openFormGuru()">
       <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       Isi Form Observasi Guru
     </button>`;
-  } else if (step3Done && level && ['Moderat','Kuat','Sangat kuat'].includes(level)) {
-    html += `<button class="action-btn btn-red" onclick="alert('Form Tahap 2 segera tersedia.')">
+  } else if (guruOk && level && ['Moderat','Kuat','Sangat kuat'].includes(level)) {
+    html += `<button class="btn btn-danger btn-full" onclick="showToast('Form Tahap 2 segera tersedia.',false)">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
       Kirim Form Tahap 2
     </button>`;
-    html += `<button class="action-btn btn-outline" onclick="openWAPopup()">
+    html += `<button class="btn btn-ghost btn-full" onclick="prepareWA()">
       <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       Bagikan Hasil ke Orang Tua
     </button>`;
-  } else if (step3Done) {
-    html += `<button class="action-btn btn-gray" disabled>✓ Screening selesai</button>`;
+  } else if (guruOk) {
+    html += `<button class="btn btn-ghost btn-full" style="opacity:.5;cursor:default;">✓ Screening selesai</button>`;
   }
 
-  document.getElementById('sheet-body').innerHTML = html;
+  document.getElementById('sheetBody').innerHTML = html;
 
-  // Prepare WA data
-  const formUrl = `${FORM_BASE}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(siswa.nama)}&ibu=${encodeURIComponent(namaIbu)}&wa=${encodeURIComponent(waIbu)}`;
+  // Siapkan WA data
+  const formUrl = `${FORM_ORTU}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}&ibu=${encodeURIComponent(namaIbu)}&wa=${encodeURIComponent(waIbu)}`;
   const waNum = normalizeWA(waIbu);
-  const namaDepan = siswa.nama.split(' ')[0];
-  const namaIbuDepan = namaIbu.split(' ')[0];
+  const namaDepan = s.nama.split(' ')[0];
+  const ibuDepan  = namaIbu.split(' ')[0];
 
   let waMsg = '';
-  if (step3Done && level) {
-    waMsg = `Assalamualaikum, Bunda ${namaIbuDepan}! 👋\n\nTim Markaz Belajar telah menyelesaikan proses observasi awal untuk *${namaDepan}*.\n\nHasil screening telah tersedia dan tim kami ingin berdiskusi lebih lanjut. Kami akan segera menghubungi Bunda untuk menjadwalkan pertemuan.\n\nTerima kasih atas kepercayaan Bunda! 🌟\n_Tim Markaz Belajar_`;
+  if (guruOk && level) {
+    waMsg = `Assalamualaikum, Bunda ${ibuDepan}! 👋\n\nTim Markaz Belajar telah menyelesaikan proses observasi awal untuk *${namaDepan}*.\n\nKami ingin mengundang Bunda untuk berdiskusi lebih lanjut mengenai hasilnya. Tim kami akan segera menghubungi Bunda. 🌟\n\nTerima kasih atas kepercayaan Bunda!\n_Tim Markaz Belajar_`;
   } else {
-    waMsg = `Assalamualaikum, Bunda ${namaIbuDepan}! 👋\n\nTim Markaz Belajar mengundang Bunda untuk mengisi *Formulir Kenali Si Kecil* — formulir singkat untuk membantu kami memahami dan mendampingi *${namaDepan}* dengan lebih baik. 💛\n\n📝 Silakan isi melalui link berikut:\n${formUrl}\n\nHanya butuh ±7 menit. Tidak ada jawaban benar atau salah. 🌟\n\nTerima kasih, Bunda!\n_Tim Markaz Belajar_`;
+    waMsg = `Assalamualaikum, Bunda ${ibuDepan}! 👋\n\nTim Markaz Belajar mengundang Bunda untuk mengisi *Formulir Kenali Si Kecil* — formulir singkat untuk membantu kami memahami dan mendampingi *${namaDepan}* dengan lebih baik. 💛\n\n📝 Silakan isi melalui link berikut:\n${formUrl}\n\nHanya butuh ±7 menit. Tidak ada jawaban benar atau salah. 🌟\n\nTerima kasih, Bunda!\n_Tim Markaz Belajar_`;
   }
 
-  pendingWAData = { waNum, waMsg, genId, namaAnak: siswa.nama, namaIbu, waIbu };
-  document.getElementById('wa-preview-text').textContent = waMsg;
+  pendingWA = { waNum, waMsg, genId, namaAnak: s.nama, namaIbu, waIbu };
+  document.getElementById('waPreview').textContent = waMsg;
 }
 
-// ── WA Popup ──
-function openWAPopup() {
-  if(!pendingWAData) return;
-  document.getElementById('wa-overlay').classList.add('open');
+function openFormGuru() {
+  const s = currentSiswa;
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  const url = `${FORM_GURU}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}`;
+  window.open(url, '_blank');
 }
-function closeWAPopup() {
-  document.getElementById('wa-overlay').classList.remove('open');
+
+function prepareWA() {
+  if (!pendingWA) return;
+  document.getElementById('waOverlay').classList.add('open');
 }
+
+function closeWA() {
+  document.getElementById('waOverlay').classList.remove('open');
+}
+
 async function doSendWA() {
-  if (!pendingWAData) return;
-  const { waNum, waMsg, genId, namaAnak, namaIbu, waIbu } = pendingWAData;
-  // Mark as sent in sheet
+  if (!pendingWA) return;
+  const { waNum, waMsg, genId, namaAnak, namaIbu, waIbu } = pendingWA;
+
   try {
-    await apiScreening('markScreeningKirim', { genId, namaAnak, namaIbu, waIbu });
-    // Update local screeningMap
+    await apiGet(API_SCREENING, { action:'markScreeningKirim', genId, namaAnak, namaIbu, waIbu });
     if (!screeningMap[genId]) screeningMap[genId] = {};
-    if (!screeningMap[genId].tanggalKirim) {
-      screeningMap[genId].tanggalKirim = new Date().toISOString();
-      screeningMap[genId].statusOrtu = 'menunggu';
-    }
-    renderList();
-    updateStats();
+    screeningMap[genId].tanggalKirim = new Date().toISOString();
+    screeningMap[genId].statusOrtu = 'menunggu';
+    renderList(); updateStats();
   } catch(e) {}
+
   window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(waMsg)}`);
-  closeWAPopup();
+  closeWA();
   closeSheet();
 }
 
-// ── Helpers ──
+// ── Level helpers ──
+function lvColor(l) {
+  return { Minimal:'var(--success)', 'Perlu pantau':'var(--accent)', Moderat:'var(--warning)', Kuat:'#b45309', 'Sangat kuat':'var(--danger)' }[l] || 'var(--text3)';
+}
+function lvClass(l) {
+  return { Minimal:'lv-min', 'Perlu pantau':'lv-pan', Moderat:'lv-mod', Kuat:'lv-kua', 'Sangat kuat':'lv-san' }[l] || 'lv-pan';
+}
+function lvDesc(l, nama) {
+  return { Minimal:`Indikator tumbuh kembang atipikal tidak tampak menonjol pada ${nama}. Lanjutkan pemantauan rutin.`, 'Perlu pantau':`Beberapa pola perlu diperhatikan pada ${nama}. Lanjutkan observasi 4–6 minggu ke depan.`, Moderat:`Pola cukup konsisten terdeteksi pada ${nama}. Rekomendasikan diskusi lebih dalam dengan orang tua.`, Kuat:`Pola konsisten pada ${nama}. Segera jadwalkan pertemuan orang tua dan rekomendasikan asesmen formal.`, 'Sangat kuat':`Pola sangat konsisten pada ${nama}. Prioritaskan rujukan ke psikolog klinis anak segera.` }[l] || '';
+}
+
+// ── Utils ──
+function normalizeWA(raw) {
+  let n = String(raw||'').replace(/\D/g,'');
+  if (n.startsWith('0')) n = '62' + n.slice(1);
+  if (!n.startsWith('62')) n = '62' + n;
+  return n;
+}
 function fmtDate(iso) {
   if (!iso) return '—';
-  const d = new Date(iso);
-  if (isNaN(d)) return iso;
-  return d.toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' });
+  try { return new Date(iso).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }); }
+  catch { return iso; }
 }
-function getLevelColor(l) {
-  const m = {Minimal:'#16a34a','Perlu pantau':'#0686c7',Moderat:'#d97706',Kuat:'#b45309','Sangat kuat':'#dc2626'};
-  return m[l] || '#6b7280';
-}
-function getLevelClass(l) {
-  const m = {Minimal:'level-minimal','Perlu pantau':'level-pantau',Moderat:'level-moderat',Kuat:'level-kuat','Sangat kuat':'level-sangat'};
-  return m[l] || 'level-pantau';
-}
-function getLevelDesc(l, nama) {
-  const m = {
-    Minimal:`Indikator tumbuh kembang atipikal tidak tampak menonjol pada ${nama}. Lanjutkan pemantauan rutin.`,
-    'Perlu pantau':`Beberapa pola perlu diperhatikan pada ${nama}. Lanjutkan observasi dan dokumentasi selama 4–6 minggu ke depan.`,
-    Moderat:`Pola yang cukup konsisten terdeteksi pada ${nama}. Rekomendasikan diskusi lebih dalam dengan orang tua dan pertimbangkan rujukan.`,
-    Kuat:`Pola konsisten di beberapa domain penting pada ${nama}. Segera jadwalkan pertemuan dengan orang tua dan rekomendasikan asesmen formal.`,
-    'Sangat kuat':`Pola sangat konsisten hampir di semua domain pada ${nama}. Prioritaskan pertemuan orang tua dan rujukan ke psikolog klinis anak.`
+function setSyncStatus(state, msg) {
+  const el = document.getElementById('syncStatus');
+  const icons = {
+    ok: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>',
+    syncing: '<svg class="spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>',
+    error:   '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>',
   };
-  return m[l] || '';
+  el.innerHTML = (icons[state]||'') + `<span>${msg}</span>`;
+}
+function showToast(msg, ok) {
+  const t = document.createElement('div');
+  t.style.cssText = `position:fixed;bottom:20px;right:20px;background:${ok?'var(--success)':'var(--danger)'};color:#fff;padding:12px 16px;border-radius:10px;font-size:13px;font-weight:500;z-index:9999;box-shadow:0 4px 16px rgba(0,0,0,0.2);max-width:300px;`;
+  t.textContent = msg;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
 }
 
-// ════════════════════════════════════════════════════════════
-// MAIN
-async function init() {
-  const loadingEl = document.getElementById('loading');
+// ── Dark mode ──
+function toggleDark() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  if (dark) { document.documentElement.removeAttribute('data-theme'); localStorage.setItem('mb_theme','light'); }
+  else { document.documentElement.setAttribute('data-theme','dark'); localStorage.setItem('mb_theme','dark'); }
+  document.getElementById('darkLbl').textContent = dark ? 'Mode Gelap' : 'Mode Terang';
+}
 
-  // ── Step 1: Load data siswa ──
+// ── Hamburger ──
+function toggleHam() {
+  const m = document.getElementById('hamMenu');
+  m.style.display = m.style.display === 'block' ? 'none' : 'block';
+}
+function closeHam() { document.getElementById('hamMenu').style.display = 'none'; }
+document.addEventListener('click', e => {
+  if (!e.target.closest('#hamBtn') && !e.target.closest('#hamMenu'))
+    document.getElementById('hamMenu').style.display = 'none';
+});
+
+// ── MAIN INIT ──
+async function init() {
+  if (localStorage.getItem('mb_theme') === 'dark')
+    document.documentElement.setAttribute('data-theme','dark');
+
+  setSyncStatus('syncing', 'Memuat siswa...');
+
+  // 1. Load data siswa
   let rSiswa;
   try {
-    loadingEl.querySelector('.loading-txt').textContent = 'Memuat data siswa...';
-    rSiswa = await apiScreening('getAllSiswa');
+    rSiswa = await apiGet(API_MAIN, { action:'getAllSiswa' });
   } catch(e) {
-    showErr('Koneksi gagal ke server utama', 'Pastikan internet aktif. Error: ' + e.message);
+    try { rSiswa = await apiGet(API_MAIN, { action:'getSiswa' }); }
+    catch(e2) { rSiswa = { ok:false, error: e2.message }; }
+  }
+
+  if (!rSiswa || !rSiswa.ok || !rSiswa.data) {
+    setSyncStatus('error', 'Gagal memuat siswa');
+    document.getElementById('listWrap').innerHTML = `
+      <div class="empty-state">
+        <div class="empty-icon">⚠️</div>
+        <div class="empty-lbl">Gagal memuat data</div>
+        <div style="font-size:11px;margin-top:4px;color:var(--text3);">${rSiswa?.error||'Coba lagi'}</div>
+        <button onclick="init()" style="margin-top:12px;padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;">Coba Lagi</button>
+      </div>`;
     return;
   }
 
-  // Handle both {ok:true} and {status:"ok"} response formats
-  const siswaOk = rSiswa && (rSiswa.ok === true || rSiswa.status === 'ok');
-  if (!siswaOk || !rSiswa.data) {
-    showErr('Gagal memuat data siswa', 'Respons: ' + JSON.stringify(rSiswa));
-    return;
-  }
+  allSiswa = (rSiswa.data || []).filter(s => s.nama);
 
-  allSiswa = (rSiswa.data || rSiswa.siswa || []).filter(s => s.nama && s.id);
-
-  // ── Step 2: Load screening status (optional, tidak gagalkan halaman) ──
+  // 2. Load screening status (tidak gagalkan halaman)
   try {
-    loadingEl.querySelector('.loading-txt').textContent = 'Memuat status screening...';
-    const rScreening = await apiScreening('getScreeningStatus');
-    if (rScreening && rScreening.ok) {
-      (rScreening.data || []).forEach(rec => {
-        if (rec.genId) screeningMap[rec.genId] = rec;
-      });
+    setSyncStatus('syncing', 'Memuat status screening...');
+    const rScreen = await apiGet(API_SCREENING, { action:'getScreeningStatus' });
+    if (rScreen && rScreen.ok) {
+      (rScreen.data || []).forEach(r => { if (r.genId) screeningMap[r.genId] = r; });
     }
-  } catch(e) {
-    console.warn('Screening status gagal dimuat (tidak kritis):', e.message);
-  }
+  } catch(e) { /* optional, lanjut */ }
 
-  // ── Tampilkan halaman ──
-  document.getElementById('loading').style.display = 'none';
-  document.getElementById('main').style.display = 'block';
+  setSyncStatus('ok', `${allSiswa.length} siswa · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
   updateStats();
   renderList();
-}
-
-function showErr(title, detail) {
-  document.getElementById('loading').innerHTML = `
-    <div style="text-align:center;padding:2rem;">
-      <div style="font-size:36px;margin-bottom:10px;">⚠️</div>
-      <div style="font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--ink);">${title}</div>
-      <div style="font-size:11px;color:var(--ink-faint);margin-top:8px;padding:8px;background:#f0f0f0;border-radius:8px;text-align:left;word-break:break-all;">${detail}</div>
-      <button onclick="location.reload()" style="margin-top:16px;padding:10px 20px;background:var(--blue);color:#fff;border:none;border-radius:10px;cursor:pointer;font-weight:700;">Coba lagi</button>
-    </div>`;
 }
 
 init();
