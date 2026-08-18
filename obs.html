@@ -86,7 +86,8 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 .student-info{flex:1;min-width:0;}
 .student-name{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .student-meta{font-size:11px;color:var(--text3);margin-top:1px;}
-.status-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.status-badge{font-size:10px;font-weight:700;padding:4px 10px;border-radius:99px;white-space:nowrap;flex-shrink:0;display:inline-flex;align-items:center;gap:3px;}
+.status-badge svg{width:10px;height:10px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2.5;stroke-linecap:round;stroke-linejoin:round;}
 .st-belum{background:var(--surface2);color:var(--text3);border:1px solid var(--border);}
 .st-menunggu{background:var(--warning-dim);color:var(--warning);}
 .st-ortu{background:var(--accent-dim);color:var(--accent);}
@@ -300,7 +301,7 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
   <!-- List -->
   <div class="sec" style="padding:12px;">
     <div id="listWrap">
-      <div class="empty-state"><div class="empty-icon">⏳</div><div class="empty-lbl">Memuat data siswa...</div></div>
+      <div class="empty-state"><div class="empty-icon"><svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:34px;height:34px;color:var(--accent);"><path d="M21 12a9 9 0 1 1-9-9"/></svg></div><div class="empty-lbl">Memuat data siswa...</div></div>
     </div>
   </div>
 </div>
@@ -320,7 +321,7 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
       </div>
     </div>
     <div class="sheet-body" id="sheetBody">
-      <div class="empty-state" style="padding:20px 0;"><div class="empty-icon">⏳</div></div>
+      <div class="empty-state" style="padding:20px 0;"><div class="empty-icon"><svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:34px;height:34px;color:var(--accent);"><path d="M21 12a9 9 0 1 1-9-9"/></svg></div></div>
     </div>
   </div>
 </div>
@@ -376,7 +377,7 @@ const STATUS_META = {
   menunggu:     { label:'Menunggu ortu', cls:'st-menunggu' },
   ortu_selesai: { label:'Ortu selesai',  cls:'st-ortu' },
   selesai:      { label:'Selesai',       cls:'st-selesai' },
-  perlu_lanjut: { label:'⚠ Perlu lanjut', cls:'st-lanjut' },
+  perlu_lanjut: { label:'<svg viewBox="0 0 24 24"><path d="M12 9v3.5"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 16h.01"/></svg> Perlu lanjut', cls:'st-lanjut' },
 };
 
 // ── Filter ──
@@ -404,7 +405,7 @@ function renderList() {
   data.sort((a,b) => (ord[getStatus(a)]||5) - (ord[getStatus(b)]||5));
 
   if (!data.length) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon">🔍</div><div class="empty-lbl">Tidak ada siswa di kategori ini</div></div>`;
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:38px;height:38px;color:var(--text3);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="empty-lbl">Tidak ada siswa di kategori ini</div></div>`;
     return;
   }
 
@@ -449,7 +450,7 @@ async function openSheet(id) {
   document.getElementById('sh-name').textContent = s.nama;
   document.getElementById('sh-meta').textContent = (s.program || s.kelas || '—') + ' · ' + (s.usia || '—');
   document.getElementById('sh-genid').textContent = s.nomorInduk || ('ID-' + s.id);
-  document.getElementById('sheetBody').innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">⏳</div></div>';
+  document.getElementById('sheetBody').innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="empty-icon"><svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:34px;height:34px;color:var(--accent);"><path d="M21 12a9 9 0 1 1-9-9"/></svg></div></div>';
 
   document.getElementById('sheetOverlay').classList.add('open');
   document.body.style.overflow = 'hidden';
@@ -519,7 +520,7 @@ function showSoonToast() {
 async function selectType(type) {
   if (type !== 'asd') return;
   sheetView = 'asd';
-  document.getElementById('sheetBody').innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="empty-icon">⏳</div></div>';
+  document.getElementById('sheetBody').innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="empty-icon"><svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:34px;height:34px;color:var(--accent);"><path d="M21 12a9 9 0 1 1-9-9"/></svg></div></div>';
 
   const genId = currentSiswa.nomorInduk || ('ID-' + currentSiswa.id);
   let rec = null;
@@ -771,7 +772,7 @@ async function init() {
     setSyncStatus('error', 'Gagal memuat siswa');
     document.getElementById('listWrap').innerHTML = `
       <div class="empty-state">
-        <div class="empty-icon">⚠️</div>
+        <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:38px;height:38px;color:var(--danger);"><path d="M12 9v3.5"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 16h.01"/></svg></div>
         <div class="empty-lbl">Gagal memuat data</div>
         <div style="font-size:11px;margin-top:4px;color:var(--text3);">${rSiswa?.error||'Coba lagi'}</div>
         <button onclick="init()" style="margin-top:12px;padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;">Coba Lagi</button>
