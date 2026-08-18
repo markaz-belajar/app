@@ -752,10 +752,14 @@ async function init() {
 
   setSyncStatus('syncing', 'Memuat siswa...');
 
-  // 1. Load data siswa
+  // 1. Load data siswa — coba getAllSiswa dari screening API dulu, fallback ke getSiswa
   let rSiswa;
   try {
-    rSiswa = await apiGet(API_MAIN, { action:'getAllSiswa' });
+    rSiswa = await apiGet(API_SCREENING, { action:'getAllSiswa' });
+    if (!rSiswa?.ok) {
+      // fallback ke getSiswa di API_MAIN (laporan.html URL)
+      rSiswa = await apiGet(API_MAIN, { action:'getSiswa' });
+    }
   } catch(e) {
     try { rSiswa = await apiGet(API_MAIN, { action:'getSiswa' }); }
     catch(e2) { rSiswa = { ok:false, error: e2.message }; }
