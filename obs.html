@@ -28,16 +28,14 @@
 html,body{height:100%;width:100%;}
 body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer-bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;transition:background .3s,color .3s;}
 
-/* ── HEADER ── */
-.hdr{background:var(--hdr-bg);overflow:hidden;transition:background .3s;position:relative;}
-.hdr-b1{position:absolute;top:-30px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.07);}
-.hdr-b2{position:absolute;bottom:-50px;left:-30px;width:130px;height:130px;border-radius:50%;background:rgba(243,213,101,0.12);}
-.hdr-b3{position:absolute;top:40px;left:30%;width:50px;height:50px;border-radius:50%;background:rgba(255,255,255,0.05);}
+/* ── HEADER BLOCK (hdr + greeting card share one solid blue background, no seam) ── */
+.hdr-block{background:var(--hdr-bg);padding-bottom:26px;transition:background .3s;}
+.hdr{background:var(--hdr-bg);position:relative;transition:background .3s;}
 .hdr-topbar{position:relative;z-index:2;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
 .hdr-topbar-left{display:flex;align-items:center;gap:8px;}
-.hdr-inner{position:relative;z-index:2;padding:4px 20px 46px;display:flex;flex-direction:column;align-items:center;}
+.hdr-inner{position:relative;z-index:2;padding:4px 20px 30px;display:flex;flex-direction:column;align-items:center;}
 .hdr-logo-img{width:90px;margin-bottom:0;}
-.hdr-greeting{margin:0 14px;margin-top:-24px;position:relative;z-index:10;}
+.hdr-greeting{margin:0 14px;position:relative;z-index:10;}
 .hdr-greeting-card{background:#fff;border-radius:20px;box-shadow:0 4px 24px rgba(28,43,58,0.12);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;}
 .hdr-greeting-card h2{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:#1C2B3A;line-height:1.2;}
 .hdr-greeting-card p{font-size:12px;color:#8FA4B4;margin-top:2px;}
@@ -47,13 +45,13 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 [data-theme="dark"] .hdr-greeting-card p{color:var(--text3);}
 [data-theme="dark"] .hdr-greeting-badge{background:var(--accent-dim);color:var(--accent);}
 
-/* ── NAV FILTER ── */
-.nav-tabs{padding:12px 14px 10px;background:var(--hdr-bg);position:sticky;top:0;z-index:200;transition:background .3s;}
-.tab-bar-pill{background:rgba(255,255,255,0.18);border-radius:50px;padding:4px;display:flex;gap:2px;border:1.5px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px);overflow-x:auto;scrollbar-width:none;}
-.tab-bar-pill::-webkit-scrollbar{display:none;}
-.nav-tab{flex-shrink:0;padding:8px 14px;border:none;background:transparent;border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12.5px;font-weight:600;color:rgba(255,255,255,0.65);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap;}
-.nav-tab:hover{color:#fff;background:rgba(255,255,255,0.1);}
-.nav-tab.active{background:#fff;color:#1B6CA8;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+/* ── NAV FILTER (compact, wraps to next line instead of cramming/scrolling) ── */
+.nav-tabs{padding:10px 14px 12px;background:var(--hdr-bg);position:sticky;top:0;z-index:200;transition:background .3s;}
+.tab-bar-pill{display:flex;flex-wrap:wrap;gap:6px;}
+.nav-tab{padding:7px 13px;border:1.5px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.10);border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap;}
+.nav-tab svg{width:12px;height:12px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,0.18);}
+.nav-tab.active{background:#fff;color:#1B6CA8;border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
 
 /* ── SYNC STATUS ── */
 #syncStatus{display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;font-weight:500;}
@@ -209,53 +207,54 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 </style>
 </head>
 <body>
-<div style="max-width:480px;margin:0 auto;min-height:100vh;background:linear-gradient(to bottom,var(--hdr-bg) 0%,var(--hdr-bg) 180px,var(--bg) 180px);box-shadow:0 0 40px rgba(28,43,58,0.15);">
+<div style="max-width:480px;margin:0 auto;min-height:100vh;background:var(--bg);box-shadow:0 0 40px rgba(28,43,58,0.15);">
 
-<!-- ── HEADER ── -->
-<div class="hdr">
-  <div class="hdr-b1"></div><div class="hdr-b2"></div><div class="hdr-b3"></div>
-  <div class="hdr-topbar">
-    <div class="hdr-topbar-left">
-      <button onclick="history.back()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <div id="syncStatus" style="display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.8);font-weight:500;">
-        <svg class="spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
-        <span>Memuat...</span>
+<!-- ── HEADER BLOCK ── -->
+<div class="hdr-block">
+  <div class="hdr">
+    <div class="hdr-topbar">
+      <div class="hdr-topbar-left">
+        <button onclick="history.back()" style="width:32px;height:32px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div id="syncStatus" style="display:flex;align-items:center;gap:5px;font-size:11px;color:rgba(255,255,255,0.8);font-weight:500;">
+          <svg class="spin" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+          <span>Memuat...</span>
+        </div>
+      </div>
+      <div style="position:relative;">
+        <button class="ham-btn" id="hamBtn" onclick="toggleHam()">
+          <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+        </button>
+        <div class="ham-menu" id="hamMenu">
+          <button class="ham-item" onclick="toggleDark();closeHam()">
+            <div class="ham-item-icon" style="background:var(--warning-dim);color:var(--warning);">
+              <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+            </div>
+            <span id="darkLbl">Mode Gelap</span>
+          </button>
+          <button class="ham-item" onclick="init();closeHam()">
+            <div class="ham-item-icon" style="background:var(--success-dim);color:var(--success);">
+              <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>
+            </div>
+            Reload Data
+          </button>
+        </div>
       </div>
     </div>
-    <div style="position:relative;">
-      <button class="ham-btn" id="hamBtn" onclick="toggleHam()">
-        <svg viewBox="0 0 24 24"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-      </button>
-      <div class="ham-menu" id="hamMenu">
-        <button class="ham-item" onclick="toggleDark();closeHam()">
-          <div class="ham-item-icon" style="background:var(--warning-dim);color:var(--warning);">
-            <svg viewBox="0 0 24 24"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-          </div>
-          <span id="darkLbl">Mode Gelap</span>
-        </button>
-        <button class="ham-item" onclick="init();closeHam()">
-          <div class="ham-item-icon" style="background:var(--success-dim);color:var(--success);">
-            <svg viewBox="0 0 24 24"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-5"/></svg>
-          </div>
-          Reload Data
-        </button>
-      </div>
+    <div class="hdr-inner">
+      <img class="hdr-logo-img" src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" alt="MB" onerror="this.style.display='none'">
     </div>
   </div>
-  <div class="hdr-inner">
-    <img class="hdr-logo-img" src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" alt="MB" onerror="this.style.display='none'">
-  </div>
-</div>
 
-<div class="hdr-greeting">
-  <div class="hdr-greeting-card">
-    <div>
-      <h2>Screening Test</h2>
-      <p>Tumbuh kembang siswa Markaz Belajar</p>
+  <div class="hdr-greeting">
+    <div class="hdr-greeting-card">
+      <div>
+        <h2>Screening Test</h2>
+        <p>Tumbuh kembang siswa Markaz Belajar</p>
+      </div>
+      <div class="hdr-greeting-badge" id="hdrBadge">● Memuat</div>
     </div>
-    <div class="hdr-greeting-badge" id="hdrBadge">● Memuat</div>
   </div>
 </div>
 
@@ -263,11 +262,14 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 <div class="nav-tabs">
   <div class="tab-bar-pill">
     <button class="nav-tab active" onclick="setFilter('semua',this)">Semua</button>
-    <button class="nav-tab" onclick="setFilter('belum_kirim',this)">Belum dikirim</button>
-    <button class="nav-tab" onclick="setFilter('menunggu',this)">Menunggu ortu</button>
-    <button class="nav-tab" onclick="setFilter('ortu_selesai',this)">Ortu selesai</button>
+    <button class="nav-tab" onclick="setFilter('belum_kirim',this)">Belum Kirim</button>
+    <button class="nav-tab" onclick="setFilter('menunggu',this)">Menunggu</button>
+    <button class="nav-tab" onclick="setFilter('ortu_selesai',this)">Ortu Selesai</button>
     <button class="nav-tab" onclick="setFilter('selesai',this)">Selesai</button>
-    <button class="nav-tab" onclick="setFilter('perlu_lanjut',this)">⚠ Perlu lanjut</button>
+    <button class="nav-tab" onclick="setFilter('perlu_lanjut',this)">
+      <svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 17h.01"/></svg>
+      Perlu Lanjut
+    </button>
   </div>
 </div>
 
