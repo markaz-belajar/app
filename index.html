@@ -92,6 +92,7 @@
     .badge-row {
       display: flex;
       align-items: center;
+      justify-content: space-between;
       margin-bottom: 14px;
     }
     .active-badge {
@@ -115,6 +116,25 @@
     @keyframes pulse-dot {
       0%, 100% { box-shadow: 0 0 0 0 rgba(29,105,166,0.4); }
       50%       { box-shadow: 0 0 0 5px rgba(29,105,166,0); }
+    }
+
+    /* DAY / YEAR BADGE (kanan, satu baris dengan Active) */
+    .day-year-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: #E7F4FD;
+      color: #1D69A6;
+      font-size: 11px;
+      font-weight: 600;
+      padding: 5px 13px;
+      border-radius: 50px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+    .day-year-badge .season-emoji {
+      font-size: 12px;
+      line-height: 1;
     }
 
     /* HERO CARD */
@@ -153,6 +173,8 @@
       color: #fff;
       line-height: 1.1;
       letter-spacing: -0.3px;
+      transition: opacity 0.4s ease;
+      min-height: 76px;
     }
     .hero-greeting {
       font-size: 12px;
@@ -375,12 +397,16 @@
           <div class="active-dot"></div>
           Active
         </div>
+        <div class="day-year-badge" id="dayYearBadge">
+          <span class="season-emoji" id="seasonEmoji">☀️</span>
+          <span id="dayYearText">Day 614 · Year 1</span>
+        </div>
       </div>
 
       <!-- HERO CARD -->
       <div class="hero-card">
         <div class="hero-text">
-          <h2>Hello<br>Teacher !</h2>
+          <h2 id="heroQuote">Hello<br>Teacher!</h2>
           <div class="hero-greeting">
             <svg id="greetingIcon" class="greeting-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <circle cx="12" cy="12" r="4" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/>
@@ -671,6 +697,58 @@
       textEl.textContent = 'Good Evening';
       iconEl.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>';
     }
+
+    /* ── DAY / YEAR / SEASON TRACKER ──
+       Mulai: 14 Desember 2024 = Day 1, Year 0
+       Semua dihitung otomatis dari tanggal hari ini — tidak perlu diupdate manual. */
+    const START_DATE = new Date(2024, 11, 14);
+
+    function getDayNumber(now) {
+      const startMid = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+      const nowMid = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return Math.round((nowMid - startMid) / 86400000) + 1;
+    }
+
+    function getYearNumber(now) {
+      let year = now.getFullYear() - START_DATE.getFullYear();
+      const anniversary = new Date(now.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+      if (now < anniversary) year--;
+      return year;
+    }
+
+    function getSeason(now) {
+      const m = now.getMonth() + 1; // 1-12
+      if (m === 12 || m === 1 || m === 2) return { name: 'Winter', emoji: '❄️' };
+      if (m >= 3 && m <= 5)  return { name: 'Spring', emoji: '🌸' };
+      if (m >= 6 && m <= 8)  return { name: 'Summer', emoji: '☀️' };
+      return { name: 'Fall', emoji: '🍂' };
+    }
+
+    (function updateDayYearBadge() {
+      const now = new Date();
+      const day = getDayNumber(now);
+      const year = getYearNumber(now);
+      const season = getSeason(now);
+      document.getElementById('seasonEmoji').textContent = season.emoji;
+      document.getElementById('dayYearText').textContent = `Day ${day} · Year ${year}`;
+    })();
+
+    /* ── ROTATING HERO QUOTES (ganti "Hello Teacher!" tiap 4 detik) ── */
+    const heroQuotes = [
+      () => 'Hello,<br>Teacher!',
+      () => `Hari ke-${getDayNumber(new Date())},<br>Semangat!`,
+      () => 'Kamu<br>Menginspirasi!'
+    ];
+    let heroQuoteIndex = 0;
+    const heroQuoteEl = document.getElementById('heroQuote');
+    setInterval(function () {
+      heroQuoteEl.style.opacity = '0';
+      setTimeout(function () {
+        heroQuoteIndex = (heroQuoteIndex + 1) % heroQuotes.length;
+        heroQuoteEl.innerHTML = heroQuotes[heroQuoteIndex]();
+        heroQuoteEl.style.opacity = '1';
+      }, 400);
+    }, 4000);
 
     window.addEventListener('load', function() {
       var splash = document.getElementById('splash');
