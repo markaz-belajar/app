@@ -92,10 +92,11 @@
     .badge-row {
       display: flex;
       align-items: center;
-      justify-content: space-between;
       margin-bottom: 14px;
     }
-    .active-badge {
+
+    /* DAY / YEAR BADGE — pengganti "Active" */
+    .day-year-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -106,35 +107,9 @@
       padding: 5px 13px;
       border-radius: 50px;
     }
-    .active-dot {
-      width: 7px; height: 7px;
-      border-radius: 50%;
-      background: #1D69A6;
+    .day-year-badge .day-year-icon {
+      width: 14px; height: 14px;
       flex-shrink: 0;
-      animation: pulse-dot 1.8s ease-in-out infinite;
-    }
-    @keyframes pulse-dot {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(29,105,166,0.4); }
-      50%       { box-shadow: 0 0 0 5px rgba(29,105,166,0); }
-    }
-
-    /* DAY / YEAR BADGE (kanan, satu baris dengan Active) */
-    .day-year-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      background: #E7F4FD;
-      color: #1D69A6;
-      font-size: 11px;
-      font-weight: 600;
-      padding: 5px 13px;
-      border-radius: 50px;
-      white-space: nowrap;
-      flex-shrink: 0;
-    }
-    .day-year-badge .season-emoji {
-      font-size: 12px;
-      line-height: 1;
     }
 
     /* HERO CARD */
@@ -173,10 +148,10 @@
       color: #fff;
       line-height: 1.1;
       letter-spacing: -0.3px;
-      transition: opacity 0.4s ease;
-      min-height: 76px;
     }
-    .hero-greeting {
+
+    /* SEASON INDICATOR — pengganti "Good Morning" (blinking, SVG icon, no emoji) */
+    .season-indicator {
       font-size: 12px;
       font-weight: 400;
       color: rgba(255,255,255,0.85);
@@ -187,7 +162,18 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
     }
-    .greeting-icon { width: 16px; height: 16px; flex-shrink: 0; }
+    .season-pulse-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: #fff;
+      flex-shrink: 0;
+      animation: pulse-dot-white 1.8s ease-in-out infinite;
+    }
+    @keyframes pulse-dot-white {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.45); }
+      50%       { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+    }
+    .season-icon { width: 16px; height: 16px; flex-shrink: 0; }
 
     .hero-mascot-wrap {
       width: 160px;
@@ -393,12 +379,11 @@
       </div>
 
       <div class="badge-row">
-        <div class="active-badge">
-          <div class="active-dot"></div>
-          Active
-        </div>
         <div class="day-year-badge" id="dayYearBadge">
-          <span class="season-emoji" id="seasonEmoji">☀️</span>
+          <svg class="day-year-icon" viewBox="0 0 24 24" fill="none" stroke="#1D69A6" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg">
+            <rect x="3" y="4" width="18" height="18" rx="3"/>
+            <path d="M16 2v4M8 2v4M3 10h18"/>
+          </svg>
           <span id="dayYearText">Day 614 · Year 1</span>
         </div>
       </div>
@@ -406,13 +391,11 @@
       <!-- HERO CARD -->
       <div class="hero-card">
         <div class="hero-text">
-          <h2 id="heroQuote">Hello<br>Teacher!</h2>
-          <div class="hero-greeting">
-            <svg id="greetingIcon" class="greeting-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <circle cx="12" cy="12" r="4" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/>
-              <path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/>
-            </svg>
-            <span id="greetingText">Good Morning</span>
+          <h2>Hello<br>Teacher!</h2>
+          <div class="season-indicator" id="seasonIndicator">
+            <span class="season-pulse-dot"></span>
+            <svg id="seasonIcon" class="season-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"></svg>
+            <span id="seasonText">Summer</span>
           </div>
         </div>
         <div class="hero-mascot-wrap">
@@ -684,23 +667,9 @@
   </div>
 
   <script>
-    const hour = new Date().getHours();
-    const textEl = document.getElementById('greetingText');
-    const iconEl = document.getElementById('greetingIcon');
-    if (hour >= 5 && hour < 12) {
-      textEl.textContent = 'Good Morning';
-      iconEl.innerHTML = '<circle cx="12" cy="12" r="4" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/>';
-    } else if (hour >= 12 && hour < 18) {
-      textEl.textContent = 'Good Afternoon';
-      iconEl.innerHTML = '<circle cx="12" cy="14" r="4" stroke="rgba(255,255,255,0.85)" stroke-width="1.8"/><path d="M12 4v2M4.93 6.93l1.41 1.41M19.07 6.93l-1.41 1.41M2 14h2M20 14h2" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/><path d="M3 19h18" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round"/>';
-    } else {
-      textEl.textContent = 'Good Evening';
-      iconEl.innerHTML = '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" fill="none"/>';
-    }
-
-    /* ── DAY / YEAR / SEASON TRACKER ──
+    /* ── DAY / YEAR TRACKER ──
        Mulai: 14 Desember 2024 = Day 1, Year 0
-       Semua dihitung otomatis dari tanggal hari ini — tidak perlu diupdate manual. */
+       Dihitung otomatis dari tanggal hari ini — tidak perlu diupdate manual. */
     const START_DATE = new Date(2024, 11, 14);
 
     function getDayNumber(now) {
@@ -716,39 +685,34 @@
       return year;
     }
 
+    /* Setiap musim punya path SVG sendiri (line-icon, bukan emoji) */
+    const SEASON_ICONS = {
+      Winter: '<path d="M12 2v20"/><path d="M4.93 4.93l14.14 14.14"/><path d="M19.07 4.93L4.93 19.07"/><path d="M9 5l3-2 3 2"/><path d="M9 19l3 2 3-2"/>',
+      Spring: '<path d="M12 22v-9"/><path d="M12 13c0-4.5-3-7.5-7-7.5 0 4.5 3 7.5 7 7.5z"/><path d="M12 13c0-4.5 3-7.5 7-7.5 0 4.5-3 7.5-7 7.5z"/>',
+      Summer: '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+      Fall:   '<path d="M12 21c-5-1-9-5-9-11C3 6 6 3 12 3s9 3 9 7c0 6-4 10-9 11z"/><path d="M12 21V9"/>'
+    };
+
     function getSeason(now) {
       const m = now.getMonth() + 1; // 1-12
-      if (m === 12 || m === 1 || m === 2) return { name: 'Winter', emoji: '❄️' };
-      if (m >= 3 && m <= 5)  return { name: 'Spring', emoji: '🌸' };
-      if (m >= 6 && m <= 8)  return { name: 'Summer', emoji: '☀️' };
-      return { name: 'Fall', emoji: '🍂' };
+      if (m === 12 || m === 1 || m === 2) return 'Winter';
+      if (m >= 3 && m <= 5)  return 'Spring';
+      if (m >= 6 && m <= 8)  return 'Summer';
+      return 'Fall';
     }
 
-    (function updateDayYearBadge() {
+    (function updateBadgeAndSeason() {
       const now = new Date();
-      const day = getDayNumber(now);
-      const year = getYearNumber(now);
-      const season = getSeason(now);
-      document.getElementById('seasonEmoji').textContent = season.emoji;
-      document.getElementById('dayYearText').textContent = `Day ${day} · Year ${year}`;
-    })();
 
-    /* ── ROTATING HERO QUOTES (ganti "Hello Teacher!" tiap 4 detik) ── */
-    const heroQuotes = [
-      () => 'Hello,<br>Teacher!',
-      () => `Hari ke-${getDayNumber(new Date())},<br>Semangat!`,
-      () => 'Kamu<br>Menginspirasi!'
-    ];
-    let heroQuoteIndex = 0;
-    const heroQuoteEl = document.getElementById('heroQuote');
-    setInterval(function () {
-      heroQuoteEl.style.opacity = '0';
-      setTimeout(function () {
-        heroQuoteIndex = (heroQuoteIndex + 1) % heroQuotes.length;
-        heroQuoteEl.innerHTML = heroQuotes[heroQuoteIndex]();
-        heroQuoteEl.style.opacity = '1';
-      }, 400);
-    }, 4000);
+      // Badge Day / Year
+      document.getElementById('dayYearText').textContent =
+        `Day ${getDayNumber(now)} · Year ${getYearNumber(now)}`;
+
+      // Indikator musim (SVG, bukan emoji)
+      const season = getSeason(now);
+      document.getElementById('seasonText').textContent = season;
+      document.getElementById('seasonIcon').innerHTML = SEASON_ICONS[season];
+    })();
 
     window.addEventListener('load', function() {
       var splash = document.getElementById('splash');
