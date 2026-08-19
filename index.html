@@ -777,10 +777,10 @@
         { text: seasonPhrase,     icon: seasonIcon, long: true  }
       ];
 
-      const TYPE_SPEED  = 55; // ms per huruf saat mengetik
-      const ERASE_SPEED = 28; // ms per huruf saat menghapus
-      const SHORT_HOLD  = 1100; // jeda baca untuk salam
-      const LONG_HOLD   = 2400; // jeda baca sedikit lebih lama untuk musim
+      const TYPE_SPEED  = 90;  // ms per huruf saat mengetik (lebih lambat)
+      const ERASE_SPEED = 45;  // ms per huruf saat menghapus (lebih lambat)
+      const SHORT_HOLD  = 2200; // jeda baca untuk salam (lebih lama)
+      const LONG_HOLD   = 4500; // jeda baca musim, mis. "Today is Summer" (lebih lama lagi)
 
       const textEl = document.getElementById('heroStatusText');
       const iconEl = document.getElementById('heroStatusIcon');
