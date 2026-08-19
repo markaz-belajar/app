@@ -672,19 +672,32 @@ function closeWA() {
   document.getElementById('waOverlay').classList.remove('open');
 }
 
-async function doSendWA() {
+// ══════════════════════════════════════════════════════════
+// ⭐ FUNGSI YANG DIPERBAIKI ⭐
+// Dulu: async function + await apiGet(...) SEBELUM window.open()
+//   → window.open() dipanggil setelah "jeda async", jadi diblokir
+//     browser sebagai popup (dianggap bukan hasil klik langsung user).
+// Sekarang: window.open() dipanggil PALING PERTAMA (synchronous,
+//   langsung saat tombol diklik), baru catat ke spreadsheet di
+//   belakang layar tanpa menunggu (.then, bukan await).
+// ══════════════════════════════════════════════════════════
+function doSendWA() {
   if (!pendingWA) return;
   const { waNum, waMsg, genId, namaAnak, namaIbu, waIbu } = pendingWA;
 
-  try {
-    await apiGet(API_SCREENING, { action:'markScreeningKirim', genId, namaAnak, namaIbu, waIbu });
-    if (!screeningMap[genId]) screeningMap[genId] = {};
-    screeningMap[genId].tanggalKirim = new Date().toISOString();
-    screeningMap[genId].statusOrtu = 'menunggu';
-    renderList(); updateStats();
-  } catch(e) {}
+  // 1) Buka WhatsApp LANGSUNG saat tombol diklik
+  window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(waMsg)}`, '_blank');
 
-  window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(waMsg)}`);
+  // 2) Catat status kirim ke spreadsheet di belakang layar (tidak menunda WA)
+  apiGet(API_SCREENING, { action:'markScreeningKirim', genId, namaAnak, namaIbu, waIbu })
+    .then(r => {
+      if (!screeningMap[genId]) screeningMap[genId] = {};
+      screeningMap[genId].tanggalKirim = new Date().toISOString();
+      screeningMap[genId].statusOrtu = 'menunggu';
+      renderList();
+      updateStats();
+    });
+
   closeWA();
   closeSheet();
 }
