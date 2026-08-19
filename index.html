@@ -150,8 +150,8 @@
       letter-spacing: -0.3px;
     }
 
-    /* SEASON INDICATOR — pengganti "Good Morning" (blinking, SVG icon, no emoji) */
-    .season-indicator {
+    /* HERO STATUS — cycling: greeting (EN/ID/JP) & musim, SVG icon, no emoji, no blinking dot */
+    .hero-status {
       font-size: 12px;
       font-weight: 400;
       color: rgba(255,255,255,0.85);
@@ -161,19 +161,15 @@
       gap: 7px;
       text-transform: uppercase;
       letter-spacing: 0.5px;
+      min-height: 16px;
     }
-    .season-pulse-dot {
-      width: 6px; height: 6px;
-      border-radius: 50%;
-      background: #fff;
-      flex-shrink: 0;
-      animation: pulse-dot-white 1.8s ease-in-out infinite;
+    .hero-status-icon {
+      width: 16px; height: 16px; flex-shrink: 0;
+      transition: opacity 0.35s ease;
     }
-    @keyframes pulse-dot-white {
-      0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.45); }
-      50%       { box-shadow: 0 0 0 5px rgba(255,255,255,0); }
+    .hero-status-text {
+      transition: opacity 0.35s ease;
     }
-    .season-icon { width: 16px; height: 16px; flex-shrink: 0; }
 
     .hero-mascot-wrap {
       width: 160px;
@@ -392,10 +388,9 @@
       <div class="hero-card">
         <div class="hero-text">
           <h2>Hello<br>Teacher!</h2>
-          <div class="season-indicator" id="seasonIndicator">
-            <span class="season-pulse-dot"></span>
-            <svg id="seasonIcon" class="season-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"></svg>
-            <span id="seasonText">Summer</span>
+          <div class="hero-status">
+            <svg id="heroStatusIcon" class="hero-status-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"></svg>
+            <span id="heroStatusText" class="hero-status-text">Good Morning</span>
           </div>
         </div>
         <div class="hero-mascot-wrap">
@@ -693,6 +688,13 @@
       Fall:   '<path d="M12 21c-5-1-9-5-9-11C3 6 6 3 12 3s9 3 9 7c0 6-4 10-9 11z"/><path d="M12 21V9"/>'
     };
 
+    /* Icon matahari/bulan sesuai waktu (line-icon, bukan emoji) */
+    const TIME_ICONS = {
+      morning:   '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+      afternoon: '<circle cx="12" cy="14" r="4"/><path d="M12 4v2M4.93 6.93l1.41 1.41M19.07 6.93l-1.41 1.41M2 14h2M20 14h2"/><path d="M3 19h18"/>',
+      evening:   '<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>'
+    };
+
     function getSeason(now) {
       const m = now.getMonth() + 1; // 1-12
       if (m === 12 || m === 1 || m === 2) return 'Winter';
@@ -701,17 +703,68 @@
       return 'Fall';
     }
 
-    (function updateBadgeAndSeason() {
-      const now = new Date();
+    function getTimeGreetings(now) {
+      const hour = now.getHours();
+      if (hour >= 5 && hour < 12) {
+        return { en: 'Good Morning', id: 'Selamat Pagi', jp: 'おはようございます', icon: TIME_ICONS.morning };
+      } else if (hour >= 12 && hour < 18) {
+        return { en: 'Good Afternoon', id: 'Selamat Siang', jp: 'こんにちは', icon: TIME_ICONS.afternoon };
+      } else {
+        return { en: 'Good Evening', id: 'Selamat Malam', jp: 'こんばんは', icon: TIME_ICONS.evening };
+      }
+    }
 
-      // Badge Day / Year
+    (function updateDayYearBadge() {
+      const now = new Date();
       document.getElementById('dayYearText').textContent =
         `Day ${getDayNumber(now)} · Year ${getYearNumber(now)}`;
+    })();
 
-      // Indikator musim (SVG, bukan emoji)
+    /* ── HERO STATUS CYCLE ──
+       Urutan: Good Morning → Musim → Good Morning → Selamat Pagi → おはようございます → Musim → (ulang)
+       Teks salam (EN/ID/JP) tampil cepat, teks musim tampil sedikit lebih lama. */
+    (function runHeroStatusCycle() {
+      const now = new Date();
+      const greet = getTimeGreetings(now);
       const season = getSeason(now);
-      document.getElementById('seasonText').textContent = season;
-      document.getElementById('seasonIcon').innerHTML = SEASON_ICONS[season];
+      const seasonIcon = SEASON_ICONS[season];
+
+      const slides = [
+        { text: greet.en,  icon: greet.icon, long: false },
+        { text: season,    icon: seasonIcon, long: true  },
+        { text: greet.en,  icon: greet.icon, long: false },
+        { text: greet.id,  icon: greet.icon, long: false },
+        { text: greet.jp,  icon: greet.icon, long: false },
+        { text: season,    icon: seasonIcon, long: true  }
+      ];
+
+      const SHORT_DISPLAY = 1600; // salam: cepat tapi cukup untuk dibaca
+      const LONG_DISPLAY  = 3200; // musim: sedikit lebih lama
+      const FADE = 350;
+
+      const textEl = document.getElementById('heroStatusText');
+      const iconEl = document.getElementById('heroStatusIcon');
+      let i = 0;
+
+      function showSlide() {
+        const slide = slides[i];
+        textEl.style.opacity = '0';
+        iconEl.style.opacity = '0';
+        setTimeout(function () {
+          textEl.textContent = slide.text;
+          iconEl.innerHTML = slide.icon;
+          textEl.style.opacity = '1';
+          iconEl.style.opacity = '1';
+          i = (i + 1) % slides.length;
+          setTimeout(showSlide, slide.long ? LONG_DISPLAY : SHORT_DISPLAY);
+        }, FADE);
+      }
+
+      // Tampilkan slide pertama langsung (tanpa fade-out di awal)
+      textEl.textContent = slides[0].text;
+      iconEl.innerHTML = slides[0].icon;
+      i = 1;
+      setTimeout(showSlide, slides[0].long ? LONG_DISPLAY : SHORT_DISPLAY);
     })();
 
     window.addEventListener('load', function() {
