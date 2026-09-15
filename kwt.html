@@ -362,7 +362,6 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
         <label>Penerima (penanda tangan)</label>
         <select id="fPenerimaQuick" onchange="quickFill('fPenerimaQuick','fPenerima')" style="margin-bottom:7px;">
           <option value="">— Pilih cepat dari daftar —</option>
-          <option value="Yessi Marliana, S.Kom.">Yessi Marliana, S.Kom.</option>
           <option value="Elis Rosmiati, S.Pd.">Elis Rosmiati, S.Pd.</option>
           <option value="Nita Fuziati">Nita Fuziati</option>
           <option value="Annisa Zahrotun J, S.Kom.">Annisa Zahrotun J, S.Kom.</option>
@@ -462,7 +461,6 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
       <label>Penerima</label>
       <select id="ePenerimaQuick" onchange="quickFill('ePenerimaQuick','ePenerima')" style="margin-bottom:7px;">
         <option value="">— Pilih cepat dari daftar —</option>
-        <option value="Yessi Marliana, S.Kom.">Yessi Marliana, S.Kom.</option>
         <option value="Elis Rosmiati, S.Pd.">Elis Rosmiati, S.Pd.</option>
         <option value="Nita Fuziati">Nita Fuziati</option>
         <option value="Annisa Zahrotun J, S.Kom.">Annisa Zahrotun J, S.Kom.</option>
@@ -598,8 +596,7 @@ let invoiceRefList = [];
 
 async function loadInvoiceRefList() {
   try {
-    const resp = await fetch(`${INVOICE_GAS_URL}?action=getInvoices&t=${Date.now()}`, { cache: 'no-store' });
-    const data = await resp.json();
+    const data = await fetchJsonSmart(`${INVOICE_GAS_URL}?action=getInvoices&t=${Date.now()}`);
     invoiceRefList = (data.invoices || []).sort((a,b) => (b.invoice_number||'').localeCompare(a.invoice_number||''));
     populateRefInvoiceDropdown();
   } catch(e) {
@@ -660,13 +657,51 @@ function quickFillRefInvoice() {
   sel.selectedIndex = 0;
 }
 
+// ══════════════════════════════════════
+// FETCH SMART — timeout + retry otomatis, supaya sync tidak gampang gagal
+// karena jaringan lemot / GAS lagi "cold start" (baru bangun dari idle).
+// Dipakai untuk operasi BACA (get/verify). Operasi TULIS (save/update/delete)
+// sengaja tidak di-retry otomatis, untuk mencegah data tersimpan dobel.
+// ══════════════════════════════════════
+async function fetchJsonSmart(url, { retries = 2, timeoutMs = 9000 } = {}) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const resp = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(timer);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    } catch (e) {
+      clearTimeout(timer);
+      lastErr = (e.name === 'AbortError') ? new Error('Waktu tunggu habis (timeout)') : e;
+      if (attempt < retries) {
+        await new Promise(res => setTimeout(res, 600 * (attempt + 1))); // jeda sebelum coba lagi
+      }
+    }
+  }
+  throw lastErr;
+}
+
 async function gasPost(action, payload) {
   const encoded = encodeURIComponent(JSON.stringify({ action, ...payload }));
-  const resp = await fetch(`${GAS_URL}?method=post&data=${encoded}`, { cache: 'no-store' });
-  if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  const data = await resp.json();
-  if (data.error) throw new Error(data.error);
-  return data;
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const resp = await fetch(`${GAS_URL}?method=post&data=${encoded}`, { cache: 'no-store', signal: controller.signal });
+    clearTimeout(timer);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    return data;
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Waktu tunggu habis (timeout) — coba lagi.');
+    throw e;
+  }
 }
 
 // ══════════════════════════════════════
@@ -773,13 +808,17 @@ function setSync(state, text) {
   }
 }
 
+const CACHE_KEY = 'mrkz_kuitansi_cache'; // cache read-only hasil fetch terakhir yang berhasil
+
 async function fetchKuitansiFromSheets() {
   if (!hasGasUrl()) return loadLocal();
-  const resp = await fetch(`${GAS_URL}?action=getKuitansi&t=${Date.now()}`, { cache: 'no-store' });
-  if (!resp.ok) throw new Error('HTTP ' + resp.status);
-  const data = await resp.json();
-  if (data.error) throw new Error(data.error);
-  return data.kuitansi || [];
+  const data = await fetchJsonSmart(`${GAS_URL}?action=getKuitansi&t=${Date.now()}`);
+  const list = data.kuitansi || [];
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(list)); } catch(e) {}
+  return list;
+}
+function loadCachedKuitansi() {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '[]'); } catch(e) { return []; }
 }
 async function saveKuitansiToSheets(k) {
   if (!hasGasUrl()) {
@@ -822,7 +861,20 @@ async function loadAll() {
     document.getElementById('fNo').value = generateNextNo(document.getElementById('fDate').value);
     renderLivePreview();
   } catch(e) {
-    setSync('error', 'Gagal sinkron');
+    // Sinkron gagal (jaringan lemot / GAS lagi cold-start) — jangan biarkan
+    // Riwayat mendadak kosong. Tampilkan cache hasil sync terakhir yang berhasil.
+    const cached = loadCachedKuitansi();
+    if (cached.length) {
+      kuitansiList = cached;
+      kuitansiList.sort((a,b) => (b.created_at||'').localeCompare(a.created_at||''));
+      populateFilterBulan();
+      renderList();
+      document.getElementById('fNo').value = generateNextNo(document.getElementById('fDate').value);
+      renderLivePreview();
+      setSync('error', `Gagal sync · tampil data cache (${cached.length})`);
+    } else {
+      setSync('error', 'Gagal sinkron');
+    }
     showToast('Gagal sinkron: ' + e.message, false);
   }
 }
@@ -1667,8 +1719,7 @@ async function runVerification(no, sigInfo) {
   try {
     let found = null;
     if (hasGasUrl()) {
-      const resp = await fetch(`${GAS_URL}?action=verifyKuitansi&no=${encodeURIComponent(no)}&t=${Date.now()}`, { cache: 'no-store' });
-      const data = await resp.json();
+      const data = await fetchJsonSmart(`${GAS_URL}?action=verifyKuitansi&no=${encodeURIComponent(no)}&t=${Date.now()}`);
       found = data && data.found ? data.kuitansi : null;
     } else {
       // fallback: cek localStorage (mode belum tersinkron ke sheets)
