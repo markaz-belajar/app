@@ -115,6 +115,8 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .kw-row:hover{background:rgba(27,108,168,0.045);}
 .kw-row-main{flex:1;min-width:0;}
 .kw-row-no{display:inline-block;font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-dim);padding:2px 8px;border-radius:6px;letter-spacing:.02em;}
+.kw-row-new{background:rgba(46,158,91,0.05);}
+.kw-new-badge{display:inline-flex;align-items:center;gap:3px;background:var(--success);color:#fff;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;letter-spacing:.02em;vertical-align:middle;}
 .kw-row-amt-m{display:none;}
 .kw-row-name{font-size:14px;font-weight:700;color:var(--text);margin-top:6px;line-height:1.3;}
 .kw-row-sub{font-size:11.5px;color:var(--text3);margin-top:3px;cursor:help;display:inline-block;line-height:1.4;}
@@ -231,7 +233,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 <div class="container">
 
 <header class="hdr">
-  <div class="hdr-b1"></div><div class="hdr-b2"></div>
+  
   <div class="hdr-topbar">
     <div id="syncStatus" style="display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;max-width:220px;overflow:hidden;font-weight:500;">
       <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
@@ -708,6 +710,7 @@ async function gasPost(action, payload) {
 // STATE
 // ══════════════════════════════════════
 let kuitansiList = [];
+let lastCreatedId = null; // id kuitansi yang baru saja dibuat — ditandai di Riwayat
 let editingId = null;
 let deletingId = null;
 const LOCAL_KEY = 'mrkz_kuitansi';
@@ -953,12 +956,14 @@ async function saveKuitansi(andPrint) {
   try {
     const res = await saveKuitansiToSheets(data);
     data.__id = res.id || res.__id;
+    lastCreatedId = data.__id;
     kuitansiList.unshift(data);
     populateFilterBulan();
     renderList();
     showToast('Kuitansi tersimpan! ✓', true);
     if (andPrint) promptSignatureAndPrint(data);
     resetForm();
+    switchTab('riwayat');
   } catch(e) {
     showToast('Gagal simpan: ' + e.message, false);
   } finally {
@@ -1042,9 +1047,9 @@ function renderList() {
       ? `${fmtDateShort(k.date)} · Ananda: ${ananda}`
       : `${fmtDateShort(k.date)} · ${(k.untuk_pembayaran||'').slice(0,44)}${(k.untuk_pembayaran||'').length>44?'…':''}`;
     return `
-    <div class="kw-row" onclick="handleRowTap(event,'${k.__id}')">
+    <div class="kw-row${k.__id === lastCreatedId ? ' kw-row-new' : ''}" onclick="handleRowTap(event,'${k.__id}')">
       <div class="kw-row-main">
-        <div class="kw-row-no">${k.no_kuitansi}</div>
+        <div class="kw-row-no">${k.no_kuitansi}${k.__id === lastCreatedId ? `<span class="kw-new-badge" title="Baru saja ditambahkan"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Baru</span>` : ''}</div>
         <div class="kw-row-amt-m">${rp(k.jumlah)}</div>
         <div class="kw-row-name">${k.diterima_dari}</div>
         <div class="kw-row-sub" data-detail-id="${k.__id}">${subText}</div>
