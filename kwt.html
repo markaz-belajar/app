@@ -105,7 +105,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .btn-icon:hover{background:var(--danger-dim);color:var(--danger);}
 .btn-full{width:100%;justify-content:center;}
 .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
-.actions .btn[disabled]{opacity:.7;cursor:not-allowed;pointer-events:none;}
+.btn[disabled]{opacity:.7;cursor:not-allowed;pointer-events:none;}
 .btn-ic.spin{animation:spin .8s linear infinite;}
 .actions .btn{flex:1;justify-content:center;min-width:120px;}
 
@@ -277,6 +277,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
   </div>
 </div>
 
+<div style="position:sticky;top:0;z-index:200;">
 <div class="nav-tabs">
   <div class="nav-tabs-inner">
     <div class="tab-bar-pill">
@@ -290,6 +291,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
       </button>
     </div>
   </div>
+</div>
 </div>
 
 <div class="wrap">
@@ -486,8 +488,8 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
     <p style="font-size:13px;color:var(--text2);margin-bottom:4px;">Yakin ingin menghapus kuitansi ini?</p>
     <p id="deleteModalDesc" style="font-size:13px;color:var(--text);font-weight:600;"></p>
     <div class="modal-actions">
-      <button class="btn btn-ghost btn-full" onclick="closeDeleteModal()">Batal</button>
-      <button class="btn btn-danger btn-full" onclick="confirmDelete()">Hapus</button>
+      <button class="btn btn-ghost btn-full" id="btnCancelDelete" onclick="closeDeleteModal()">Batal</button>
+      <button class="btn btn-danger btn-full" id="btnConfirmDelete" onclick="confirmDelete()">Hapus</button>
     </div>
   </div>
 </div>
@@ -1238,7 +1240,14 @@ function openDelete(id) {
   document.getElementById('deleteModal').classList.add('open');
 }
 function closeDeleteModal() { deletingId = null; document.getElementById('deleteModal').classList.remove('open'); }
+let _isDeleting = false;
 async function confirmDelete() {
+  if (_isDeleting) return; // cegah double-click / double-submit
+  _isDeleting = true;
+  const btn = document.getElementById('btnConfirmDelete');
+  const btnCancel = document.getElementById('btnCancelDelete');
+  if (btn) { btn.disabled = true; btn.textContent = 'Menghapus…'; }
+  if (btnCancel) btnCancel.disabled = true;
   try {
     await deleteKuitansiFromSheets(deletingId);
     kuitansiList = kuitansiList.filter(x => x.__id !== deletingId);
@@ -1248,6 +1257,10 @@ async function confirmDelete() {
     showToast('Kuitansi dihapus', true);
   } catch(e) {
     showToast('Gagal hapus: ' + e.message, false);
+  } finally {
+    _isDeleting = false;
+    if (btn) { btn.disabled = false; btn.textContent = 'Hapus'; }
+    if (btnCancel) btnCancel.disabled = false;
   }
 }
 
