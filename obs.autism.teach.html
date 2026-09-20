@@ -422,6 +422,7 @@ function loadParentData() {
       err.style.display = "block"; return;
     }
     const parentData = JSON.parse(decodeURIComponent(escape(atob(hash))));
+    window._parentData = parentData;
     ok.style.display = "block";
     buildCombined(parentData);
   } catch(e) {
@@ -640,6 +641,7 @@ async function initGuruPage() {
         answers: r.data.answersOrtu || {}
       };
       document.getElementById('combine-status-text').innerHTML = '✅ Data orang tua otomatis dimuat dari sistem.';
+      window._parentData = parentData;
       buildCombined(parentData);
     } else {
       document.getElementById('combine-status-text').innerHTML = '⏳ Orang tua belum menyelesaikan form. Hasil gabungan akan otomatis muncul di sini setelah orang tua selesai mengisi.';
