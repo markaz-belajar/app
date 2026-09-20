@@ -1012,7 +1012,7 @@ function checkShowSubmit() {
   document.getElementById("submit-section").style.display = (total>0 && answered===total) ? "block" : "none";
 }
 
-function submitForm() {
+function _origSubmitForm() {
   closeOverlay();
   document.getElementById("result-parent").classList.add("show");
   document.getElementById("submit-section").style.display = "none";
@@ -1216,7 +1216,7 @@ function loadFromHash() {
 
 // ═══════════════════════════════════════════════════
 // APPS SCRIPT INTEGRATION
-const SCREENING_API = 'https://script.google.com/macros/s/AKfycbxzBIGhnQU-IpEnm7lhaZ8Ou1bV4EMBbm9vi516tS4jQtNRZzjq-5WBBHLNjqGj6XxA/exec';
+const SCREENING_API = 'https://script.google.com/macros/s/AKfycbxRbHFQtaVYcUtFmCqJyZmAFxiY0T4bq4QImj2HICG0VajpVhi5zsFS66GfW1r5k0BN/exec';
 
 function apiScreening(action, params={}) {
   const url = new URL(SCREENING_API);
@@ -1320,11 +1320,10 @@ function confirmAutoData(ok) {
   }
 }
 
-// ── Override submitForm: tambah API call ──
-const _origSubmit = submitForm;
+// ── submitForm: tampilkan hasil + kirim ke server ──
 function submitForm() {
   try {
-    _origSubmit && _origSubmit();
+    _origSubmitForm();
   } catch(err) {
     console.error('submitForm error:', err);
     alert('Terjadi kendala saat menampilkan hasil. Silakan screenshot pesan ini dan hubungi tim: ' + err.message);
