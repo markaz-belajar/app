@@ -355,10 +355,17 @@ let allSiswa = [], screeningMap = {}, currentFilter = 'semua', currentSiswa = nu
 let sheetView = 'menu', pendingWA = null;
 
 // ── API helpers ──
-function apiGet(base, params) {
+function apiGet(base, params, timeoutMs = 15000) {
   const u = new URL(base);
   Object.entries(params).forEach(([k,v]) => u.searchParams.set(k, v));
-  return fetch(u.toString(), { redirect:'follow' }).then(r => r.json()).catch(() => ({ ok:false }));
+
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
+
+  return fetch(u.toString(), { redirect:'follow', signal: controller.signal })
+    .then(r => r.json())
+    .catch(err => ({ ok:false, error: err.name === 'AbortError' ? 'Server tidak merespons (timeout)' : (err.message||'Gagal terhubung') }))
+    .finally(() => clearTimeout(timer));
 }
 
 // ── Status helper ──
@@ -744,9 +751,20 @@ function lvDesc(l, nama) {
 
 // ── Utils ──
 function normalizeWA(raw) {
-  let n = String(raw||'').replace(/\D/g,'');
-  if (n.startsWith('0')) n = '62' + n.slice(1);
-  if (!n.startsWith('62')) n = '62' + n;
+  if (!raw) return '';
+  const hasPlus = String(raw).trim().startsWith('+');
+  let n = String(raw).replace(/\D/g,'');
+
+  // Sudah eksplisit pakai tanda "+" (mis. +65..., +62...) → pakai apa adanya
+  if (hasPlus) return n;
+  // Format lokal Indonesia (08xx...) → ganti jadi 62
+  if (n.startsWith('0')) return '62' + n.slice(1);
+  // Sudah diawali 62 → biarkan
+  if (n.startsWith('62')) return n;
+  // Tidak ada tanda negara & tidak diawali 0, tapi diawali 8 (pola nomor HP
+  // Indonesia tanpa 0 di depan) → asumsikan Indonesia
+  if (n.length >= 8 && n.startsWith('8')) return '62' + n;
+  // Selain itu, kemungkinan nomor luar negeri tanpa tanda "+" → biarkan apa adanya
   return n;
 }
 function fmtDate(iso) {
@@ -795,42 +813,40 @@ async function init() {
   if (localStorage.getItem('mb_theme') === 'dark')
     document.documentElement.setAttribute('data-theme','dark');
 
-  setSyncStatus('syncing', 'Memuat siswa...');
+  setSyncStatus('syncing', 'Memuat data...');
 
-  // 1. Load data siswa — coba getAllSiswa dari screening API dulu, fallback ke getSiswa
-  let rSiswa;
-  try {
-    rSiswa = await apiGet(API_SCREENING, { action:'getAllSiswa' });
-    if (!rSiswa?.ok) {
-      rSiswa = await apiGet(API_MAIN, { action:'getSiswa' });
-    }
-  } catch(e) {
-    try { rSiswa = await apiGet(API_MAIN, { action:'getSiswa' }); }
-    catch(e2) { rSiswa = { ok:false, error: e2.message }; }
+  // ⭐ DIPERBAIKI: kedua panggilan API dijalankan BERSAMAAN (paralel),
+  // bukan satu-satu berurutan — mempercepat loading secara signifikan.
+  const [rSiswa, rScreen] = await Promise.all([
+    apiGet(API_SCREENING, { action:'getAllSiswa' }),
+    apiGet(API_SCREENING, { action:'getScreeningStatus' })
+  ]);
+
+  let finalSiswa = rSiswa;
+  if (!finalSiswa?.ok) {
+    // Fallback ke API_MAIN kalau getAllSiswa gagal
+    finalSiswa = await apiGet(API_MAIN, { action:'getSiswa' });
   }
 
-  if (!rSiswa || !rSiswa.ok || !rSiswa.data) {
+  if (!finalSiswa || !finalSiswa.ok || !finalSiswa.data) {
     setSyncStatus('error', 'Gagal memuat siswa');
     document.getElementById('listWrap').innerHTML = `
       <div class="empty-state">
         <div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:38px;height:38px;color:var(--danger);"><path d="M12 9v3.5"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 16h.01"/></svg></div>
         <div class="empty-lbl">Gagal memuat data</div>
-        <div style="font-size:11px;margin-top:4px;color:var(--text3);">${rSiswa?.error||'Coba lagi'}</div>
+        <div style="font-size:11px;margin-top:4px;color:var(--text3);">${finalSiswa?.error||'Server tidak merespons. Coba lagi.'}</div>
         <button onclick="init()" style="margin-top:12px;padding:9px 18px;background:var(--accent);color:#fff;border:none;border-radius:var(--r);cursor:pointer;font-family:inherit;font-size:13px;font-weight:600;">Coba Lagi</button>
       </div>`;
     return;
   }
 
-  allSiswa = (rSiswa.data || []).filter(s => s.nama);
+  allSiswa = (finalSiswa.data || []).filter(s => s.nama);
 
-  // 2. Load screening status (tidak gagalkan halaman)
-  try {
-    setSyncStatus('syncing', 'Memuat status screening...');
-    const rScreen = await apiGet(API_SCREENING, { action:'getScreeningStatus' });
-    if (rScreen && rScreen.ok) {
-      (rScreen.data || []).forEach(r => { if (r.genId) screeningMap[r.genId] = r; });
-    }
-  } catch(e) { /* optional, lanjut */ }
+  // Screening status: opsional, tidak menggagalkan halaman kalau gagal
+  screeningMap = {};
+  if (rScreen && rScreen.ok) {
+    (rScreen.data || []).forEach(r => { if (r.genId) screeningMap[r.genId] = r; });
+  }
 
   setSyncStatus('ok', `${allSiswa.length} siswa · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
   updateStats();
