@@ -227,7 +227,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
       <div class="bar-track"><div class="bar-fill" id="bar-fill"></div></div>
       <div class="bar-labels"><span>Minimal</span><span>Moderat</span><span>Kuat</span></div>
     </div>
-    <div class="interp" id="interp">Jawab semua 10 item untuk melihat interpretasi.</div>
+    <div class="interp" id="interp">Jawab semua item untuk melihat interpretasi.</div>
     <div class="domain-rows" id="domain-rows"></div>
     <div class="actions">
       <button class="btn btn-primary" id="btn-simpan-sistem" onclick="simpanKeSistem()" style="background:#16a34a;">
@@ -275,12 +275,12 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
       <div class="combined-source">
         <div class="combined-source-lbl">Observasi Guru</div>
         <div class="combined-source-val" id="csrc-guru">—</div>
-        <div class="combined-source-sub">sesi bimbel (10 item)</div>
+        <div class="combined-source-sub" id="csrc-guru-sub">sesi bimbel</div>
       </div>
       <div class="combined-source">
         <div class="combined-source-lbl">Laporan Orang Tua</div>
         <div class="combined-source-val" id="csrc-ortu">—</div>
-        <div class="combined-source-sub">observasi di rumah (13 item)</div>
+        <div class="combined-source-sub" id="csrc-ortu-sub">observasi di rumah</div>
       </div>
     </div>
     <div class="combined-score-big">
@@ -454,28 +454,42 @@ function buildCombined(parentData) {
 
   // ── GURU SCORES ──
   const guruTotal = Object.values(answers).reduce((s,v)=>s+v,0);
-  const guruMax = 10 * 3; // 10 items, max 3 each
-  const guruPct = Object.keys(answers).length === 10 ? Math.round((guruTotal/guruMax)*100) : null;
+  const guruMax = TOTAL * 3;
+  const guruAnsweredCount = Object.keys(answers).length;
+  const guruPct = guruAnsweredCount === TOTAL ? Math.round((guruTotal/guruMax)*100) : null;
 
   // ── PARENT SCORES ──
+  // ⭐ DIPERBAIKI: dulu hardcode "harus 13 item" (skema form ortu LAMA).
+  // Sekarang dihitung dinamis dari jumlah item yang benar-benar terjawab,
+  // supaya cocok dengan skema form ortu manapun (13, 15, atau jumlah lain).
   const parentAnswers = parentData.answers || {};
-  const parentTotal = Object.values(parentAnswers).reduce((s,v)=>s+v,0);
-  const parentMax = 13 * 3; // 13 items, max 3 each
   const parentAnsweredCount = Object.keys(parentAnswers).length;
-  const parentPct = parentAnsweredCount === 13 ? Math.round((parentTotal/parentMax)*100) : Math.round((parentTotal/(parentAnsweredCount*3||1))*100);
+  const parentTotal = Object.values(parentAnswers).reduce((s,v)=>s+v,0);
+  const parentPct = parentAnsweredCount > 0 ? Math.round((parentTotal/(parentAnsweredCount*3))*100) : null;
+
+  // ⭐ BARU: bedakan jelas antara "data kosong" vs "nilainya memang 0"
+  if (parentAnsweredCount === 0) {
+    document.getElementById("csrc-ortu").textContent = "— (kosong)";
+    document.getElementById("csrc-ortu").title = "Tidak ada jawaban orang tua yang ditemukan di server.";
+  } else {
+    document.getElementById("csrc-ortu").textContent = parentPct+"%";
+    document.getElementById("csrc-ortu").title = `${parentAnsweredCount} pertanyaan terjawab`;
+  }
 
   // ── COMBINED (50/50 weighted) ──
-  const guruPctFinal = guruPct !== null ? guruPct : Math.round((guruTotal/guruMax)*100);
-  const combinedPct = Math.round((guruPctFinal + parentPct) / 2);
+  const guruPctFinal = guruPct !== null ? guruPct : (guruAnsweredCount>0 ? Math.round((guruTotal/(guruAnsweredCount*3))*100) : 0);
+  const parentPctFinal = parentPct !== null ? parentPct : 0;
+  const combinedPct = Math.round((guruPctFinal + parentPctFinal) / 2);
 
   // Student info
   const nama = parentData.nama || document.getElementById("f-nama").value || "—";
   const usia = parentData.usia || document.getElementById("f-usia").value || "—";
   document.getElementById("combined-student-info").textContent = `${nama} · ${usia}`;
 
-  // Source scores
-  document.getElementById("csrc-guru").textContent = guruPct !== null ? guruPct+"%" : Math.round((guruTotal/guruMax)*100)+"%*";
-  document.getElementById("csrc-ortu").textContent = parentPct+"%";
+  // Source scores (guru)
+  document.getElementById("csrc-guru").textContent = guruPct !== null ? guruPct+"%" : (guruAnsweredCount>0 ? Math.round((guruTotal/(guruAnsweredCount*3))*100)+"%*" : "—");
+  document.getElementById("csrc-guru-sub").textContent = `sesi bimbel (${guruAnsweredCount} dari ${TOTAL} item)`;
+  document.getElementById("csrc-ortu-sub").textContent = parentAnsweredCount>0 ? `observasi di rumah (${parentAnsweredCount} item)` : `observasi di rumah — tidak ada data`;
 
   // Big score
   document.getElementById("combined-pct-num").textContent = combinedPct+"%";
@@ -524,20 +538,25 @@ function buildCombined(parentData) {
   Object.entries(parentAnswers).forEach(([k,v])=>{const d=k[0];if(parDS[d]!==undefined){parDS[d]+=v;parDC[d]++;}});
 
   // Render combined domains — pair them up
+  // ⭐ DIPERBAIKI: "max" dulu di-hardcode sesuai skema form ortu LAMA (13 item).
+  // Sekarang dihitung otomatis dari jumlah item yang benar-benar terjawab
+  // di tiap domain (guruDC/parDC), jadi cocok dengan skema form ortu manapun.
   const domainPairs = [
-    { label:"Komunikasi & bahasa", guru:{d:"B",max:3}, parent:{d:"A",max:9} },
-    { label:"Interaksi sosial", guru:{d:"D",max:6}, parent:{d:"D",max:6} },
-    { label:"Perilaku & rutinitas", guru:{d:"C",max:9}, parent:{d:"B",max:9} },
-    { label:"Kepekaan sensorik", guru:null, parent:{d:"C",max:6} },
-    { label:"Perhatian & respons", guru:{d:"A",max:9}, parent:null },
-    { label:"Kemandirian", guru:null, parent:{d:"E",max:9} }
+    { label:"Komunikasi & bahasa", guru:{d:"B"}, parent:{d:"A"} },
+    { label:"Interaksi sosial", guru:{d:"D"}, parent:{d:"D"} },
+    { label:"Perilaku & rutinitas", guru:{d:"C"}, parent:{d:"B"} },
+    { label:"Kepekaan sensorik", guru:null, parent:{d:"C"} },
+    { label:"Perhatian & respons", guru:{d:"A"}, parent:null },
+    { label:"Kemandirian", guru:null, parent:{d:"E"} }
   ];
 
   domainPairs.forEach(pair => {
     const el = document.createElement("div");
     el.className = "cdom";
-    const guruPctD = pair.guru ? (guruDC[pair.guru.d]>0 ? Math.round((guruDS[pair.guru.d]/pair.guru.max)*100) : 0) : null;
-    const parPctD = pair.parent ? (parDC[pair.parent.d]>0 ? Math.round((parDS[pair.parent.d]/pair.parent.max)*100) : 0) : null;
+    const guruMaxD = pair.guru ? guruDC[pair.guru.d]*3 : 0;
+    const parMaxD  = pair.parent ? parDC[pair.parent.d]*3 : 0;
+    const guruPctD = pair.guru ? (guruDC[pair.guru.d]>0 ? Math.round((guruDS[pair.guru.d]/guruMaxD)*100) : null) : null;
+    const parPctD  = pair.parent ? (parDC[pair.parent.d]>0 ? Math.round((parDS[pair.parent.d]/parMaxD)*100) : null) : null;
     const colorFn = p => p<34?"#6b7280":p<51?"#d97706":"#dc2626";
 
     let barsHtml = "";
