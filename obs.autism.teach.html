@@ -230,6 +230,10 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
     <div class="interp" id="interp">Jawab semua 10 item untuk melihat interpretasi.</div>
     <div class="domain-rows" id="domain-rows"></div>
     <div class="actions">
+      <button class="btn btn-primary" id="btn-simpan-sistem" onclick="simpanKeSistem()" style="background:#16a34a;">
+        <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+        Simpan Hasil ke Sistem
+      </button>
       <button class="btn btn-primary" onclick="window.print()">
         <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Cetak / Simpan PDF
@@ -242,14 +246,15 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
     <div class="disclaimer">⚠ Form ini hanya untuk keperluan observasi awal di lingkungan bimbel — bukan pengganti diagnosis profesional. Hasil perlu dikombinasikan dengan observasi orang tua dan asesmen formal oleh psikolog anak.</div>
   </div>
 
-  <!-- GABUNGKAN DATA ORANG TUA -->
-  <div class="combine-section">
+  <!-- ⭐ DATA ORANG TUA — sekarang otomatis diambil dari server via kode "gen" -->
+  <div class="combine-section" id="combine-section">
     <div class="combine-title">
       <svg viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
-      Gabungkan dengan data orang tua
+      Data orang tua
     </div>
-    <div class="combine-sub">Paste link yang dikirim orang tua via WhatsApp untuk melihat hasil gabungan guru + orang tua.</div>
-    <div class="combine-input-row">
+    <div class="combine-sub" id="combine-status-text">Memuat data orang tua dari sistem...</div>
+    <!-- Fallback manual (dipakai kalau form dibuka tanpa kode gen, misal untuk testing) -->
+    <div class="combine-input-row" id="combine-manual-row" style="display:none;">
       <input type="text" class="combine-input" id="parent-link" placeholder="Paste link WhatsApp orang tua di sini...">
       <button class="combine-btn" onclick="loadParentData()">Gabungkan</button>
     </div>
@@ -552,33 +557,123 @@ function buildCombined(parentData) {
   panel.scrollIntoView({behavior:"smooth"});
 }
 
+document.getElementById("f-tanggal").value = new Date().toISOString().split("T")[0];
+build();
+updateScore();
 
-// ── SCREENING API ──
-const SCREENING_API = 'https://script.google.com/macros/s/AKfycbxzBIGhnQU-IpEnm7lhaZ8Ou1bV4EMBbm9vi516tS4jQtNRZzjq-5WBBHLNjqGj6XxA/exec';
+// ═══════════════════════════════════════════════════════════════
+// ⭐ INTEGRASI SERVER: auto-ambil data ortu + simpan hasil guru
+// ═══════════════════════════════════════════════════════════════
+const SCREENING_API = 'https://script.google.com/macros/s/AKfycbxRbHFQtaVYcUtFmCqJyZmAFxiY0T4bq4QImj2HICG0VajpVhi5zsFS66GfW1r5k0BN/exec';
 
 function apiScreening(action, params={}) {
   const url = new URL(SCREENING_API);
   url.searchParams.set('action', action);
   for (const [k,v] of Object.entries(params)) {
-    url.searchParams.set(k, typeof v==='object' ? encodeURIComponent(JSON.stringify(v)) : v);
+    url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
   }
-  return fetch(url.toString(), {redirect:'follow'}).then(r=>r.json()).catch(()=>({ok:false}));
+  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json()).catch(() => ({ ok:false }));
 }
 
-// ── Load URL params dari obs.html ──
-(function loadParams() {
-  const p = new URLSearchParams(window.location.search);
-  const gen=p.get('gen'), nama=p.get('nama');
-  if(gen){ window._genId=gen; }
-  if(nama){
-    const el=document.getElementById('f-nama');
-    if(el){ el.value=nama; el.disabled=true; el.style.opacity='0.8'; }
-  }
-})();
+window._genId = '';
 
-document.getElementById("f-tanggal").value = new Date().toISOString().split("T")[0];
-build();
-updateScore();
+async function initGuruPage() {
+  const p = new URLSearchParams(window.location.search);
+  const gen = p.get('gen'), namaFromUrl = p.get('nama');
+
+  if (!gen) {
+    // Tidak ada kode gen (form dibuka manual/testing) → tampilkan cara lama sebagai fallback
+    document.getElementById('combine-status-text').textContent = 'Form ini dibuka tanpa kode siswa. Jika ingin menggabungkan data orang tua secara manual:';
+    document.getElementById('combine-manual-row').style.display = 'flex';
+    return;
+  }
+
+  window._genId = gen;
+  if (namaFromUrl) document.getElementById('f-nama').value = namaFromUrl;
+
+  // Ambil data siswa lengkap (usia, jenis kelamin) dari server
+  try {
+    const rSiswa = await apiScreening('getSiswaByGenId', { genId: gen });
+    if (rSiswa && rSiswa.ok && rSiswa.data) {
+      const d = rSiswa.data;
+      if (d.nama) document.getElementById('f-nama').value = d.nama;
+      if (d.usia) document.getElementById('f-usia').value = d.usia;
+      if (d.kelamin) {
+        const k = String(d.kelamin).toLowerCase();
+        const el = document.getElementById('f-jk');
+        if (k.includes('laki')) el.value = 'Laki-laki';
+        else if (k.includes('perempuan')) el.value = 'Perempuan';
+      }
+      document.getElementById('f-nama').disabled = true;
+      document.getElementById('f-nama').style.opacity = '0.8';
+    }
+  } catch(e) {}
+
+  // Ambil status & jawaban orang tua dari server
+  try {
+    const r = await apiScreening('getScreeningDetail', { genId: gen });
+    if (r && r.ok && r.data && r.data.statusOrtu === 'selesai') {
+      const namaSiswa = document.getElementById('f-nama').value || r.data.namaAnak || '—';
+      const usiaSiswa = document.getElementById('f-usia').value || '—';
+      const parentData = {
+        nama: namaSiswa,
+        usia: usiaSiswa,
+        answers: r.data.answersOrtu || {}
+      };
+      document.getElementById('combine-status-text').innerHTML = '✅ Data orang tua otomatis dimuat dari sistem.';
+      buildCombined(parentData);
+    } else {
+      document.getElementById('combine-status-text').innerHTML = '⏳ Orang tua belum menyelesaikan form. Hasil gabungan akan otomatis muncul di sini setelah orang tua selesai mengisi.';
+    }
+  } catch(e) {
+    document.getElementById('combine-status-text').textContent = 'Gagal memuat data orang tua. Silakan refresh halaman.';
+  }
+}
+
+async function simpanKeSistem() {
+  const answered = Object.keys(answers).length;
+  if (answered < TOTAL) {
+    alert(`Masih ada ${TOTAL - answered} indikator yang belum diisi. Lengkapi dulu sebelum menyimpan.`);
+    return;
+  }
+  if (!window._genId) {
+    alert('Form ini dibuka tanpa kode siswa (gen), jadi tidak bisa disimpan otomatis ke sistem. Gunakan link dari dashboard guru.');
+    return;
+  }
+
+  const btn = document.getElementById('btn-simpan-sistem');
+  const btnTextOrig = btn.innerHTML;
+  btn.disabled = true;
+  btn.innerHTML = 'Menyimpan...';
+
+  const total = Object.values(answers).reduce((s,v)=>s+v,0);
+  const maxScore = TOTAL * 3;
+  const skor = Math.round((total/maxScore)*100);
+
+  try {
+    const r = await apiScreening('saveScreeningGuru', {
+      genId: window._genId,
+      skor,
+      guru: document.getElementById('f-guru').value || '',
+      answers: JSON.stringify(answers)
+    });
+    if (r && r.ok) {
+      btn.innerHTML = '✓ Tersimpan ke Sistem';
+      btn.style.background = '#16a34a';
+      alert('Hasil observasi berhasil disimpan! Skor gabungan: ' + (r.skorGabungan!=null?r.skorGabungan+'%':'-') + (r.level?(' ('+r.level+')'):''));
+    } else {
+      btn.disabled = false;
+      btn.innerHTML = btnTextOrig;
+      alert('Gagal menyimpan: ' + (r?.error || 'Coba lagi.'));
+    }
+  } catch(e) {
+    btn.disabled = false;
+    btn.innerHTML = btnTextOrig;
+    alert('Gagal menyimpan: ' + e.message);
+  }
+}
+
+initGuruPage();
 </script>
 </body>
 </html>
