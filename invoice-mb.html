@@ -692,6 +692,38 @@ textarea{resize:vertical;min-height:80px;}
     <input type="text" id="notes" placeholder="Catatan tambahan (opsional)">
   </div>
 
+  <!-- Tanda Tangan -->
+  <div class="sec">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+      Tanda Tangan
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+      <button type="button" id="ttdOptKosong" onclick="setTTD('kosong')" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;border-radius:12px;border:2px solid var(--accent);background:var(--accent-dim);cursor:pointer;font-family:inherit;transition:all .2s;">
+        <span style="width:38px;height:38px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+        </span>
+        <div style="text-align:center;">
+          <div style="font-size:13px;font-weight:700;color:var(--text);">Kosong / Manual</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;">Kolom TTD dikosongkan<br>untuk tanda tangan basah</div>
+        </div>
+      </button>
+      <button type="button" id="ttdOptDigital" onclick="setTTD('digital')" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;border-radius:12px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;font-family:inherit;transition:all .2s;">
+        <span style="width:38px;height:38px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </span>
+        <div style="text-align:center;">
+          <div style="font-size:13px;font-weight:700;color:var(--text);">Tanda Tangan Digital</div>
+          <div style="font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;">Segel + QR verifikasi<br>tercetak otomatis</div>
+        </div>
+      </button>
+    </div>
+    <div id="ttdDigitalInfo" style="display:none;margin-top:10px;padding:10px 12px;background:var(--accent-dim);border:1px solid rgba(27,108,168,.2);border-radius:10px;font-size:12px;color:var(--accent);">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>
+      TTD digital atas nama <strong id="ttdDigitalName">—</strong>
+    </div>
+  </div>
+
   <!-- Preview Toggle -->
   <button class="preview-toggle-btn" id="previewToggleBtn" onclick="togglePreview()">
     <span class="ptb-left">
@@ -1019,6 +1051,7 @@ let knownInvoiceIds=new Set(); // untuk deteksi invoice baru
 let currentInvoiceId=null;
 let currentSendMethod=null;
 let currentProofData=null;
+let currentTTDMode='kosong'; // 'kosong' | 'digital'
 let syncTimer=null;
 let lastSyncTime=null;
 let invCnt=1;
@@ -1460,6 +1493,83 @@ function rebuildStudentSelect(){
    INIT
 ═══════════════════════════════════════════════════════ */
 
+// ── TANDA TANGAN & VERIFIKASI INVOICE ─────────────────────────
+function setTTD(mode) {
+  currentTTDMode = mode;
+  const btnKosong = document.getElementById('ttdOptKosong');
+  const btnDigital = document.getElementById('ttdOptDigital');
+  const info = document.getElementById('ttdDigitalInfo');
+  if (mode === 'digital') {
+    btnKosong.style.border = '2px solid var(--border)';
+    btnKosong.style.background = 'var(--surface2)';
+    btnDigital.style.border = '2px solid var(--accent)';
+    btnDigital.style.background = 'var(--accent-dim)';
+    const creator = document.getElementById('createdBy').value || '—';
+    document.getElementById('ttdDigitalName').textContent = creator;
+    if (info) { info.style.display = 'flex'; }
+  } else {
+    btnKosong.style.border = '2px solid var(--accent)';
+    btnKosong.style.background = 'var(--accent-dim)';
+    btnDigital.style.border = '2px solid var(--border)';
+    btnDigital.style.background = 'var(--surface2)';
+    if (info) { info.style.display = 'none'; }
+  }
+  if (prevOpen) renderPrev();
+}
+
+function openInvVerifyPopup(invNum, creator, invDate) {
+  // Cari dari data lokal dulu
+  const inv = invoices.find(i => i.invoice_number === invNum);
+  const overlay = document.createElement('div');
+  overlay.id = 'invVerifyOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
+  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
+
+  let body = '';
+  if (inv) {
+    const signId = buildInvSignId({ invNum, creator: inv.created_by || creator, invDate: inv.created_date || invDate });
+    body = `
+      <div style="width:56px;height:56px;border-radius:50%;background:#E3F6EA;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div style="font-size:17px;font-weight:800;color:#1C2B3A;margin-bottom:4px;">Invoice Terverifikasi</div>
+      <div style="font-size:12.5px;color:#8FA4B4;margin-bottom:18px;">Data cocok dengan catatan resmi Markaz Belajar</div>
+      <div style="text-align:left;background:#F7F5EF;border-radius:14px;padding:14px 16px;font-size:13px;">
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">No. Invoice</span><span style="font-weight:600;">${inv.invoice_number}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Tanggal</span><span style="font-weight:600;">${fmtShort(inv.created_date)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Tagihan Kepada</span><span style="font-weight:600;text-align:right;">${inv.student_parent||inv.student_name}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Nama Siswa</span><span style="font-weight:600;">${inv.student_name}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Total</span><span style="font-weight:600;">${rp(inv.amount)}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Status</span><span style="font-weight:600;color:${inv.payment_status==='paid'?'#2E9E5B':'#F59F00'}">${inv.payment_status==='paid'?'✓ Lunas':'Belum Lunas'}</span></div>
+        <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#8FA4B4;font-size:11.5px;">Dibuat Oleh</span><span style="font-weight:600;">${inv.created_by||creator||'—'}</span></div>
+      </div>
+      ${signId ? `<div style="margin-top:10px;text-align:left;background:#EAF4FF;border-radius:14px;padding:14px 16px;">
+        <div style="display:flex;align-items:center;gap:6px;color:#1B6CA8;font-size:11.5px;font-weight:700;margin-bottom:8px;">
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+          Tanda Tangan Digital
+        </div>
+        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(27,108,168,0.15);"><span style="color:#8FA4B4;">ID TTD</span><span style="font-weight:600;font-family:monospace;">${signId}</span></div>
+      </div>` : ''}`;
+  } else {
+    body = `
+      <div style="width:56px;height:56px;border-radius:50%;background:#FDE8E9;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DC3545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </div>
+      <div style="font-size:17px;font-weight:800;color:#1C2B3A;margin-bottom:4px;">Tidak Ditemukan</div>
+      <div style="font-size:12.5px;color:#8FA4B4;margin-bottom:18px;">No. invoice <strong>${invNum}</strong> tidak cocok dengan catatan sistem.</div>`;
+  }
+
+  overlay.innerHTML = `
+    <div style="display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%;">
+      <img src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" style="width:72px;margin-bottom:16px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));" onerror="this.style.display='none'">
+      <div style="background:#fff;border-radius:22px;padding:28px 22px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+        ${body}
+        <button onclick="document.getElementById('invVerifyOverlay').remove()" style="margin-top:18px;width:100%;padding:11px;border-radius:10px;background:#1B6CA8;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">Tutup</button>
+      </div>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
 async function init(){
   // Dark mode
   const saved=localStorage.getItem('mrkz_theme');
@@ -1488,7 +1598,7 @@ async function init(){
   // Event listeners
   document.getElementById('studentSel').addEventListener('change', onStudent);
   document.getElementById('notes').addEventListener('input', ()=>{if(prevOpen)renderPrev();});
-  document.getElementById('createdBy').addEventListener('change', ()=>{if(prevOpen)renderPrev();});
+  document.getElementById('createdBy').addEventListener('change', ()=>{if(prevOpen)renderPrev();if(currentTTDMode==='digital'){document.getElementById('ttdDigitalName').textContent=document.getElementById('createdBy').value||'—';}});
   document.getElementById('trackingSearch').addEventListener('input', renderTracking);
   document.getElementById('trackingFilter').addEventListener('change', renderTracking);
   document.getElementById('paymentProofUploadInput').addEventListener('change', handlePaymentProofUpload);
@@ -1914,6 +2024,21 @@ function togglePreview(){
   else{span.innerHTML=`<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4 11 11 11 11-11 11-11-4-11-11-11-11 11-11 11z"/><circle cx="12" cy="12" r="3"/></svg> Lihat Preview Invoice`;}
 }
 
+// ── QR & TTD helpers ──────────────────────────────────────────
+function buildInvVerifyUrl(invNum) {
+  const base = window.location.origin + window.location.pathname;
+  return base + '?inv_verify=' + encodeURIComponent(invNum);
+}
+function buildInvQrSrc(invNum) {
+  return 'https://api.qrserver.com/v1/create-qr-code/?size=120x120&margin=0&data=' + encodeURIComponent(buildInvVerifyUrl(invNum));
+}
+function buildInvSignId(d) {
+  const str = (d.invNum||'') + '|' + (d.creator||'') + '|' + (d.invDate||'');
+  let h = 0;
+  for (let i = 0; i < str.length; i++) h = (h * 31 + str.charCodeAt(i)) >>> 0;
+  return 'INV-' + h.toString(16).toUpperCase().padStart(8,'0');
+}
+
 function buildInvHTML(d){
   const rows=d.items.length?d.items.map(it=>`<tr><td style="font-size:11px;">${it.label}</td><td style="font-size:11px;">${it.type||'—'}</td><td style="font-size:11px;">${it.dur?it.dur+' Bulan':'—'}</td><td style="text-align:right;font-family:'Geist Mono',monospace;font-size:11px;">${rp(it.price)}</td></tr>`).join(''):`<tr><td colspan="4" style="text-align:center;color:#bbb;padding:16px;font-size:11px;">Belum ada item</td></tr>`;
   const ibuPrefix = n => (n && n !== '—') ? 'Ibu ' + n : n;
@@ -1923,7 +2048,37 @@ function buildInvHTML(d){
   const totalSection=discAmt>0
     ?`<div class="inv-totals"><div class="inv-trow"><span>Subtotal</span><span>${rp(d.subtotal)}</span></div>${discRow}<div class="inv-tfinal"><span class="inv-tflbl">Total</span><span class="inv-tfval">${rp(grandTotal)}</span></div></div>`
     :`<div class="inv-totals"><div class="inv-trow"><span>Subtotal</span><span>${rp(d.subtotal)}</span></div><div class="inv-tfinal"><span class="inv-tflbl">Total</span><span class="inv-tfval">${rp(d.subtotal)}</span></div></div>`;
-  return `<div class="inv-doc"><div class="inv-top"><div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><img src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" style="height:52px;width:auto;object-fit:contain;" onerror="this.style.display='none'"><div class="inv-title-block"><div class="inv-title-word">Invoice</div><div class="inv-num">${d.invNum}</div>${d.nomorInduk?`<div style="font-size:9px;color:rgba(28,44,58,.45);font-family:'Geist Mono',monospace;margin-top:3px;">${d.nomorInduk}</div>`:''}</div></div></div><div class="inv-body"><div class="inv-parties"><div><div class="inv-plbl">Dari</div><div class="inv-pname">Markaz Belajar</div><div class="inv-psub">Jl.Raya Sirih Rt 01 Rw 05<br>Des. Kamasan, Kec. Cinangka<br>Kab. Serang – Banten<br>08366583082</div></div><div><div class="inv-plbl">Tagihan Kepada</div><div class="inv-pname">${ibuPrefix(d.pName)}</div><div class="inv-psub">${d.sName}${d.jenjang?' · '+d.jenjang:''}${d.guru?' · Guru: '+d.guru:''}</div>${d.alamat?`<div class="inv-psub" style="margin-top:4px;">${d.alamat}</div>`:''}</div></div><div class="inv-meta"><div class="inv-mb"><div class="inv-ml">Tanggal</div><div class="inv-mv">${fmtShort(d.invDate)}</div></div><div class="inv-mb"><div class="inv-ml">Jatuh Tempo</div><div class="inv-mv" style="color:#dc2626;">${fmtShort(d.dueDate)}</div></div><div class="inv-mb"><div class="inv-ml">Dibuat Oleh</div><div class="inv-mv">${d.creator}</div></div></div><table class="inv-tbl"><thead><tr><th>Program</th><th>Tipe</th><th>Durasi</th><th>Harga</th></tr></thead><tbody>${rows}</tbody></table>${totalSection}<div class="inv-bank"><div class="inv-bank-ttl">Informasi Pembayaran</div><div class="inv-bank-row"><span class="inv-bname">Dana</span><span class="inv-bnum">0838-665-830-82</span></div><div class="inv-bank-row"><span class="inv-bname">BCA</span><span class="inv-bnum">651-065-92-26</span></div><div class="inv-ban">a.n Elis Rosmiati</div></div>${d.notes?`<div class="inv-notes">Catatan: ${d.notes}</div>`:''}<div class="inv-created">Dibuat oleh: ${d.creator} · ${fmtShort(d.invDate)}</div></div><div class="inv-footer"><span style="font-size:9px;color:#aaa;">Terima kasih atas kepercayaan Anda</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:#1c1c1c;letter-spacing:-.02em;">Markaz Belajar</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em;">Powered by Qazas Studio</span></div></div>`;
+
+  // QR verifikasi di pojok kanan header
+  const qrBlock = d.invNum && d.invNum !== '—'
+    ? `<a href="${buildInvVerifyUrl(d.invNum)}" onclick="event.preventDefault();openInvVerifyPopup('${d.invNum.replace(/'/g,"\\'")}','${(d.creator||'').replace(/'/g,"\\'")}','${d.invDate||''}')" style="display:flex;flex-direction:column;align-items:center;text-decoration:none;cursor:pointer;" title="Klik untuk verifikasi">
+        <img src="${buildInvQrSrc(d.invNum)}" style="width:46px;height:46px;display:block;" alt="QR" onerror="this.style.display='none'">
+        <span style="font-size:7px;color:rgba(84,60,52,0.55);margin-top:2px;font-weight:600;letter-spacing:.03em;">SCAN/KLIK</span>
+       </a>`
+    : '';
+
+  // TTD Digital block
+  const signId = buildInvSignId(d);
+  const ttdBlock = d.signature_mode === 'digital'
+    ? `<div style="margin-top:14px;padding:10px 12px;border:1px solid #dde0e8;border-radius:8px;display:flex;align-items:center;gap:12px;">
+        <a href="${buildInvVerifyUrl(d.invNum)}" onclick="event.preventDefault();openInvVerifyPopup('${d.invNum.replace(/'/g,"\\'")}','${(d.creator||'').replace(/'/g,"\\'")}','${d.invDate||''}')" style="text-decoration:none;flex-shrink:0;">
+          <div style="padding:3px;border:1.5px solid #1B6CA8;border-radius:5px;display:inline-block;">
+            <img src="${buildInvQrSrc(d.invNum)}" style="width:38px;height:38px;display:block;" alt="QR TTD" onerror="this.style.display='none'">
+          </div>
+        </a>
+        <div>
+          <div style="display:inline-flex;align-items:center;gap:4px;background:#EAF4FF;color:#1B6CA8;font-size:8.5px;font-weight:700;padding:3px 9px;border-radius:20px;margin-bottom:4px;">
+            <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Ditandatangani Digital
+          </div>
+          <div style="font-size:10px;font-weight:700;color:#1c1c1c;">${d.creator||'—'}</div>
+          <div style="font-size:8.5px;color:#aaa;font-family:'Geist Mono',monospace;margin-top:2px;">${signId}</div>
+          <div style="font-size:8px;color:#aaa;margin-top:1px;">Scan untuk verifikasi</div>
+        </div>
+      </div>`
+    : '';
+
+  return `<div class="inv-doc"><div class="inv-top"><div style="display:flex;align-items:center;justify-content:space-between;padding:6px 0;"><img src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" style="height:52px;width:auto;object-fit:contain;" onerror="this.style.display='none'"><div class="inv-title-block" style="display:flex;align-items:flex-start;gap:10px;"><div style="text-align:right;"><div class="inv-title-word">Invoice</div><div class="inv-num">${d.invNum}</div>${d.nomorInduk?`<div style="font-size:9px;color:rgba(28,44,58,.45);font-family:'Geist Mono',monospace;margin-top:3px;">${d.nomorInduk}</div>`:''}</div>${qrBlock}</div></div></div><div class="inv-body"><div class="inv-parties"><div><div class="inv-plbl">Dari</div><div class="inv-pname">Markaz Belajar</div><div class="inv-psub">Jl.Raya Sirih Rt 01 Rw 05<br>Des. Kamasan, Kec. Cinangka<br>Kab. Serang – Banten<br>08366583082</div></div><div><div class="inv-plbl">Tagihan Kepada</div><div class="inv-pname">${ibuPrefix(d.pName)}</div><div class="inv-psub">${d.sName}${d.jenjang?' · '+d.jenjang:''}${d.guru?' · Guru: '+d.guru:''}</div>${d.alamat?`<div class="inv-psub" style="margin-top:4px;">${d.alamat}</div>`:''}</div></div><div class="inv-meta"><div class="inv-mb"><div class="inv-ml">Tanggal</div><div class="inv-mv">${fmtShort(d.invDate)}</div></div><div class="inv-mb"><div class="inv-ml">Jatuh Tempo</div><div class="inv-mv" style="color:#dc2626;">${fmtShort(d.dueDate)}</div></div><div class="inv-mb"><div class="inv-ml">Dibuat Oleh</div><div class="inv-mv">${d.creator}</div></div></div><table class="inv-tbl"><thead><tr><th>Program</th><th>Tipe</th><th>Durasi</th><th>Harga</th></tr></thead><tbody>${rows}</tbody></table>${totalSection}<div class="inv-bank"><div class="inv-bank-ttl">Informasi Pembayaran</div><div class="inv-bank-row"><span class="inv-bname">Dana</span><span class="inv-bnum">0838-665-830-82</span></div><div class="inv-bank-row"><span class="inv-bname">BCA</span><span class="inv-bnum">651-065-92-26</span></div><div class="inv-ban">a.n Elis Rosmiati</div></div>${d.notes?`<div class="inv-notes">Catatan: ${d.notes}</div>`:''}<div class="inv-created">Dibuat oleh: ${d.creator} · ${fmtShort(d.invDate)}</div>${ttdBlock}</div><div class="inv-footer"><span style="font-size:9px;color:#aaa;">Terima kasih atas kepercayaan Anda</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:13px;font-weight:800;color:#1c1c1c;letter-spacing:-.02em;">Markaz Belajar</span><br><span style="font-family:'Baloo 2',sans-serif;font-size:9px;font-weight:600;color:#bbb;letter-spacing:.04em;">Powered by Qazas Studio</span></div></div>`;
 }
 
 function buildInv(){
@@ -1947,7 +2102,8 @@ function buildInv(){
     nomorInduk:activeStudent?activeStudent.nomorInduk:'',
     items,subtotal,
     discount_name:disc.name,discount_type:disc.type,
-    discount_value:disc.value,discount_amount:disc.amount
+    discount_value:disc.value,discount_amount:disc.amount,
+    signature_mode:currentTTDMode
   });
 }
 function renderPrev(){document.getElementById('previewDoc').innerHTML=buildInv();}
@@ -2009,7 +2165,8 @@ async function finishInvoice(){
     status:               'created',
     payment_status:       'pending',
     payment_method:'',payment_amount:0,payment_date:'',payment_notes:'',
-    sent_via:'',sent_date:''
+    sent_via:'',sent_date:'',
+    signature_mode:currentTTDMode
   };
 
   try{
@@ -2834,7 +2991,7 @@ function downloadInvoicePDF(invId){
   const items=inv.invoice_items&&inv.invoice_items.length>0?inv.invoice_items:[{label:'Layanan Bimbingan Belajar',type:'—',dur:'',price:inv.amount}];
   const discAmt=inv.discount_amount||0;
   const baseSubtotal=discAmt>0?(inv.subtotal||(inv.amount+discAmt)):inv.amount;
-  const html=buildInvHTML({invNum:inv.invoice_number,creator:inv.created_by,notes:inv.notes||'',invDate:inv.created_date,dueDate:inv.due_date,pName:inv.student_parent||(st?st.parentName:inv.student_name),sName:inv.student_name,jenjang:inv.student_jenjang||'',guru:st?st.guru:'',alamat:inv.student_alamat||(st?st.alamat:''),nomorInduk:inv.student_nomor_induk||(st?st.nomorInduk:''),items,subtotal:baseSubtotal,discount_name:inv.discount_name||'',discount_type:inv.discount_type||'',discount_value:inv.discount_value||0,discount_amount:discAmt});
+  const html=buildInvHTML({invNum:inv.invoice_number,creator:inv.created_by,notes:inv.notes||'',invDate:inv.created_date,dueDate:inv.due_date,pName:inv.student_parent||(st?st.parentName:inv.student_name),sName:inv.student_name,jenjang:inv.student_jenjang||'',guru:st?st.guru:'',alamat:inv.student_alamat||(st?st.alamat:''),nomorInduk:inv.student_nomor_induk||(st?st.nomorInduk:''),items,subtotal:baseSubtotal,discount_name:inv.discount_name||'',discount_type:inv.discount_type||'',discount_value:inv.discount_value||0,discount_amount:discAmt,signature_mode:inv.signature_mode||'kosong'});
   _renderPDF(html,inv.invoice_number+(inv.payment_status==='paid'?'_LUNAS':'')+'.pdf',inv.payment_status==='paid');
 }
 
@@ -3217,6 +3374,16 @@ function openReminderWa(){
 }
 
 init();
+
+// Auto-verifikasi jika dibuka via QR ?inv_verify=NO_INVOICE
+(function(){
+  const _qs = new URLSearchParams(window.location.search);
+  const _invVerify = _qs.get('inv_verify');
+  if (_invVerify) {
+    // Tunggu data invoice selesai load dulu
+    setTimeout(() => openInvVerifyPopup(decodeURIComponent(_invVerify), '', ''), 2000);
+  }
+})();
 </script>
 
 <!-- ══ NOTIF PERMISSION POPUP DIALOG ══ -->
