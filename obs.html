@@ -619,6 +619,10 @@ function renderASDView(s, rec) {
       Batalkan Pengiriman (belum benar-benar terkirim)
     </button>`;
   } else {
+    html += `<button class="btn btn-ghost btn-full" onclick="lihatJawabanOrtu()">
+      <svg viewBox="0 0 24 24"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+      Lihat Jawaban Orang Tua
+    </button>`;
     html += `<button class="btn btn-ghost btn-full" onclick="prepareWA()">
       <svg viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
       Kirim Ulang / Minta Isi Ulang ke Orang Tua
@@ -669,6 +673,14 @@ function openFormGuru() {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
   const url = `${FORM_GURU}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}`;
+  window.open(url, '_blank');
+}
+
+// ⭐ BARU: buka form ortu dalam mode "lihat jawaban" (read-only)
+function lihatJawabanOrtu() {
+  const s = currentSiswa;
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  const url = `${FORM_ORTU}?gen=${encodeURIComponent(genId)}&view=1`;
   window.open(url, '_blank');
 }
 
