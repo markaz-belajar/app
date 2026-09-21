@@ -4,6 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Markaz Belajar — Invoice</title>
+<!-- Hide dashboard instantly if opened via QR verify link — must run before any paint -->
+<script>
+(function(){
+  if(new URLSearchParams(window.location.search).get('inv_verify')){
+    document.documentElement.classList.add('verify-mode');
+  }
+})();
+</script>
+<style>.verify-mode body>*{display:none!important;}.verify-mode body{background:linear-gradient(160deg,#1B6CA8,#0D3A5C);}</style>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -3419,44 +3428,36 @@ init();
   const _invVerify = _qs.get('inv_verify');
   if (!_invVerify) return;
 
-  // Sembunyikan seluruh konten app — user eksternal tidak boleh lihat dashboard
-  document.querySelector('.outer').style.display = 'none';
-
-  // Tampilkan loading screen dengan animasi levitasi logo
+  // Body sudah disembunyikan via CSS di <head> — tinggal inject splash screen
   const splash = document.createElement('div');
   splash.id = 'verifySplash';
-  splash.style.cssText = 'position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;';
+  splash.style.cssText = 'position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;';
   splash.innerHTML = `
     <style>
-      @keyframes levitate {
-        0%,100%{transform:translateY(0);}
-        50%{transform:translateY(-14px);}
-      }
-      @keyframes shadow-pulse {
-        0%,100%{transform:scaleX(1);opacity:.25;}
-        50%{transform:scaleX(.7);opacity:.12;}
-      }
-      .splash-logo{animation:levitate 2.2s ease-in-out infinite;}
-      .splash-shadow{width:70px;height:10px;background:rgba(0,0,0,.4);border-radius:50%;margin-top:10px;animation:shadow-pulse 2.2s ease-in-out infinite;}
+      @keyframes levitate{0%,100%{transform:translateY(0);}50%{transform:translateY(-16px);}}
+      @keyframes shadow-pulse{0%,100%{transform:scaleX(1);opacity:.22;}50%{transform:scaleX(.65);opacity:.09;}}
+      #verifySplash .sp-logo{animation:levitate 2.4s ease-in-out infinite;width:90px;display:block;}
+      #verifySplash .sp-shadow{width:72px;height:10px;background:rgba(0,0,0,.35);border-radius:50%;margin-top:10px;animation:shadow-pulse 2.4s ease-in-out infinite;}
+      #verifySplash .sp-text{margin-top:24px;font-size:13px;color:rgba(255,255,255,.55);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:500;letter-spacing:.01em;}
     </style>
-    <img class="splash-logo" src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png"
-      style="width:88px;" onerror="this.style.display='none'">
-    <div class="splash-shadow"></div>
-    <div style="margin-top:22px;font-size:13px;color:rgba(255,255,255,.6);font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;">Memeriksa keaslian invoice…</div>
+    <img class="sp-logo" src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png"
+      alt="Markaz Belajar" onerror="this.style.display='none'">
+    <div class="sp-shadow"></div>
+    <div class="sp-text">Memeriksa keaslian invoice…</div>
   `;
   document.body.appendChild(splash);
 
-  // Tunggu data selesai load, lalu buka popup verifikasi
+  // Tunggu data invoice selesai load, retry tiap 600ms maks 12x (~7 detik)
   const _no = decodeURIComponent(_invVerify);
   function _tryVerify(attempt) {
-    if (invoices.length > 0 || attempt > 8) {
+    if (invoices.length > 0 || attempt > 12) {
       splash.remove();
       openInvVerifyPopup(_no, '', '');
     } else {
       setTimeout(() => _tryVerify(attempt + 1), 600);
     }
   }
-  setTimeout(() => _tryVerify(0), 800);
+  setTimeout(() => _tryVerify(0), 600);
 })();
 </script>
 
