@@ -350,6 +350,7 @@ const API_MAIN      = 'https://script.google.com/macros/s/AKfycbyV94MFG6cqWUaHmB
 const API_SCREENING = 'https://script.google.com/macros/s/AKfycbxRbHFQtaVYcUtFmCqJyZmAFxiY0T4bq4QImj2HICG0VajpVhi5zsFS66GfW1r5k0BN/exec';
 const FORM_ORTU     = 'https://markaz-belajar.github.io/app/obs.autism.anak.html';
 const FORM_GURU     = 'https://markaz-belajar.github.io/app/obs.autism.teach.html';
+const FORM_REPORT   = 'https://markaz-belajar.github.io/app/obs.autism.report.html';
 
 let allSiswa = [], screeningMap = {}, currentFilter = 'semua', currentSiswa = null;
 let sheetView = 'menu', pendingWA = null;
@@ -649,7 +650,7 @@ function renderASDView(s, rec) {
 
   if (ortuOk && guruOk) {
     html += `<div class="sec-lbl" style="margin-top:14px;">Laporan</div>`;
-    html += `<button class="btn btn-accent btn-full" onclick="openFormGuru()">
+    html += `<button class="btn btn-accent btn-full" onclick="lihatLaporanGabungan()">
       <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
       Lihat Laporan Gabungan (Guru + Orang Tua)
     </button>`;
@@ -681,6 +682,14 @@ function openFormGuru() {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
   const url = `${FORM_GURU}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}`;
+  window.open(url, '_blank');
+}
+
+// ⭐ BARU: buka halaman laporan gabungan deskriptif siap cetak
+function lihatLaporanGabungan() {
+  const s = currentSiswa;
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  const url = `${FORM_REPORT}?gen=${encodeURIComponent(genId)}`;
   window.open(url, '_blank');
 }
 
