@@ -1249,6 +1249,8 @@ async function loadViewMode() {
   // Sembunyikan header & tampilan form biasa, tampilkan halaman review saja
   document.querySelector('.header').style.display = 'none';
   const wo = document.getElementById('welcome-overlay'); if (wo) wo.style.display = 'none';
+  const bodyEl = document.querySelector('.body'); if (bodyEl) bodyEl.style.display = 'none';
+  const fcOv = document.getElementById('fc-overlay'); if (fcOv) fcOv.style.display = 'none';
   const vm = document.getElementById('view-mode-page');
   const vmBody = document.getElementById('view-mode-body');
   vm.style.display = 'block';
@@ -1274,11 +1276,19 @@ async function loadViewMode() {
     const usiaTahun = rSiswa && rSiswa.ok && rSiswa.data ? Number(rSiswa.data.usiaTahun) : NaN;
 
     let bracket = null;
+    let brakcetIsGuess = false;
     if (!isNaN(usiaTahun)) {
       if (usiaTahun>=4 && usiaTahun<=5) bracket='A';
       else if (usiaTahun>=6 && usiaTahun<=8) bracket='B';
       else if (usiaTahun>=9 && usiaTahun<=10) bracket='C';
       else if (usiaTahun>=11 && usiaTahun<=12) bracket='D';
+      else if (usiaTahun<4) { bracket='A'; brakcetIsGuess=true; }
+      else if (usiaTahun>12) { bracket='D'; brakcetIsGuess=true; }
+    }
+    if (!bracket) {
+      // Usia tidak diketahui sama sekali → coba tebak dari jumlah pertanyaan yang terjawab
+      const nAns = Object.keys(answersOrtu).length;
+      if (nAns > 0) { bracket='A'; brakcetIsGuess=true; }
     }
 
     const domains = bracket ? ITEMS_BY_AGE[bracket] : null;
@@ -1296,6 +1306,7 @@ async function loadViewMode() {
         <div style="font-size:11px;opacity:0.8;text-transform:uppercase;letter-spacing:.5px;">Jawaban Orang Tua</div>
         <div style="font-size:19px;font-weight:800;font-family:'Baloo 2',sans-serif;margin-top:2px;">${nama}</div>
       </div>
+      ${brakcetIsGuess ? '<div style="background:#fef3c7;color:#92400e;font-size:12px;padding:10px 14px;border-radius:10px;margin-bottom:14px;">⚠️ Usia siswa di luar rentang kategori baku — daftar pertanyaan di bawah ini perkiraan terdekat, mungkin tidak 100% sama persis dengan yang dijawab orang tua.</div>' : ''}
     `;
 
     domains.forEach(domainGroup => {
