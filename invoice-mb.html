@@ -698,28 +698,18 @@ textarea{resize:vertical;min-height:80px;}
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
       Tanda Tangan
     </div>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
-      <button type="button" id="ttdOptKosong" onclick="setTTD('kosong')" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;border-radius:12px;border:2px solid var(--accent);background:var(--accent-dim);cursor:pointer;font-family:inherit;transition:all .2s;">
-        <span style="width:38px;height:38px;border-radius:50%;background:var(--surface2);border:1.5px solid var(--border2);display:flex;align-items:center;justify-content:center;">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--text2)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
-        </span>
-        <div style="text-align:center;">
-          <div style="font-size:13px;font-weight:700;color:var(--text);">Kosong / Manual</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;">Kolom TTD dikosongkan<br>untuk tanda tangan basah</div>
+    <div class="reg-row" id="ttdRow" onclick="toggleTTD()">
+      <div class="reg-left">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        <div>
+          <div class="reg-info">Tanda Tangan Digital</div>
+          <div class="reg-hint" id="ttdHint">Nonaktif — kolom TTD dikosongkan untuk tanda tangan basah</div>
         </div>
-      </button>
-      <button type="button" id="ttdOptDigital" onclick="setTTD('digital')" style="display:flex;flex-direction:column;align-items:center;gap:8px;padding:14px 10px;border-radius:12px;border:2px solid var(--border);background:var(--surface2);cursor:pointer;font-family:inherit;transition:all .2s;">
-        <span style="width:38px;height:38px;border-radius:50%;background:var(--accent-dim);display:flex;align-items:center;justify-content:center;">
-          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-        </span>
-        <div style="text-align:center;">
-          <div style="font-size:13px;font-weight:700;color:var(--text);">Tanda Tangan Digital</div>
-          <div style="font-size:11px;color:var(--text3);margin-top:2px;line-height:1.4;">Segel + QR verifikasi<br>tercetak otomatis</div>
-        </div>
-      </button>
+      </div>
+      <div class="sw" id="ttdSw"></div>
     </div>
-    <div id="ttdDigitalInfo" style="display:none;margin-top:10px;padding:10px 12px;background:var(--accent-dim);border:1px solid rgba(27,108,168,.2);border-radius:10px;font-size:12px;color:var(--accent);">
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>
+    <div id="ttdDigitalInfo" style="display:none;margin-top:8px;padding:9px 12px;background:var(--accent-dim);border:1px solid rgba(27,108,168,.2);border-radius:10px;font-size:12px;color:var(--accent);">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="display:inline;vertical-align:middle;margin-right:4px;"><polyline points="20 6 9 17 4 12"/></svg>
       TTD digital atas nama <strong id="ttdDigitalName">—</strong>
     </div>
   </div>
@@ -1494,32 +1484,42 @@ function rebuildStudentSelect(){
 ═══════════════════════════════════════════════════════ */
 
 // ── TANDA TANGAN & VERIFIKASI INVOICE ─────────────────────────
+function toggleTTD() {
+  const isOn = currentTTDMode === 'digital';
+  setTTD(isOn ? 'kosong' : 'digital');
+}
 function setTTD(mode) {
   currentTTDMode = mode;
-  const btnKosong = document.getElementById('ttdOptKosong');
-  const btnDigital = document.getElementById('ttdOptDigital');
+  const row  = document.getElementById('ttdRow');
+  const hint = document.getElementById('ttdHint');
   const info = document.getElementById('ttdDigitalInfo');
-  if (mode === 'digital') {
-    btnKosong.style.border = '2px solid var(--border)';
-    btnKosong.style.background = 'var(--surface2)';
-    btnDigital.style.border = '2px solid var(--accent)';
-    btnDigital.style.background = 'var(--accent-dim)';
+  const isOn = mode === 'digital';
+  if (row) row.classList.toggle('on', isOn);
+  if (hint) hint.textContent = isOn
+    ? 'Aktif — segel + QR verifikasi tercetak otomatis'
+    : 'Nonaktif — kolom TTD dikosongkan untuk tanda tangan basah';
+  if (info) info.style.display = isOn ? 'block' : 'none';
+  if (isOn) {
     const creator = document.getElementById('createdBy').value || '—';
     document.getElementById('ttdDigitalName').textContent = creator;
-    if (info) { info.style.display = 'flex'; }
-  } else {
-    btnKosong.style.border = '2px solid var(--accent)';
-    btnKosong.style.background = 'var(--accent-dim)';
-    btnDigital.style.border = '2px solid var(--border)';
-    btnDigital.style.background = 'var(--surface2)';
-    if (info) { info.style.display = 'none'; }
   }
   if (prevOpen) renderPrev();
 }
 
 function openInvVerifyPopup(invNum, creator, invDate) {
-  // Cari dari data lokal dulu
-  const inv = invoices.find(i => i.invoice_number === invNum);
+  // Normalize — hilangkan encode, trim whitespace
+  const normalNo = decodeURIComponent(invNum || '').trim();
+  // Cari dari data lokal — coba invoice_number dulu, fallback __backendId
+  const inv = invoices.find(i =>
+    (i.invoice_number || '').trim() === normalNo ||
+    (i.__backendId || '') === normalNo
+  );
+  // Kalau belum ada (data mungkin belum selesai load), coba tunggu 1.5 detik
+  if (!inv && invoices.length === 0) {
+    setTimeout(() => openInvVerifyPopup(normalNo, creator, invDate), 1500);
+    return;
+  }
+  invNum = normalNo;
   const overlay = document.createElement('div');
   overlay.id = 'invVerifyOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
@@ -2051,9 +2051,11 @@ function buildInvHTML(d){
 
   // QR verifikasi di pojok kanan header
   const qrBlock = d.invNum && d.invNum !== '—'
-    ? `<a href="${buildInvVerifyUrl(d.invNum)}" onclick="event.preventDefault();openInvVerifyPopup('${d.invNum.replace(/'/g,"\\'")}','${(d.creator||'').replace(/'/g,"\\'")}','${d.invDate||''}')" style="display:flex;flex-direction:column;align-items:center;text-decoration:none;cursor:pointer;" title="Klik untuk verifikasi">
-        <img src="${buildInvQrSrc(d.invNum)}" style="width:46px;height:46px;display:block;" alt="QR" onerror="this.style.display='none'">
-        <span style="font-size:7px;color:rgba(84,60,52,0.55);margin-top:2px;font-weight:600;letter-spacing:.03em;">SCAN/KLIK</span>
+    ? `<a href="${buildInvVerifyUrl(d.invNum)}" onclick="event.preventDefault();openInvVerifyPopup('${d.invNum.replace(/'/g,"\\'")}','${(d.creator||'').replace(/'/g,"\\'")}','${d.invDate||''}')" style="display:flex;flex-direction:column;align-items:center;text-decoration:none;cursor:pointer;gap:4px;" title="Klik untuk verifikasi">
+        <div style="background:#fff;border:1.5px solid rgba(84,60,52,0.18);border-radius:5px;padding:4px;line-height:0;">
+          <img src="${buildInvQrSrc(d.invNum)}" style="width:46px;height:46px;display:block;" alt="QR" onerror="this.style.display='none'">
+        </div>
+        <span style="font-size:6.5px;color:rgba(84,60,52,0.5);font-weight:700;letter-spacing:.04em;text-align:center;line-height:1.2;">SCAN TO<br>VERIFY</span>
        </a>`
     : '';
 
