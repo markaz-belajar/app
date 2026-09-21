@@ -376,6 +376,16 @@ function build() {
 function tog(id) { document.getElementById(id).classList.toggle("open"); }
 function setAns(key, val) { answers[key] = val; updateScore(); }
 
+// ⭐ BARU: pulihkan jawaban guru dari data tersimpan (dipanggil saat form dibuka untuk revisi)
+function restoreGuruAnswers(prevAnswers) {
+  Object.entries(prevAnswers).forEach(([key, val]) => {
+    answers[key] = Number(val);
+    const radio = document.querySelector(`input[name="${key}"][value="${val}"]`);
+    if (radio) radio.checked = true;
+  });
+  updateScore();
+}
+
 function updateScore() {
   const ds = {A:0,B:0,C:0,D:0}, dc = {A:0,B:0,C:0,D:0};
   let total = 0, answered = 0;
@@ -629,9 +639,20 @@ async function initGuruPage() {
     }
   } catch(e) {}
 
-  // Ambil status & jawaban orang tua dari server
+  // Ambil status & jawaban orang tua + jawaban GURU SEBELUMNYA (kalau ada) dari server
   try {
     const r = await apiScreening('getScreeningDetail', { genId: gen });
+
+    // ⭐ BARU: pulihkan jawaban guru yang sudah pernah diisi sebelumnya
+    // (mencegah data hilang saat form dibuka ulang untuk revisi)
+    if (r && r.ok && r.data && r.data.statusGuru === 'selesai' && r.data.answersGuru) {
+      restoreGuruAnswers(r.data.answersGuru);
+      const banner = document.createElement('div');
+      banner.style.cssText = 'background:#dbeafe;color:#1e40af;font-size:12.5px;padding:10px 14px;border-radius:10px;margin-bottom:14px;';
+      banner.innerHTML = '✏️ Jawaban sebelumnya (' + Object.keys(r.data.answersGuru).length + ' item) sudah dimuat. Anda sedang merevisi observasi yang sudah tersimpan.';
+      document.getElementById('checklist').parentNode.insertBefore(banner, document.getElementById('checklist'));
+    }
+
     if (r && r.ok && r.data && r.data.statusOrtu === 'selesai') {
       const namaSiswa = document.getElementById('f-nama').value || r.data.namaAnak || '—';
       const usiaSiswa = document.getElementById('f-usia').value || '—';
