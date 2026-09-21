@@ -1527,7 +1527,20 @@ function openInvVerifyPopup(invNum, creator, invDate) {
 
   let body = '';
   if (inv) {
-    const signId = buildInvSignId({ invNum, creator: inv.created_by || creator, invDate: inv.created_date || invDate });
+    // Baca signature_mode: prioritas dari data invoice, lalu localStorage cache.
+    // Kalau tidak ada di keduanya → 'kosong' (jangan tampil TTD block).
+    let _invSigMode = inv.signature_mode || '';
+    if (!_invSigMode || _invSigMode === 'kosong') {
+      try {
+        const sigCache = JSON.parse(localStorage.getItem('mrkz_inv_sig') || '{}');
+        // Hanya pakai cache kalau memang ada entry eksplisit untuk nomor ini
+        const cached = sigCache[inv.invoice_number];
+        _invSigMode = (cached === 'digital') ? 'digital' : 'kosong';
+      } catch(e) { _invSigMode = 'kosong'; }
+    }
+    const signId = _invSigMode === 'digital'
+      ? buildInvSignId({ invNum, creator: inv.created_by || creator, invDate: inv.created_date || invDate })
+      : null;
     body = `
       <div style="width:56px;height:56px;border-radius:50%;background:#E3F6EA;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
         <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -1543,7 +1556,7 @@ function openInvVerifyPopup(invNum, creator, invDate) {
         <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Status</span><span style="font-weight:600;color:${inv.payment_status==='paid'?'#2E9E5B':'#F59F00'}">${inv.payment_status==='paid'?'✓ Lunas':'Belum Lunas'}</span></div>
         <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#8FA4B4;font-size:11.5px;">Dibuat Oleh</span><span style="font-weight:600;">${inv.created_by||creator||'—'}</span></div>
       </div>
-      ${signId ? `<div style="margin-top:10px;text-align:left;background:#EAF4FF;border-radius:14px;padding:14px 16px;">
+      ${(signId && _invSigMode === 'digital') ? `<div style="margin-top:10px;text-align:left;background:#EAF4FF;border-radius:14px;padding:14px 16px;">
         <div style="display:flex;align-items:center;gap:6px;color:#1B6CA8;font-size:11.5px;font-weight:700;margin-bottom:8px;">
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
           Tanda Tangan Digital
@@ -2172,6 +2185,12 @@ async function finishInvoice(){
   };
 
   try{
+    // Cache signature_mode di localStorage (kolom ini tidak ada di GAS sheet lama)
+    try {
+      const sigCache = JSON.parse(localStorage.getItem('mrkz_inv_sig') || '{}');
+      sigCache[invData.invoice_number] = currentTTDMode;
+      localStorage.setItem('mrkz_inv_sig', JSON.stringify(sigCache));
+    } catch(e) {}
     const result = await saveInvoiceToSheets(invData);
     // Tambah ke knownIds supaya tidak memicu notif untuk diri sendiri
     knownInvoiceIds.add(invData.__backendId);
@@ -2971,6 +2990,15 @@ async function confirmEdit(){
     if(idx>=0) invoices[idx] = {...invoices[idx], ...updates};
     renderTracking();
 
+    // Update cache signature_mode di localStorage jika ada perubahan
+    if (updates.signature_mode) {
+      try {
+        const sigCache = JSON.parse(localStorage.getItem('mrkz_inv_sig') || '{}');
+        const editedInv = invoices.find(i => i.__backendId === editInvoiceId);
+        if (editedInv) sigCache[editedInv.invoice_number] = updates.signature_mode;
+        localStorage.setItem('mrkz_inv_sig', JSON.stringify(sigCache));
+      } catch(e) {}
+    }
     await updateInvoiceInSheets(editInvoiceId, updates, document.getElementById('createdBy').value);
     await syncFromSheets(false);
     showToast('Invoice berhasil diperbarui! ✓',true);
@@ -2993,7 +3021,15 @@ function downloadInvoicePDF(invId){
   const items=inv.invoice_items&&inv.invoice_items.length>0?inv.invoice_items:[{label:'Layanan Bimbingan Belajar',type:'—',dur:'',price:inv.amount}];
   const discAmt=inv.discount_amount||0;
   const baseSubtotal=discAmt>0?(inv.subtotal||(inv.amount+discAmt)):inv.amount;
-  const html=buildInvHTML({invNum:inv.invoice_number,creator:inv.created_by,notes:inv.notes||'',invDate:inv.created_date,dueDate:inv.due_date,pName:inv.student_parent||(st?st.parentName:inv.student_name),sName:inv.student_name,jenjang:inv.student_jenjang||'',guru:st?st.guru:'',alamat:inv.student_alamat||(st?st.alamat:''),nomorInduk:inv.student_nomor_induk||(st?st.nomorInduk:''),items,subtotal:baseSubtotal,discount_name:inv.discount_name||'',discount_type:inv.discount_type||'',discount_value:inv.discount_value||0,discount_amount:discAmt,signature_mode:inv.signature_mode||'kosong'});
+  // Baca signature_mode dari data invoice, fallback ke localStorage cache
+  let _sigMode = inv.signature_mode || 'kosong';
+  if (_sigMode === 'kosong') {
+    try {
+      const sigCache = JSON.parse(localStorage.getItem('mrkz_inv_sig') || '{}');
+      _sigMode = sigCache[inv.invoice_number] || 'kosong';
+    } catch(e) {}
+  }
+  const html=buildInvHTML({invNum:inv.invoice_number,creator:inv.created_by,notes:inv.notes||'',invDate:inv.created_date,dueDate:inv.due_date,pName:inv.student_parent||(st?st.parentName:inv.student_name),sName:inv.student_name,jenjang:inv.student_jenjang||'',guru:st?st.guru:'',alamat:inv.student_alamat||(st?st.alamat:''),nomorInduk:inv.student_nomor_induk||(st?st.nomorInduk:''),items,subtotal:baseSubtotal,discount_name:inv.discount_name||'',discount_type:inv.discount_type||'',discount_value:inv.discount_value||0,discount_amount:discAmt,signature_mode:_sigMode});
   _renderPDF(html,inv.invoice_number+(inv.payment_status==='paid'?'_LUNAS':'')+'.pdf',inv.payment_status==='paid');
 }
 
@@ -3381,10 +3417,46 @@ init();
 (function(){
   const _qs = new URLSearchParams(window.location.search);
   const _invVerify = _qs.get('inv_verify');
-  if (_invVerify) {
-    // Tunggu data invoice selesai load dulu
-    setTimeout(() => openInvVerifyPopup(decodeURIComponent(_invVerify), '', ''), 2000);
+  if (!_invVerify) return;
+
+  // Sembunyikan seluruh konten app — user eksternal tidak boleh lihat dashboard
+  document.querySelector('.outer').style.display = 'none';
+
+  // Tampilkan loading screen dengan animasi levitasi logo
+  const splash = document.createElement('div');
+  splash.id = 'verifySplash';
+  splash.style.cssText = 'position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:0;';
+  splash.innerHTML = `
+    <style>
+      @keyframes levitate {
+        0%,100%{transform:translateY(0);}
+        50%{transform:translateY(-14px);}
+      }
+      @keyframes shadow-pulse {
+        0%,100%{transform:scaleX(1);opacity:.25;}
+        50%{transform:scaleX(.7);opacity:.12;}
+      }
+      .splash-logo{animation:levitate 2.2s ease-in-out infinite;}
+      .splash-shadow{width:70px;height:10px;background:rgba(0,0,0,.4);border-radius:50%;margin-top:10px;animation:shadow-pulse 2.2s ease-in-out infinite;}
+    </style>
+    <img class="splash-logo" src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png"
+      style="width:88px;" onerror="this.style.display='none'">
+    <div class="splash-shadow"></div>
+    <div style="margin-top:22px;font-size:13px;color:rgba(255,255,255,.6);font-family:'Plus Jakarta Sans',sans-serif;font-weight:500;">Memeriksa keaslian invoice…</div>
+  `;
+  document.body.appendChild(splash);
+
+  // Tunggu data selesai load, lalu buka popup verifikasi
+  const _no = decodeURIComponent(_invVerify);
+  function _tryVerify(attempt) {
+    if (invoices.length > 0 || attempt > 8) {
+      splash.remove();
+      openInvVerifyPopup(_no, '', '');
+    } else {
+      setTimeout(() => _tryVerify(attempt + 1), 600);
+    }
   }
+  setTimeout(() => _tryVerify(0), 800);
 })();
 </script>
 
