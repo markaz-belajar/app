@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Laporan Screening — Markz Belajar</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#1B6CA8;--accent-dim:#e8f4fc;
+  --text:#1C2B3A;--text2:#4A6070;--text3:#8FA4B4;
+  --border:#EDE9DF;--bg:#FDFAF4;
+  --success:#2E9E5B;--warning:#F59F00;--danger:#DC3545;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9eef3;font-size:13px;line-height:1.7;}
+.page{max-width:760px;margin:0 auto;background:#fff;padding:0;}
+@media screen{ body{padding:24px 0;} .page{box-shadow:0 4px 30px rgba(0,0,0,0.1);border-radius:12px;overflow:hidden;} }
+@media print{ body{background:#fff;} .no-print{display:none!important;} .page{max-width:100%;} }
+
+.letterhead{background:var(--accent);color:#fff;padding:28px 36px;}
+.letterhead-brand{font-family:'Baloo 2',sans-serif;font-size:20px;font-weight:800;}
+.letterhead-sub{font-size:12px;opacity:0.85;margin-top:2px;}
+.letterhead-title{font-size:15px;font-weight:700;margin-top:16px;border-top:1px solid rgba(255,255,255,0.25);padding-top:14px;}
+.letterhead-date{font-size:11px;opacity:0.75;margin-top:2px;}
+
+.section{padding:22px 36px;border-bottom:1px solid var(--border);}
+.section:last-child{border-bottom:none;}
+.section-title{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;}
+
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px 24px;}
+.info-item-lbl{font-size:10.5px;color:var(--text3);}
+.info-item-val{font-size:13.5px;font-weight:700;color:var(--text);}
+
+.score-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:18px;}
+.score-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
+.score-num{font-family:'Baloo 2',sans-serif;font-size:24px;font-weight:800;color:var(--accent);}
+.score-lbl{font-size:10px;color:var(--text3);margin-top:2px;}
+
+.level-banner{border-radius:10px;padding:16px 18px;margin-bottom:4px;}
+.level-banner strong{display:block;font-family:'Baloo 2',sans-serif;font-size:15px;margin-bottom:6px;}
+.lv-minimal{background:#e7f7ef;color:var(--success);}
+.lv-pantau{background:var(--accent-dim);color:var(--accent);}
+.lv-moderat{background:#fef3c7;color:#92400e;}
+.lv-kuat{background:#fff0e0;color:#b45309;}
+.lv-sangat{background:#fde8e8;color:var(--danger);}
+
+.domain-block{margin-bottom:16px;}
+.domain-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;display:flex;justify-content:space-between;align-items:baseline;}
+.domain-pct{font-family:'Baloo 2',sans-serif;font-size:14px;color:var(--accent);}
+.domain-narrative{font-size:12.5px;color:var(--text2);margin-bottom:6px;}
+.finding-list{margin:6px 0 0 0;padding-left:18px;}
+.finding-list li{font-size:12px;color:var(--text2);margin-bottom:4px;}
+
+.disclaimer{background:#fef9e7;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:11.5px;color:#92400e;line-height:1.6;}
+
+.print-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+
+.loading{text-align:center;padding:80px 20px;color:var(--text3);}
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <div class="loading" id="loading">
+    <svg class="spin" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-9-9"/></svg>
+    <div style="margin-top:12px;">Menyusun laporan...</div>
+  </div>
+  <div id="report-content" style="display:none;"></div>
+</div>
+
+<div class="no-print" style="text-align:center;padding:20px;">
+  <button class="print-btn" onclick="window.print()">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+    Cetak / Simpan sebagai PDF
+  </button>
+</div>
+
+<script>
+const SCREENING_API = 'https://script.google.com/macros/s/AKfycbxRbHFQtaVYcUtFmCqJyZmAFxiY0T4bq4QImj2HICG0VajpVhi5zsFS66GfW1r5k0BN/exec';
+
+function apiScreening(action, params={}) {
+  const url = new URL(SCREENING_API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) url.searchParams.set(k, v);
+  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json()).catch(() => ({ ok:false }));
+}
+
+// ── Bank pertanyaan GURU (dipakai untuk narasi temuan spesifik) ──
+const GURU_ITEMS = [
+  { domain:"A", label:"Perhatian & kontak", items:[
+    { text:"Tidak merespons atau lambat merespons saat namanya dipanggil guru" },
+    { text:"Menghindari atau sangat jarang melakukan kontak mata saat diajak bicara langsung" },
+    { text:"Tampak tidak hadir atau sering melamun tanpa stimuli yang jelas" }
+  ]},
+  { domain:"B", label:"Komunikasi & bahasa", items:[
+    { text:"Kesulitan mengikuti instruksi sederhana yang diberikan guru" },
+    { text:"Mengulangi kata atau kalimat yang baru didengar tanpa konteks yang relevan (echolalia)" },
+    { text:"Cara berkomunikasi tidak biasa untuk usianya" },
+    { text:"Cara bicara terasa seperti hafalan atau diambil dari script — bukan percakapan spontan" },
+    { text:"Kesulitan mengikuti instruksi dua langkah sekaligus tanpa diulangi" }
+  ]},
+  { domain:"C", label:"Perilaku selama sesi", items:[
+    { text:"Melakukan gerakan tubuh berulang selama sesi belajar (stimming)" },
+    { text:"Reaksi berlebihan atau tidak biasa saat ada perubahan kecil selama sesi" },
+    { text:"Fokus sangat terpaku pada satu hal sambil mengabaikan hal lain sepenuhnya" },
+    { text:"Bermain atau memegang benda dengan cara yang tidak biasa dan berulang" }
+  ]},
+  { domain:"D", label:"Interaksi sosial di bimbel", items:[
+    { text:"Tidak tertarik atau kesulitan berinteraksi dengan teman bimbel lainnya" },
+    { text:"Respons emosional selama sesi yang tidak sesuai konteks" }
+  ]}
+];
+
+const PARENT_DOMAIN_LABELS = { A:"Komunikasi & bahasa", B:"Kebiasaan & rutinitas", C:"Kepekaan sensorik", D:"Interaksi sosial", E:"Kemandirian" };
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }); }
+  catch { return iso; }
+}
+
+function levelClass(l) {
+  return { Minimal:'lv-minimal', 'Perlu pantau':'lv-pantau', Moderat:'lv-moderat', Kuat:'lv-kuat', 'Sangat kuat':'lv-sangat' }[l] || 'lv-pantau';
+}
+
+function levelNarrative(level, nama) {
+  const m = {
+    Minimal: `Berdasarkan observasi guru selama sesi bimbel dan laporan orang tua di rumah, tidak ditemukan pola perilaku yang menonjol pada ${nama} yang mengindikasikan tumbuh kembang atipikal. Rekomendasi: lanjutkan pemantauan rutin sebagai bagian dari proses belajar normal.`,
+    'Perlu pantau': `Beberapa pola perilaku pada ${nama} teramati baik oleh guru maupun orang tua, namun belum cukup konsisten untuk dikategorikan sebagai indikasi kuat. Rekomendasi: lanjutkan observasi terstruktur selama 4–6 minggu ke depan, dokumentasikan kejadian spesifik, dan evaluasi ulang setelah periode tersebut.`,
+    Moderat: `Pola perilaku yang cukup konsisten teramati pada ${nama} baik di lingkungan bimbel maupun di rumah. Rekomendasi: rekomendasikan diskusi lebih dalam dengan orang tua mengenai temuan ini, dan pertimbangkan rujukan awal untuk konsultasi dengan profesional (psikolog anak) guna asesmen lebih lanjut.`,
+    Kuat: `Pola perilaku yang konsisten di beberapa domain penting teramati pada ${nama}, baik dari sisi observasi guru maupun laporan orang tua. Rekomendasi: segera jadwalkan pertemuan dengan orang tua untuk membahas temuan ini secara menyeluruh, dan sarankan asesmen formal oleh psikolog klinis anak atau psikiater anak.`,
+    'Sangat kuat': `Pola perilaku sangat konsisten teramati hampir di seluruh domain, baik dari observasi guru di lingkungan bimbel maupun laporan orang tua di rumah. Rekomendasi: prioritaskan pertemuan segera dengan orang tua, siapkan dokumentasi observasi ini secara lengkap, dan sarankan rujukan formal ke psikolog klinis anak atau psikiater anak untuk asesmen diagnostik.`
+  };
+  return m[level] || '';
+}
+
+async function buildReport() {
+  const p = new URLSearchParams(window.location.search);
+  const gen = p.get('gen');
+  const loading = document.getElementById('loading');
+  const content = document.getElementById('report-content');
+
+  if (!gen) {
+    loading.innerHTML = '<div style="color:#dc2626;">Kode siswa (gen) tidak ditemukan di URL.</div>';
+    return;
+  }
+
+  const [rSiswa, rDetail] = await Promise.all([
+    apiScreening('getSiswaByGenId', { genId: gen }),
+    apiScreening('getScreeningDetail', { genId: gen })
+  ]);
+
+  if (!rDetail || !rDetail.ok || !rDetail.data) {
+    loading.innerHTML = '<div style="color:#dc2626;">Data screening tidak ditemukan untuk kode ini.</div>';
+    return;
+  }
+
+  const d = rDetail.data;
+  const siswa = (rSiswa && rSiswa.ok && rSiswa.data) ? rSiswa.data : {};
+  const nama = siswa.nama || d.namaAnak || '—';
+  const namaDepan = nama.split(' ')[0];
+
+  if (d.statusOrtu !== 'selesai' || d.statusGuru !== 'selesai') {
+    loading.innerHTML = `<div style="text-align:center;">
+      <div style="font-size:32px;margin-bottom:10px;">⏳</div>
+      <div style="font-weight:800;font-size:15px;">Laporan belum bisa disusun</div>
+      <div style="font-size:12px;color:#8FA4B4;margin-top:6px;">
+        ${d.statusOrtu!=='selesai' ? 'Orang tua belum menyelesaikan form. ' : ''}
+        ${d.statusGuru!=='selesai' ? 'Guru belum menyelesaikan form observasi.' : ''}
+      </div>
+    </div>`;
+    return;
+  }
+
+  const answersOrtu = d.answersOrtu || {};
+  const answersGuru = d.answersGuru || {};
+  const skorOrtu = Math.round(Number(d.skorOrtu)||0);
+  const skorGuru = Math.round(Number(d.skorGuru)||0);
+  const skorGab = Math.round(Number(d.skorGabungan)||0);
+  const level = d.levelGabungan || '—';
+
+  // ── Narasi domain GURU: hitung % per domain + list temuan spesifik (nilai >= 2) ──
+  let guruDomainHtml = '';
+  GURU_ITEMS.forEach(dom => {
+    let sum=0, count=0;
+    const findings = [];
+    dom.items.forEach((item, idx) => {
+      const key = `${dom.domain}_${idx}`;
+      const val = Number(answersGuru[key]);
+      if (!isNaN(val)) { sum += val; count++; if (val>=2) findings.push(item.text); }
+    });
+    const pct = count>0 ? Math.round((sum/(count*3))*100) : null;
+    guruDomainHtml += `<div class="domain-block">
+      <div class="domain-title"><span>${dom.label}</span><span class="domain-pct">${pct!==null?pct+'%':'—'}</span></div>
+      ${findings.length ? `<ul class="finding-list">${findings.map(f=>`<li>${f}</li>`).join('')}</ul>` : `<div class="domain-narrative">Tidak ada temuan menonjol pada domain ini.</div>`}
+    </div>`;
+  });
+
+  // ── Narasi domain ORANG TUA: hitung % per domain dari answersOrtu (key domain letter + idx) ──
+  const ortuDomainSum = {}, ortuDomainCount = {};
+  Object.entries(answersOrtu).forEach(([key, val]) => {
+    const domLetter = key.split('_')[0];
+    ortuDomainSum[domLetter] = (ortuDomainSum[domLetter]||0) + Number(val);
+    ortuDomainCount[domLetter] = (ortuDomainCount[domLetter]||0) + 1;
+  });
+  let ortuDomainHtml = '';
+  Object.keys(PARENT_DOMAIN_LABELS).forEach(letter => {
+    if (!ortuDomainCount[letter]) return;
+    const pct = Math.round((ortuDomainSum[letter]/(ortuDomainCount[letter]*3))*100);
+    ortuDomainHtml += `<div class="domain-block">
+      <div class="domain-title"><span>${PARENT_DOMAIN_LABELS[letter]}</span><span class="domain-pct">${pct}%</span></div>
+      <div class="domain-narrative">${pct===0?'Orang tua tidak melaporkan pola yang mengkhawatirkan pada domain ini.':pct<34?'Orang tua melaporkan sedikit pola yang perlu diperhatikan pada domain ini.':pct<67?'Orang tua melaporkan pola yang cukup konsisten pada domain ini.':'Orang tua melaporkan pola yang sangat konsisten pada domain ini.'}</div>
+    </div>`;
+  });
+
+  content.innerHTML = `
+    <div class="letterhead">
+      <div class="letterhead-brand">Markz Belajar</div>
+      <div class="letterhead-sub">Program Bimbingan Belajar & Pendampingan Tumbuh Kembang</div>
+      <div class="letterhead-title">Laporan Screening Tumbuh Kembang — Autism Spectrum Disorder (ASD)</div>
+      <div class="letterhead-date">Dicetak pada ${fmtDate(new Date().toISOString())}</div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Data Siswa</div>
+      <div class="info-grid">
+        <div><div class="info-item-lbl">Nama</div><div class="info-item-val">${nama}</div></div>
+        <div><div class="info-item-lbl">Kode Siswa</div><div class="info-item-val">${gen}</div></div>
+        <div><div class="info-item-lbl">Usia</div><div class="info-item-val">${siswa.usia||'—'}</div></div>
+        <div><div class="info-item-lbl">Program</div><div class="info-item-val">${siswa.program||'—'}</div></div>
+        <div><div class="info-item-lbl">Form dikirim ke orang tua</div><div class="info-item-val">${fmtDate(d.tanggalKirim)}</div></div>
+        <div><div class="info-item-lbl">Orang tua mengisi</div><div class="info-item-val">${fmtDate(d.tanggalOrtu)}</div></div>
+        <div><div class="info-item-lbl">Guru mengisi observasi</div><div class="info-item-val">${fmtDate(d.tanggalGuru)}</div></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Ringkasan Skor</div>
+      <div class="score-row">
+        <div class="score-box"><div class="score-num">${skorOrtu}%</div><div class="score-lbl">Laporan Orang Tua</div></div>
+        <div class="score-box"><div class="score-num">${skorGuru}%</div><div class="score-lbl">Observasi Guru</div></div>
+        <div class="score-box"><div class="score-num">${skorGab}%</div><div class="score-lbl">Skor Gabungan</div></div>
+      </div>
+      <div class="level-banner ${levelClass(level)}">
+        <strong>${level}</strong>
+        ${levelNarrative(level, namaDepan)}
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-title">Temuan Observasi Guru (di Lingkungan Bimbel)</div>
+      ${guruDomainHtml}
+    </div>
+
+    <div class="section">
+      <div class="section-title">Laporan Orang Tua (di Rumah)</div>
+      ${ortuDomainHtml}
+    </div>
+
+    <div class="section">
+      <div class="disclaimer">
+        ⚠️ Laporan ini adalah alat bantu observasi awal di lingkungan bimbel Markz Belajar, bukan pengganti diagnosis profesional. Hasil sebaiknya dikombinasikan dengan asesmen formal oleh psikolog klinis anak atau psikiater anak sebelum mengambil keputusan lebih lanjut.
+      </div>
+    </div>
+  `;
+
+  loading.style.display = 'none';
+  content.style.display = 'block';
+}
+
+buildReport();
+</script>
+</body>
+</html>
