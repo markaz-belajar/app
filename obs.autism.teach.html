@@ -46,7 +46,8 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .domain-head-sub { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 1px; }
 .domain-badge { background: rgba(255,255,255,0.2); color: #fff; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
 .legend-strip { display: flex; border-bottom: 1px solid var(--border); background: var(--blue-light); }
-.legend-strip span { flex: 1; text-align: center; font-size: 10px; font-weight: 600; padding: 5px 2px; color: var(--blue-dark); }
+.legend-strip span { flex: 1; text-align: center; font-size: 10px; font-weight: 600; padding: 5px 2px; color: var(--blue-dark); line-height:1.4; }
+.legend-strip span small { display:block; font-size:8.5px; font-weight:500; opacity:0.75; }
 .item { padding: 14px; border-bottom: 1px solid var(--border); }
 .item:last-child { border-bottom: none; }
 .item-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
@@ -192,7 +193,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 
 <div class="body">
   <div class="notice">
-    <strong>Panduan pengisian:</strong> Isi berdasarkan observasi sesi bimbel (2x seminggu, 1 jam/sesi). Pilih frekuensi yang paling sering terlihat. Minimal isi setelah <strong>4 pertemuan</strong> (2 minggu observasi).
+    <strong>Panduan pengisian:</strong> Isi berdasarkan observasi sesi bimbel (2x seminggu, 1 jam/sesi). Minimal isi setelah <strong>4 pertemuan</strong> (2 minggu observasi), lalu pilih skala berdasarkan berapa kali dari 4 pertemuan itu perilakunya muncul — <strong>bukan</strong> kesan umum/ingatan samar. Patokan: 0=tidak pernah, 1=≈1 dari 4 pertemuan, 2=≈2–3 dari 4 pertemuan, 3=hampir di setiap pertemuan.
   </div>
 
   <div class="info-card">
@@ -358,7 +359,7 @@ function build() {
   ITEMS.forEach(domain => {
     const wrap = document.createElement("div");
     wrap.className = "domain";
-    let html = `<div class="domain-head"><div class="domain-head-left"><div class="domain-head-icon">${ICONS[domain.domain]}</div><div><div class="domain-head-title">Domain ${domain.domain} — ${domain.label}</div><div class="domain-head-sub">${domain.items.length} indikator</div></div></div><div class="domain-badge" id="dbadge-${domain.domain}">0/${domain.items.length*3}</div></div><div class="legend-strip"><span>0 Tidak pernah</span><span>1 Kadang</span><span>2 Sering</span><span>3 Selalu</span></div>`;
+    let html = `<div class="domain-head"><div class="domain-head-left"><div class="domain-head-icon">${ICONS[domain.domain]}</div><div><div class="domain-head-title">Domain ${domain.domain} — ${domain.label}</div><div class="domain-head-sub">${domain.items.length} indikator</div></div></div><div class="domain-badge" id="dbadge-${domain.domain}">0/${domain.items.length*3}</div></div><div class="legend-strip"><span>0 Tidak pernah <small>(0 dari 4 pertemuan)</small></span><span>1 Kadang <small>(≈1 dari 4 pertemuan)</small></span><span>2 Sering <small>(≈2–3 dari 4 pertemuan)</small></span><span>3 Selalu <small>(hampir tiap pertemuan)</small></span></div>`;
     domain.items.forEach((item, idx) => {
       n++;
       const key = `${domain.domain}_${idx}`;
