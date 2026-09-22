@@ -13,10 +13,42 @@
   --success:#2E9E5B;--warning:#F59F00;--danger:#DC3545;
 }
 *{box-sizing:border-box;margin:0;padding:0;}
-body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9eef3;font-size:13px;line-height:1.7;}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9eef3;font-size:12px;line-height:1.45;}
 .page{max-width:760px;margin:0 auto;background:#fff;padding:0;}
 @media screen{ body{padding:24px 0;} .page{box-shadow:0 4px 30px rgba(0,0,0,0.1);border-radius:12px;overflow:hidden;} }
-@media print{ body{background:#fff;} .no-print{display:none!important;} .page{max-width:100%;} }
+
+/* ⭐ Print: paksa muat 1 halaman A4, semua ukuran diperkecil signifikan */
+@page{ size:A4; margin:10mm 12mm; }
+@media print{
+  body{background:#fff;font-size:9px;line-height:1.35;}
+  .no-print{display:none!important;}
+  .page{max-width:100%;box-shadow:none;border-radius:0;}
+  .letterhead{padding:10px 0 8px!important;}
+  .letterhead-brand{font-size:14px!important;}
+  .letterhead-sub{font-size:8px!important;}
+  .letterhead-title{font-size:10.5px!important;margin-top:6px!important;padding-top:6px!important;}
+  .letterhead-date{font-size:7.5px!important;}
+  .section{padding:8px 0!important;}
+  .section-title{font-size:8px!important;margin-bottom:5px!important;}
+  .info-grid{gap:3px 16px!important;}
+  .info-item-lbl{font-size:7.5px!important;}
+  .info-item-val{font-size:9.5px!important;}
+  .score-row{gap:6px!important;margin-bottom:8px!important;}
+  .score-box{padding:6px!important;}
+  .score-num{font-size:16px!important;}
+  .score-lbl{font-size:7px!important;}
+  .level-banner{padding:8px 10px!important;}
+  .level-banner strong{font-size:10px!important;margin-bottom:3px!important;}
+  .level-banner-text{font-size:8.5px!important;}
+  .two-col{display:grid!important;grid-template-columns:1fr 1fr;gap:0 20px;}
+  .domain-block{margin-bottom:6px!important;}
+  .domain-title{font-size:9px!important;margin-bottom:1px!important;}
+  .domain-pct{font-size:9.5px!important;}
+  .domain-narrative{font-size:8px!important;margin-bottom:2px!important;}
+  .finding-list{padding-left:12px!important;}
+  .finding-list li{font-size:7.5px!important;margin-bottom:1px!important;line-height:1.3!important;}
+  .disclaimer{padding:6px 8px!important;font-size:7px!important;line-height:1.4!important;}
+}
 
 .letterhead{background:var(--accent);color:#fff;padding:28px 36px;}
 .letterhead-brand{font-family:'Baloo 2',sans-serif;font-size:20px;font-weight:800;}
@@ -45,6 +77,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9
 .lv-kuat{background:#fff0e0;color:#b45309;}
 .lv-sangat{background:#fde8e8;color:var(--danger);}
 
+.two-col{display:block;}
 .domain-block{margin-bottom:16px;}
 .domain-title{font-size:13px;font-weight:800;color:var(--text);margin-bottom:4px;display:flex;justify-content:space-between;align-items:baseline;}
 .domain-pct{font-family:'Baloo 2',sans-serif;font-size:14px;color:var(--accent);}
@@ -55,6 +88,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9
 .disclaimer{background:#fef9e7;border:1px solid #fde68a;border-radius:10px;padding:12px 16px;font-size:11.5px;color:#92400e;line-height:1.6;}
 
 .print-btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;background:var(--accent);color:#fff;border:none;border-radius:10px;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer;}
+.print-hint{font-size:11px;color:var(--text3);margin-top:10px;line-height:1.6;max-width:420px;margin-left:auto;margin-right:auto;}
 
 .loading{text-align:center;padding:80px 20px;color:var(--text3);}
 .spin{animation:spin 1s linear infinite;}
@@ -75,6 +109,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9
     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
     Cetak / Simpan sebagai PDF
   </button>
+  <div class="print-hint">Laporan dirancang untuk 1 halaman A4. Saat muncul jendela print: pilih "Simpan sebagai PDF", kertas A4, margin "Default"/"Normal".</div>
 </div>
 
 <script>
@@ -194,7 +229,7 @@ async function buildReport() {
     const pct = count>0 ? Math.round((sum/(count*3))*100) : null;
     guruDomainHtml += `<div class="domain-block">
       <div class="domain-title"><span>${dom.label}</span><span class="domain-pct">${pct!==null?pct+'%':'—'}</span></div>
-      ${findings.length ? `<ul class="finding-list">${findings.map(f=>`<li>${f}</li>`).join('')}</ul>` : `<div class="domain-narrative">Tidak ada temuan menonjol pada domain ini.</div>`}
+      ${findings.length ? `<ul class="finding-list">${findings.slice(0,3).map(f=>`<li>${f}</li>`).join('')}${findings.length>3?`<li style="list-style:none;margin-left:-18px;color:#8FA4B4;">+${findings.length-3} indikator lain</li>`:''}</ul>` : `<div class="domain-narrative">Tidak ada temuan menonjol pada domain ini.</div>`}
     </div>`;
   });
 
@@ -245,18 +280,16 @@ async function buildReport() {
       </div>
       <div class="level-banner ${levelClass(level)}">
         <strong>${level}</strong>
-        ${levelNarrative(level, namaDepan)}
+        <span class="level-banner-text">${levelNarrative(level, namaDepan)}</span>
       </div>
     </div>
 
     <div class="section">
-      <div class="section-title">Temuan Observasi Guru (di Lingkungan Bimbel)</div>
-      ${guruDomainHtml}
-    </div>
-
-    <div class="section">
-      <div class="section-title">Laporan Orang Tua (di Rumah)</div>
-      ${ortuDomainHtml}
+      <div class="section-title">Temuan Observasi (Guru — Bimbel &nbsp;|&nbsp; Orang Tua — Rumah)</div>
+      <div class="two-col">
+        <div><div style="font-size:10px;font-weight:800;color:var(--accent);margin-bottom:6px;">👩‍🏫 GURU (Bimbel)</div>${guruDomainHtml}</div>
+        <div><div style="font-size:10px;font-weight:800;color:var(--accent);margin-bottom:6px;">🏠 ORANG TUA (Rumah)</div>${ortuDomainHtml}</div>
+      </div>
     </div>
 
     <div class="section">
