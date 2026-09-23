@@ -647,7 +647,7 @@ function buildInvoiceItemsDesc(inv) {
   }
   if (!items) items = [];
 
-  const anandaLine = inv.student_name ? `\n\nAtas Nama Ananda: ${inv.student_name}` : '';
+  const anandaLine = inv.student_name ? `\nAtas Nama Ananda: ${inv.student_name}` : '';
 
   if (!items.length) {
     return `Pembayaran invoice ${inv.invoice_number}${anandaLine}`;
