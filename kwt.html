@@ -146,7 +146,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .detail-row strong{text-align:right;color:var(--text);font-weight:600;}
 .detail-block{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
 .detail-block .db-lbl{display:block;color:var(--text3);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
-.detail-block .db-val{color:var(--text);line-height:1.55;}
+.detail-block .db-val{color:var(--text);line-height:1.55;white-space:pre-wrap;}
 
 /* DETAIL POPOVER (hover desktop / long-press mobile) */
 .detail-popover{display:none;position:fixed;z-index:8500;max-width:280px;background:#1C2B3A;color:#fff;padding:11px 14px;border-radius:12px;font-size:12.5px;line-height:1.55;box-shadow:0 10px 28px rgba(0,0,0,.3);pointer-events:none;}
@@ -624,22 +624,53 @@ function populateRefInvoiceDropdown() {
   });
 }
 
+// Daftar fasilitas standar yang otomatis disertakan saat kuitansi terdeteksi
+// untuk PENDAFTARAN SISWA BARU (invoice mengandung item "Biaya Pendaftaran").
+// Kalau paket welcome kit berubah, cukup ubah daftar di sini.
+const FASILITAS_SISWA_BARU = [
+  'Personal Student Display Folder',
+  'Exclusive Tote Bag',
+  'Structured Learning Module Book',
+];
+
+function formatProgramLine(it) {
+  let s = (it.label || '').trim();
+  if (it.type && it.type !== '—') s += ' - ' + it.type;
+  if (it.dur) s += ' - ' + it.dur + ' Bulan';
+  return s;
+}
+
 function buildInvoiceItemsDesc(inv) {
   let items = inv.invoice_items;
   if (typeof items === 'string') {
     try { items = JSON.parse(items); } catch(e) { items = []; }
   }
-  const anandaSuffix = inv.student_name ? `\nAtas Nama Ananda: ${inv.student_name}` : '';
-  if (!items || !items.length) {
-    return `Pembayaran invoice ${inv.invoice_number}${anandaSuffix}`;
+  if (!items) items = [];
+
+  const anandaLine = inv.student_name ? `\n\nAtas Nama Ananda: ${inv.student_name}` : '';
+
+  if (!items.length) {
+    return `Pembayaran invoice ${inv.invoice_number}${anandaLine}`;
   }
-  const parts = items.map(it => {
-    let s = (it.label || '').trim();
-    if (it.type && it.type !== '—') s += ' - ' + it.type;
-    if (it.dur) s += ' - ' + it.dur + ' Bulan';
-    return s;
-  }).filter(Boolean);
-  return `Pembayaran untuk program pembelajaran ${parts.join('; ')}${anandaSuffix}`;
+
+  const isPendaftaran = (label) => /pendaftaran/i.test(label || '');
+  const pendaftaranItems = items.filter(it => isPendaftaran(it.label));
+  const programItems = items.filter(it => !isPendaftaran(it.label));
+
+  // SISWA BARU — invoice mengandung Biaya Pendaftaran → rincian lengkap +
+  // fasilitas welcome kit otomatis, supaya jelas ini kuitansi pendaftaran baru.
+  if (pendaftaranItems.length > 0) {
+    const lines = ['Pembayaran untuk:', '1. Biaya Pendaftaran', '2. Fasilitas Siswa:'];
+    FASILITAS_SISWA_BARU.forEach(f => lines.push('    • ' + f));
+    if (programItems.length > 0) {
+      lines.push('3. Biaya Program Pembelajaran: ' + programItems.map(formatProgramLine).join('; '));
+    }
+    return lines.join('\n') + anandaLine;
+  }
+
+  // SISWA LAMA / pembayaran rutin — format ringkas seperti biasa.
+  const parts = items.map(formatProgramLine).filter(Boolean);
+  return `Pembayaran untuk Program Pembelajaran: ${parts.join('; ')}${anandaLine}`;
 }
 
 function quickFillRefInvoice() {
@@ -1294,13 +1325,13 @@ body{display:flex;justify-content:center;padding:24px 0 40px;font-family:'Plus J
 .kw-fsep{width:3mm;flex-shrink:0;color:#8a8a8a;padding-top:2px;}
 .kw-fval{flex:1;font-size:14px;font-weight:600;color:#1c1c1c;}
 .kw-fval-line{border-bottom:1px solid #ccc;padding-bottom:6px;min-height:20px;}
-.kw-fval-box{background:#f4f0e6;border-radius:6px;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;display:flex;flex-direction:column;gap:3px;}
-.kw-terbilang-sentence{background:#f4f0e6;border-radius:6px;padding:9px 12px;font-style:italic;font-weight:500;font-size:13.5px;color:#333;line-height:1.5;}
-.kw-fval-border{border:1px solid #b8b8b8;border-radius:8px;padding:10px 12px;min-height:16mm;font-weight:500;line-height:1.55;}
+.kw-fval-box{background:#f4f5f8;border-radius:6px;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;display:flex;flex-direction:column;gap:3px;}
+.kw-terbilang-sentence{background:#f4f5f8;border-radius:6px;padding:9px 12px;font-style:italic;font-weight:500;font-size:13.5px;color:#333;line-height:1.5;}
+.kw-fval-border{border:1px solid #b8b8b8;border-radius:8px;padding:10px 12px;min-height:16mm;font-weight:500;line-height:1.55;white-space:pre-wrap;}
 
 .kw-bottomrow{display:flex;justify-content:space-between;align-items:flex-start;padding:6mm 10mm 4mm;gap:10mm;}
 .kw-rp-block{flex:1;max-width:80mm;}
-.kw-rp-val{background:#f4f0e6;border-radius:6px;padding:9px 12px;font-family:'Geist Mono',monospace;font-size:16px;font-weight:800;}
+.kw-rp-val{background:#f4f5f8;border-radius:6px;padding:9px 12px;font-family:'Geist Mono',monospace;font-size:16px;font-weight:800;}
 .kw-penerima-block{text-align:center;width:52mm;flex-shrink:0;}
 .kw-penerima-lbl{font-size:11px;font-weight:700;color:#8a8a8a;letter-spacing:.04em;margin-bottom:2px;}
 .kw-penerima-stampwrap{height:22mm;display:flex;align-items:flex-end;justify-content:center;}
