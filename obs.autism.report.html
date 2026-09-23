@@ -37,6 +37,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9
   .score-box{padding:6px!important;}
   .score-num{font-size:16px!important;}
   .score-lbl{font-size:7px!important;}
+  .score-count{font-size:6px!important;margin-top:1px!important;}
   .level-banner{padding:8px 10px!important;}
   .level-banner strong{font-size:10px!important;margin-bottom:3px!important;}
   .level-banner-text{font-size:8.5px!important;}
@@ -68,6 +69,7 @@ body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9
 .score-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:14px;text-align:center;}
 .score-num{font-family:'Baloo 2',sans-serif;font-size:24px;font-weight:800;color:var(--accent);}
 .score-lbl{font-size:10px;color:var(--text3);margin-top:2px;}
+.score-count{font-size:9px;color:var(--text3);margin-top:3px;font-style:italic;}
 
 .level-banner{border-radius:10px;padding:16px 18px;margin-bottom:4px;}
 .level-banner strong{display:block;font-family:'Baloo 2',sans-serif;font-size:15px;margin-bottom:6px;}
@@ -274,9 +276,9 @@ async function buildReport() {
     <div class="section">
       <div class="section-title">Ringkasan Skor</div>
       <div class="score-row">
-        <div class="score-box"><div class="score-num">${skorOrtu}%</div><div class="score-lbl">Laporan Orang Tua</div></div>
-        <div class="score-box"><div class="score-num">${skorGuru}%</div><div class="score-lbl">Observasi Guru</div></div>
-        <div class="score-box"><div class="score-num">${skorGab}%</div><div class="score-lbl">Skor Gabungan</div></div>
+        <div class="score-box"><div class="score-num">${skorOrtu}%</div><div class="score-lbl">Laporan Orang Tua</div><div class="score-count">${Object.keys(answersOrtu).length} pertanyaan</div></div>
+        <div class="score-box"><div class="score-num">${skorGuru}%</div><div class="score-lbl">Observasi Guru</div><div class="score-count">${Object.keys(answersGuru).length} pertanyaan</div></div>
+        <div class="score-box"><div class="score-num">${skorGab}%</div><div class="score-lbl">Skor Gabungan</div><div class="score-count">&nbsp;</div></div>
       </div>
       <div class="level-banner ${levelClass(level)}">
         <strong>${level}</strong>
