@@ -378,12 +378,20 @@ function tog(id) { document.getElementById(id).classList.toggle("open"); }
 function setAns(key, val) { answers[key] = val; updateScore(); }
 
 // ⭐ BARU: pulihkan jawaban guru dari data tersimpan (dipanggil saat form dibuka untuk revisi)
-function restoreGuruAnswers(prevAnswers) {
+function restoreGuruAnswers(prevAnswers, prevNotes) {
   Object.entries(prevAnswers).forEach(([key, val]) => {
     answers[key] = Number(val);
     const radio = document.querySelector(`input[name="${key}"][value="${val}"]`);
     if (radio) radio.checked = true;
   });
+  if (prevNotes) {
+    Object.entries(prevNotes).forEach(([key, text]) => {
+      if (!text) return;
+      notes[key] = text;
+      const area = document.getElementById(`note-${key}`);
+      if (area) { area.value = text; document.getElementById(`note-${key}`).classList.add('open'); }
+    });
+  }
   updateScore();
 }
 
@@ -647,7 +655,7 @@ async function initGuruPage() {
     // ⭐ BARU: pulihkan jawaban guru yang sudah pernah diisi sebelumnya
     // (mencegah data hilang saat form dibuka ulang untuk revisi)
     if (r && r.ok && r.data && r.data.statusGuru === 'selesai' && r.data.answersGuru) {
-      restoreGuruAnswers(r.data.answersGuru);
+      restoreGuruAnswers(r.data.answersGuru, r.data.notesGuru);
       const banner = document.createElement('div');
       banner.style.cssText = 'background:#dbeafe;color:#1e40af;font-size:12.5px;padding:10px 14px;border-radius:10px;margin-bottom:14px;';
       banner.innerHTML = '✏️ Jawaban sebelumnya (' + Object.keys(r.data.answersGuru).length + ' item) sudah dimuat. Anda sedang merevisi observasi yang sudah tersimpan.';
@@ -698,7 +706,8 @@ async function simpanKeSistem() {
       genId: window._genId,
       skor,
       guru: document.getElementById('f-guru').value || '',
-      answers: JSON.stringify(answers)
+      answers: JSON.stringify(answers),
+      notes: JSON.stringify(notes)
     });
     if (r && r.ok) {
       btn.innerHTML = '✓ Tersimpan ke Sistem';
