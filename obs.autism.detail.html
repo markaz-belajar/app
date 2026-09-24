@@ -1,0 +1,501 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Detail Jawaban Screening — Markz Belajar</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --accent:#1B6CA8;--accent-dim:#e8f4fc;
+  --text:#1C2B3A;--text2:#4A6070;--text3:#8FA4B4;
+  --border:#EDE9DF;--bg:#FDFAF4;
+  --success:#2E9E5B;--warning:#F59F00;--danger:#DC3545;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--text);background:#e9eef3;font-size:14px;line-height:1.6;}
+.page{max-width:720px;margin:0 auto;padding:16px;}
+
+.letterhead{background:var(--accent);color:#fff;border-radius:16px;padding:22px;margin-bottom:16px;}
+.letterhead-brand{font-family:'Baloo 2',sans-serif;font-size:18px;font-weight:800;}
+.letterhead-sub{font-size:12px;opacity:0.85;margin-top:2px;}
+.letterhead-title{font-size:14px;font-weight:700;margin-top:14px;border-top:1px solid rgba(255,255,255,0.25);padding-top:12px;}
+
+.card{background:#fff;border-radius:14px;padding:18px;margin-bottom:14px;box-shadow:0 2px 12px rgba(28,43,58,0.06);}
+.card-title{font-size:11px;font-weight:800;color:var(--text3);text-transform:uppercase;letter-spacing:.6px;margin-bottom:12px;}
+
+.score-row{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:4px;}
+.score-box{background:var(--bg);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center;}
+.score-num{font-family:'Baloo 2',sans-serif;font-size:22px;font-weight:800;color:var(--accent);}
+.score-lbl{font-size:10px;color:var(--text3);margin-top:2px;}
+
+.level-banner{border-radius:10px;padding:14px 16px;margin-top:12px;}
+.level-banner strong{display:block;font-family:'Baloo 2',sans-serif;font-size:14px;margin-bottom:4px;}
+.lv-minimal{background:#e7f7ef;color:var(--success);}
+.lv-pantau{background:var(--accent-dim);color:var(--accent);}
+.lv-moderat{background:#fef3c7;color:#92400e;}
+.lv-kuat{background:#fff0e0;color:#b45309;}
+.lv-sangat{background:#fde8e8;color:var(--danger);}
+
+.source-tab{display:flex;gap:6px;margin-bottom:14px;}
+.source-tab button{flex:1;padding:10px;border-radius:10px;border:1.5px solid var(--border);background:#fff;font-family:inherit;font-weight:700;font-size:13px;cursor:pointer;color:var(--text3);}
+.source-tab button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+.domain-hdr{font-size:13px;font-weight:800;color:var(--accent);margin:18px 0 10px;padding-bottom:6px;border-bottom:2px solid var(--accent-dim);}
+.domain-hdr:first-child{margin-top:0;}
+.qitem{padding:12px 0;border-bottom:1px solid var(--border);}
+.qitem:last-child{border-bottom:none;}
+.qitem-num{display:inline-flex;width:20px;height:20px;border-radius:50%;background:var(--accent-dim);color:var(--accent);font-size:11px;font-weight:800;align-items:center;justify-content:center;margin-right:6px;flex-shrink:0;}
+.qitem-text{font-size:13.5px;font-weight:700;color:var(--text);display:inline;}
+.qitem-note{font-size:12px;color:var(--text3);margin-top:4px;margin-left:26px;}
+.qitem-answer{margin-top:8px;margin-left:26px;display:inline-flex;align-items:center;gap:6px;padding:5px 12px;border-radius:20px;font-size:12px;font-weight:700;}
+.ans-0{background:#e7f7ef;color:var(--success);}
+.ans-1{background:#fef9e7;color:#92400e;}
+.ans-2{background:#fff0e0;color:#b45309;}
+.ans-3{background:#fde8e8;color:var(--danger);}
+.qitem-basis{margin-top:8px;margin-left:26px;padding:10px 12px;background:var(--bg);border-left:3px solid var(--accent);border-radius:0 8px 8px 0;font-size:12px;color:var(--text2);line-height:1.6;}
+.qitem-basis cite{font-weight:700;font-style:normal;color:var(--accent);}
+.qitem-guru-note{margin-top:8px;margin-left:26px;padding:10px 12px;background:#fffbea;border-left:3px solid var(--warning);border-radius:0 8px 8px 0;font-size:12.5px;color:#78350f;}
+.qitem-guru-note strong{display:block;font-size:10.5px;text-transform:uppercase;letter-spacing:.4px;margin-bottom:3px;opacity:0.8;}
+
+.disclaimer{background:#fef9e7;border:1px solid #fde68a;border-radius:10px;padding:14px 16px;font-size:12px;color:#92400e;line-height:1.6;}
+
+.loading{text-align:center;padding:80px 20px;color:var(--text3);}
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+@media print{ .source-tab{display:none;} .qitem, .domain-hdr{display:block!important;} }
+</style>
+</head>
+<body>
+<div class="page" id="page">
+  <div class="loading" id="loading">
+    <svg class="spin" width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="2.2" stroke-linecap="round"><path d="M21 12a9 9 0 1 1-9-9"/></svg>
+    <div style="margin-top:12px;">Memuat detail jawaban...</div>
+  </div>
+  <div id="content" style="display:none;"></div>
+</div>
+
+<script>
+const SCREENING_API = 'https://script.google.com/macros/s/AKfycbxRbHFQtaVYcUtFmCqJyZmAFxiY0T4bq4QImj2HICG0VajpVhi5zsFS66GfW1r5k0BN/exec';
+
+function apiScreening(action, params={}) {
+  const url = new URL(SCREENING_API);
+  url.searchParams.set('action', action);
+  for (const [k,v] of Object.entries(params)) url.searchParams.set(k, v);
+  return fetch(url.toString(), { redirect:'follow' }).then(r => r.json()).catch(() => ({ ok:false }));
+}
+
+// ── Bank pertanyaan GURU (lengkap dengan dasar ilmiah) ──
+const GURU_ITEMS = [
+  { domain:"A", label:"Perhatian & kontak", items:[
+    { text:"Tidak merespons atau lambat merespons saat namanya dipanggil guru", note:"Contoh: perlu dipanggil 2–3x baru bereaksi, atau tidak bereaksi sama sekali", basis:"<cite>Osterling & Dawson (1994)</cite> — kurangnya respons terhadap panggilan nama adalah indikator autisme paling awal dan dapat diamati bahkan sebelum diagnosis formal, terlihat jelas dalam konteks kelas kecil bimbel." },
+    { text:"Menghindari atau sangat jarang melakukan kontak mata saat diajak bicara langsung", note:"Contoh: selalu melihat ke arah lain, ke meja, atau ke benda saat guru berbicara padanya", basis:"<cite>Jones & Klin (2013, Nature)</cite> — defisit kontak mata adalah indikator autisme paling konsisten dan dapat dideteksi bahkan dalam interaksi singkat 1-on-1 selama sesi bimbel." },
+    { text:"Tampak tidak hadir atau sering melamun tanpa stimuli yang jelas", note:"Contoh: menatap kosong dalam waktu lama, tidak bereaksi terhadap aktivitas di sekitarnya", basis:"Terkait pola perhatian atipikal pada autisme — <cite>Keehn et al. (2013)</cite> menemukan perbedaan signifikan dalam orientasi perhatian yang dapat diamati selama sesi instruksi langsung." }
+  ]},
+  { domain:"B", label:"Komunikasi & bahasa", items:[
+    { text:"Kesulitan mengikuti instruksi sederhana yang diberikan guru", note:"Contoh: tidak langsung memahami 'buka halaman 5', perlu diulang atau ditunjukkan secara fisik", basis:"Defisit pemrosesan bahasa reseptif adalah komponen kunci autisme. <cite>Paul (2008)</cite> menunjukkan kesulitan ini spesifik pada pemrosesan pragmatik, berbeda dari sekadar keterlambatan bahasa biasa." },
+    { text:"Mengulangi kata atau kalimat yang baru didengar tanpa konteks yang relevan (echolalia)", note:"Contoh: mengulangi pertanyaan yang baru ditanya guru, mengulang kalimat dari video/buku di luar konteks", basis:"<cite>Prizant & Duchan (1981)</cite> — echolalia pada autisme adalah strategi komunikasi fungsional, bukan sekadar meniru. Dapat dengan jelas diamati dalam percakapan singkat selama sesi." },
+    { text:"Cara berkomunikasi tidak biasa untuk usianya", note:"Contoh: bicara sangat formal/kaku, hanya menjawab satu kata, menggunakan gestur saja tanpa kata", basis:"Atypical pragmatic language adalah DSM-5 Kriteria A. <cite>Tager-Flusberg et al. (2009)</cite> — pola ini konsisten dan dapat dideteksi dalam percakapan pendek sekalipun." },
+    { text:"Cara bicara terasa seperti hafalan atau diambil dari script — bukan percakapan spontan", note:"Contoh: menjawab pertanyaan dengan kalimat lengkap yang terdengar dihafal dari buku/TV, intonasi datar seperti membaca teks, atau menggunakan frasa orang dewasa yang tidak sesuai usianya", basis:"Scripted language adalah fitur linguistik khas autisme yang berbeda dari echolalia — <cite>Prizant (1983)</cite> mendokumentasikan penggunaan bahasa 'borrowed' sebagai strategi komunikasi yang dapat dideteksi dalam percakapan singkat." },
+    { text:"Kesulitan mengikuti instruksi dua langkah sekaligus tanpa diulangi", note:"Contoh: 'ambil bukumu lalu duduk di kursi' — apakah ia hanya melakukan satu langkah, atau perlu instruksi diulang satu per satu?", basis:"Defisit working memory verbal dan pemrosesan instruksi sekuensial konsisten ditemukan pada autisme — <cite>Williams et al. (2006, J. Autism Dev. Disord.)</cite> membedakan ini dari keterlambatan bahasa murni melalui pola respons terhadap instruksi bertingkat." }
+  ]},
+  { domain:"C", label:"Perilaku selama sesi", items:[
+    { text:"Melakukan gerakan tubuh berulang selama sesi belajar (stimming)", note:"Contoh: mengepakkan tangan, mengayun badan, mengetuk-ngetuk meja berulang kali secara konsisten", basis:"<cite>Turner (1999)</cite> — stimming berfungsi sebagai regulasi sensorik pada autisme. Berbeda dari kegelisahan biasa dalam hal pola yang konsisten dan intensitasnya. Sangat terlihat dalam sesi 1 jam." },
+    { text:"Reaksi berlebihan atau tidak biasa saat ada perubahan kecil selama sesi", note:"Contoh: sangat terganggu saat ganti aktivitas, guru berbeda hadir, atau posisi duduk berubah", basis:"Insistence on sameness — DSM-5 Kriteria B.2. Momen transisi antar aktivitas dalam sesi bimbel adalah salah satu kesempatan observasi paling informatif untuk indikator ini." },
+    { text:"Fokus sangat terpaku pada satu hal sambil mengabaikan hal lain sepenuhnya", note:"Contoh: sangat terpaku pada satu soal/benda tapi mengabaikan semua instruksi berikutnya", basis:"Terkait monotropism — <cite>Murray et al. (2005)</cite> — kecenderungan autisme untuk memfokuskan perhatian secara intens pada satu hal sekaligus. Berbeda dari ADHD yang lebih fluktuatif." },
+    { text:"Bermain atau memegang benda dengan cara yang tidak biasa dan berulang", note:"Contoh: memutar pensil terus-menerus, menyusun penghapus dalam barisan sebelum mulai belajar, membolak-balik buku tanpa membaca, atau fokus pada satu bagian benda tertentu secara intens", basis:"Non-functional object use adalah DSM-5 Kriteria B.1 — <cite>Libby et al. (1998, J. Autism Dev. Disord.)</cite> menemukan penggunaan benda tidak fungsional secara konsisten membedakan anak autisme dari anak dengan keterlambatan perkembangan lain." }
+  ]},
+  { domain:"D", label:"Interaksi sosial di bimbel", items:[
+    { text:"Tidak tertarik atau kesulitan berinteraksi dengan teman bimbel lainnya", note:"Contoh: selalu bermain sendiri saat waktu bebas, tidak merespons ajakan teman, tidak memulai obrolan", basis:"DSM-5 Kriteria A.3 — defisit dalam mengembangkan hubungan dengan teman sebaya. Konteks bimbel kelompok kecil memberi kesempatan observasi langsung interaksi peer dalam kondisi semi-natural." },
+    { text:"Respons emosional selama sesi yang tidak sesuai konteks", note:"Contoh: tertawa tanpa sebab jelas, menangis karena hal yang tampak sepele, atau tidak bereaksi saat seharusnya", basis:"<cite>Mazefsky et al. (2013)</cite> — dysregulation emosi pada autisme berbeda dari tantrum biasa dalam hal pola, pemicu, dan durasi. Dapat diamati bahkan dalam interaksi pendek." }
+  ]}
+];
+
+const ANS_LABEL_GURU = { 0:"0 — Tidak pernah", 1:"1 — Kadang", 2:"2 — Sering", 3:"3 — Selalu" };
+
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric' }); }
+  catch { return iso; }
+}
+function levelClass(l) {
+  return { Minimal:'lv-minimal', 'Perlu pantau':'lv-pantau', Moderat:'lv-moderat', Kuat:'lv-kuat', 'Sangat kuat':'lv-sangat' }[l] || 'lv-pantau';
+}
+function levelNarrative(level, nama) {
+  const m = {
+    Minimal: `Berdasarkan observasi guru dan laporan orang tua, tidak ditemukan pola perilaku yang menonjol pada ${nama}. Lanjutkan pemantauan rutin.`,
+    'Perlu pantau': `Beberapa pola perilaku pada ${nama} teramati, namun belum cukup konsisten. Lanjutkan observasi 4–6 minggu ke depan.`,
+    Moderat: `Pola perilaku yang cukup konsisten teramati pada ${nama}. Rekomendasikan diskusi lebih dalam dan pertimbangkan rujukan awal ke profesional.`,
+    Kuat: `Pola konsisten di beberapa domain penting pada ${nama}. Segera jadwalkan pertemuan dan sarankan asesmen formal.`,
+    'Sangat kuat': `Pola sangat konsisten hampir di seluruh domain pada ${nama}. Prioritaskan rujukan ke psikolog klinis anak / psikiater anak.`
+  };
+  return m[level] || '';
+}
+function parentAnswerNarrative(idx) {
+  const m = ["Pola yang wajar, tidak menunjukkan indikasi kekhawatiran.","Pola sesekali muncul, dalam batas wajar untuk sebagian besar anak.","Pola cukup sering muncul — perlu diperhatikan dan didiskusikan.","Pola sangat sering/konsisten muncul — perlu perhatian lebih serius."];
+  return m[idx] || '';
+}
+
+let VIEW = 'guru';
+function switchView(v) {
+  VIEW = v;
+  document.querySelectorAll('.source-tab button').forEach(b=>b.classList.toggle('active', b.dataset.v===v));
+  document.getElementById('guru-detail').style.display = v==='guru' ? 'block':'none';
+  document.getElementById('ortu-detail').style.display = v==='ortu' ? 'block':'none';
+}
+
+async function buildDetail() {
+  const p = new URLSearchParams(window.location.search);
+  const gen = p.get('gen');
+  const loading = document.getElementById('loading');
+  const content = document.getElementById('content');
+
+  if (!gen) { loading.innerHTML = '<div style="color:#dc2626;">Kode siswa (gen) tidak ditemukan di URL.</div>'; return; }
+
+  const [rSiswa, rDetail] = await Promise.all([
+    apiScreening('getSiswaByGenId', { genId: gen }),
+    apiScreening('getScreeningDetail', { genId: gen })
+  ]);
+
+  if (!rDetail || !rDetail.ok || !rDetail.data) { loading.innerHTML = '<div style="color:#dc2626;">Data tidak ditemukan.</div>'; return; }
+
+  const d = rDetail.data;
+  const siswa = (rSiswa && rSiswa.ok && rSiswa.data) ? rSiswa.data : {};
+  const nama = siswa.nama || d.namaAnak || '—';
+  const namaDepan = nama.split(' ')[0];
+
+  if (d.statusOrtu !== 'selesai' || d.statusGuru !== 'selesai') {
+    loading.innerHTML = `<div style="text-align:center;"><div style="font-size:32px;margin-bottom:10px;">⏳</div><div style="font-weight:800;">Detail belum bisa ditampilkan</div><div style="font-size:12px;color:#8FA4B4;margin-top:6px;">${d.statusOrtu!=='selesai'?'Orang tua belum menyelesaikan form. ':''}${d.statusGuru!=='selesai'?'Guru belum menyelesaikan form observasi.':''}</div></div>`;
+    return;
+  }
+
+  const answersOrtu = d.answersOrtu || {};
+  const answersGuru = d.answersGuru || {};
+  const notesGuru   = d.notesGuru || {};
+  const skorOrtu = Math.round(Number(d.skorOrtu)||0);
+  const skorGuru = Math.round(Number(d.skorGuru)||0);
+  const skorGab  = Math.round(Number(d.skorGabungan)||0);
+  const level    = d.levelGabungan || '—';
+
+  // ── Tentukan bracket usia untuk ambil bank pertanyaan ortu ──
+  const usiaTahun = Number(siswa.usiaTahun);
+  let bracket = null;
+  if (!isNaN(usiaTahun)) {
+    if (usiaTahun>=4 && usiaTahun<=5) bracket='A';
+    else if (usiaTahun>=6 && usiaTahun<=8) bracket='B';
+    else if (usiaTahun>=9 && usiaTahun<=10) bracket='C';
+    else if (usiaTahun>=11 && usiaTahun<=12) bracket='D';
+    else bracket = usiaTahun<4 ? 'A' : 'D';
+  } else { bracket = 'A'; }
+  const parentDomains = ITEMS_BY_AGE[bracket] || ITEMS_BY_AGE['A'];
+
+  // ── Render GURU detail ──
+  let guruHtml = '';
+  let qNum = 1;
+  GURU_ITEMS.forEach(dom => {
+    guruHtml += `<div class="domain-hdr">Domain ${dom.domain} — ${dom.label}</div>`;
+    dom.items.forEach((item, idx) => {
+      const key = `${dom.domain}_${idx}`;
+      const val = Number(answersGuru[key]);
+      const noteText = notesGuru[key];
+      guruHtml += `<div class="qitem">
+        <span class="qitem-num">${qNum++}</span><span class="qitem-text">${item.text}</span>
+        <div class="qitem-note">${item.note}</div>
+        ${!isNaN(val) ? `<div class="qitem-answer ans-${val}">${ANS_LABEL_GURU[val]}</div>` : ''}
+        ${(!isNaN(val) && val>=1) ? `<div class="qitem-basis">📚 ${item.basis}</div>` : ''}
+        ${noteText ? `<div class="qitem-guru-note"><strong>Catatan Guru</strong>${noteText}</div>` : ''}
+      </div>`;
+    });
+  });
+
+  // ── Render ORANG TUA detail ──
+  let ortuHtml = '';
+  let qNum2 = 1;
+  parentDomains.forEach(dom => {
+    ortuHtml += `<div class="domain-hdr">Domain ${dom.domain} — ${dom.label}</div>`;
+    dom.items.forEach((item, idx) => {
+      const key = `${dom.domain}_${idx}`;
+      const val = Number(answersOrtu[key]);
+      const chosenOpt = !isNaN(val) ? item.opts[val] : null;
+      ortuHtml += `<div class="qitem">
+        <span class="qitem-num">${qNum2++}</span><span class="qitem-text">${item.q}</span>
+        <div class="qitem-note">${item.example}</div>
+        ${chosenOpt ? `<div class="qitem-answer ans-${val}">${chosenOpt}</div>` : ''}
+        ${(!isNaN(val)) ? `<div class="qitem-basis">📚 ${parentAnswerNarrative(val)}</div>` : ''}
+      </div>`;
+    });
+  });
+
+  content.innerHTML = `
+    <div class="letterhead">
+      <div class="letterhead-brand">Markz Belajar</div>
+      <div class="letterhead-sub">Detail Jawaban Screening — ${nama}</div>
+      <div class="letterhead-title">Rincian lengkap jawaban Orang Tua &amp; Guru, beserta interpretasi berdasarkan referensi ilmiah</div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">Ringkasan Skor Gabungan</div>
+      <div class="score-row">
+        <div class="score-box"><div class="score-num">${skorOrtu}%</div><div class="score-lbl">Orang Tua (${Object.keys(answersOrtu).length} soal)</div></div>
+        <div class="score-box"><div class="score-num">${skorGuru}%</div><div class="score-lbl">Guru (${Object.keys(answersGuru).length} soal)</div></div>
+        <div class="score-box"><div class="score-num">${skorGab}%</div><div class="score-lbl">Gabungan</div></div>
+      </div>
+      <div class="level-banner ${levelClass(level)}">
+        <strong>${level}</strong>${levelNarrative(level, namaDepan)}
+      </div>
+    </div>
+
+    <div class="source-tab">
+      <button data-v="guru" onclick="switchView('guru')" class="active">👩‍🏫 Jawaban Guru</button>
+      <button data-v="ortu" onclick="switchView('ortu')">🏠 Jawaban Orang Tua</button>
+    </div>
+
+    <div class="card" id="guru-detail">
+      <div class="card-title">Detail Observasi Guru — Sesi Bimbel</div>
+      ${guruHtml}
+    </div>
+    <div class="card" id="ortu-detail" style="display:none;">
+      <div class="card-title">Detail Laporan Orang Tua — di Rumah</div>
+      ${ortuHtml}
+    </div>
+
+    <div class="disclaimer">
+      ⚠️ Interpretasi di atas adalah alat bantu observasi awal, bukan diagnosis. Rujukan ke psikolog klinis anak / psikiater anak tetap diperlukan untuk asesmen formal.
+    </div>
+  `;
+
+  loading.style.display = 'none';
+  content.style.display = 'block';
+}
+
+const ITEMS_BY_AGE = {
+
+  // ── 4–5 TAHUN (TK) ──
+  A: [
+    { domain:"A", label:"Komunikasi di rumah", clinicalLabel:"Bahasa & komunikasi ekspresif", icon:"chat", items:[
+      { q:"Bagaimana cara si kecil mengungkapkan keinginannya?",
+        example:"Misalnya saat lapar, haus, atau ingin mainan — apakah ia bicara dengan kata-kata, menunjuk, menarik tangan Ayah/Bunda, atau diam saja?",
+        opts:["Bicara dengan kalimat pendek yang jelas","Bicara satu kata atau kalimat singkat","Lebih sering menunjuk atau menarik tangan","Hampir tidak pernah mengungkapkan, harus ditebak"] },
+      { q:"Seberapa sering si kecil menyebut nama atau memanggil Ayah/Bunda secara spontan?",
+        example:"Misalnya tiba-tiba memanggil 'Mama!' untuk menunjukkan sesuatu, atau memanggil saat ingin diperhatikan.",
+        opts:["Sering, dengan inisiatif yang tinggi","Kadang-kadang memanggil sendiri","Jarang, biasanya hanya saat diajak bicara dulu","Hampir tidak pernah memanggil sendiri"] },
+      { q:"Apakah si kecil pernah mengulangi kata atau kalimat yang baru didengar berulang-ulang?",
+        example:"Misalnya mengulangi kata dari lagu, iklan TV, atau kalimat yang baru diucapkan orang lain — tanpa konteks yang jelas.",
+        opts:["Tidak, jarang sekali","Sesekali, tapi masih wajar","Cukup sering mengulangi kata atau kalimat orang lain","Sering sekali, seperti rekaman yang diputar ulang"] },
+      { q:"Apakah si kecil langsung merespons saat namanya dipanggil dari jarak dekat?",
+        example:"Misalnya Ayah/Bunda memanggil namanya dari ruangan yang sama — apakah ia langsung menoleh, atau seolah tidak mendengar meski pendengarannya normal?",
+        opts:["Selalu merespons dengan segera","Biasanya merespons, kadang perlu dipanggil 2x","Sering tidak merespons, perlu dipanggil beberapa kali","Hampir tidak pernah merespons panggilan namanya"] },
+      { q:"Apakah si kecil pernah kehilangan kata-kata atau kemampuan bicara yang sebelumnya sudah bisa?",
+        example:"Misalnya dulu bisa menyebut 'mama', 'mau', atau beberapa kata, tapi di usia tertentu kata-kata itu menghilang dan tidak kembali lagi.",
+        opts:["Tidak, kemampuan bicaranya selalu berkembang maju","Ada sedikit fluktuasi tapi tidak signifikan","Ya, pernah kehilangan beberapa kata yang sebelumnya bisa","Ya, ada periode kemampuan bicaranya menurun cukup signifikan"] }
+    ]},
+    { domain:"B", label:"Kebiasaan & rutinitas", clinicalLabel:"Insistence on sameness & restricted interests", icon:"repeat", items:[
+      { q:"Bagaimana reaksi si kecil saat rutinitas hariannya berubah?",
+        example:"Misalnya waktu tidur berubah, makan di tempat yang berbeda, atau urutan kegiatan pagi hari berubah.",
+        opts:["Mudah beradaptasi, tidak masalah","Sedikit rewel tapi cepat menyesuaikan","Cukup terganggu dan butuh waktu lama untuk tenang","Sangat marah atau menangis keras, sulit ditenangkan"] },
+      { q:"Apakah si kecil punya satu mainan atau benda yang selalu harus dibawa ke mana-mana?",
+        example:"Misalnya selalu memegang boneka tertentu, benda kecil yang selalu ada di tangannya, atau panik jika benda itu tidak ada.",
+        opts:["Tidak ada yang seperti itu","Ada benda favorit tapi tidak bergantung berlebihan","Cukup bergantung, rewel jika tidak ada","Sangat bergantung, panik jika kehilangan benda itu"] },
+      { q:"Apakah si kecil sering melakukan gerakan tubuh yang sama berulang-ulang?",
+        example:"Misalnya melompat-lompat di tempat saat senang, mengepakkan tangan, mengayun badan, atau berputar-putar secara berulang.",
+        opts:["Tidak ada gerakan berulang yang menonjol","Kadang-kadang ada tapi masih wajar","Cukup sering dan terlihat menonjol","Sangat sering, terjadi di berbagai situasi"] },
+      { q:"Bagaimana cara si kecil bermain dengan mainannya?",
+        example:"Misalnya apakah ia bermain mobil-mobilan dengan wajar (didorong, dibuat cerita), atau justru hanya memutar rodanya berulang-ulang, membalik mainan, atau menyusun benda dalam barisan panjang?",
+        opts:["Bermain dengan cara yang wajar dan imajinatif","Sebagian besar wajar, kadang ada pola berulang","Cukup sering bermain dengan cara tidak biasa (memutar, membalik, berbaris)","Hampir selalu bermain dengan cara yang tidak fungsional"] }
+    ]},
+    { domain:"C", label:"Kepekaan indera", clinicalLabel:"Sensory processing", icon:"sensor", items:[
+      { q:"Bagaimana reaksi si kecil terhadap suara keras atau lingkungan yang ramai?",
+        example:"Misalnya saat ada suara blender, petasan, atau di tempat ramai seperti pasar — apakah ia sangat terganggu dibanding anak lain seusianya?",
+        opts:["Biasa saja, tidak terganggu","Sedikit terganggu tapi wajar","Sering menutup telinga atau menghindari tempat ramai","Sangat panik atau menangis saat ada suara keras"] },
+      { q:"Apakah si kecil sangat pemilih terhadap makanan — bukan karena tidak suka rasanya, tapi tidak tahan teksturnya?",
+        example:"Misalnya menolak makanan lembek seperti bubur, tidak mau makan sayur berserat, atau selalu muntah saat makan makanan bertekstur tertentu.",
+        opts:["Tidak ada penolakan tekstur yang menonjol","Ada beberapa yang tidak disukai tapi masih wajar","Cukup pemilih, sering menolak tekstur tertentu","Sangat pemilih, hanya mau beberapa jenis makanan saja"] }
+    ]},
+    { domain:"D", label:"Interaksi sosial", clinicalLabel:"Social interaction & joint attention", icon:"social", items:[
+      { q:"Bagaimana si kecil bermain dengan anak-anak lain seusianya?",
+        example:"Misalnya saat ada sepupu atau teman tetangga datang — apakah ia aktif bermain bersama atau memilih bermain sendiri?",
+        opts:["Aktif bergabung dan bermain bersama","Mau bergabung tapi butuh waktu pemanasan","Lebih sering bermain sendiri di dekat mereka","Sama sekali tidak tertarik bermain bersama orang lain"] },
+      { q:"Apakah si kecil suka menunjuk sesuatu untuk berbagi kesenangan — bukan untuk minta, tapi sekadar 'lihat itu!'?",
+        example:"Misalnya menunjuk burung di pohon, pesawat di langit, atau kucing lucu sambil melihat ke Ayah/Bunda seolah ingin berbagi momen.",
+        opts:["Sering, aktif berbagi perhatian seperti ini","Kadang-kadang melakukannya","Jarang sekali","Hampir tidak pernah menunjuk untuk berbagi"] }
+    ]},
+    { domain:"E", label:"Perkembangan & kemandirian", clinicalLabel:"Adaptive behavior & symbolic play", icon:"grow", items:[
+      { q:"Apakah si kecil suka bermain pura-pura?",
+        example:"Misalnya pura-pura masak dengan perabot mainan, berpura-pura boneka sedang tidur, atau menjadi 'dokter' yang memeriksa bonekanya.",
+        opts:["Ya, aktif berimajinasi dan bermain peran","Kadang-kadang mau bermain pura-pura","Jarang, lebih suka bermain yang konkret dan nyata","Hampir tidak pernah bermain pura-pura"] },
+      { q:"Bagaimana si kecil melakukan kontak mata dengan Ayah/Bunda saat diajak bicara?",
+        example:"Misalnya saat Ayah/Bunda memanggil namanya atau berbicara langsung padanya — apakah ia melihat ke mata atau selalu mengalihkan pandangan?",
+        opts:["Kontak mata natural dan nyaman","Kadang mengalihkan pandangan tapi masih wajar","Sering melihat ke arah lain meski diajak bicara langsung","Hampir selalu menghindari kontak mata"] }
+    ]}
+  ],
+
+  // ── 6–8 TAHUN (Kelas 1–2 SD) ──
+  B: [
+    { domain:"A", label:"Komunikasi di rumah & sekolah", clinicalLabel:"Bahasa pragmatik & komunikasi sosial", icon:"chat", items:[
+      { q:"Bagaimana cara si kecil bercerita tentang kejadian di sekolah atau kesehariannya?",
+        example:"Misalnya saat pulang sekolah — apakah ia bercerita sendiri secara runtut, perlu banyak dibantu dengan pertanyaan, atau tidak mau bercerita sama sekali?",
+        opts:["Bercerita sendiri dengan runtut dan detail","Bercerita tapi perlu beberapa pertanyaan pemancing","Hanya menjawab singkat jika ditanya, tidak bercerita sendiri","Sangat sulit diajak bicara tentang pengalamannya"] },
+      { q:"Apakah si kecil bisa mengikuti percakapan dua arah — tidak hanya bicara, tapi juga menyimak dan merespons?",
+        example:"Misalnya saat Ayah/Bunda bercerita atau menjelaskan sesuatu — apakah ia menyimak dan merespons sesuai, atau langsung mengalihkan ke topiknya sendiri?",
+        opts:["Ya, percakapan berjalan dua arah dengan baik","Kadang mengalihkan topik tapi masih bisa diajak kembali","Sering mendominasi dengan topiknya sendiri","Hampir selalu tidak merespons topik orang lain"] },
+      { q:"Apakah si kecil memahami humor ringan atau kalimat tidak harfiah yang biasa dipakai sehari-hari?",
+        example:"Misalnya saat dikatakan 'aduh perutku minta makan nih' atau lelucon ringan — apakah ia tertawa dan paham, atau bingung dan mengartikannya secara harfiah?",
+        opts:["Ya, paham humor dan kiasan dengan baik","Kadang paham, kadang perlu dijelaskan","Sering bingung dengan kalimat tidak harfiah","Hampir selalu mengartikan segala sesuatu secara harfiah"] },
+      { q:"Seberapa konsisten si kecil merespons saat namanya dipanggil di rumah?",
+        example:"Misalnya dipanggil untuk makan, atau Ayah/Bunda ingin memberitahu sesuatu — apakah ia merespons atau sering seperti tidak mendengar?",
+        opts:["Selalu merespons dengan baik","Biasanya merespons, kadang perlu dipanggil ulang","Sering tidak merespons, perlu dipanggil beberapa kali","Hampir tidak pernah merespons meski dipanggil berulang"] },
+      { q:"Apakah si kecil pernah mengalami kemunduran dalam bicara atau kemampuan yang sudah dikuasai sebelumnya?",
+        example:"Misalnya pernah lebih banyak bicara tapi tiba-tiba lebih pendiam, atau kemampuan yang sudah bisa tiba-tiba hilang di periode tertentu.",
+        opts:["Tidak, perkembangannya selalu maju","Ada fluktuasi kecil tapi tidak signifikan","Ya, pernah ada periode kemunduran yang cukup terlihat","Ya, ada kemampuan yang hilang dan tidak kembali"] }
+    ]},
+    { domain:"B", label:"Kebiasaan & rutinitas", clinicalLabel:"Insistence on sameness & restricted interests", icon:"repeat", items:[
+      { q:"Bagaimana reaksi si kecil jika ada perubahan mendadak pada rencana atau rutinitas?",
+        example:"Misalnya jadwal les berubah, rute pulang sekolah berbeda, atau acara yang sudah dinantikan tiba-tiba batal.",
+        opts:["Mudah menerima, cepat beradaptasi","Sedikit kecewa tapi cepat menyesuaikan","Cukup marah atau cemas, butuh waktu lama","Sangat marah atau panik, sulit sekali ditenangkan"] },
+      { q:"Apakah si kecil punya topik atau minat yang sangat ia tekuni secara intens dibanding teman-temannya?",
+        example:"Misalnya hafal semua nama dinosaurus, sangat obsesif dengan satu karakter kartun, atau hanya mau bicara soal satu topik tertentu terus-menerus.",
+        opts:["Ada hobi favorit tapi seimbang dengan kegiatan lain","Ada minat kuat tapi masih bisa dialihkan","Sangat fokus, cukup sulit jika diajak berganti topik/kegiatan","Hanya mau bicara atau melakukan satu hal itu saja"] },
+      { q:"Apakah si kecil melakukan gerakan tubuh berulang di saat-saat tertentu?",
+        example:"Misalnya mengepakkan tangan saat senang atau tegang, menggigit buku/pensil secara berulang, mengayun badan saat duduk, atau mengetuk-ngetuk meja.",
+        opts:["Tidak ada gerakan berulang yang menonjol","Kadang ada tapi masih wajar","Cukup sering terlihat, terutama saat excited atau gelisah","Sering sekali di berbagai situasi"] },
+      { q:"Bagaimana cara si kecil bermain atau menggunakan benda-benda di sekitarnya?",
+        example:"Misalnya apakah ia bermain dengan mainan secara wajar, atau sering memutar benda berulang-ulang, menyusun mainan dalam barisan, atau fokus pada bagian kecil dari suatu benda?",
+        opts:["Bermain dengan cara yang wajar sesuai fungsinya","Sebagian besar wajar, sesekali ada pola berulang","Cukup sering bermain dengan cara tidak biasa yang menonjol","Hampir selalu bermain dengan cara yang tidak fungsional"] }
+    ]},
+    { domain:"C", label:"Kepekaan terhadap lingkungan", clinicalLabel:"Sensory processing", icon:"sensor", items:[
+      { q:"Bagaimana si kecil merespons suara, cahaya, atau keramaian di sekolah atau tempat umum?",
+        example:"Misalnya saat di kantin sekolah, lapangan olahraga, atau mall — apakah ia lebih mudah terganggu atau kewalahan dibanding teman-temannya?",
+        opts:["Tidak ada masalah dengan lingkungan ramai","Kadang terganggu tapi masih bisa diajak","Sering ingin menghindari tempat ramai atau berisik","Sangat terganggu, sering minta pulang atau menangis di tempat ramai"] },
+      { q:"Apakah si kecil sangat pemilih terhadap tekstur makanan atau pakaian tertentu?",
+        example:"Misalnya tidak mau pakai seragam berbahan tertentu, menolak makanan dengan tekstur lembek atau berserat, atau sangat terganggu dengan label baju yang menyentuh kulit.",
+        opts:["Tidak ada pemilihan yang menonjol","Ada preferensi tapi masih wajar","Cukup pemilih sehingga sering jadi masalah sehari-hari","Sangat pemilih, memengaruhi kegiatan sehari-hari dengan signifikan"] }
+    ]},
+    { domain:"D", label:"Interaksi sosial", clinicalLabel:"Peer interaction & social cognition", icon:"social", items:[
+      { q:"Bagaimana hubungan si kecil dengan teman-teman di sekolah atau lingkungan sekitar?",
+        example:"Misalnya saat istirahat sekolah atau bermain di luar — apakah ia punya teman dekat, suka bergabung, atau lebih memilih sendiri?",
+        opts:["Punya teman dekat dan aktif bergaul","Bisa bergaul tapi perlu waktu untuk akrab","Lebih sering menyendiri meski ada teman di sekitarnya","Hampir selalu sendiri, tampak tidak tertarik berteman"] },
+      { q:"Apakah si kecil memahami perasaan teman atau menyadari jika temannya sedih/marah?",
+        example:"Misalnya saat ada teman yang menangis atau marah — apakah ia menyadari dan merespons dengan empati, atau tidak memperhatikan sama sekali?",
+        opts:["Ya, cukup peka terhadap perasaan orang lain","Kadang-kadang memperhatikan perasaan orang lain","Jarang memperhatikan perasaan orang lain","Hampir tidak pernah menyadari kondisi emosi orang lain"] }
+    ]},
+    { domain:"E", label:"Kemandirian & perkembangan", clinicalLabel:"Adaptive behavior & executive function", icon:"grow", items:[
+      { q:"Bagaimana kemandirian si kecil dalam aktivitas sehari-hari dibanding teman seusianya?",
+        example:"Misalnya memakai seragam sendiri, membereskan tas, makan siang di sekolah, atau mengerjakan PR tanpa terus-menerus diingatkan.",
+        opts:["Mandiri sesuai usianya","Butuh sedikit bantuan tapi masih wajar","Butuh bantuan lebih dari teman seusianya","Sangat bergantung, hampir semua aktivitas perlu dibantu"] },
+      { q:"Bagaimana si kecil menjaga kontak mata saat berbicara dengan Ayah/Bunda atau orang dewasa lain yang dikenal?",
+        example:"Misalnya saat diajak ngobrol di rumah atau bertemu guru — apakah ia menatap wajar atau selalu mengalihkan pandangan?",
+        opts:["Kontak mata natural dan wajar","Kadang mengalihkan tapi masih wajar","Sering melihat ke arah lain saat diajak bicara","Hampir selalu menghindari kontak mata"] }
+    ]}
+  ],
+
+  // ── 9–10 TAHUN (Kelas 3–4 SD) ──
+  C: [
+    { domain:"A", label:"Komunikasi & ekspresi diri", clinicalLabel:"Pragmatic language & social communication", icon:"chat", items:[
+      { q:"Bagaimana si kecil mengungkapkan pendapat atau perasaannya kepada Ayah/Bunda?",
+        example:"Misalnya saat ada masalah di sekolah, tidak setuju dengan sesuatu, atau ingin mengungkapkan perasaan — apakah ia bisa mengekspresikan dengan baik atau sulit sekali?",
+        opts:["Bisa mengungkapkan dengan baik dan jelas","Bisa tapi kadang butuh bantuan memformulasikan","Jarang mengungkapkan, harus ditanya dulu","Hampir tidak pernah berbagi perasaan atau pendapat"] },
+      { q:"Apakah si kecil bisa mengikuti dan menikmati percakapan kelompok dengan teman-temannya?",
+        example:"Misalnya saat ngobrol bareng beberapa teman — apakah ia bisa masuk ke percakapan, menunggu giliran, dan merespons yang relevan?",
+        opts:["Ya, bisa ikut percakapan kelompok dengan baik","Kadang bisa, tapi sering tidak pas timing-nya","Kesulitan masuk ke percakapan, lebih banyak diam","Hampir tidak bisa mengikuti percakapan kelompok"] },
+      { q:"Apakah si kecil memahami sindiran, sarkasme, atau konteks sosial yang tidak diucapkan secara langsung?",
+        example:"Misalnya jika teman bilang 'iya iya bagus banget' dengan nada menyindir — apakah si kecil paham atau mengartikannya secara harfiah?",
+        opts:["Paham dengan baik dan bisa merespons sesuai","Kadang paham, kadang perlu dijelaskan","Sering bingung dengan makna tersirat","Selalu mengartikan segala sesuatu secara harfiah"] }
+    ]},
+    { domain:"B", label:"Kebiasaan & pola perilaku", clinicalLabel:"Restricted interests & repetitive behavior", icon:"repeat", items:[
+      { q:"Bagaimana si kecil merespons perubahan rencana atau kejutan yang tidak terduga?",
+        example:"Misalnya liburan yang direncanakan tiba-tiba batal, teman yang sudah janjian tidak jadi datang, atau jadwal harian berubah mendadak.",
+        opts:["Cukup fleksibel dan bisa menerima","Kecewa tapi bisa diajak bicara dan menerima","Cukup terganggu, butuh waktu panjang untuk menerima","Sangat marah atau cemas, sulit sekali pulih"] },
+      { q:"Apakah si kecil punya minat yang sangat mendalam dan intens pada satu bidang tertentu?",
+        example:"Misalnya sangat ahli dalam satu topik tertentu seperti sains, sejarah, atau teknologi — hingga pengetahuannya jauh melampaui teman seusianya di bidang itu.",
+        opts:["Ada minat favorit tapi seimbang","Ada minat kuat tapi masih bisa dialihkan","Minat sangat intens, mendominasi waktu dan pikirannya","Hampir semua energinya tercurah pada satu bidang itu saja"] },
+      { q:"Apakah si kecil masih melakukan gerakan atau perilaku berulang di usianya sekarang?",
+        example:"Misalnya menggoyangkan kaki saat duduk secara intens, mengulang kata tertentu saat sendiri, atau ritual tertentu sebelum melakukan sesuatu.",
+        opts:["Tidak ada yang menonjol","Kadang-kadang ada tapi masih wajar","Cukup sering dan kadang mengganggu kegiatan","Sering sekali dan sudah memengaruhi keseharian"] },
+      { q:"Apakah si kecil merespons dengan baik saat namanya dipanggil atau diajak bicara langsung?",
+        example:"Misalnya dipanggil oleh Ayah/Bunda atau guru — apakah ia langsung merespons, atau sering seperti tidak mendengar meski tidak sedang sibuk?",
+        opts:["Selalu merespons dengan baik","Biasanya merespons, sesekali perlu dipanggil ulang","Sering tidak merespons, perlu usaha ekstra untuk mendapat perhatiannya","Hampir tidak pernah merespons panggilan langsung"] },
+      { q:"Apakah Ayah/Bunda pernah merasa bicara si kecil terdengar 'berbeda' — terlalu formal, terlalu kaku, atau seperti mengulang kalimat yang dihafal?",
+        example:"Misalnya menjawab pertanyaan dengan kalimat lengkap dan formal yang tidak wajar untuk usianya, atau menggunakan frasa yang seperti diambil dari buku atau film.",
+        opts:["Tidak, cara bicaranya natural sesuai usianya","Kadang terdengar sedikit kaku tapi tidak menonjol","Cukup sering terdengar berbeda dari teman seusianya","Hampir selalu terdengar kaku atau seperti hafalan"] }
+    ]},
+    { domain:"C", label:"Kepekaan terhadap lingkungan", clinicalLabel:"Sensory processing", icon:"sensor", items:[
+      { q:"Apakah si kecil mudah kewalahan di lingkungan yang ramai, bising, atau penuh stimulasi?",
+        example:"Misalnya di kantin penuh, pesta ulang tahun, atau kelas yang gaduh — apakah ia lebih cepat lelah, stres, atau minta menyendiri dibanding teman-temannya?",
+        opts:["Tidak, bisa menikmati lingkungan ramai","Kadang perlu istirahat dari keramaian, masih wajar","Sering kewalahan dan butuh waktu menyendiri","Sangat mudah kewalahan, selalu berusaha menghindari keramaian"] },
+      { q:"Apakah si kecil masih memiliki sensitivitas kuat terhadap tekstur, bau, atau sentuhan tertentu?",
+        example:"Misalnya tidak tahan bau tertentu yang bagi orang lain biasa, sangat tidak nyaman dengan pakaian ketat, atau sangat sensitif saat disentuh.",
+        opts:["Tidak ada sensitivitas yang menonjol","Ada beberapa tapi tidak mengganggu keseharian","Cukup sensitif sehingga kadang jadi kendala","Sangat sensitif, memengaruhi banyak aspek keseharian"] }
+    ]},
+    { domain:"D", label:"Persahabatan & empati", clinicalLabel:"Social cognition & peer relationships", icon:"social", items:[
+      { q:"Bagaimana kualitas pertemanan si kecil di sekolah atau lingkungan sekitar?",
+        example:"Misalnya apakah ia punya sahabat dekat, bisa mempertahankan persahabatan jangka panjang, atau lebih sering berganti teman atau tidak punya teman dekat?",
+        opts:["Punya sahabat dekat dan persahabatan yang stabil","Ada teman tapi pertemanan masih permukaan","Jarang punya teman dekat, persahabatan sulit bertahan","Hampir tidak punya teman dekat sama sekali"] },
+      { q:"Apakah si kecil memahami aturan sosial yang tidak tertulis — seperti kapan harus diam, kapan boleh berbicara, atau cara membaca situasi?",
+        example:"Misalnya mengetahui bahwa tidak boleh memotong pembicaraan orang dewasa, atau memahami kapan temannya ingin sendiri tanpa harus diberitahu.",
+        opts:["Cukup paham aturan sosial tidak tertulis","Kadang paham tapi perlu diingatkan","Sering tidak membaca situasi sosial dengan tepat","Hampir selalu melewatkan sinyal sosial tidak tertulis"] }
+    ]},
+    { domain:"E", label:"Kemandirian & regulasi diri", clinicalLabel:"Executive function & adaptive behavior", icon:"grow", items:[
+      { q:"Bagaimana kemampuan si kecil mengatur dirinya sendiri dalam mengerjakan tugas atau PR?",
+        example:"Misalnya apakah ia bisa memulai tugas sendiri, menyelesaikan tanpa terlalu banyak diingatkan, dan mengatur waktu dengan baik?",
+        opts:["Mandiri dan bisa mengatur diri dengan baik","Butuh sedikit dorongan tapi masih bisa","Butuh banyak pengawasan dan pengingat","Sangat sulit memulai atau menyelesaikan tugas tanpa bantuan intensif"] }
+    ]}
+  ],
+
+  // ── 11–12 TAHUN (Kelas 5–6 SD) ──
+  D: [
+    { domain:"A", label:"Komunikasi & ekspresi diri", clinicalLabel:"Pragmatic language & self-expression", icon:"chat", items:[
+      { q:"Bagaimana si kecil mengekspresikan perasaan atau kekhawatirannya kepada Ayah/Bunda?",
+        example:"Misalnya saat ada masalah di sekolah, konflik dengan teman, atau sedang stres — apakah ia bisa bercerita, membutuhkan banyak dorongan, atau sama sekali tidak mau membuka diri?",
+        opts:["Terbuka dan bisa mengekspresikan dengan baik","Mau berbagi tapi butuh banyak dorongan","Jarang sekali berbagi perasaan, harus ditanya dulu","Hampir tidak pernah mau berbagi perasaan"] },
+      { q:"Apakah si kecil bisa berkomunikasi dengan teman sebaya secara alami dan sesuai konteks sosial?",
+        example:"Misalnya saat ngobrol santai, bercanda, atau diskusi kelompok — apakah caranya berkomunikasi terasa natural atau justru kaku dan tidak sesuai situasi?",
+        opts:["Komunikasi terasa natural dan sesuai konteks","Kadang kaku tapi masih bisa beradaptasi","Sering terasa kaku atau tidak sesuai situasi sosial","Komunikasi konsisten terasa kaku atau tidak terbaca teman-temannya"] },
+      { q:"Apakah si kecil sering disalahpahami oleh teman atau guru karena cara bicara atau ekspresinya yang berbeda?",
+        example:"Misalnya sering dianggap kasar padahal tidak bermaksud, atau teman-teman tidak mengerti maksudnya dan sebaliknya.",
+        opts:["Jarang atau tidak pernah disalahpahami","Kadang disalahpahami tapi tidak sering","Cukup sering disalahpahami oleh orang lain","Sering sekali menjadi sumber kesalahpahaman"] }
+    ]},
+    { domain:"B", label:"Pola pikir & kebiasaan", clinicalLabel:"Restricted interests & cognitive rigidity", icon:"repeat", items:[
+      { q:"Seberapa fleksibel si kecil dalam menghadapi perubahan rencana atau ketidakpastian?",
+        example:"Misalnya ujian mendadak, rencana liburan yang batal, atau ada perubahan di kegiatan yang sudah diantisipasi — apakah ia bisa beradaptasi atau sangat terganggu?",
+        opts:["Cukup fleksibel, bisa menerima dengan baik","Kecewa tapi bisa menerima setelah diberi waktu","Cukup sulit menerima, butuh waktu panjang","Sangat sulit menerima, reaksinya berlebihan dibanding situasinya"] },
+      { q:"Apakah si kecil punya bidang minat yang jauh lebih dalam dan luas dari teman-temannya?",
+        example:"Misalnya pengetahuannya tentang satu topik tertentu sangat mendalam hingga bisa dianggap 'ahli', tapi di bidang lain kurang tertarik sama sekali.",
+        opts:["Ada minat favorit tapi seimbang","Ada bidang favorit yang lebih dalam tapi masih wajar","Minat sangat terkonsentrasi, sulit diajak ke bidang lain","Hampir semua energi dan perhatiannya hanya di satu bidang"] },
+      { q:"Apakah si kecil merespons dengan wajar saat namanya dipanggil atau diajak berbicara langsung?",
+        example:"Misalnya saat Ayah/Bunda memanggil dari ruangan lain, atau mengajaknya berbicara saat ia sedang tidak sibuk — apakah ia merespons atau sering tidak mendengar?",
+        opts:["Selalu merespons dengan baik dan wajar","Biasanya merespons, sesekali perlu dipanggil ulang","Sering tidak merespons, perlu usaha ekstra","Hampir tidak pernah merespons panggilan langsung"] },
+      { q:"Apakah ada momen di masa kecilnya di mana kemampuan si kecil — bicara, sosial, atau lainnya — sempat menurun dari yang sebelumnya?",
+        example:"Misalnya pernah lebih banyak bicara lalu tiba-tiba lebih pendiam, atau kemampuan sosial yang sempat berkembang lalu tampak mundur di periode tertentu.",
+        opts:["Tidak, perkembangannya selalu maju secara konsisten","Ada fluktuasi kecil tapi tidak signifikan","Ya, pernah ada periode kemunduran yang cukup terlihat","Ya, ada kemampuan yang hilang dan tidak sepenuhnya kembali"] }
+    ]},
+    { domain:"C", label:"Kepekaan & kenyamanan", clinicalLabel:"Sensory processing & interoception", icon:"sensor", items:[
+      { q:"Apakah si kecil mudah kewalahan secara emosional atau sensorik di situasi tertentu?",
+        example:"Misalnya di keramaian, saat ada tekanan sosial, atau ketika banyak hal terjadi sekaligus — apakah ia lebih cepat kewalahan dibanding teman seusianya?",
+        opts:["Tidak, cukup tahan terhadap tekanan","Kadang kewalahan tapi masih bisa mengelola","Cukup sering kewalahan di situasi yang bagi orang lain biasa","Sangat mudah kewalahan, sering butuh menarik diri"] },
+      { q:"Apakah si kecil menyadari kondisi tubuhnya sendiri — seperti lapar, lelah, atau tidak enak badan — dan bisa mengatasinya?",
+        example:"Misalnya apakah ia tahu saat dirinya sudah lelah, bisa mengenali saat mulai lapar, atau justru tidak menyadari sampai kondisinya sudah parah.",
+        opts:["Ya, cukup sadar dan bisa merespons kondisi tubuhnya","Kadang tidak menyadari, tapi masih wajar","Sering tidak sadar kondisi tubuhnya hingga orang lain yang mengingatkan","Hampir tidak bisa mengenali sinyal tubuhnya sendiri"] }
+    ]},
+    { domain:"D", label:"Hubungan sosial & empati", clinicalLabel:"Social cognition & theory of mind", icon:"social", items:[
+      { q:"Bagaimana kualitas hubungan pertemanan si kecil di usianya sekarang?",
+        example:"Misalnya apakah ia punya sahabat yang benar-benar dekat dan saling percaya, atau lebih banyak kenalan permukaan, atau merasa sulit sekali berteman?",
+        opts:["Punya sahabat dekat dan hubungan yang sehat","Ada teman tapi pertemanan masih permukaan","Jarang punya teman dekat, sering merasa berbeda dari teman-teman","Hampir tidak punya teman dekat, sering merasa tidak cocok dengan siapapun"] },
+      { q:"Apakah si kecil bisa membaca situasi sosial yang kompleks — seperti dinamika kelompok, gosip, atau aturan tidak tertulis pergaulan?",
+        example:"Misalnya memahami bahwa teman sedang pura-pura baik, tahu kapan kelompok sedang tidak nyaman, atau mengerti sinyal-sinyal sosial halus.",
+        opts:["Cukup bisa membaca situasi sosial yang kompleks","Kadang bisa, kadang melewatkan","Sering melewatkan dinamika sosial yang sudah jelas bagi teman-temannya","Hampir selalu kesulitan membaca situasi sosial"] }
+    ]},
+    { domain:"E", label:"Kemandirian & regulasi diri", clinicalLabel:"Executive function & adaptive behavior", icon:"grow", items:[
+      { q:"Bagaimana si kecil mengatur tanggung jawab sekolah secara mandiri di usianya sekarang?",
+        example:"Misalnya mengerjakan PR tanpa diingatkan terus-menerus, menyiapkan bahan belajar sendiri, atau mengatur waktu antara belajar dan bermain.",
+        opts:["Mandiri dan bertanggung jawab sesuai usianya","Butuh sedikit pengingat tapi masih bisa","Butuh pengawasan cukup intensif","Sangat bergantung, hampir semua hal perlu diinisiasi orang tua"] },
+      { q:"Bagaimana si kecil mengelola emosi saat menghadapi situasi yang menekan atau mengecewakan?",
+        example:"Misalnya saat nilai ujian buruk, kalah dalam pertandingan, atau terjadi konflik dengan teman — apakah ia bisa mengelola emosinya dengan baik?",
+        opts:["Bisa mengelola emosi dengan baik","Kadang butuh bantuan tapi umumnya bisa","Sering bereaksi berlebihan atau sangat lama pulih","Sangat sulit mengelola emosi, reaksinya sering jauh melampaui situasi"] }
+    ]}
+  ]
+};
+
+buildDetail();
+</script>
+</body>
+</html>
