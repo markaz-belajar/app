@@ -183,10 +183,12 @@ body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t
 
 .hint{font-size:12px;color:var(--tx3);line-height:1.55;margin-bottom:.65rem}
 
-.btn-sub{width:100%;padding:14px;background:var(--ac);color:#0a2846;border:none;border-radius:var(--rl);font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;-webkit-tap-highlight-color:transparent;margin-top:.25rem}
+.btn-sub{width:100%;padding:14px;background:var(--ac);color:#0a2846;border:none;border-radius:var(--rl);font-family:'Geist',sans-serif;font-size:15px;font-weight:700;cursor:pointer;transition:opacity .2s;-webkit-tap-highlight-color:transparent;margin-top:.25rem;display:flex;align-items:center;justify-content:center;gap:.5rem}
 .btn-sub:active{opacity:.85}
-.btn-sub:disabled{opacity:.35;cursor:default}
+.btn-sub:disabled{opacity:.7;cursor:default}
 .btn-sub.edit-mode{background:var(--wn);color:#0a2846}
+.btn-spin{width:16px;height:16px;border:2px solid rgba(10,40,70,.3);border-top-color:#0a2846;border-radius:50%;animation:btnspin .7s linear infinite;flex:none}
+@keyframes btnspin{to{transform:rotate(360deg)}}
 
 .success-wrap{padding:3rem 1.5rem;text-align:center;max-width:480px;margin:0 auto}
 .suc-ico{font-size:44px;margin-bottom:1rem}
@@ -711,7 +713,7 @@ function doSubmit(){
   const btn=document.getElementById('btn-sub');
   if(!fState.kehadiran){alert('Pilih kehadiran dulu.');return;}
   btn.disabled=true;
-  btn.textContent=curAksi==='edit'?'Menyimpan perubahan...':'Menyimpan...';
+  btn.innerHTML=`<span class="btn-spin"></span>${curAksi==='edit'?'Menyimpan perubahan...':'Menyimpan...'}`;
 
   const bBArr=Object.values(fState.bB).filter(b=>b?.on).map(b=>{
     const m=badgeMaster.find(x=>x.id===b.id);
@@ -754,7 +756,7 @@ function doSubmit(){
     .then(r=>{
       if(!r.ok){
         btn.disabled=false;
-        btn.textContent=curAksi==='edit'?'✎ Simpan Perubahan':'Simpan Sesi';
+        btn.innerHTML=curAksi==='edit'?'✎ Simpan Perubahan':'Simpan Sesi';
         alert('Gagal: '+r.error);return;
       }
       const s=allSiswa.find(x=>x.id===curSiswa.id);
@@ -769,7 +771,7 @@ function doSubmit(){
     })
     .catch(e=>{
       btn.disabled=false;
-      btn.textContent=curAksi==='edit'?'✎ Simpan Perubahan':'Simpan Sesi';
+      btn.innerHTML=curAksi==='edit'?'✎ Simpan Perubahan':'Simpan Sesi';
       alert('Error: '+e.message);
     });
 }
