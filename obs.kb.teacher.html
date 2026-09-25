@@ -1,0 +1,725 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Profil Kekuatan Belajar — Markz Belajar</title>
+<style>
+:root {
+  --blue: #0686c7; --blue-dark: #055a96; --blue-light: #e8f4fc; --blue-mid: #b3d9f0;
+  --amber: #d97706; --amber-light: #fef3c7;
+  --green: #16a34a; --green-light: #dcfce7;
+  --purple: #7c3aed; --purple-light: #ede9fe;
+  --gray: #6b7280; --gray-light: #f3f4f6;
+  --border: #e5e7eb; --text: #111827; --text-2: #6b7280; --text-3: #9ca3af;
+  --bg: #f0f7fd; --card: #ffffff; --r: 12px; --r-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header { background: var(--blue); padding: 16px 16px 14px; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: center; justify-content: space-between; }
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-logo { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
+.header-logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.header-title { color: #fff; font-size: 15px; font-weight: 700; line-height: 1.2; }
+.header-sub { color: rgba(255,255,255,0.75); font-size: 11px; margin-top: 1px; }
+.progress-pill { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 12px; color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.header-bar { margin-top: 12px; height: 5px; background: rgba(255,255,255,0.25); border-radius: 3px; overflow: hidden; }
+.header-bar-fill { height: 100%; background: #fff; border-radius: 3px; width: 0%; transition: width 0.4s ease; }
+
+.body { padding: 16px; max-width: 640px; margin: 0 auto; }
+.notice { background: var(--blue-light); border: 1px solid var(--blue-mid); border-radius: var(--r); padding: 12px 14px; font-size: 13px; color: var(--blue-dark); margin-bottom: 16px; line-height: 1.6; }
+.notice strong { color: var(--blue); }
+
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; margin-bottom: 16px; }
+.info-card-title { font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.info-card-title svg { width: 15px; height: 15px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.info-field label { display: block; font-size: 11px; color: var(--text-2); margin-bottom: 4px; font-weight: 500; }
+.info-field input, .info-field select { width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 14px; color: var(--text); background: var(--gray-light); outline: none; -webkit-appearance: none; font-family: inherit; }
+.info-field input:focus, .info-field select:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(6,134,199,0.12); }
+.info-field.full { grid-column: 1 / -1; }
+
+/* STAGE PICKER */
+.stage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stage-card { background: var(--card); border: 2px solid var(--border); border-radius: var(--r); padding: 14px 12px; cursor: pointer; text-align: left; transition: all 0.15s; font-family: inherit; }
+.stage-card:active { transform: scale(0.98); }
+.stage-card-num { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+.stage-card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.stage-card-sub { font-size: 11.5px; color: var(--text-3); line-height: 1.5; margin-bottom: 8px; }
+.stage-card-badge { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+.stage-card-badge.pending { background: var(--gray-light); color: var(--text-3); }
+.stage-card-badge.done { background: var(--green-light); color: var(--green); }
+.stage-card.locked { opacity: 0.6; }
+
+.domain { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 12px; overflow: hidden; }
+.domain-head { background: var(--blue); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.domain-head-left { display: flex; align-items: center; gap: 10px; }
+.domain-head-icon { width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.domain-head-icon svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.domain-head-title { font-size: 13px; font-weight: 700; color: #fff; }
+.domain-head-sub { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 1px; }
+.domain-badge { background: rgba(255,255,255,0.2); color: #fff; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+.legend-strip { display: flex; border-bottom: 1px solid var(--border); background: var(--blue-light); }
+.legend-strip span { flex: 1; text-align: center; font-size: 10px; font-weight: 600; padding: 6px 2px; color: var(--blue-dark); line-height:1.4; }
+.legend-strip span small { display:block; font-size:8.5px; font-weight:500; opacity:0.75; }
+
+.item { padding: 14px; border-bottom: 1px solid var(--border); }
+.item:last-child { border-bottom: none; }
+.item-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.item-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue-light); color: var(--blue); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.item-text { font-size: 14px; color: var(--text); line-height: 1.5; flex: 1; }
+.item-note { font-size: 12px; color: var(--text-3); margin-top: 3px; font-style: italic; }
+.opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.opt input { display: none; }
+.opt-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px 4px; border: 1.5px solid var(--border); border-radius: var(--r-sm); background: var(--gray-light); cursor: pointer; transition: all 0.15s; user-select: none; min-height: 52px; }
+.opt-btn:active { transform: scale(0.96); }
+.opt-num { font-size: 16px; font-weight: 700; color: var(--text-2); }
+.opt-lbl { font-size: 10px; color: var(--text-3); text-align: center; line-height: 1.2; }
+.opt[data-v="0"] input:checked ~ .opt-btn { background: #6b7280; border-color: #6b7280; }
+.opt[data-v="1"] input:checked ~ .opt-btn { background: var(--blue-mid); border-color: var(--blue); }
+.opt[data-v="2"] input:checked ~ .opt-btn { background: var(--blue); border-color: var(--blue); }
+.opt[data-v="3"] input:checked ~ .opt-btn { background: var(--green); border-color: var(--green); }
+.opt[data-v="0"] input:checked ~ .opt-btn .opt-num, .opt[data-v="0"] input:checked ~ .opt-btn .opt-lbl,
+.opt[data-v="2"] input:checked ~ .opt-btn .opt-num, .opt[data-v="2"] input:checked ~ .opt-btn .opt-lbl,
+.opt[data-v="3"] input:checked ~ .opt-btn .opt-num, .opt[data-v="3"] input:checked ~ .opt-btn .opt-lbl { color: #fff; }
+.opt[data-v="1"] input:checked ~ .opt-btn .opt-num, .opt[data-v="1"] input:checked ~ .opt-btn .opt-lbl { color: var(--blue-dark); }
+
+.actions { padding: 4px 0 14px; display: flex; flex-direction: column; gap: 8px; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 16px; border-radius: var(--r-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; width: 100%; font-family: inherit; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-wa { background: #25D366; color: #fff; }
+.btn-gray { background: var(--gray-light); color: var(--text-2); border: 1px solid var(--border); }
+.btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+.disclaimer { background: var(--gray-light); padding: 12px 14px; font-size: 11.5px; color: var(--text-3); line-height: 1.6; border-radius: var(--r-sm); margin-top: 4px; }
+
+/* STAGE 1 DONE SCREEN */
+.done-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 16px; display: none; }
+.done-panel.show { display: block; }
+.done-banner { background: linear-gradient(135deg, var(--green), #15803d); padding: 22px 18px 18px; text-align: center; }
+.done-banner svg { width: 38px; height: 38px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; margin-bottom: 6px; }
+.done-banner h2 { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.done-banner p { color: rgba(255,255,255,0.9); font-size: 12.5px; line-height: 1.5; }
+.done-body { padding: 16px; }
+.mini-bars { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.mini-bar-row { display: flex; align-items: center; gap: 8px; }
+.mini-bar-label { font-size: 12px; color: var(--text-2); width: 110px; flex-shrink: 0; }
+.mini-bar-track { flex: 1; height: 8px; background: var(--gray-light); border-radius: 4px; overflow: hidden; }
+.mini-bar-fill { height: 100%; border-radius: 4px; }
+.mini-bar-val { font-size: 11px; font-weight: 700; color: var(--text); width: 32px; text-align: right; flex-shrink: 0; }
+.continue-box { background: var(--blue-light); border: 1.5px dashed var(--blue-mid); border-radius: var(--r-sm); padding: 12px 14px; font-size: 12.5px; color: var(--blue-dark); line-height: 1.6; margin-bottom: 12px; }
+
+/* PARENT / COMBINED REPORT */
+.result-parent { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 16px; display: none; }
+.result-parent.show { display: block; }
+.result-parent-banner { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); padding: 24px 18px 20px; text-align: center; }
+.result-parent-banner svg { width: 40px; height: 40px; stroke: #fff; fill: none; stroke-width: 1.5; stroke-linecap: round; margin-bottom: 8px; }
+.result-parent-banner h2 { color: #fff; font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.result-parent-banner p { color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.5; }
+.result-parent-body { padding: 16px; }
+.profile-areas { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 14px; }
+.parea-card { border: 1px solid var(--border); border-radius: var(--r-sm); overflow: hidden; }
+.parea-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--gray-light); }
+.parea-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.parea-label { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.parea-pill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.parea-trend { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; white-space: nowrap; margin-left: 6px; }
+.parea-bar-wrap { padding: 8px 12px 4px; }
+.parea-bar-compare { display: flex; flex-direction: column; gap: 4px; }
+.parea-bar-compare-row { display: flex; align-items: center; gap: 6px; }
+.parea-bar-compare-lbl { font-size: 9.5px; color: var(--text-3); width: 42px; flex-shrink: 0; }
+.parea-bar-track { flex:1; height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.parea-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+.parea-bar-compare-val { font-size: 10px; font-weight: 700; color: var(--text); width: 30px; text-align: right; flex-shrink: 0; }
+.parea-body { padding: 10px 12px 12px; border-top: 1px solid var(--border); }
+.parea-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; margin-bottom: 8px; }
+.parea-tips { display: flex; flex-direction: column; gap: 5px; }
+.parea-tip { display: flex; align-items: flex-start; gap: 7px; font-size: 12.5px; color: var(--text-2); line-height: 1.5; }
+.parea-tip-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+.highlight-box { background: var(--blue-light); border: 1.5px solid var(--blue-mid); border-radius: var(--r-sm); padding: 14px; margin-bottom: 14px; }
+.highlight-box-title { font-size: 11px; font-weight: 700; color: var(--blue-dark); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+.highlight-box-text { font-size: 14px; color: var(--blue-dark); line-height: 1.6; }
+.highlight-box-text strong { color: var(--blue); }
+
+.parent-note { font-size: 13px; color: var(--text-2); line-height: 1.7; padding: 12px; background: var(--blue-light); border-radius: var(--r-sm); margin-top: 4px; }
+.parent-note strong { color: var(--blue); }
+.share-section { padding: 14px 16px; border-top: 1px solid var(--border); }
+.single-stage-note { background: var(--amber-light); border: 1px solid #fcd34d; border-radius: var(--r-sm); padding: 10px 12px; font-size: 12px; color: #92400e; line-height: 1.6; margin-bottom: 14px; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: var(--r); padding: 20px 16px; width: 100%; max-width: 420px; }
+.modal h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.modal p { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-bottom: 14px; }
+.modal-close { background: none; border: none; font-size: 13px; color: var(--text-3); cursor: pointer; text-align: center; width: 100%; padding: 8px; margin-top: 4px; }
+
+.readonly-banner { background: var(--amber-light); border: 1px solid #fcd34d; border-radius: var(--r); padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: var(--amber); line-height: 1.6; display: none; }
+.readonly-banner.show { display: block; }
+.readonly-banner strong { color: #92400e; }
+
+@media print {
+  .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .domain-head { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .result-parent-banner { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .actions, .share-section, .stage-grid { display: none !important; }
+  .domain { break-inside: avoid; }
+  .body { padding: 8px; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <div>
+        <div class="header-title">Markz Belajar</div>
+        <div class="header-sub">Profil Kekuatan Belajar — Observasi Guru</div>
+      </div>
+    </div>
+    <div class="progress-pill" id="hdr-progress">0 / 15</div>
+  </div>
+  <div class="header-bar"><div class="header-bar-fill" id="hdr-bar"></div></div>
+</header>
+
+<div class="body">
+
+  <div class="readonly-banner" id="readonly-banner">
+    📋 <strong>Mode baca:</strong> Ini adalah hasil laporan gabungan yang sudah lengkap (Tahap 1 + Tahap 2). Tidak dapat diubah.
+  </div>
+
+  <div class="info-card" id="info-card">
+    <div class="info-card-title">
+      <svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Data siswa
+    </div>
+    <div class="info-grid">
+      <div class="info-field full"><label>Nama siswa</label><input type="text" id="f-nama" placeholder="Nama panggilan siswa"></div>
+      <div class="info-field"><label>Usia</label><input type="text" id="f-usia" placeholder="Contoh: 8 tahun"></div>
+      <div class="info-field"><label>Jenis kelamin</label><select id="f-jk"><option value="">Pilih</option><option>Laki-laki</option><option>Perempuan</option></select></div>
+      <div class="info-field"><label>Nama guru pengisi</label><input type="text" id="f-guru" placeholder="Nama Anda"></div>
+      <div class="info-field"><label>Jumlah pertemuan diamati</label><input type="number" id="f-pertemuan" placeholder="Contoh: 4" min="1"></div>
+    </div>
+  </div>
+
+  <!-- STAGE PICKER -->
+  <div id="stage-picker-section">
+    <div class="notice">
+      <strong>Cara kerja:</strong> Profil ini diisi dalam <strong>2 tahap</strong> — Tahap 1 setelah ±4 pertemuan pertama, Tahap 2 setelah ±4 pertemuan berikutnya. Setelah keduanya lengkap, sistem otomatis membuat <strong>laporan evaluasi perbandingan</strong> untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.
+    </div>
+    <div class="stage-grid">
+      <button class="stage-card" id="stage-card-1" onclick="pickStage(1)">
+        <div class="stage-card-num">Tahap 1</div>
+        <div class="stage-card-title">Screening Awal</div>
+        <div class="stage-card-sub">15 soal · setelah ±4 pertemuan pertama</div>
+        <div class="stage-card-badge pending" id="stage-badge-1">Belum diisi</div>
+      </button>
+      <button class="stage-card" id="stage-card-2" onclick="pickStage(2)">
+        <div class="stage-card-num">Tahap 2</div>
+        <div class="stage-card-title">Screening Lanjutan</div>
+        <div class="stage-card-sub">15 soal · setelah ±4 pertemuan berikutnya</div>
+        <div class="stage-card-badge pending" id="stage-badge-2">Belum diisi</div>
+      </button>
+    </div>
+  </div>
+
+  <div class="notice" id="fill-notice" style="display:none;">
+    <strong>Panduan pengisian:</strong> Isi berdasarkan observasi selama ±4 pertemuan terakhir (bukan kesan sekali pertemuan), lalu pilih skala berdasarkan berapa kali dari 4 pertemuan itu perilakunya muncul — lihat keterangan di bawah tiap domain. Ini bukan tes bakat/IQ.
+  </div>
+
+  <div id="checklist"></div>
+
+  <div class="actions" id="form-actions" style="display:none;">
+    <button class="btn btn-primary" id="submit-btn" onclick="handleSubmit()">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      Simpan Tahap Ini
+    </button>
+    <button class="btn btn-gray" onclick="backToPicker()">Kembali ke pilihan tahap</button>
+  </div>
+
+  <!-- TAHAP 1 SELESAI -->
+  <div class="done-panel" id="done-panel">
+    <div class="done-banner">
+      <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg>
+      <h2>Tahap 1 tersimpan ✓</h2>
+      <p>Screening awal sudah lengkap. Lanjutkan ke Tahap 2 setelah beberapa pertemuan berikutnya.</p>
+    </div>
+    <div class="done-body">
+      <p style="font-size:12px;color:var(--text-3);margin-bottom:10px;">Gambaran sementara dari Tahap 1 (belum final — akan diperkuat/dibandingkan di Tahap 2):</p>
+      <div class="mini-bars" id="mini-bars"></div>
+      <div class="continue-box">
+        💾 Data tersimpan otomatis di perangkat ini. Kalau mau lanjutkan Tahap 2 dari perangkat lain, simpan link lanjutan ini dulu:
+      </div>
+      <button class="btn btn-gray" onclick="copyContinueLink()">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Salin Link Lanjutan Tahap 2
+      </button>
+      <button class="btn btn-primary" style="margin-top:8px;" onclick="backToPicker()">
+        Kembali ke Menu Tahap
+      </button>
+    </div>
+  </div>
+
+  <!-- LAPORAN GABUNGAN / ORTU -->
+  <div class="result-parent" id="result-parent">
+    <div class="result-parent-banner">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <h2 id="report-title">Profil Kekuatan Belajar</h2>
+      <p id="report-sub">Berdasarkan observasi guru selama sesi bimbel di Markz Belajar</p>
+    </div>
+    <div class="result-parent-body">
+      <div class="single-stage-note" id="single-stage-note" style="display:none;">⚠️ Laporan ini baru berdasarkan <strong>Tahap 1 saja</strong> — belum ada data Tahap 2 untuk perbandingan. Hasil masih bersifat awal.</div>
+
+      <div class="highlight-box" id="highlight-box">
+        <div class="highlight-box-title">✨ Kekuatan yang paling menonjol</div>
+        <div class="highlight-box-text" id="highlight-text">—</div>
+      </div>
+
+      <p style="font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:10px;" id="areas-caption">Berikut profil lengkap si kecil di tiap area. Semakin tinggi bar, semakin menonjol kecenderungan tersebut — bukan penilaian "baik/buruk".</p>
+      <div class="profile-areas" id="profile-areas"></div>
+
+      <div class="parent-note" id="parent-note-box">💬 Laporan ini akan menjadi bahan diskusi guru dengan Ayah/Bunda agar pendampingan belajar si kecil di Markz Belajar makin sesuai dengan caranya sendiri.</div>
+    </div>
+    <div class="share-section">
+      <button class="btn btn-wa" onclick="shareWhatsApp()">
+        <svg viewBox="0 0 24 24" style="fill:#fff;stroke:none;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+        Kirim ke Orang Tua via WhatsApp
+      </button>
+      <button class="btn btn-gray" onclick="window.print()" style="margin-top:8px;">
+        <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+        Cetak / Simpan PDF
+      </button>
+      <div class="disclaimer" style="margin-top:10px;">ℹ️ Profil ini adalah alat bantu pendampingan belajar internal Markz Belajar, berdasarkan observasi guru selama beberapa pertemuan. Bukan tes bakat, IQ, atau alat diagnosis — kecenderungan anak bisa berubah seiring waktu dan konteks.</div>
+    </div>
+  </div>
+
+</div>
+
+<!-- SHARE MODAL -->
+<div class="modal-overlay" id="share-modal">
+  <div class="modal">
+    <h3 id="share-modal-title">Kirim ke Orang Tua 💬</h3>
+    <p id="share-modal-text">Link laporan profil kekuatan belajar sudah siap. Tap tombol di bawah untuk membuka WhatsApp.</p>
+    <button class="btn btn-wa" onclick="doShare()">
+      <svg viewBox="0 0 24 24" style="fill:#fff;stroke:none;"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347"/></svg>
+      Buka WhatsApp
+    </button>
+    <button class="btn btn-gray" onclick="copyLink()">
+      <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      Salin link saja
+    </button>
+    <button class="modal-close" onclick="closeModal()">Tutup</button>
+  </div>
+</div>
+
+<script>
+const ICONS = {
+  focus:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  grit:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+  indep:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  motiv:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/></svg>`,
+  absorb:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`
+};
+
+// ── 30 item, tapi tiap domain dipecah: index 0-2 = Tahap 1, index 3-5 = Tahap 2 ──
+const ITEMS = [
+  { domain:"A", label:"Fokus & Konsentrasi", metaLabel:"Fokus & Konsentrasi", icon:"focus", color:"#0686c7", items:[
+    { text:"Bisa fokus mengerjakan tugas tanpa mudah terganggu hal di sekitarnya", note:"Misalnya ada teman lain ribut atau suara notifikasi HP — apakah ia tetap lanjut mengerjakan soal, atau langsung menoleh dan kehilangan konsentrasi?" },
+    { text:"Cepat kembali fokus setelah sempat teralihkan", note:"Misalnya setelah menoleh sebentar karena ada yang lewat, apakah ia langsung kembali ke soal dalam hitungan detik, atau butuh ditegur ulang untuk fokus lagi?" },
+    { text:"Menyelesaikan tugas dalam waktu yang wajar tanpa banyak jeda", note:"Misalnya diberi 10 soal dalam 15 menit — apakah ia mengerjakan mengalir dari soal ke soal, atau sering berhenti lama di tengah tanpa alasan jelas (melamun, main alat tulis)?" },
+    { text:"Bisa duduk tenang mengikuti sesi sampai selesai tanpa sering berpindah tempat", note:"Misalnya dalam sesi 1 jam, apakah ia tetap di kursinya, atau berkali-kali berdiri/pindah tempat duduk tanpa alasan yang perlu?" },
+    { text:"Tetap memperhatikan meski instruksi yang diberikan agak panjang", note:"Misalnya guru menjelaskan cara mengerjakan soal cerita dalam 3-4 kalimat berturut-turut — apakah ia masih menyimak sampai akhir, atau perhatiannya sudah kabur di tengah?" },
+    { text:"Tidak mudah teralihkan saat mengerjakan tugas dengan beberapa langkah berurutan", note:"Misalnya soal yang butuh 'hitung dulu, lalu bulatkan, lalu tulis jawabannya' — apakah ia ingat menyelesaikan semua langkah, atau berhenti di tengah dan lupa lanjut?" }
+  ]},
+  { domain:"B", label:"Ketekunan Menghadapi Tantangan", metaLabel:"Ketekunan & Daya Juang", icon:"grit", items:[
+    { text:"Tetap mencoba saat soal terasa sulit, tidak langsung menyerah", note:"Misalnya diberi soal yang levelnya sedikit di atas kemampuannya — apakah ia mencoba beberapa pendekatan dulu, atau langsung bilang 'nggak bisa' dan berhenti tanpa mencoba?" },
+    { text:"Mau mencoba cara lain saat cara pertama tidak berhasil", note:"Misalnya cara menghitung yang biasa dipakai tidak berhasil — apakah ia mencoba cara lain (menggambar, pakai jari), atau terus mengulang cara yang sama meski gagal?" },
+    { text:"Tidak mudah frustrasi atau menyerah saat membuat kesalahan", note:"Misalnya jawabannya dikoreksi salah oleh guru — apakah ia menerima dan lanjut mencoba lagi, atau langsung kesal, menyalahkan soalnya, atau menolak melanjutkan?" },
+    { text:"Mau mengulang latihan yang sama meski sudah beberapa kali salah", note:"Misalnya latihan yang sama diberikan 3x karena masih salah — apakah ia tetap mau mencoba lagi tanpa mengeluh berlebihan, atau menolak setelah gagal 1-2 kali?" },
+    { text:"Tidak langsung minta bantuan sebelum benar-benar mencoba sendiri dulu", note:"Misalnya diberi soal baru — apakah ia membaca dan mencoba dulu sebelum bertanya, atau langsung mengangkat tangan sebelum sempat membaca soalnya sendiri?" },
+    { text:"Tetap tenang saat diberi tahu jawabannya salah, tidak ngambek atau menolak lanjut", note:"Misalnya dikoreksi 'ini belum tepat, coba lagi' — apakah responnya tenang dan mencoba ulang, atau merajuk, menangis, atau menutup buku menolak lanjut?" }
+  ]},
+  { domain:"C", label:"Kemandirian", metaLabel:"Kemandirian Belajar", icon:"indep", items:[
+    { text:"Memulai tugas tanpa harus diarahkan berulang kali", note:"Misalnya instruksi 'ayo kerjakan halaman ini' diberikan sekali — apakah ia langsung mulai, atau perlu diingatkan 2-3 kali sebelum benar-benar mulai mengerjakan?" },
+    { text:"Mengecek pekerjaannya sendiri sebelum bertanya ke guru", note:"Misalnya sebelum bilang 'sudah selesai' — apakah ia sempat membaca ulang jawabannya sendiri, atau langsung menyerahkan tanpa dicek sama sekali?" },
+    { text:"Merapikan alat belajarnya sendiri setelah sesi selesai", note:"Misalnya sesi sudah selesai — apakah ia memasukkan sendiri buku dan alat tulis ke tasnya, atau meninggalkannya berantakan sampai diingatkan orang lain?" },
+    { text:"Bisa mengikuti instruksi dengan beberapa langkah tanpa harus diulang-ulang", note:"Misalnya diminta 'buka halaman 5, kerjakan nomor 1-3, lalu panggil saya' — apakah ia mengikuti ketiga langkah itu, atau lupa salah satu dan perlu diingatkan ulang?" },
+    { text:"Mengelola waktu pengerjaan tugasnya sendiri tanpa terus diingatkan", note:"Misalnya diberi waktu 10 menit untuk satu bagian — apakah ia sadar sendiri harus mempercepat saat waktu menipis, atau baru sadar setelah diingatkan berkali-kali?" },
+    { text:"Berani mencoba menyelesaikan sendiri dulu sebelum bertanya ke guru", note:"Misalnya di awal mengerjakan soal baru — apakah ia mencoba membaca dan memahami sendiri dulu, atau langsung bertanya 'ini gimana?' sebelum sempat mencoba?" }
+  ]},
+  { domain:"D", label:"Minat & Motivasi", metaLabel:"Sumber Motivasi", icon:"motiv", items:[
+    { text:"Lebih semangat saat ada unsur permainan atau tantangan (skor, lomba kecil)", note:"Misalnya diajak 'siapa cepat selesai dapat bintang' — apakah semangatnya langsung naik dan lebih cepat mengerjakan dibanding kalau tanpa tantangan seperti itu?" },
+    { text:"Lebih semangat saat belajar bersama teman dibanding sendirian", note:"Misalnya dalam kelompok kecil 2-3 anak dibanding belajar satu-satu dengan guru — apakah ia tampak lebih hidup dan aktif saat ada teman belajar bareng?" },
+    { text:"Senang dan makin semangat saat mendapat pujian verbal langsung", note:"Misalnya diberi kalimat 'bagus sekali, kamu pintar!' setelah menjawab benar — apakah ekspresinya senang dan makin bersemangat mengerjakan soal berikutnya?" },
+    { text:"Termotivasi oleh pencapaian yang terlihat konkret (bintang, stiker, progress bar)", note:"Misalnya ada sistem stiker/bintang untuk tiap tugas selesai — apakah ia jadi lebih semangat mengejar mengumpulkan stiker dibanding tanpa sistem itu?" },
+    { text:"Lebih semangat saat diberi pilihan cara mengerjakan, bukan hanya satu cara baku", note:"Misalnya ditawari 'mau jawab lisan atau ditulis dulu?' — apakah ia tampak lebih antusias saat punya pilihan dibanding saat caranya sudah ditentukan sepenuhnya?" },
+    { text:"Bertahan lebih lama mengerjakan tugas yang berkaitan dengan minat pribadinya", note:"Misalnya soal cerita bertema dinosaurus/mobil yang ia sukai dibanding tema netral — apakah ia bertahan fokus lebih lama dan lebih antusias mengerjakannya?" }
+  ]},
+  { domain:"E", label:"Cara Menyerap Informasi", metaLabel:"Cara Menyerap Informasi", icon:"absorb", items:[
+    { text:"Paling cepat paham saat materi disertai gambar, diagram, atau video", note:"Misalnya menjelaskan konsep pecahan — apakah ia lebih cepat 'ngeh' saat ditunjukkan gambar potongan kue dibanding hanya dijelaskan dengan kata-kata?" },
+    { text:"Paling cepat paham saat dijelaskan secara lisan atau lewat cerita", note:"Misalnya konsep yang sama dijelaskan lewat cerita atau analogi lisan tanpa gambar — apakah ia cukup paham hanya dari mendengarkan penjelasan guru?" },
+    { text:"Paling cepat paham saat langsung praktik atau memegang benda konkret", note:"Misalnya diberi benda nyata (kelereng, kertas lipat) untuk mempraktikkan sendiri — apakah pemahamannya lebih cepat muncul dibanding hanya melihat/mendengar penjelasan?" },
+    { text:"Lebih mudah mengingat informasi lewat lagu, ritme, atau pengulangan berirama", note:"Misalnya menghafal urutan abjad atau perkalian — apakah ia lebih cepat hafal kalau dibuat lagu/irama dibanding dibacakan atau ditulis biasa?" },
+    { text:"Lebih cepat paham saat materi dikaitkan dengan pengalaman nyata sehari-hari", note:"Misalnya konsep 'setengah' dijelaskan lewat cerita berbagi kue dengan adik/kakak — apakah ia lebih cepat paham dibanding dijelaskan lewat rumus atau angka langsung?" },
+    { text:"Lebih mudah paham saat materi dipecah jadi langkah-langkah kecil bertahap", note:"Misalnya soal yang rumit dipecah jadi beberapa langkah kecil satu per satu — apakah pemahamannya jadi lebih jelas dibanding diberi penjelasan sekaligus secara utuh?" }
+  ]}
+];
+
+const DOMAIN_META = {
+  A: { label:"Fokus & Konsentrasi", color:"#0686c7",
+    low:{desc:"Si kecil masih dalam proses membangun daya fokus — ini wajar dan bisa terus dilatih.", tips:["Pecah tugas jadi bagian-bagian kecil dengan jeda singkat","Kurangi gangguan visual/suara di area belajarnya di rumah","Beri apresiasi setiap kali ia bertahan fokus lebih lama dari biasanya"]},
+    mid:{desc:"Si kecil cukup bisa menjaga fokus, dengan sedikit bantuan di momen tertentu.", tips:["Sesi belajar singkat namun konsisten lebih efektif daripada sesi panjang","Beri jeda kecil di antara tugas untuk menjaga energinya"]},
+    high:{desc:"Fokus dan konsentrasi adalah salah satu kekuatan si kecil.", tips:["Beri tugas yang sedikit menantang agar fokusnya tetap terpakai optimal","Manfaatkan kekuatan ini untuk tugas yang butuh ketelitian tinggi"]}
+  },
+  B: { label:"Ketekunan & Daya Juang", color:"#d97706",
+    low:{desc:"Si kecil cenderung mudah menyerah saat menemui kesulitan — ini area yang bisa dikembangkan bertahap.", tips:["Rayakan proses/usaha, bukan cuma hasil akhir","Bantu ia mengingat pengalaman berhasil sebelumnya saat menghadapi kesulitan baru","Berikan tantangan kecil dulu agar terbiasa merasakan 'berhasil setelah mencoba'"]},
+    mid:{desc:"Si kecil cukup gigih, meski kadang butuh dorongan tambahan saat kesulitan meningkat.", tips:["Ajak ia menyusun 'rencana B' saat cara pertama tidak berhasil","Ingatkan bahwa membuat kesalahan adalah bagian normal dari belajar"]},
+    high:{desc:"Ketekunan dan daya juang adalah kekuatan besar si kecil.", tips:["Beri soal dengan tingkat kesulitan bertahap untuk terus mengasah daya juangnya","Jadikan sikap pantang menyerahnya sebagai contoh yang diapresiasi terbuka"]}
+  },
+  C: { label:"Kemandirian Belajar", color:"#7c3aed",
+    low:{desc:"Si kecil masih membutuhkan banyak arahan — ini normal dan akan berkembang seiring waktu.", tips:["Beri instruksi satu per satu, bukan sekaligus banyak","Latih rutinitas kecil yang sama setiap sesi agar familiar","Kurangi bantuan secara bertahap, bukan langsung dilepas"]},
+    mid:{desc:"Si kecil cukup mandiri, dengan sesekali masih perlu diingatkan.", tips:["Beri checklist visual sederhana untuk tugas rutin","Biarkan ia mencoba dulu sebelum menawarkan bantuan"]},
+    high:{desc:"Kemandirian adalah salah satu kekuatan si kecil.", tips:["Beri tanggung jawab kecil tambahan yang sesuai usianya","Manfaatkan kemandiriannya untuk melatih kepemimpinan dalam kelompok kecil"]}
+  },
+  D: { label:"Sumber Motivasi", color:"#16a34a",
+    low:{desc:"Belum terlihat pola motivasi yang menonjol dari observasi — dapat diamati lebih lanjut di sesi berikutnya.", tips:["Coba variasikan pendekatan (permainan, kelompok, pujian, progress visual) dan amati responnya","Tanyakan langsung ke si kecil apa yang membuatnya paling semangat belajar"]},
+    mid:{desc:"Si kecil merespons cukup baik terhadap beberapa bentuk motivasi.", tips:["Kombinasikan pendekatan yang paling direspons positif secara konsisten"]},
+    high:{desc:"Si kecil punya sumber motivasi yang jelas dan bisa dimanfaatkan secara konsisten.", tips:["Gunakan pendekatan yang paling ia respons sebagai 'pemicu semangat' rutin","Di rumah, coba terapkan pendekatan serupa saat mengerjakan PR"]}
+  },
+  E: { label:"Cara Menyerap Informasi", color:"#dc2626",
+    low:{desc:"Belum terlihat kecenderungan yang menonjol dari observasi — wajar, karena anak-anak umumnya menyerap informasi lewat kombinasi berbagai cara.", tips:["Coba variasikan cara penyampaian materi dan amati mana yang paling cepat 'nyambung'"]},
+    mid:{desc:"Si kecil cukup fleksibel menyerap informasi lewat beberapa cara.", tips:["Kombinasikan penjelasan lisan dengan gambar/diagram saat membantu belajar di rumah"]},
+    high:{desc:"Ada kecenderungan yang cukup jelas dalam cara si kecil paling cepat memahami materi baru.", tips:["Perkenalkan topik baru lewat cara ini terlebih dulu, baru diperkuat dengan cara lain","Ini bukan berarti cara lain tidak perlu — kombinasi tetap penting, ini hanya titik awal yang paling efektif"]}
+  }
+};
+
+function levelOf(pct){ return pct<=33?"low":pct<=66?"mid":"high"; }
+function levelLabel(pct){ return pct<=33?"Sedang berkembang":pct<=66?"Cukup menonjol":"Kekuatan utama"; }
+function levelColor(pct){ return pct<=33?"#6b7280":pct<=66?"#0686c7":"#16a34a"; }
+function slug(s){ return (s||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-"); }
+
+const answers = {};
+let currentStage = null;
+let isReadOnly = false;
+// record menyimpan status kedua tahap untuk siswa yang sedang dikerjakan
+let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null };
+
+function idxRange(stage){ return stage===1 ? [0,1,2] : [3,4,5]; }
+
+function build(stage) {
+  const cl = document.getElementById("checklist");
+  cl.innerHTML = "";
+  let n = 0;
+  const range = idxRange(stage);
+  ITEMS.forEach(domain => {
+    const wrap = document.createElement("div");
+    wrap.className = "domain";
+    let html = `<div class="domain-head" style="background:${domain.color}"><div class="domain-head-left"><div class="domain-head-icon">${ICONS[domain.icon]}</div><div><div class="domain-head-title">${domain.label}</div><div class="domain-head-sub">${range.length} indikator</div></div></div><div class="domain-badge" id="dbadge-${domain.domain}">0/${range.length*3}</div></div><div class="legend-strip"><span>0 Jarang<small>hampir tidak pernah terlihat (0–1 dari 4 pertemuan)</small></span><span>1 Kadang<small>terlihat sesekali (≈2 dari 4 pertemuan)</small></span><span>2 Sering<small>terlihat di sebagian besar pertemuan (≈3 dari 4 pertemuan)</small></span><span>3 Selalu<small>terlihat hampir di setiap pertemuan (4 dari 4 atau lebih)</small></span></div>`;
+    range.forEach(idx => {
+      const item = domain.items[idx];
+      n++;
+      const key = `${domain.domain}_${idx}`;
+      const checked = answers[key];
+      html += `<div class="item"><div class="item-header"><div class="item-num">${n}</div><div class="item-text">${item.text}<div class="item-note">${item.note}</div></div></div><div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${key}" value="${v}" ${checked===v?"checked":""} onchange="setAns('${key}',${v},'${domain.domain}')"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-lbl">${["Jarang","Kadang","Sering","Selalu"][v]}</span></div></label>`).join("")}</div></div>`;
+    });
+    wrap.innerHTML = html;
+    cl.appendChild(wrap);
+  });
+  updateProgress();
+}
+
+function setAns(key, val, domain) {
+  if(isReadOnly) return;
+  answers[key] = val;
+  updateProgress();
+}
+
+function updateProgress() {
+  if(!currentStage) return;
+  const range = idxRange(currentStage);
+  const total = range.length * ITEMS.length;
+  let answered = 0;
+  ITEMS.forEach(d => {
+    let s=0,c=0;
+    range.forEach(idx=>{ const k=`${d.domain}_${idx}`; if(answers[k]!==undefined){s+=answers[k];c++;answered++;} });
+    const badge = document.getElementById(`dbadge-${d.domain}`);
+    if(badge) badge.textContent = `${s}/${range.length*3}`;
+  });
+  document.getElementById("hdr-progress").textContent = `${answered} / ${total}`;
+  document.getElementById("hdr-bar").style.width = Math.round((answered/total)*100)+"%";
+}
+
+// ── STAGE PICKER ──
+function refreshStageBadges() {
+  const b1 = document.getElementById("stage-badge-1");
+  const b2 = document.getElementById("stage-badge-2");
+  if(record.tahap1){ b1.textContent = "✓ Selesai"; b1.className="stage-card-badge done"; }
+  else { b1.textContent = "Belum diisi"; b1.className="stage-card-badge pending"; }
+  if(record.tahap2){ b2.textContent = "✓ Selesai"; b2.className="stage-card-badge done"; }
+  else { b2.textContent = "Belum diisi"; b2.className="stage-card-badge pending"; }
+}
+
+function pickStage(stage) {
+  if(isReadOnly) return;
+  if(stage === 2 && !record.tahap1) {
+    const nama = document.getElementById("f-nama").value.trim();
+    if(nama) {
+      const saved = loadLocal(nama);
+      if(saved && saved.tahap1) {
+        record = Object.assign(record, saved);
+        refreshStageBadges();
+      }
+    }
+    if(!record.tahap1) {
+      const proceed = confirm("Data Tahap 1 untuk siswa ini belum ditemukan di perangkat ini.\n\nKamu tetap bisa isi Tahap 2, tapi laporan belum bisa membandingkan dengan Tahap 1. Lanjutkan?");
+      if(!proceed) return;
+    }
+  }
+  currentStage = stage;
+  document.getElementById("stage-picker-section").style.display = "none";
+  document.getElementById("fill-notice").style.display = "block";
+  document.getElementById("form-actions").style.display = "flex";
+  document.getElementById("done-panel").classList.remove("show");
+  document.getElementById("result-parent").classList.remove("show");
+  build(stage);
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function backToPicker() {
+  currentStage = null;
+  document.getElementById("stage-picker-section").style.display = "block";
+  document.getElementById("fill-notice").style.display = "none";
+  document.getElementById("form-actions").style.display = "none";
+  document.getElementById("checklist").innerHTML = "";
+  document.getElementById("done-panel").classList.remove("show");
+  document.getElementById("result-parent").classList.remove("show");
+  refreshStageBadges();
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+// ── LOCAL STORAGE (per nama siswa, per perangkat) ──
+function saveLocal(rec) {
+  try { localStorage.setItem("mb_pkb_"+slug(rec.nama), JSON.stringify(rec)); } catch(e) {}
+}
+function loadLocal(nama) {
+  try { const raw = localStorage.getItem("mb_pkb_"+slug(nama)); return raw ? JSON.parse(raw) : null; } catch(e) { return null; }
+}
+
+// ── SUBMIT ──
+function handleSubmit() {
+  const range = idxRange(currentStage);
+  const missing = [];
+  ITEMS.forEach(d => range.forEach(idx => { const k=`${d.domain}_${idx}`; if(answers[k]===undefined) missing.push(k); }));
+  if(missing.length) { alert(`Masih ada ${missing.length} indikator yang belum diisi. Lengkapi dulu sebelum menyimpan.`); return; }
+  const nama = document.getElementById("f-nama").value.trim();
+  if(!nama) { alert("Isi nama siswa dulu sebelum menyimpan."); return; }
+
+  const stageAnswers = {};
+  ITEMS.forEach(d => range.forEach(idx => { const k=`${d.domain}_${idx}`; stageAnswers[k] = answers[k]; }));
+
+  record.nama = nama;
+  record.usia = document.getElementById("f-usia").value;
+  record.jk = document.getElementById("f-jk").value;
+  record.guru = document.getElementById("f-guru").value;
+  const stageData = { answers: stageAnswers, pertemuan: document.getElementById("f-pertemuan").value || "", timestamp: Date.now() };
+  if(currentStage === 1) record.tahap1 = stageData; else record.tahap2 = stageData;
+  saveLocal(record);
+
+  document.getElementById("fill-notice").style.display = "none";
+  document.getElementById("form-actions").style.display = "none";
+  document.getElementById("checklist").innerHTML = "";
+
+  if(currentStage === 1) { showStage1Done(); }
+  else { showCombinedReport(); }
+}
+
+// ── TAHAP 1 SELESAI (ringkasan sementara) ──
+function showStage1Done() {
+  const wrap = document.getElementById("mini-bars");
+  wrap.innerHTML = "";
+  ITEMS.forEach(d => {
+    const sum = [0,1,2].reduce((s,idx)=>s+(record.tahap1.answers[`${d.domain}_${idx}`]||0),0);
+    const pct = Math.round((sum/9)*100);
+    const row = document.createElement("div");
+    row.className = "mini-bar-row";
+    row.innerHTML = `<div class="mini-bar-label">${DOMAIN_META[d.domain].label}</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct}%;background:${levelColor(pct)}"></div></div><div class="mini-bar-val">${pct}%</div>`;
+    wrap.appendChild(row);
+  });
+  document.getElementById("done-panel").classList.add("show");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function copyContinueLink() {
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(record))));
+  const url = window.location.origin + window.location.pathname + "#d=" + encoded;
+  navigator.clipboard.writeText(url).then(()=>alert("Link lanjutan disalin! Simpan/kirim ke diri sendiri supaya bisa lanjut isi Tahap 2 nanti.")).catch(()=>prompt("Salin link berikut:", url));
+}
+
+// ── LAPORAN GABUNGAN (atau tahap-1-only kalau tahap 2 belum ada) ──
+function domainPct(stageData, domain, range) {
+  if(!stageData) return null;
+  const sum = range.reduce((s,idx)=>s+(stageData.answers[`${domain}_${idx}`]||0),0);
+  return Math.round((sum/(range.length*3))*100);
+}
+
+function buildCombinedProfile() {
+  const areas = document.getElementById("profile-areas");
+  areas.innerHTML = "";
+  let best = { domain:null, pct:-1 };
+  const hasT1 = !!record.tahap1, hasT2 = !!record.tahap2;
+
+  ITEMS.forEach(d => {
+    const pct1 = hasT1 ? domainPct(record.tahap1, d.domain, [0,1,2]) : null;
+    const pct2 = hasT2 ? domainPct(record.tahap2, d.domain, [3,4,5]) : null;
+    // pct gabungan: rata-rata dari tahap yang tersedia (kalau 2 tahap ada, dari 6 item asli)
+    let combinedPct;
+    if(hasT1 && hasT2) {
+      const sum = [0,1,2,3,4,5].reduce((s,idx)=>{
+        const src = idx<3 ? record.tahap1 : record.tahap2;
+        return s + (src.answers[`${d.domain}_${idx}`]||0);
+      },0);
+      combinedPct = Math.round((sum/18)*100);
+    } else {
+      combinedPct = pct1 !== null ? pct1 : pct2;
+    }
+    if(combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
+
+    const meta = DOMAIN_META[d.domain];
+    const level = levelOf(combinedPct);
+    const info = meta[level];
+
+    let trendHtml = "";
+    if(hasT1 && hasT2) {
+      const delta = pct2 - pct1;
+      let trendLabel, trendColor;
+      if(delta >= 12){ trendLabel="▲ Meningkat"; trendColor="#16a34a"; }
+      else if(delta <= -12){ trendLabel="▼ Menurun"; trendColor="#dc2626"; }
+      else { trendLabel="≈ Konsisten"; trendColor="#0686c7"; }
+      trendHtml = `<span class="parea-trend" style="background:${trendColor}22;color:${trendColor}">${trendLabel}</span>`;
+    }
+
+    const barsHtml = (hasT1 && hasT2) ? `
+      <div class="parea-bar-compare">
+        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">Tahap 1</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct1}%;background:${levelColor(pct1)}"></div></div><span class="parea-bar-compare-val">${pct1}%</span></div>
+        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">Tahap 2</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct2}%;background:${levelColor(pct2)}"></div></div><span class="parea-bar-compare-val">${pct2}%</span></div>
+      </div>` : `
+      <div class="parea-bar-compare">
+        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${hasT1?"Tahap 1":"Tahap 2"}</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${combinedPct}%;background:${levelColor(combinedPct)}"></div></div><span class="parea-bar-compare-val">${combinedPct}%</span></div>
+      </div>`;
+
+    const card = document.createElement("div");
+    card.className = "parea-card";
+    card.innerHTML = `
+      <div class="parea-head">
+        <div class="parea-dot" style="background:${meta.color}"></div>
+        <div class="parea-label">${meta.label}</div>
+        <div class="parea-pill" style="background:${levelColor(combinedPct)}22;color:${levelColor(combinedPct)}">${levelLabel(combinedPct)}</div>
+        ${trendHtml}
+      </div>
+      <div class="parea-bar-wrap">${barsHtml}</div>
+      <div class="parea-body">
+        <div class="parea-desc">${info.desc}</div>
+        <div class="parea-tips">${info.tips.map(t=>`<div class="parea-tip"><span class="parea-tip-icon">💡</span><span>${t}</span></div>`).join("")}</div>
+      </div>`;
+    areas.appendChild(card);
+  });
+
+  const nama = record.nama || "Si kecil";
+  const bestMeta = DOMAIN_META[best.domain];
+  let extra = "";
+  if(best.domain === "E") {
+    const subLabels = ["gambar/diagram/video (visual)","penjelasan lisan/cerita (auditori)","praktik langsung (kinestetik)"];
+    let subBest = -1, subIdx = 0;
+    const srcE = hasT1 ? record.tahap1.answers : (record.tahap2 ? record.tahap2.answers : {});
+    if(hasT1) {
+      subLabels.forEach((_,i)=>{ const v=srcE[`E_${i}`]||0; if(v>subBest){subBest=v;subIdx=i;} });
+      extra = ` — terutama lewat <strong>${subLabels[subIdx]}</strong>`;
+    }
+  }
+  document.getElementById("highlight-text").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area <strong>${bestMeta.label}</strong>${extra}.`;
+  document.getElementById("report-title").textContent = `Profil Kekuatan Belajar ${nama}`;
+
+  const singleNote = document.getElementById("single-stage-note");
+  const caption = document.getElementById("areas-caption");
+  const sub = document.getElementById("report-sub");
+  const parentNote = document.getElementById("parent-note-box");
+  if(hasT1 && hasT2) {
+    singleNote.style.display = "none";
+    caption.textContent = "Berikut perbandingan Tahap 1 vs Tahap 2 di tiap area, untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.";
+    sub.textContent = "Evaluasi gabungan Tahap 1 & Tahap 2 — observasi guru di Markz Belajar";
+    parentNote.innerHTML = `💬 Laporan ini membandingkan dua titik observasi guru dari waktu ke waktu, dan akan menjadi bahan diskusi bersama Ayah/Bunda agar pendampingan belajar si kecil makin sesuai dengan caranya sendiri.`;
+  } else {
+    singleNote.style.display = "block";
+    caption.textContent = "Berikut profil sementara si kecil di tiap area, berdasarkan satu tahap observasi. Semakin tinggi bar, semakin menonjol kecenderungan tersebut.";
+    sub.textContent = "Berdasarkan observasi guru selama sesi bimbel di Markz Belajar";
+  }
+}
+
+function showCombinedReport() {
+  buildCombinedProfile();
+  document.getElementById("result-parent").classList.add("show");
+  window.scrollTo({top:0, behavior:"smooth"});
+}
+
+// ── SHARE ──
+function shareWhatsApp() {
+  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(record))));
+  const url = window.location.origin + window.location.pathname + "#d=" + encoded;
+  const nama = record.nama || "siswa";
+  const hasBoth = record.tahap1 && record.tahap2;
+  const msg = hasBoth
+    ? `Halo Ayah/Bunda 👋\n\nBerikut Profil Kekuatan Belajar *${nama}* dari Markz Belajar (evaluasi gabungan Tahap 1 & 2):\n${url}\n\nSemoga bisa jadi gambaran untuk mendampingi ${nama} belajar dengan cara yang paling sesuai. Terima kasih! 😊`
+    : `Halo Ayah/Bunda 👋\n\nBerikut Profil Kekuatan Belajar *${nama}* dari Markz Belajar (screening tahap awal):\n${url}\n\nKami akan melengkapi dengan tahap observasi berikutnya. Terima kasih! 😊`;
+  window._shareUrl = url;
+  window._shareMsg = msg;
+  document.getElementById("share-modal").classList.add("open");
+}
+
+function doShare() { window.open("https://wa.me/?text=" + encodeURIComponent(window._shareMsg)); closeModal(); }
+function copyLink() {
+  navigator.clipboard.writeText(window._shareUrl).then(()=>alert("Link berhasil disalin!")).catch(()=>prompt("Salin link berikut:", window._shareUrl));
+  closeModal();
+}
+function closeModal() { document.getElementById("share-modal").classList.remove("open"); }
+
+// ── LOAD DARI HASH LINK ──
+function loadFromHash() {
+  const hash = window.location.hash;
+  if(!hash || !hash.startsWith("#d=")) return false;
+  try {
+    const data = JSON.parse(decodeURIComponent(escape(atob(hash.slice(3)))));
+    record = Object.assign({ nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null }, data);
+    document.getElementById("f-nama").value = record.nama || "";
+    document.getElementById("f-usia").value = record.usia || "";
+    document.getElementById("f-jk").value = record.jk || "";
+    document.getElementById("f-guru").value = record.guru || "";
+
+    const hasBoth = record.tahap1 && record.tahap2;
+    if(hasBoth) {
+      // Link laporan final untuk ortu — read-only
+      isReadOnly = true;
+      ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
+      document.getElementById("readonly-banner").classList.add("show");
+      document.getElementById("stage-picker-section").style.display = "none";
+      showCombinedReport();
+    } else {
+      // Link lanjutan guru — tetap bisa lanjut isi tahap yang belum ada
+      refreshStageBadges();
+      alert(`Data untuk ${record.nama || "siswa ini"} dimuat. Tahap 1 ${record.tahap1?"sudah":"belum"} terisi, Tahap 2 ${record.tahap2?"sudah":"belum"} terisi. Silakan lanjutkan.`);
+    }
+    return true;
+  } catch(e) { console.error(e); return false; }
+}
+
+refreshStageBadges();
+loadFromHash();
+</script>
+</body>
+</html>
