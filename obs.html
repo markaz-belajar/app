@@ -362,6 +362,10 @@ const FORM_ORTU     = 'https://markaz-belajar.github.io/app/obs.autism.anak.html
 const FORM_GURU     = 'https://markaz-belajar.github.io/app/obs.autism.teach.html';
 const FORM_REPORT   = 'https://markaz-belajar.github.io/app/obs.autism.report.html';
 
+// ⭐ BARU — Kekuatan Belajar (2 tahap). Ganti API_KB setelah deploy Code_KekuatanBelajar.gs
+const API_KB      = 'PASTE_APPS_SCRIPT_URL_KEKUATAN_BELAJAR_DI_SINI';
+const FORM_KB     = 'https://markaz-belajar.github.io/app/obs.kb.teacher.html';
+
 let allSiswa = [], screeningMap = {}, currentFilter = 'semua', currentSiswa = null;
 let sheetView = 'menu', pendingWA = null;
 
@@ -512,13 +516,13 @@ function renderTypeMenu() {
       <span class="type-badge tb-soon">Segera</span>
     </div>
 
-    <div class="type-card soon" onclick="showSoonToast()">
+    <div class="type-card" onclick="selectType('kb')">
       <div class="type-icon" style="background:#F0FDF4;">📚</div>
       <div class="type-info">
-        <div class="type-name">Gaya Belajar</div>
-        <div class="type-desc">Visual, auditori, kinestetik & preferensi belajar</div>
+        <div class="type-name">Profil Kekuatan Belajar</div>
+        <div class="type-desc">Fokus, ketekunan, kemandirian, motivasi & cara menyerap informasi (2 tahap)</div>
       </div>
-      <span class="type-badge tb-soon">Segera</span>
+      <span class="type-badge tb-aktif">Aktif</span>
     </div>
 
     <div class="type-card soon" onclick="showSoonToast()">
@@ -537,18 +541,131 @@ function showSoonToast() {
 }
 
 async function selectType(type) {
-  if (type !== 'asd') return;
-  sheetView = 'asd';
+  if (type !== 'asd' && type !== 'kb') return;
+  sheetView = type;
   document.getElementById('sheetBody').innerHTML = '<div class="empty-state" style="padding:20px 0;"><div class="empty-icon"><svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:34px;height:34px;color:var(--accent);"><path d="M21 12a9 9 0 1 1-9-9"/></svg></div></div>';
 
   const genId = currentSiswa.nomorInduk || ('ID-' + currentSiswa.id);
+
+  if (type === 'asd') {
+    let rec = null;
+    try {
+      const r = await apiGet(API_SCREENING, { action:'getScreeningDetail', genId });
+      if (r.ok) rec = r.data;
+    } catch(e) {}
+    renderASDView(currentSiswa, rec);
+    return;
+  }
+
+  // type === 'kb'
   let rec = null;
   try {
-    const r = await apiGet(API_SCREENING, { action:'getScreeningDetail', genId });
+    const r = await apiGet(API_KB, { action:'getKBDetail', genId });
     if (r.ok) rec = r.data;
   } catch(e) {}
+  renderKBView(currentSiswa, rec);
+}
 
-  renderASDView(currentSiswa, rec);
+// ── KB (Kekuatan Belajar) view ──
+function renderKBView(s, rec) {
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  const t1Ok = rec?.tahap1 ? true : false;
+  const t2Ok = rec?.tahap2 ? true : false;
+
+  let html = `
+    <button class="back-btn-small" onclick="sheetView='menu';renderTypeMenu()">
+      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
+      Pilih jenis screening lain
+    </button>
+    <div class="asd-label">📚 Profil Kekuatan Belajar</div>
+    <div class="tags" style="margin-bottom:14px;">
+      <span class="tag tag-blue">${s.program || s.kelas || '—'}</span>
+      <span class="tag tag-blue tag-mono">${genId}</span>
+    </div>
+    <div class="sec-lbl">Status Observasi Guru</div>
+    <div class="tl">
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot ${t1Ok?'done':''}">${t1Ok?'✓':'•'}</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-title">Tahap 1 — Screening Awal</div>
+          ${t1Ok ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap1.timestamp)}</div>` : `<div class="tl-sub">Belum diisi — setelah ±4 pertemuan pertama</div>`}
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot ${t2Ok?'done':''}">${t2Ok?'✓':'•'}</div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-title">Tahap 2 — Screening Lanjutan</div>
+          ${t2Ok ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap2.timestamp)}</div>` : `<div class="tl-sub">${t1Ok ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 1 dulu (boleh dilewati kalau perlu)'}</div>`}
+        </div>
+      </div>
+    </div>
+  `;
+
+  html += `<div class="action-group">
+    <div class="action-group-hdr">
+      <div class="sec-lbl" style="margin-bottom:0;">Isi Observasi</div>
+    </div>
+    <div class="btn-row">
+      <button class="btn ${t1Ok?'btn-ghost':'btn-accent'}" onclick="openFormKB(1)">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        ${t1Ok ? 'Revisi Tahap 1' : 'Isi Tahap 1'}
+      </button>
+      <button class="btn ${t2Ok?'btn-ghost':'btn-accent'}" onclick="openFormKB(2)">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        ${t2Ok ? 'Revisi Tahap 2' : 'Isi Tahap 2'}
+      </button>
+    </div>
+  </div>`;
+
+  if (t1Ok || t2Ok) {
+    html += `<div class="action-group">
+      <div class="sec-lbl">Laporan & Berbagi</div>
+      <button class="btn btn-accent btn-full" onclick="lihatLaporanKB()">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
+        Lihat Laporan${(t1Ok&&t2Ok)?' Gabungan':' (Sementara)'}
+      </button>
+    </div>`;
+  }
+
+  html += `<div style="text-align:center;margin-top:8px;">
+    <button onclick="resetKBTesting()" style="background:none;border:none;color:var(--text3);font-size:11px;text-decoration:underline;cursor:pointer;font-family:inherit;">
+      🗑 Reset Data Kekuatan Belajar Siswa Ini (mode testing)
+    </button>
+  </div>`;
+
+  document.getElementById('sheetBody').innerHTML = html;
+}
+
+function openFormKB(stage) {
+  const s = currentSiswa;
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}&stage=${stage}`;
+  window.open(url, '_blank');
+}
+
+function lihatLaporanKB() {
+  const s = currentSiswa;
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&view=1`;
+  window.open(url, '_blank');
+}
+
+function resetKBTesting() {
+  const s = currentSiswa;
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  if (!confirm(`Yakin hapus SEMUA data Kekuatan Belajar untuk ${s.nama}?\n\nIni akan menghapus Tahap 1 & Tahap 2. Tindakan ini tidak bisa dibatalkan.`)) return;
+
+  apiGet(API_KB, { action:'resetKBRecord', genId })
+    .then(r => {
+      if (!r || !r.ok) { showToast(r?.error || 'Gagal reset data.', false); return; }
+      showToast('Data Kekuatan Belajar berhasil direset.', true);
+      closeSheet();
+    });
 }
 
 // ── ASD view ──
