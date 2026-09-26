@@ -192,6 +192,11 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 </header>
 
 <div class="body">
+  <!-- ⭐ BARU: Indikator status penyimpanan/sinkronisasi -->
+  <div id="sync-status-box" style="display:none;border-radius:12px;padding:12px 14px;margin-bottom:14px;font-size:12.5px;line-height:1.5;font-weight:600;">
+    <span id="sync-status-text">—</span>
+  </div>
+
   <div class="notice">
     <strong>Panduan pengisian:</strong> Isi berdasarkan observasi sesi bimbel (2x seminggu, 1 jam/sesi). Minimal isi setelah <strong>4 pertemuan</strong> (2 minggu observasi), lalu pilih skala berdasarkan berapa kali dari 4 pertemuan itu perilakunya muncul — <strong>bukan</strong> kesan umum/ingatan samar. Patokan: 0=tidak pernah, 1=≈1 dari 4 pertemuan, 2=≈2–3 dari 4 pertemuan, 3=hampir di setiap pertemuan.
   </div>
@@ -363,7 +368,7 @@ function build() {
     domain.items.forEach((item, idx) => {
       n++;
       const key = `${domain.domain}_${idx}`;
-      html += `<div class="item"><div class="item-header"><div class="item-num">${n}</div><div class="item-text">${item.text}<div class="item-note">${item.note}</div></div></div><div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${key}" value="${v}" onchange="setAns('${key}',${v})"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-lbl">${["Tidak<br>pernah","Kadang","Sering","Selalu"][v]}</span></div></label>`).join("")}</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;"><button class="basis-btn" onclick="tog('basis-${key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Dasar ilmiah</button><button class="note-toggle" onclick="tog('note-${key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>+ Catatan</button></div><div class="basis-box" id="basis-${key}">${item.basis}</div><textarea class="note-area" id="note-${key}" rows="2" placeholder="Tulis catatan observasi spesifik..." oninput="notes['${key}']=this.value"></textarea></div>`;
+      html += `<div class="item"><div class="item-header"><div class="item-num">${n}</div><div class="item-text">${item.text}<div class="item-note">${item.note}</div></div></div><div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${key}" value="${v}" onchange="setAns('${key}',${v})"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-lbl">${["Tidak<br>pernah","Kadang","Sering","Selalu"][v]}</span></div></label>`).join("")}</div><div style="display:flex;flex-wrap:wrap;gap:4px;margin-top:4px;"><button class="basis-btn" onclick="tog('basis-${key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Dasar ilmiah</button><button class="note-toggle" onclick="tog('note-${key}')"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>+ Catatan</button></div><div class="basis-box" id="basis-${key}">${item.basis}</div><textarea class="note-area" id="note-${key}" rows="2" placeholder="Tulis catatan observasi spesifik..." oninput="notes['${key}']=this.value;saveDraftLocal();"></textarea></div>`;
     });
     wrap.innerHTML = html;
     cl.appendChild(wrap);
@@ -375,7 +380,55 @@ function build() {
 }
 
 function tog(id) { document.getElementById(id).classList.toggle("open"); }
-function setAns(key, val) { answers[key] = val; updateScore(); }
+function setAns(key, val) { answers[key] = val; updateScore(); saveDraftLocal(); }
+
+// ⭐ BARU: sistem draft lokal (localStorage) — "tempat pemberhentian sementara"
+// supaya jawaban tidak pernah hilang walau internet lambat/putus, sebelum
+// berhasil tersinkron ke server.
+function fmtDate(iso) {
+  if (!iso) return '—';
+  try { return new Date(iso).toLocaleDateString('id-ID', { day:'numeric', month:'long', year:'numeric', hour:'2-digit', minute:'2-digit' }); }
+  catch { return iso; }
+}
+
+function draftKey_() { return `mb_guru_draft_${window._genId || 'nogen'}`; }
+
+function saveDraftLocal() {
+  if (!window._genId) return;
+  try {
+    localStorage.setItem(draftKey_(), JSON.stringify({ answers, notes, ts: Date.now(), synced:false }));
+    setSyncStatus('local');
+  } catch(e) {}
+}
+
+function loadDraftLocal() {
+  if (!window._genId) return null;
+  try {
+    const raw = localStorage.getItem(draftKey_());
+    return raw ? JSON.parse(raw) : null;
+  } catch(e) { return null; }
+}
+
+function clearDraftLocal() {
+  try { localStorage.removeItem(draftKey_()); } catch(e) {}
+}
+
+function setSyncStatus(state, extra) {
+  const box = document.getElementById('sync-status-box');
+  const txt = document.getElementById('sync-status-text');
+  if (!box) return;
+  box.style.display = 'block';
+  const styles = {
+    local:   { bg:'#fff7e6', color:'#92400e', icon:'💾', msg:'Tersimpan di perangkat ini. Sedang mencoba sinkron ke server...' },
+    saving:  { bg:'#e8f4fc', color:'#0686c7', icon:'⏳', msg:'Menyimpan ke server...' },
+    synced:  { bg:'#e7f7ef', color:'#16a34a', icon:'✓', msg:'Tersimpan &amp; tersinkron ke server' + (extra?(' • '+extra):'') },
+    failed:  { bg:'#fde8e8', color:'#dc2626', icon:'⚠️', msg:'Gagal sinkron ke server (cek koneksi). Jawaban AMAN tersimpan di perangkat ini — coba klik "Simpan Hasil ke Sistem" lagi nanti.' },
+    restored:{ bg:'#e8f4fc', color:'#0686c7', icon:'📂', msg:'Draft tersimpan di perangkat ini berhasil dipulihkan' + (extra?(' ('+extra+')'):'') + '.' }
+  };
+  const s = styles[state]; if (!s) return;
+  box.style.background = s.bg; box.style.color = s.color;
+  txt.innerHTML = `${s.icon} ${s.msg}`;
+}
 
 // ⭐ BARU: pulihkan jawaban guru dari data tersimpan (dipanggil saat form dibuka untuk revisi)
 function restoreGuruAnswers(prevAnswers, prevNotes) {
@@ -630,6 +683,19 @@ async function initGuruPage() {
   window._genId = gen;
   if (namaFromUrl) document.getElementById('f-nama').value = namaFromUrl;
 
+  // ⭐ BARU: cek draft lokal DULU — tampil instan, tidak perlu tunggu jaringan.
+  // Ini kunci solusi "internet lambat bikin seperti data hilang": apapun
+  // kondisi jaringan, jawaban yang sudah pernah diketik di PERANGKAT INI
+  // langsung terlihat lagi tanpa delay.
+  const localDraft = loadDraftLocal();
+  let localIsNewer = false;
+  if (localDraft && localDraft.answers && Object.keys(localDraft.answers).length > 0) {
+    restoreGuruAnswers(localDraft.answers, localDraft.notes);
+    const menit = Math.round((Date.now() - localDraft.ts) / 60000);
+    setSyncStatus('restored', menit < 1 ? 'baru saja' : `${menit} menit lalu`);
+    localIsNewer = true;
+  }
+
   // Ambil data siswa lengkap (usia, jenis kelamin) dari server
   try {
     const rSiswa = await apiScreening('getSiswaByGenId', { genId: gen });
@@ -652,14 +718,27 @@ async function initGuruPage() {
   try {
     const r = await apiScreening('getScreeningDetail', { genId: gen });
 
-    // ⭐ BARU: pulihkan jawaban guru yang sudah pernah diisi sebelumnya
-    // (mencegah data hilang saat form dibuka ulang untuk revisi)
+    // ⭐ DIPERBAIKI: rekonsiliasi draft lokal vs data server — pakai yang PALING BARU.
+    // Kalau draft lokal lebih baru dari terakhir kali server berhasil disimpan,
+    // JANGAN ditimpa (supaya edit terbaru di perangkat ini tidak hilang).
     if (r && r.ok && r.data && r.data.statusGuru === 'selesai' && r.data.answersGuru) {
-      restoreGuruAnswers(r.data.answersGuru, r.data.notesGuru);
+      const serverTs = r.data.tanggalGuru ? new Date(r.data.tanggalGuru).getTime() : 0;
+      const preferLocal = localIsNewer && localDraft && localDraft.ts > serverTs;
+
+      if (!preferLocal) {
+        restoreGuruAnswers(r.data.answersGuru, r.data.notesGuru);
+        setSyncStatus('synced', 'terakhir disimpan ' + fmtDate(r.data.tanggalGuru));
+      } else {
+        setSyncStatus('local', 'Draft di perangkat ini lebih baru daripada terakhir tersinkron ke server — klik "Simpan Hasil ke Sistem" untuk sinkronkan.');
+      }
+
       const banner = document.createElement('div');
       banner.style.cssText = 'background:#dbeafe;color:#1e40af;font-size:12.5px;padding:10px 14px;border-radius:10px;margin-bottom:14px;';
-      banner.innerHTML = '✏️ Jawaban sebelumnya (' + Object.keys(r.data.answersGuru).length + ' item) sudah dimuat. Anda sedang merevisi observasi yang sudah tersimpan.';
+      banner.innerHTML = '✏️ Jawaban sebelumnya (' + Object.keys(r.data.answersGuru).length + ' item) ' + (preferLocal ? 'ada di server, tapi draft di perangkat ini lebih baru dan tetap dipakai.' : 'sudah dimuat. Anda sedang merevisi observasi yang sudah tersimpan.');
       document.getElementById('checklist').parentNode.insertBefore(banner, document.getElementById('checklist'));
+    } else if (localIsNewer) {
+      // Server belum punya data sama sekali, tapi draft lokal ada
+      setSyncStatus('local', 'Belum pernah tersinkron ke server — klik "Simpan Hasil ke Sistem".');
     }
 
     if (r && r.ok && r.data && r.data.statusOrtu === 'selesai') {
@@ -696,6 +775,7 @@ async function simpanKeSistem() {
   const btnTextOrig = btn.innerHTML;
   btn.disabled = true;
   btn.innerHTML = 'Menyimpan...';
+  setSyncStatus('saving');
 
   const total = Object.values(answers).reduce((s,v)=>s+v,0);
   const maxScore = TOTAL * 3;
@@ -712,16 +792,19 @@ async function simpanKeSistem() {
     if (r && r.ok) {
       btn.innerHTML = '✓ Tersimpan ke Sistem';
       btn.style.background = '#16a34a';
+      setSyncStatus('synced', 'baru saja');
       alert('Hasil observasi berhasil disimpan! Skor gabungan: ' + (r.skorGabungan!=null?r.skorGabungan+'%':'-') + (r.level?(' ('+r.level+')'):''));
     } else {
       btn.disabled = false;
       btn.innerHTML = btnTextOrig;
-      alert('Gagal menyimpan: ' + (r?.error || 'Coba lagi.'));
+      setSyncStatus('failed');
+      alert('Gagal menyimpan ke server: ' + (r?.error || 'Coba lagi.') + '\n\nTenang, jawaban Anda AMAN tersimpan di perangkat ini (localStorage). Coba klik Simpan lagi setelah sinyal internet membaik.');
     }
   } catch(e) {
     btn.disabled = false;
     btn.innerHTML = btnTextOrig;
-    alert('Gagal menyimpan: ' + e.message);
+    setSyncStatus('failed');
+    alert('Gagal menyimpan: ' + e.message + '\n\nTenang, jawaban Anda AMAN tersimpan di perangkat ini (localStorage). Coba klik Simpan lagi setelah sinyal internet membaik.');
   }
 }
 
