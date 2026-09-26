@@ -321,7 +321,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 
 <script>
 // ⭐ Ganti dengan URL Web App hasil deploy Code_KekuatanBelajar.gs kamu
-const API_KB = 'PASTE_APPS_SCRIPT_URL_KEKUATAN_BELAJAR_DI_SINI';
+const API_KB = 'https://script.google.com/macros/s/AKfycbyMCQqWa5hpH9dsqK1CTLSt0zXfpLGPeFw6fYmHJeaTP0IVNp6cK4sySwqF4QlFUzaB/exec';
 
 function apiKB(action, params={}) {
   if(!API_KB || API_KB.indexOf('PASTE_') === 0) return Promise.resolve({ ok:false, error:'API_KB belum diisi' });
