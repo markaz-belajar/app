@@ -320,6 +320,19 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 </div>
 
 <script>
+// ⭐ Ganti dengan URL Web App hasil deploy Code_KekuatanBelajar.gs kamu
+const API_KB = 'PASTE_APPS_SCRIPT_URL_KEKUATAN_BELAJAR_DI_SINI';
+
+function apiKB(action, params={}) {
+  if(!API_KB || API_KB.indexOf('PASTE_') === 0) return Promise.resolve({ ok:false, error:'API_KB belum diisi' });
+  const url = new URL(API_KB);
+  url.searchParams.set('action', action);
+  for(const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  return fetch(url.toString(), { redirect:'follow' }).then(r=>r.json()).catch(()=>({ok:false, error:'Gagal terhubung ke server'}));
+}
+
 const ICONS = {
   focus:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
   grit:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
@@ -410,6 +423,8 @@ let currentStage = null;
 let isReadOnly = false;
 // record menyimpan status kedua tahap untuk siswa yang sedang dikerjakan
 let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null };
+let genId = "";
+let onlineMode = false;
 
 function idxRange(stage){ return stage===1 ? [0,1,2] : [3,4,5]; }
 
@@ -528,9 +543,18 @@ function handleSubmit() {
   record.usia = document.getElementById("f-usia").value;
   record.jk = document.getElementById("f-jk").value;
   record.guru = document.getElementById("f-guru").value;
-  const stageData = { answers: stageAnswers, pertemuan: document.getElementById("f-pertemuan").value || "", timestamp: Date.now() };
+  const pertemuanVal = document.getElementById("f-pertemuan").value || "";
+  const stageData = { answers: stageAnswers, pertemuan: pertemuanVal, timestamp: Date.now() };
   if(currentStage === 1) record.tahap1 = stageData; else record.tahap2 = stageData;
   saveLocal(record);
+
+  if(onlineMode && genId) {
+    apiKB('saveKBStage', {
+      genId, stage: currentStage,
+      namaAnak: record.nama, usia: record.usia, jk: record.jk, namaGuru: record.guru,
+      pertemuan: pertemuanVal, answers: JSON.stringify(stageAnswers)
+    }).then(r => { if(!r || !r.ok) console.warn('Gagal simpan ke server:', r && r.error); });
+  }
 
   document.getElementById("fill-notice").style.display = "none";
   document.getElementById("form-actions").style.display = "none";
@@ -553,6 +577,15 @@ function showStage1Done() {
     wrap.appendChild(row);
   });
   document.getElementById("done-panel").classList.add("show");
+  const continueBox = document.querySelector("#done-panel .continue-box");
+  const continueBtn = document.querySelector("#done-panel button[onclick='copyContinueLink()']");
+  if(onlineMode) {
+    if(continueBox) continueBox.innerHTML = "✅ Data tersimpan ke server Markz Belajar. Tahap 2 bisa dibuka dari perangkat mana pun lewat dashboard, tidak perlu link tambahan.";
+    if(continueBtn) continueBtn.style.display = "none";
+  } else {
+    if(continueBox) continueBox.innerHTML = "💾 Data tersimpan otomatis di perangkat ini. Kalau mau lanjutkan Tahap 2 dari perangkat lain, simpan link lanjutan ini dulu:";
+    if(continueBtn) continueBtn.style.display = "flex";
+  }
   window.scrollTo({top:0, behavior:"smooth"});
 }
 
@@ -670,8 +703,13 @@ function showCombinedReport() {
 
 // ── SHARE ──
 function shareWhatsApp() {
-  const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(record))));
-  const url = window.location.origin + window.location.pathname + "#d=" + encoded;
+  let url;
+  if(onlineMode && genId) {
+    url = window.location.origin + window.location.pathname + "?gen=" + encodeURIComponent(genId) + "&view=1";
+  } else {
+    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(record))));
+    url = window.location.origin + window.location.pathname + "#d=" + encoded;
+  }
   const nama = record.nama || "siswa";
   const hasBoth = record.tahap1 && record.tahap2;
   const msg = hasBoth
@@ -689,7 +727,73 @@ function copyLink() {
 }
 function closeModal() { document.getElementById("share-modal").classList.remove("open"); }
 
-// ── LOAD DARI HASH LINK ──
+// ── LOAD DARI URL PARAMS (mode online, dibuka dari dashboard dengan ?gen=...) ──
+async function loadFromURLParams() {
+  const p = new URLSearchParams(window.location.search);
+  const g = p.get('gen');
+  if(!g) return false;
+
+  genId = g;
+  onlineMode = true;
+  const namaFromUrl = p.get('nama');
+  const viewMode = p.get('view') === '1';
+  const stageParam = Number(p.get('stage') || 0);
+
+  if(namaFromUrl) document.getElementById('f-nama').value = namaFromUrl;
+
+  // Ambil data siswa (nama, usia, jenis kelamin) dari server kalau tersedia
+  try {
+    const rSiswa = await apiKB('getSiswaByGenId', { genId: g });
+    if(rSiswa && rSiswa.ok && rSiswa.data) {
+      const d = rSiswa.data;
+      if(d.nama) document.getElementById('f-nama').value = d.nama;
+      if(d.usia) document.getElementById('f-usia').value = d.usia;
+      if(d.kelamin) {
+        const k = String(d.kelamin).toLowerCase();
+        const el = document.getElementById('f-jk');
+        if(k.includes('laki')) el.value = 'Laki-laki';
+        else if(k.includes('perempuan')) el.value = 'Perempuan';
+      }
+    }
+  } catch(e) {}
+
+  // Ambil status & jawaban Tahap 1/Tahap 2 yang sudah tersimpan di server
+  try {
+    const rDetail = await apiKB('getKBDetail', { genId: g });
+    if(rDetail && rDetail.ok && rDetail.data) {
+      const d = rDetail.data;
+      record.nama = document.getElementById('f-nama').value || d.namaAnak || '';
+      record.usia = document.getElementById('f-usia').value || d.usia || '';
+      record.jk = document.getElementById('f-jk').value || d.jk || '';
+      record.guru = d.namaGuru || '';
+      if(d.namaGuru) document.getElementById('f-guru').value = d.namaGuru;
+      record.tahap1 = d.tahap1 || null;
+      record.tahap2 = d.tahap2 || null;
+      if(record.tahap1) Object.assign(answers, record.tahap1.answers);
+      if(record.tahap2) Object.assign(answers, record.tahap2.answers);
+    }
+  } catch(e) {}
+
+  refreshStageBadges();
+
+  if(viewMode) {
+    // Link laporan untuk ortu/pihak lain — tampilkan langsung, read-only
+    isReadOnly = true;
+    ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
+    document.getElementById("readonly-banner").classList.add("show");
+    document.getElementById("stage-picker-section").style.display = "none";
+    if(record.tahap1 || record.tahap2) { showCombinedReport(); }
+    else {
+      document.getElementById("readonly-banner").innerHTML = "⏳ <strong>Belum ada data.</strong> Guru belum menyelesaikan observasi tahap manapun untuk siswa ini.";
+    }
+  } else if(stageParam === 1 || stageParam === 2) {
+    // Dashboard minta langsung buka tahap tertentu (isi baru atau revisi)
+    pickStage(stageParam);
+  }
+  return true;
+}
+
+// ── LOAD DARI HASH LINK (mode offline — tanpa backend) ──
 function loadFromHash() {
   const hash = window.location.hash;
   if(!hash || !hash.startsWith("#d=")) return false;
@@ -719,7 +823,7 @@ function loadFromHash() {
 }
 
 refreshStageBadges();
-loadFromHash();
+loadFromURLParams().then(loaded => { if(!loaded) loadFromHash(); });
 </script>
 </body>
 </html>
