@@ -776,19 +776,27 @@ async function loadFromURLParams() {
 
   refreshStageBadges();
 
-  if(viewMode) {
-    // Link laporan untuk ortu/pihak lain — tampilkan langsung, read-only
-    isReadOnly = true;
-    ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
-    document.getElementById("readonly-banner").classList.add("show");
-    document.getElementById("stage-picker-section").style.display = "none";
-    if(record.tahap1 || record.tahap2) { showCombinedReport(); }
-    else {
-      document.getElementById("readonly-banner").innerHTML = "⏳ <strong>Belum ada data.</strong> Guru belum menyelesaikan observasi tahap manapun untuk siswa ini.";
+  try {
+    if(viewMode) {
+      // Link laporan untuk ortu/pihak lain — tampilkan langsung, read-only
+      isReadOnly = true;
+      ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
+      document.getElementById("readonly-banner").classList.add("show");
+      document.getElementById("stage-picker-section").style.display = "none";
+      if(record.tahap1 || record.tahap2) { showCombinedReport(); }
+      else {
+        document.getElementById("readonly-banner").innerHTML = "⏳ <strong>Belum ada data.</strong> Guru belum menyelesaikan observasi tahap manapun untuk siswa ini.";
+      }
+    } else if(stageParam === 1 || stageParam === 2) {
+      // Dashboard minta langsung buka tahap tertentu (isi baru atau revisi)
+      pickStage(stageParam);
     }
-  } else if(stageParam === 1 || stageParam === 2) {
-    // Dashboard minta langsung buka tahap tertentu (isi baru atau revisi)
-    pickStage(stageParam);
+  } catch(err) {
+    console.error("Gagal auto-jump ke tahap:", err);
+    const banner = document.createElement("div");
+    banner.style.cssText = "background:#fee2e2;color:#991b1b;font-size:12px;padding:10px 14px;border-radius:8px;margin-bottom:14px;";
+    banner.textContent = "⚠️ Ada masalah saat memuat tahap otomatis (" + err.message + "). Silakan pilih tahap secara manual di bawah.";
+    document.getElementById("info-card").parentNode.insertBefore(banner, document.getElementById("info-card"));
   }
   return true;
 }
