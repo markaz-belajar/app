@@ -644,14 +644,14 @@ function renderKBView(s, rec) {
 function openFormKB(stage) {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}&stage=${stage}`;
+  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}&stage=${stage}&v=${Date.now()}`;
   window.open(url, '_blank');
 }
 
 function lihatLaporanKB() {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&view=1`;
+  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&view=1&v=${Date.now()}`;
   window.open(url, '_blank');
 }
 
