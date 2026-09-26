@@ -134,6 +134,13 @@ body{font-family:'Geist',system-ui,sans-serif;background:var(--bg);color:var(--t
 .fw-yo{background:var(--er-d);color:var(--er)}
 .momen-wrap{padding:0 .85rem .7rem;display:none}
 .momen-wrap.show{display:block}
+.badge-progress{font-size:11px;color:var(--ac);margin-top:3px;font-weight:600}
+.badge-progress.done{color:var(--ok)}
+.badge-row.locked{opacity:.6}
+.chk.locked{background:var(--ok);border-color:var(--ok)}
+.chk.locked .chk-tick{display:block!important}
+.badge-streak-row.locked,.badge-sub-row.locked,.badge-c-row.locked{opacity:.6}
+.skill-opt.disabled{opacity:.3;pointer-events:none}
 .momen-input{width:100%;padding:9px 11px;background:var(--sf3);border:1px solid var(--bd);border-radius:var(--r);font-family:'Geist',sans-serif;font-size:13px;color:var(--tx);outline:none;resize:none;min-height:52px;-webkit-appearance:none}
 .momen-input::placeholder{color:var(--tx3)}
 
@@ -344,7 +351,7 @@ function api(action, params={}) {
 }
 // ── State ──
 let allSiswa=[], curSiswa=null, curGuru='', curAksi='baru';
-let curEditSesi=null, badgeMaster=[], allBadgeMeta={};
+let curEditSesi=null, badgeMaster=[], allBadgeMeta={}, badgeProgress={};
 let loadingRiwayat=false;
 let fState={kehadiran:'hadir',kegiatan:'',catatan:'',fotoCaption:'',
   bB:{},bSub:{},bStreak:{},bC:{},bE:{}};
@@ -506,13 +513,55 @@ function openForm(){
   document.getElementById('form-body').innerHTML=
     `<div class="loading"><div class="spinner"></div><div class="loading-txt">Memuat form...</div></div>`;
   go('s4');
-  api('getBadgeMaster',{level:curSiswa.levelAktif||1})
-    .then(r=>{allBadgeMeta=r;badgeMaster=r.ok?r.data:[];buildForm(r,isEdit);})
-    .catch(()=>buildForm({},isEdit));
+  Promise.all([
+    api('getBadgeMaster',{level:curSiswa.levelAktif||1}),
+    api('getBadgeSiswa',{idSiswa:curSiswa.id, level:curSiswa.levelAktif||1}),
+  ]).then(([rMeta,rProgress])=>{
+    allBadgeMeta=rMeta; badgeMaster=rMeta.ok?rMeta.data:[];
+    badgeProgress={};
+    (rProgress&&rProgress.ok?rProgress.data:[]).forEach(b=>{badgeProgress[b.badgeId]=b;});
+    buildForm(rMeta,isEdit);
+    if(isEdit)prefillEditState();
+  }).catch(()=>{badgeProgress={};buildForm({},isEdit);});
 }
 
 function resetState(){
   fState={kehadiran:'hadir',kegiatan:'',catatan:'',fotoCaption:'',bB:{},bSub:{},bStreak:{},bC:{},bE:{}};
+}
+
+// Isi ulang form dengan pilihan badge yang PERSIS sama seperti saat sesi ini
+// pertama kali disimpan — supaya edit sesi tidak diam-diam menghapus badge
+// yang sudah tercatat kalau guru tidak sengaja lupa centang ulang.
+function prefillEditState(){
+  if(!(curAksi==='edit'&&curEditSesi))return;
+  const d=curEditSesi.badgeDetail||{};
+  (d.badgeB||[]).forEach(b=>{
+    if(!b.id)return;
+    togB(b.id);
+    const ta=document.getElementById('mn-'+b.id);
+    if(ta&&b.momen)ta.value=b.momen;
+  });
+  (d.badgeSub||[]).forEach(b=>{
+    if(!b.id)return;
+    if(b.subA)togSub(b.id,'a');
+    if(b.subB)togSub(b.id,'b');
+  });
+  (d.badgeStreak||[]).forEach(b=>{
+    if(!b.id)return;
+    setStreak(b.id,b.hadir,true);
+  });
+  (d.badgeC||[]).forEach(b=>{
+    if(!b.id||!b.skillLevel)return;
+    setSkill(b.id,b.skillLevel,true);
+    const ta=document.getElementById('cn-'+b.id);
+    if(ta&&b.catatan)ta.value=b.catatan;
+  });
+  (d.badgeE||[]).forEach(b=>{
+    if(!b.id)return;
+    setEvent(b.id,b.ada);
+    const ta=document.getElementById('en-'+b.id);
+    if(ta&&b.catatan)ta.value=b.catatan;
+  });
 }
 
 function fwCls(fw){
@@ -567,34 +616,51 @@ function buildForm(meta,isEdit){
       <div class="fcard-head"><span class="fcard-ico">◉</span><span class="fcard-ttl">Observasi — badge hari ini</span></div>
       <div class="fcard-body" style="padding:.65rem .85rem">
         <p class="hint">Centang badge yang kamu amati pada anak hari ini.</p>
-        ${bB.map(b=>`
-        <div class="badge-row" id="br-${b.id}">
-          <div class="badge-tap" onclick="togB('${b.id}')">
-            <div class="chk" id="ck-${b.id}"><span class="chk-tick">✓</span></div>
+        ${bB.map(b=>{
+          const bp=badgeProgress[b.id];
+          const tercapai=!!bp?.tercapai;
+          const progresTxt=tercapai?'✓ Tercapai':(bp?`Progres: ${bp.totalCentang||0}/${b.threshold||'-'}`:'');
+          return `
+        <div class="badge-row ${tercapai?'locked':''}" id="br-${b.id}">
+          <div class="badge-tap" ${tercapai?'':`onclick="togB('${b.id}')"`}>
+            <div class="chk ${tercapai?'on locked':''}" id="ck-${b.id}"><span class="chk-tick">✓</span></div>
             <div class="badge-info">
               <div class="badge-nama">${b.nama}</div>
               <div class="badge-desc">${b.deskripsi}</div>
               <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span>
+              ${progresTxt?`<div class="badge-progress ${tercapai?'done':''}">${progresTxt}</div>`:''}
             </div>
           </div>
           <div class="momen-wrap" id="mw-${b.id}">
             <textarea class="momen-input" id="mn-${b.id}" placeholder="Ceritakan momen yang kamu lihat... (opsional)" rows="2"></textarea>
           </div>
-        </div>`).join('')}
-        ${bBStreak.map(b=>`
-        <div class="badge-streak-row">
+        </div>`;}).join('')}
+        ${bBStreak.map(b=>{
+          const bp=badgeProgress[b.id];
+          const tercapai=!!bp?.tercapai;
+          const streakTxt=bp?`Streak saat ini: ${bp.streakSaat||0} hari (rekor: ${bp.streakMaks||0})`:'';
+          return `
+        <div class="badge-streak-row ${tercapai?'locked':''}">
           <div class="badge-streak-title">${b.nama} <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span></div>
           <div class="badge-streak-desc">${b.deskripsi}</div>
+          ${streakTxt?`<div class="badge-progress ${tercapai?'done':''}">${tercapai?'✓ Tercapai':streakTxt}</div>`:''}
+          ${tercapai?'':`
           <div class="streak-opts">
             <button class="streak-btn" id="sk-y-${b.id}" onclick="setStreak('${b.id}',true)">✓ Datang lengkap</button>
             <button class="streak-btn" id="sk-n-${b.id}" onclick="setStreak('${b.id}',false)">✗ Tidak lengkap</button>
           </div>
-          <div class="streak-warn" id="sw-${b.id}">Streak akan reset ke 0.</div>
-        </div>`).join('')}
-        ${bBSub.map(b=>`
-        <div class="badge-sub-row">
+          <div class="streak-warn" id="sw-${b.id}">Streak akan reset ke 0.</div>`}
+        </div>`;}).join('')}
+        ${bBSub.map(b=>{
+          const bp=badgeProgress[b.id];
+          const tercapai=!!bp?.tercapai;
+          const subTxt=bp?`Datang: ${bp.subACentang||0}/10 · Pulang: ${bp.subBCentang||0}/10`:'';
+          return `
+        <div class="badge-sub-row ${tercapai?'locked':''}">
           <div class="badge-sub-title">${b.nama} <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span></div>
           <div class="badge-sub-desc">${b.deskripsi}</div>
+          ${subTxt?`<div class="badge-progress ${tercapai?'done':''}">${tercapai?'✓ Tercapai':subTxt}</div>`:''}
+          ${tercapai?'':`
           <div class="sub-checks">
             <div class="sub-check" id="sc-a-${b.id}" onclick="togSub('${b.id}','a')">
               <div class="sub-chk" id="sck-a-${b.id}"><span class="sub-chk-tick">✓</span></div>
@@ -604,43 +670,56 @@ function buildForm(meta,isEdit){
               <div class="sub-chk" id="sck-b-${b.id}"><span class="sub-chk-tick">✓</span></div>
               <div class="sub-label">Saat <strong>pulang</strong> — ambil semua barang, tidak ada yang tertinggal</div>
             </div>
-          </div>
-        </div>`).join('')}
+          </div>`}
+        </div>`;}).join('')}
       </div>
     </div>
     <div class="fcard">
       <div class="fcard-head"><span class="fcard-ico">◎</span><span class="fcard-ttl">Progress skill — update level</span></div>
       <div class="fcard-body" style="padding:.65rem .85rem">
         <p class="hint">Pilih level skill anak saat ini jika ada perubahan. Tidak wajib setiap sesi.</p>
-        ${bC.map(b=>`
-        <div class="badge-c-row">
+        ${bC.map(b=>{
+          const bp=badgeProgress[b.id];
+          const curLvl=bp?.skillLevel||0;
+          const tercapai=!!bp?.tercapai;
+          const progresTxt=tercapai?'✓ Tercapai (level maksimal)':(curLvl?`Level saat ini: ${curLvl}`:'Belum ada level tercatat');
+          return `
+        <div class="badge-c-row ${tercapai?'locked':''}">
           <div class="badge-c-title">${b.nama} <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span></div>
           <div class="badge-c-desc">${b.deskripsi}</div>
+          <div class="badge-progress ${tercapai?'done':''}">${progresTxt}</div>
           <div class="skill-levels">
-            ${(b.skillLevels||[]).map((lbl,i)=>`
-            <div class="skill-opt" id="so-${b.id}-${i+1}" onclick="setSkill('${b.id}',${i+1})">
-              <div class="skill-num">${i+1}</div>
-              <div><div class="skill-label">${lbl}</div><div class="skill-stars">${stars(i+1)}</div></div>
-            </div>`).join('')}
+            ${(b.skillLevels||[]).map((lbl,i)=>{
+              const lvl=i+1, disabled=tercapai||lvl<curLvl;
+              return `
+            <div class="skill-opt ${disabled?'disabled':''}" id="so-${b.id}-${lvl}" ${disabled?'':`onclick="setSkill('${b.id}',${lvl})"`}>
+              <div class="skill-num">${lvl}</div>
+              <div><div class="skill-label">${lbl}</div><div class="skill-stars">${stars(lvl)}</div></div>
+            </div>`;}).join('')}
           </div>
-          <textarea class="badge-c-note" id="cn-${b.id}" placeholder="Catatan observasi... (opsional)" rows="2"></textarea>
-        </div>`).join('')}
+          ${tercapai?'':`<textarea class="badge-c-note" id="cn-${b.id}" placeholder="Catatan observasi... (opsional)" rows="2"></textarea>`}
+        </div>`;}).join('')}
       </div>
     </div>
     <div class="fcard">
       <div class="fcard-head"><span class="fcard-ico">✦</span><span class="fcard-ttl">Momen pertama / karya</span></div>
       <div class="fcard-body" style="padding:.65rem .85rem">
         <p class="hint">Tandai jika ada momen istimewa atau karya hari ini.</p>
-        ${bE.map(b=>`
+        ${bE.map(b=>{
+          const bp=badgeProgress[b.id];
+          const tercapai=!!bp?.tercapai;
+          const info=bp?`${tercapai?'✓ Tercapai · ':''}Total karya tercatat: ${bp.eventCount||0}`:'';
+          return `
         <div class="badge-e-row">
           <div class="badge-e-title">${b.nama} <span class="fw-tag ${fwCls(b.framework)}">${b.framework}</span></div>
           <div class="badge-e-desc">${b.deskripsi}</div>
+          ${info?`<div class="badge-progress ${tercapai?'done':''}">${info}</div>`:''}
           <div class="e-opts">
             <button class="e-btn" id="ev-y-${b.id}" onclick="setEvent('${b.id}',true)">✦ Ada karya hari ini</button>
             <button class="e-btn" id="ev-n-${b.id}" onclick="setEvent('${b.id}',false)">Tidak ada</button>
           </div>
           <textarea class="badge-e-note" id="en-${b.id}" placeholder="Deskripsikan karya atau momen... (opsional)" rows="2"></textarea>
-        </div>`).join('')}
+        </div>`;}).join('')}
       </div>
     </div>
     <div class="fcard">
@@ -686,20 +765,32 @@ function togSub(id,sub){
   document.getElementById('sck-b-'+id)?.classList.toggle('on',onB);
   document.getElementById('sc-b-'+id)?.classList.toggle('on',onB);
 }
-function setStreak(id,hadir){
+function setStreak(id,hadir,skipPrompt){
+  if(!skipPrompt && !hadir){
+    const bp=badgeProgress[id];
+    if(bp && bp.streakSaat>0){
+      const nm=badgeMaster.find(b=>b.id===id)?.nama||'badge ini';
+      if(!confirm(`Yakin? Ini akan mereset streak "${nm}" dari ${bp.streakSaat} hari ke 0.`))return;
+    }
+  }
   fState.bStreak[id]={id,hadir};
-  document.getElementById('sk-y-'+id).className='streak-btn'+(hadir?' on-yes':'');
-  document.getElementById('sk-n-'+id).className='streak-btn'+(!hadir?' on-no':'');
+  const ey=document.getElementById('sk-y-'+id), en=document.getElementById('sk-n-'+id);
+  if(ey)ey.className='streak-btn'+(hadir?' on-yes':'');
+  if(en)en.className='streak-btn'+(!hadir?' on-no':'');
   const w=document.getElementById('sw-'+id);
   if(w)w.className='streak-warn'+(!hadir?' show':'');
 }
-function setSkill(id,level){
+function setSkill(id,level,skipPrompt){
   const master=badgeMaster.find(b=>b.id===id);if(!master)return;
-  const cur=fState.bC[id]||{};
-  fState.bC[id]={...cur,skillLevel:cur.skillLevel===level?0:level};
-  const chosen=fState.bC[id].skillLevel;
+  const bp=badgeProgress[id];
+  const curLvl=bp?.skillLevel||0;
+  if(!skipPrompt && level<curLvl){
+    // Seharusnya sudah dicegah lewat UI (opsi terkunci), ini jaga-jaga saja
+    if(!confirm(`Level saat ini sudah L${curLvl}. Memilih L${level} tidak akan menurunkan data tersimpan, tapi pastikan observasi ini benar. Lanjutkan?`))return;
+  }
+  fState.bC[id]={skillLevel:level};
   for(let n=1;n<=(master.skillLevels||[]).length;n++){
-    document.getElementById(`so-${id}-${n}`)?.classList.toggle('on',n===chosen);
+    document.getElementById(`so-${id}-${n}`)?.classList.toggle('on',n===level);
   }
 }
 function setEvent(id,ada){
