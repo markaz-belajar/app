@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Profil Kekuatan Belajar — Markz Belajar</title>
+<script>
+  // Jalan SEBELUM halaman digambar — kalau ini link laporan (?view=1), langsung sembunyikan
+  // form & tampilkan loading, supaya orang tua tidak sempat lihat form kosong sekilas.
+  if (new URLSearchParams(location.search).get('view') === '1') {
+    document.documentElement.classList.add('view-loading');
+  }
+</script>
 <style>
 :root {
   --blue: #0686c7; --blue-dark: #055a96; --blue-light: #e8f4fc; --blue-mid: #b3d9f0;
@@ -50,7 +57,14 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .stage-card-sub { font-size: 11.5px; color: var(--text-3); line-height: 1.5; margin-bottom: 8px; }
 .stage-card-badge { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
 .stage-card-badge.pending { background: var(--gray-light); color: var(--text-3); }
+.stage-card-badge.draft { background: var(--amber-light); color: var(--amber); }
 .stage-card-badge.done { background: var(--green-light); color: var(--green); }
+.item-date-row { min-height: 2px; }
+.item-date-badge { display: inline-block; font-size: 10.5px; color: var(--text-3); margin-top: 6px; background: var(--gray-light); padding: 2px 8px; border-radius: 20px; }
+.autosave-pill { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: #fff; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 20px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 300; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+.autosave-pill.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.autosave-pill.ok { background: var(--green); }
+.autosave-pill.err { background: var(--amber); }
 .stage-card.locked { opacity: 0.6; }
 
 .domain { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 12px; overflow: hidden; }
@@ -144,6 +158,12 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .highlight-box-text { font-size: 14px; color: var(--blue-dark); line-height: 1.6; }
 .highlight-box-text strong { color: var(--blue); }
 
+.hero-specialty { text-align: center; padding: 6px 10px 4px; }
+.hero-specialty-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--blue); text-transform: uppercase; margin-bottom: 6px; }
+.hero-specialty-title { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 6px; line-height: 1.25; }
+.hero-specialty-sub { font-size: 13px; color: var(--text-2); line-height: 1.55; max-width: 420px; margin: 0 auto; }
+.radar-chart-container { margin: 6px auto 18px; text-align: center; }
+
 .parent-note { font-size: 13px; color: var(--text-2); line-height: 1.7; padding: 12px; background: var(--blue-light); border-radius: var(--r-sm); margin-top: 4px; }
 .parent-note strong { color: var(--blue); }
 .share-section { padding: 14px 16px; border-top: 1px solid var(--border); }
@@ -160,6 +180,16 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .readonly-banner { background: var(--amber-light); border: 1px solid #fcd34d; border-radius: var(--r); padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: var(--amber); line-height: 1.6; display: none; }
 .readonly-banner.show { display: block; }
 .readonly-banner strong { color: #92400e; }
+
+/* Mode lihat laporan (?view=1): sembunyikan form sepenuhnya sampai data siap */
+.view-loading-overlay { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 20px; }
+.view-loading .view-loading-overlay { display: flex; }
+.view-loading #info-card, .view-loading #stage-picker-section, .view-loading #fill-notice,
+.view-loading #checklist, .view-loading #form-actions, .view-loading #done-panel { display: none !important; }
+.view-loading-spinner { width: 40px; height: 40px; border: 4px solid var(--blue-mid); border-top-color: var(--blue); border-radius: 50%; animation: viewspin 0.8s linear infinite; }
+@keyframes viewspin { to { transform: rotate(360deg); } }
+.view-loading-text { font-size: 14px; color: var(--blue-dark); font-weight: 600; }
+.view-loading-sub { font-size: 12px; color: var(--text-3); }
 
 @media print {
   .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -188,6 +218,12 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
   </div>
   <div class="header-bar"><div class="header-bar-fill" id="hdr-bar"></div></div>
 </header>
+
+<div class="view-loading-overlay">
+  <div class="view-loading-spinner"></div>
+  <div class="view-loading-text">Menyiapkan laporan…</div>
+  <div class="view-loading-sub">Mengambil data dari Markz Belajar, mohon tunggu sebentar</div>
+</div>
 
 <div class="body">
 
@@ -277,10 +313,13 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
     <div class="result-parent-body">
       <div class="single-stage-note" id="single-stage-note" style="display:none;">⚠️ Laporan ini baru berdasarkan <strong>Tahap 1 saja</strong> — belum ada data Tahap 2 untuk perbandingan. Hasil masih bersifat awal.</div>
 
-      <div class="highlight-box" id="highlight-box">
-        <div class="highlight-box-title">✨ Kekuatan yang paling menonjol</div>
-        <div class="highlight-box-text" id="highlight-text">—</div>
+      <div class="hero-specialty">
+        <div class="hero-specialty-label">✨ Kekuatan Utama</div>
+        <div class="hero-specialty-title" id="hero-title">—</div>
+        <div class="hero-specialty-sub" id="hero-sub">—</div>
       </div>
+
+      <div class="radar-chart-container" id="radar-chart-container"></div>
 
       <p style="font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:10px;" id="areas-caption">Berikut profil lengkap si kecil di tiap area. Semakin tinggi bar, semakin menonjol kecenderungan tersebut — bukan penilaian "baik/buruk".</p>
       <div class="profile-areas" id="profile-areas"></div>
@@ -419,14 +458,27 @@ function levelColor(pct){ return pct<=33?"#6b7280":pct<=66?"#0686c7":"#16a34a"; 
 function slug(s){ return (s||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-"); }
 
 const answers = {};
+const answerDates = {};
 let currentStage = null;
 let isReadOnly = false;
 // record menyimpan status kedua tahap untuk siswa yang sedang dikerjakan
 let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null };
 let genId = "";
 let onlineMode = false;
+let autosaveTimer = null;
 
 function idxRange(stage){ return stage===1 ? [0,1,2] : [3,4,5]; }
+
+function fmtDateShort(iso) {
+  if(!iso) return "";
+  const d = new Date(iso);
+  if(isNaN(d)) return "";
+  const today = new Date();
+  const sameDay = d.toDateString() === today.toDateString();
+  if(sameDay) return "hari ini";
+  const bulan = ["Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+  return `${d.getDate()} ${bulan[d.getMonth()]}`;
+}
 
 function build(stage) {
   const cl = document.getElementById("checklist");
@@ -442,7 +494,8 @@ function build(stage) {
       n++;
       const key = `${domain.domain}_${idx}`;
       const checked = answers[key];
-      html += `<div class="item"><div class="item-header"><div class="item-num">${n}</div><div class="item-text">${item.text}<div class="item-note">${item.note}</div></div></div><div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${key}" value="${v}" ${checked===v?"checked":""} onchange="setAns('${key}',${v},'${domain.domain}')"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-lbl">${["Jarang","Kadang","Sering","Selalu"][v]}</span></div></label>`).join("")}</div></div>`;
+      const dateNote = answerDates[key] ? `<span class="item-date-badge">📅 diisi ${fmtDateShort(answerDates[key])}</span>` : "";
+      html += `<div class="item"><div class="item-header"><div class="item-num">${n}</div><div class="item-text">${item.text}<div class="item-note">${item.note}</div></div></div><div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${key}" value="${v}" ${checked===v?"checked":""} onchange="setAns('${key}',${v},'${domain.domain}')"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-lbl">${["Jarang","Kadang","Sering","Selalu"][v]}</span></div></label>`).join("")}</div><div class="item-date-row" id="datebadge-${key}">${dateNote}</div></div>`;
     });
     wrap.innerHTML = html;
     cl.appendChild(wrap);
@@ -453,7 +506,11 @@ function build(stage) {
 function setAns(key, val, domain) {
   if(isReadOnly) return;
   answers[key] = val;
+  answerDates[key] = new Date().toISOString();
+  const dbadge = document.getElementById(`datebadge-${key}`);
+  if(dbadge) dbadge.innerHTML = `<span class="item-date-badge">📅 diisi hari ini</span>`;
   updateProgress();
+  scheduleAutosave();
 }
 
 function updateProgress() {
@@ -471,33 +528,99 @@ function updateProgress() {
   document.getElementById("hdr-bar").style.width = Math.round((answered/total)*100)+"%";
 }
 
+// ── AUTO-SAVE DRAFT (debounced) — supaya guru bisa berhenti di tengah & lanjut nanti ──
+function scheduleAutosave() {
+  if(!currentStage) return;
+  clearTimeout(autosaveTimer);
+  setAutosaveIndicator("saving");
+  autosaveTimer = setTimeout(saveDraftNow, 1000);
+}
+
+function saveDraftNow() {
+  if(!currentStage) return;
+  const range = idxRange(currentStage);
+  const partialAnswers = {}, partialDates = {};
+  let anyFilled = false;
+  ITEMS.forEach(d => range.forEach(idx => {
+    const k = `${d.domain}_${idx}`;
+    if(answers[k] !== undefined) { partialAnswers[k] = answers[k]; partialDates[k] = answerDates[k]; anyFilled = true; }
+  }));
+  if(!anyFilled) { setAutosaveIndicator("idle"); return; }
+
+  const nama = document.getElementById("f-nama").value.trim();
+  record.nama = nama || record.nama;
+  record.usia = document.getElementById("f-usia").value || record.usia;
+  record.jk = document.getElementById("f-jk").value || record.jk;
+  record.guru = document.getElementById("f-guru").value || record.guru;
+  const pertemuanVal = document.getElementById("f-pertemuan").value || "";
+
+  const isAlreadyFinal = currentStage===1 ? (record.tahap1 && record.tahap1.status==='selesai') : (record.tahap2 && record.tahap2.status==='selesai');
+  const stageData = { status: isAlreadyFinal ? 'selesai' : 'draft', answers: partialAnswers, dates: partialDates, pertemuan: pertemuanVal, timestamp: new Date().toISOString() };
+  if(currentStage === 1) record.tahap1 = stageData; else record.tahap2 = stageData;
+  saveLocal(record);
+
+  if(onlineMode && genId && !isAlreadyFinal) {
+    apiKB('saveKBStage', {
+      genId, stage: currentStage, final: 0,
+      namaAnak: record.nama, usia: record.usia, jk: record.jk, namaGuru: record.guru,
+      pertemuan: pertemuanVal, answers: JSON.stringify(partialAnswers), dates: JSON.stringify(partialDates)
+    }).then(r => { setAutosaveIndicator(r && r.ok ? "saved" : "error"); })
+      .catch(()=> setAutosaveIndicator("error"));
+  } else {
+    setAutosaveIndicator("saved");
+  }
+}
+
+function setAutosaveIndicator(state) {
+  let el = document.getElementById("autosave-pill");
+  if(!el) {
+    el = document.createElement("div");
+    el.id = "autosave-pill";
+    el.className = "autosave-pill";
+    document.body.appendChild(el);
+  }
+  if(state === "saving") { el.textContent = "💾 Menyimpan..."; el.className = "autosave-pill show"; }
+  else if(state === "saved") { el.textContent = "✓ Tersimpan"; el.className = "autosave-pill show ok"; setTimeout(()=>el.classList.remove("show"), 1500); }
+  else if(state === "error") { el.textContent = "⚠️ Gagal sync ke server (tersimpan lokal)"; el.className = "autosave-pill show err"; setTimeout(()=>el.classList.remove("show"), 2500); }
+  else { el.classList.remove("show"); }
+}
+
 // ── STAGE PICKER ──
 function refreshStageBadges() {
   const b1 = document.getElementById("stage-badge-1");
   const b2 = document.getElementById("stage-badge-2");
-  if(record.tahap1){ b1.textContent = "✓ Selesai"; b1.className="stage-card-badge done"; }
-  else { b1.textContent = "Belum diisi"; b1.className="stage-card-badge pending"; }
-  if(record.tahap2){ b2.textContent = "✓ Selesai"; b2.className="stage-card-badge done"; }
-  else { b2.textContent = "Belum diisi"; b2.className="stage-card-badge pending"; }
+  setBadgeState(b1, record.tahap1);
+  setBadgeState(b2, record.tahap2);
+}
+function setBadgeState(el, stageData) {
+  if(stageData && stageData.status === 'selesai') { el.textContent = "✓ Selesai"; el.className = "stage-card-badge done"; }
+  else if(stageData && stageData.status === 'draft') { el.textContent = "◐ Sedang diisi"; el.className = "stage-card-badge draft"; }
+  else { el.textContent = "Belum diisi"; el.className = "stage-card-badge pending"; }
 }
 
 function pickStage(stage) {
   if(isReadOnly) return;
-  if(stage === 2 && !record.tahap1) {
+  const tahap1Done = record.tahap1 && record.tahap1.status === 'selesai';
+  if(stage === 2 && !tahap1Done) {
     const nama = document.getElementById("f-nama").value.trim();
-    if(nama) {
+    if(nama && !onlineMode) {
       const saved = loadLocal(nama);
       if(saved && saved.tahap1) {
         record = Object.assign(record, saved);
         refreshStageBadges();
       }
     }
-    if(!record.tahap1) {
-      const proceed = confirm("Data Tahap 1 untuk siswa ini belum ditemukan di perangkat ini.\n\nKamu tetap bisa isi Tahap 2, tapi laporan belum bisa membandingkan dengan Tahap 1. Lanjutkan?");
+    if(!(record.tahap1 && record.tahap1.status === 'selesai')) {
+      const proceed = confirm("Tahap 1 untuk siswa ini belum ditandai selesai.\n\nKamu tetap bisa isi Tahap 2, tapi laporan belum bisa membandingkan dengan Tahap 1. Lanjutkan?");
       if(!proceed) return;
     }
   }
   currentStage = stage;
+  // Muat kembali jawaban & tanggal yang sudah ada untuk tahap ini (draft ATAU final) supaya bisa lanjut/revisi
+  const existing = stage === 1 ? record.tahap1 : record.tahap2;
+  if(existing && existing.answers) Object.assign(answers, existing.answers);
+  if(existing && existing.dates) Object.assign(answerDates, existing.dates);
+
   document.getElementById("stage-picker-section").style.display = "none";
   document.getElementById("fill-notice").style.display = "block";
   document.getElementById("form-actions").style.display = "flex";
@@ -536,23 +659,26 @@ function handleSubmit() {
   const nama = document.getElementById("f-nama").value.trim();
   if(!nama) { alert("Isi nama siswa dulu sebelum menyimpan."); return; }
 
-  const stageAnswers = {};
-  ITEMS.forEach(d => range.forEach(idx => { const k=`${d.domain}_${idx}`; stageAnswers[k] = answers[k]; }));
+  clearTimeout(autosaveTimer);
+  setAutosaveIndicator("idle");
+
+  const stageAnswers = {}, stageDates = {};
+  ITEMS.forEach(d => range.forEach(idx => { const k=`${d.domain}_${idx}`; stageAnswers[k] = answers[k]; stageDates[k] = answerDates[k] || new Date().toISOString(); }));
 
   record.nama = nama;
   record.usia = document.getElementById("f-usia").value;
   record.jk = document.getElementById("f-jk").value;
   record.guru = document.getElementById("f-guru").value;
   const pertemuanVal = document.getElementById("f-pertemuan").value || "";
-  const stageData = { answers: stageAnswers, pertemuan: pertemuanVal, timestamp: Date.now() };
+  const stageData = { status:'selesai', answers: stageAnswers, dates: stageDates, pertemuan: pertemuanVal, timestamp: new Date().toISOString() };
   if(currentStage === 1) record.tahap1 = stageData; else record.tahap2 = stageData;
   saveLocal(record);
 
   if(onlineMode && genId) {
     apiKB('saveKBStage', {
-      genId, stage: currentStage,
+      genId, stage: currentStage, final: 1,
       namaAnak: record.nama, usia: record.usia, jk: record.jk, namaGuru: record.guru,
-      pertemuan: pertemuanVal, answers: JSON.stringify(stageAnswers)
+      pertemuan: pertemuanVal, answers: JSON.stringify(stageAnswers), dates: JSON.stringify(stageDates)
     }).then(r => { if(!r || !r.ok) console.warn('Gagal simpan ke server:', r && r.error); });
   }
 
@@ -606,7 +732,10 @@ function buildCombinedProfile() {
   const areas = document.getElementById("profile-areas");
   areas.innerHTML = "";
   let best = { domain:null, pct:-1 };
-  const hasT1 = !!record.tahap1, hasT2 = !!record.tahap2;
+  const hasT1 = !!(record.tahap1 && record.tahap1.status === 'selesai');
+  const hasT2 = !!(record.tahap2 && record.tahap2.status === 'selesai');
+  const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Menyerap Info" };
+  const radarData = [];
 
   ITEMS.forEach(d => {
     const pct1 = hasT1 ? domainPct(record.tahap1, d.domain, [0,1,2]) : null;
@@ -623,6 +752,7 @@ function buildCombinedProfile() {
       combinedPct = pct1 !== null ? pct1 : pct2;
     }
     if(combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
+    radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, color: DOMAIN_META[d.domain].color });
 
     const meta = DOMAIN_META[d.domain];
     const level = levelOf(combinedPct);
@@ -664,19 +794,22 @@ function buildCombinedProfile() {
     areas.appendChild(card);
   });
 
+  document.getElementById("radar-chart-container").innerHTML = buildRadarSVG(radarData);
+
   const nama = record.nama || "Si kecil";
   const bestMeta = DOMAIN_META[best.domain];
   let extra = "";
   if(best.domain === "E") {
     const subLabels = ["gambar/diagram/video (visual)","penjelasan lisan/cerita (auditori)","praktik langsung (kinestetik)"];
     let subBest = -1, subIdx = 0;
-    const srcE = hasT1 ? record.tahap1.answers : (record.tahap2 ? record.tahap2.answers : {});
+    const srcE = hasT1 ? record.tahap1.answers : (hasT2 ? record.tahap2.answers : {});
     if(hasT1) {
       subLabels.forEach((_,i)=>{ const v=srcE[`E_${i}`]||0; if(v>subBest){subBest=v;subIdx=i;} });
-      extra = ` — terutama lewat <strong>${subLabels[subIdx]}</strong>`;
+      extra = ` — terutama lewat ${subLabels[subIdx]}`;
     }
   }
-  document.getElementById("highlight-text").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area <strong>${bestMeta.label}</strong>${extra}.`;
+  document.getElementById("hero-title").textContent = bestMeta.label;
+  document.getElementById("hero-sub").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area ini${extra}.`;
   document.getElementById("report-title").textContent = `Profil Kekuatan Belajar ${nama}`;
 
   const singleNote = document.getElementById("single-stage-note");
@@ -693,6 +826,38 @@ function buildCombinedProfile() {
     caption.textContent = "Berikut profil sementara si kecil di tiap area, berdasarkan satu tahap observasi. Semakin tinggi bar, semakin menonjol kecenderungan tersebut.";
     sub.textContent = "Berdasarkan observasi guru selama sesi bimbel di Markz Belajar";
   }
+}
+
+// ── RADAR / SPIDER CHART (inline SVG, tanpa library eksternal) ──
+function buildRadarSVG(items) {
+  const n = items.length;
+  const cx = 150, cy = 155, maxR = 92;
+  const angleStep = 360 / n;
+  const startAngle = -90;
+  function pt(radius, i) {
+    const ang = (startAngle + i * angleStep) * Math.PI / 180;
+    return { x: cx + radius * Math.cos(ang), y: cy + radius * Math.sin(ang) };
+  }
+  let gridHtml = "";
+  [0.25, 0.5, 0.75, 1].forEach(f => {
+    const pts = items.map((_, i) => { const p = pt(maxR * f, i); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
+    gridHtml += `<polygon points="${pts}" fill="none" stroke="#e5e7eb" stroke-width="1"/>`;
+  });
+  let axisHtml = "";
+  items.forEach((_, i) => { const p = pt(maxR, i); axisHtml += `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#e5e7eb" stroke-width="1"/>`; });
+  const dataPts = items.map((it, i) => { const p = pt(maxR * (Math.max(it.pct,2) / 100), i); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
+  const dataPoly = `<polygon points="${dataPts}" fill="#0686c733" stroke="#0686c7" stroke-width="2.5"/>`;
+  let dotsHtml = "";
+  items.forEach((it, i) => { const p = pt(maxR * (Math.max(it.pct,2) / 100), i); dotsHtml += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="${it.color}"/>`; });
+  let labelHtml = "";
+  items.forEach((it, i) => {
+    const p = pt(maxR + 30, i);
+    let anchor = "middle";
+    if (p.x < cx - 8) anchor = "end"; else if (p.x > cx + 8) anchor = "start";
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="${anchor}" font-size="11.5" font-weight="700" fill="#374151" font-family="Segoe UI, sans-serif">${it.short}</text>`;
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+14).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
+  });
+  return `<svg viewBox="0 0 300 320" style="width:100%;max-width:320px;">${gridHtml}${axisHtml}${dataPoly}${dotsHtml}${labelHtml}</svg>`;
 }
 
 function showCombinedReport() {
@@ -769,8 +934,8 @@ async function loadFromURLParams() {
       if(d.namaGuru) document.getElementById('f-guru').value = d.namaGuru;
       record.tahap1 = d.tahap1 || null;
       record.tahap2 = d.tahap2 || null;
-      if(record.tahap1) Object.assign(answers, record.tahap1.answers);
-      if(record.tahap2) Object.assign(answers, record.tahap2.answers);
+      if(record.tahap1) { Object.assign(answers, record.tahap1.answers); Object.assign(answerDates, record.tahap1.dates || {}); }
+      if(record.tahap2) { Object.assign(answers, record.tahap2.answers); Object.assign(answerDates, record.tahap2.dates || {}); }
     }
   } catch(e) {}
 
@@ -783,7 +948,8 @@ async function loadFromURLParams() {
       ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
       document.getElementById("readonly-banner").classList.add("show");
       document.getElementById("stage-picker-section").style.display = "none";
-      if(record.tahap1 || record.tahap2) { showCombinedReport(); }
+      const hasAnyFinal = (record.tahap1 && record.tahap1.status==='selesai') || (record.tahap2 && record.tahap2.status==='selesai');
+      if(hasAnyFinal) { showCombinedReport(); }
       else {
         document.getElementById("readonly-banner").innerHTML = "⏳ <strong>Belum ada data.</strong> Guru belum menyelesaikan observasi tahap manapun untuk siswa ini.";
       }
@@ -797,6 +963,8 @@ async function loadFromURLParams() {
     banner.style.cssText = "background:#fee2e2;color:#991b1b;font-size:12px;padding:10px 14px;border-radius:8px;margin-bottom:14px;";
     banner.textContent = "⚠️ Ada masalah saat memuat tahap otomatis (" + err.message + "). Silakan pilih tahap secara manual di bawah.";
     document.getElementById("info-card").parentNode.insertBefore(banner, document.getElementById("info-card"));
+  } finally {
+    document.documentElement.classList.remove('view-loading');
   }
   return true;
 }
@@ -812,9 +980,12 @@ function loadFromHash() {
     document.getElementById("f-usia").value = record.usia || "";
     document.getElementById("f-jk").value = record.jk || "";
     document.getElementById("f-guru").value = record.guru || "";
+    if(record.tahap1) { Object.assign(answers, record.tahap1.answers || {}); Object.assign(answerDates, record.tahap1.dates || {}); }
+    if(record.tahap2) { Object.assign(answers, record.tahap2.answers || {}); Object.assign(answerDates, record.tahap2.dates || {}); }
 
-    const hasBoth = record.tahap1 && record.tahap2;
-    if(hasBoth) {
+    const t1Done = record.tahap1 && record.tahap1.status === 'selesai';
+    const t2Done = record.tahap2 && record.tahap2.status === 'selesai';
+    if(t1Done || t2Done) {
       // Link laporan final untuk ortu — read-only
       isReadOnly = true;
       ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
@@ -822,16 +993,18 @@ function loadFromHash() {
       document.getElementById("stage-picker-section").style.display = "none";
       showCombinedReport();
     } else {
-      // Link lanjutan guru — tetap bisa lanjut isi tahap yang belum ada
+      // Link lanjutan guru — tetap bisa lanjut isi tahap yang belum ada (termasuk draft)
       refreshStageBadges();
-      alert(`Data untuk ${record.nama || "siswa ini"} dimuat. Tahap 1 ${record.tahap1?"sudah":"belum"} terisi, Tahap 2 ${record.tahap2?"sudah":"belum"} terisi. Silakan lanjutkan.`);
+      const s1 = record.tahap1 ? (record.tahap1.status==='draft'?'sedang diisi':'sudah') : 'belum';
+      const s2 = record.tahap2 ? (record.tahap2.status==='draft'?'sedang diisi':'sudah') : 'belum';
+      alert(`Data untuk ${record.nama || "siswa ini"} dimuat. Tahap 1: ${s1}. Tahap 2: ${s2}. Silakan lanjutkan.`);
     }
     return true;
   } catch(e) { console.error(e); return false; }
 }
 
 refreshStageBadges();
-loadFromURLParams().then(loaded => { if(!loaded) loadFromHash(); });
+loadFromURLParams().then(loaded => { if(!loaded) loadFromHash(); }).finally(()=>{ document.documentElement.classList.remove('view-loading'); });
 </script>
 </body>
 </html>
