@@ -3447,17 +3447,29 @@ init();
   `;
   document.body.appendChild(splash);
 
-  // Tunggu data invoice selesai load, retry tiap 600ms maks 12x (~7 detik)
+  // Tunggu data invoice selesai load, retry tiap 500ms maks 16x (~8 detik)
   const _no = decodeURIComponent(_invVerify);
+  let _verifyDone = false;
   function _tryVerify(attempt) {
-    if (invoices.length > 0 || attempt > 12) {
+    if (_verifyDone) return;
+    if (invoices.length > 0) {
+      _verifyDone = true;
       splash.remove();
       openInvVerifyPopup(_no, '', '');
+    } else if (attempt > 16) {
+      // Data tidak kunjung load — coba sync sekali lagi, lalu tampilkan apapun hasilnya
+      _verifyDone = true;
+      syncFromSheets(false).finally(() => {
+        splash.remove();
+        openInvVerifyPopup(_no, '', '');
+      });
     } else {
-      setTimeout(() => _tryVerify(attempt + 1), 600);
+      setTimeout(() => _tryVerify(attempt + 1), 500);
     }
   }
-  setTimeout(() => _tryVerify(0), 600);
+  // Mulai sync dan cek segera
+  syncFromSheets(false).catch(() => {});
+  setTimeout(() => _tryVerify(0), 400);
 })();
 </script>
 
