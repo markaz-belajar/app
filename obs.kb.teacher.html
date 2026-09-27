@@ -158,11 +158,14 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .highlight-box-text { font-size: 14px; color: var(--blue-dark); line-height: 1.6; }
 .highlight-box-text strong { color: var(--blue); }
 
-.hero-specialty { text-align: center; padding: 6px 10px 4px; }
-.hero-specialty-label { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; color: var(--blue); text-transform: uppercase; margin-bottom: 6px; }
-.hero-specialty-title { font-size: 24px; font-weight: 800; color: var(--text); margin-bottom: 6px; line-height: 1.25; }
-.hero-specialty-sub { font-size: 13px; color: var(--text-2); line-height: 1.55; max-width: 420px; margin: 0 auto; }
-.radar-chart-container { margin: 6px auto 18px; text-align: center; }
+.hero-specialty { text-align: center; padding: 26px 18px 22px; border-radius: 18px; margin-bottom: 4px; border: 1px solid; }
+.hero-icon-badge { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 6px 16px -4px rgba(0,0,0,0.25); }
+.hero-icon-badge svg { width: 26px; height: 26px; }
+.hero-specialty-label { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; padding: 5px 14px; border-radius: 20px; color: #fff; }
+.hero-specialty-title { font-size: 27px; font-weight: 800; color: var(--text); margin-bottom: 8px; line-height: 1.2; letter-spacing: -0.3px; }
+.hero-specialty-sub { font-size: 13.5px; color: var(--text-2); line-height: 1.6; max-width: 400px; margin: 0 auto; }
+.radar-chart-container { margin: 4px auto 6px; text-align: center; }
+.radar-chart-container svg { overflow: visible; }
 
 .parent-note { font-size: 13px; color: var(--text-2); line-height: 1.7; padding: 12px; background: var(--blue-light); border-radius: var(--r-sm); margin-top: 4px; }
 .parent-note strong { color: var(--blue); }
@@ -313,8 +316,9 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
     <div class="result-parent-body">
       <div class="single-stage-note" id="single-stage-note" style="display:none;">⚠️ Laporan ini baru berdasarkan <strong>Tahap 1 saja</strong> — belum ada data Tahap 2 untuk perbandingan. Hasil masih bersifat awal.</div>
 
-      <div class="hero-specialty">
-        <div class="hero-specialty-label">✨ Kekuatan Utama</div>
+      <div class="hero-specialty" id="hero-specialty">
+        <div class="hero-icon-badge" id="hero-icon-badge"></div>
+        <div class="hero-specialty-label" id="hero-label">✨ Kekuatan Utama</div>
         <div class="hero-specialty-title" id="hero-title">—</div>
         <div class="hero-specialty-sub" id="hero-sub">—</div>
       </div>
@@ -734,7 +738,7 @@ function buildCombinedProfile() {
   let best = { domain:null, pct:-1 };
   const hasT1 = !!(record.tahap1 && record.tahap1.status === 'selesai');
   const hasT2 = !!(record.tahap2 && record.tahap2.status === 'selesai');
-  const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Menyerap Info" };
+  const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Info" };
   const radarData = [];
 
   ITEMS.forEach(d => {
@@ -752,7 +756,7 @@ function buildCombinedProfile() {
       combinedPct = pct1 !== null ? pct1 : pct2;
     }
     if(combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
-    radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, color: DOMAIN_META[d.domain].color });
+    radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, color: DOMAIN_META[d.domain].color, icon: d.icon });
 
     const meta = DOMAIN_META[d.domain];
     const level = levelOf(combinedPct);
@@ -798,6 +802,7 @@ function buildCombinedProfile() {
 
   const nama = record.nama || "Si kecil";
   const bestMeta = DOMAIN_META[best.domain];
+  const bestItemDef = ITEMS.find(d => d.domain === best.domain);
   let extra = "";
   if(best.domain === "E") {
     const subLabels = ["gambar/diagram/video (visual)","penjelasan lisan/cerita (auditori)","praktik langsung (kinestetik)"];
@@ -808,7 +813,14 @@ function buildCombinedProfile() {
       extra = ` — terutama lewat ${subLabels[subIdx]}`;
     }
   }
+  const heroCard = document.getElementById("hero-specialty");
+  heroCard.style.borderColor = bestMeta.color + "35";
+  heroCard.style.background = `linear-gradient(180deg, ${bestMeta.color}14, #ffffff 65%)`;
+  document.getElementById("hero-icon-badge").style.background = bestMeta.color;
+  document.getElementById("hero-icon-badge").innerHTML = ICONS[bestItemDef.icon];
+  document.getElementById("hero-label").style.background = bestMeta.color;
   document.getElementById("hero-title").textContent = bestMeta.label;
+  document.getElementById("hero-title").style.color = bestMeta.color;
   document.getElementById("hero-sub").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area ini${extra}.`;
   document.getElementById("report-title").textContent = `Profil Kekuatan Belajar ${nama}`;
 
@@ -831,7 +843,7 @@ function buildCombinedProfile() {
 // ── RADAR / SPIDER CHART (inline SVG, tanpa library eksternal) ──
 function buildRadarSVG(items) {
   const n = items.length;
-  const cx = 150, cy = 155, maxR = 92;
+  const cx = 190, cy = 165, maxR = 78, labelR = maxR + 34;
   const angleStep = 360 / n;
   const startAngle = -90;
   function pt(radius, i) {
@@ -841,23 +853,28 @@ function buildRadarSVG(items) {
   let gridHtml = "";
   [0.25, 0.5, 0.75, 1].forEach(f => {
     const pts = items.map((_, i) => { const p = pt(maxR * f, i); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
-    gridHtml += `<polygon points="${pts}" fill="none" stroke="#e5e7eb" stroke-width="1"/>`;
+    gridHtml += `<polygon points="${pts}" fill="none" stroke="#eef1f5" stroke-width="1"/>`;
   });
   let axisHtml = "";
-  items.forEach((_, i) => { const p = pt(maxR, i); axisHtml += `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#e5e7eb" stroke-width="1"/>`; });
-  const dataPts = items.map((it, i) => { const p = pt(maxR * (Math.max(it.pct,2) / 100), i); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
-  const dataPoly = `<polygon points="${dataPts}" fill="#0686c733" stroke="#0686c7" stroke-width="2.5"/>`;
+  items.forEach((_, i) => { const p = pt(maxR, i); axisHtml += `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#eef1f5" stroke-width="1"/>`; });
+  const dataPts = items.map((it, i) => { const p = pt(maxR * (Math.max(it.pct,3) / 100), i); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
+  const dataPoly = `<polygon points="${dataPts}" fill="#0686c71c" stroke="#0686c7" stroke-width="1.75"/>`;
   let dotsHtml = "";
-  items.forEach((it, i) => { const p = pt(maxR * (Math.max(it.pct,2) / 100), i); dotsHtml += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="${it.color}"/>`; });
+  items.forEach((it, i) => { const p = pt(maxR * (Math.max(it.pct,3) / 100), i); dotsHtml += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#fff" stroke="${it.color}" stroke-width="2"/>`; });
+
   let labelHtml = "";
   items.forEach((it, i) => {
-    const p = pt(maxR + 30, i);
+    const p = pt(labelR, i);
     let anchor = "middle";
     if (p.x < cx - 8) anchor = "end"; else if (p.x > cx + 8) anchor = "start";
-    labelHtml += `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="${anchor}" font-size="11.5" font-weight="700" fill="#374151" font-family="Segoe UI, sans-serif">${it.short}</text>`;
-    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+14).toFixed(1)}" text-anchor="${anchor}" font-size="11" font-weight="700" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
+    const iconY = p.y - 17;
+    const iconSvg = it.icon ? ICONS[it.icon] : "";
+    labelHtml += `<circle cx="${p.x.toFixed(1)}" cy="${iconY.toFixed(1)}" r="12.5" fill="${it.color}"/>`;
+    labelHtml += `<g transform="translate(${(p.x-8).toFixed(1)}, ${(iconY-8).toFixed(1)})">${iconSvg}</g>`;
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="${anchor}" font-size="12" font-weight="700" fill="#374151" font-family="Segoe UI, sans-serif">${it.short}</text>`;
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+15).toFixed(1)}" text-anchor="${anchor}" font-size="11.5" font-weight="700" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
   });
-  return `<svg viewBox="0 0 300 320" style="width:100%;max-width:320px;">${gridHtml}${axisHtml}${dataPoly}${dotsHtml}${labelHtml}</svg>`;
+  return `<svg viewBox="0 0 380 340" style="width:100%;max-width:340px;overflow:visible;">${gridHtml}${axisHtml}${dataPoly}${dotsHtml}${labelHtml}</svg>`;
 }
 
 function showCombinedReport() {
