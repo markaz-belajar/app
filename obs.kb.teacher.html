@@ -940,21 +940,29 @@ async function loadFromURLParams() {
   } catch(e) {}
 
   // Ambil status & jawaban Tahap 1/Tahap 2 yang sudah tersimpan di server
+  let detailFetchFailed = false;
+  let detailErrorMsg = "";
   try {
     const rDetail = await apiKB('getKBDetail', { genId: g });
-    if(rDetail && rDetail.ok && rDetail.data) {
-      const d = rDetail.data;
-      record.nama = document.getElementById('f-nama').value || d.namaAnak || '';
-      record.usia = document.getElementById('f-usia').value || d.usia || '';
-      record.jk = document.getElementById('f-jk').value || d.jk || '';
-      record.guru = d.namaGuru || '';
-      if(d.namaGuru) document.getElementById('f-guru').value = d.namaGuru;
-      record.tahap1 = d.tahap1 || null;
-      record.tahap2 = d.tahap2 || null;
-      if(record.tahap1) { Object.assign(answers, record.tahap1.answers); Object.assign(answerDates, record.tahap1.dates || {}); }
-      if(record.tahap2) { Object.assign(answers, record.tahap2.answers); Object.assign(answerDates, record.tahap2.dates || {}); }
+    if(rDetail && rDetail.ok) {
+      if(rDetail.data) {
+        const d = rDetail.data;
+        record.nama = document.getElementById('f-nama').value || d.namaAnak || '';
+        record.usia = document.getElementById('f-usia').value || d.usia || '';
+        record.jk = document.getElementById('f-jk').value || d.jk || '';
+        record.guru = d.namaGuru || '';
+        if(d.namaGuru) document.getElementById('f-guru').value = d.namaGuru;
+        record.tahap1 = d.tahap1 || null;
+        record.tahap2 = d.tahap2 || null;
+        if(record.tahap1) { Object.assign(answers, record.tahap1.answers); Object.assign(answerDates, record.tahap1.dates || {}); }
+        if(record.tahap2) { Object.assign(answers, record.tahap2.answers); Object.assign(answerDates, record.tahap2.dates || {}); }
+      }
+      // rDetail.ok true + data null = memang belum ada baris untuk siswa ini (bukan error)
+    } else {
+      detailFetchFailed = true;
+      detailErrorMsg = (rDetail && rDetail.error) || "Server tidak merespons dengan benar";
     }
-  } catch(e) {}
+  } catch(e) { detailFetchFailed = true; detailErrorMsg = e.message || "Gagal terhubung ke server"; }
 
   refreshStageBadges();
 
@@ -965,6 +973,12 @@ async function loadFromURLParams() {
       ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
       document.getElementById("readonly-banner").classList.add("show");
       document.getElementById("stage-picker-section").style.display = "none";
+
+      if(detailFetchFailed) {
+        document.getElementById("readonly-banner").innerHTML = `⚠️ <strong>Gagal memuat data dari server.</strong> (${detailErrorMsg}) — bukan berarti datanya kosong, coba muat ulang halaman. <button onclick="location.reload()" style="margin-left:6px;background:#0686c7;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;">Muat Ulang</button>`;
+        return true;
+      }
+
       const hasAnyFinal = (record.tahap1 && record.tahap1.status==='selesai') || (record.tahap2 && record.tahap2.status==='selesai');
       if(hasAnyFinal) { showCombinedReport(); }
       else {
