@@ -1599,6 +1599,13 @@ async function init(){
   updateDarkIcon();
   updateDarkLabel();
 
+  // Verify mode: skip service worker, notif, siswa — langsung sync invoice saja
+  const _isVerifyMode = !!new URLSearchParams(window.location.search).get('inv_verify');
+  if (_isVerifyMode) {
+    await syncFromSheets(false);
+    return; // stop — tidak perlu inisialisasi form/UI
+  }
+
   // Cek GAS_URL
   if(!hasGasUrl()){
     setSyncStatus('error','⚠ GAS_URL belum diisi — klik ikon ⚙ untuk setup');
@@ -2072,8 +2079,9 @@ function buildInvHTML(d){
     :`<div class="inv-totals"><div class="inv-trow"><span>Subtotal</span><span>${rp(d.subtotal)}</span></div><div class="inv-tfinal"><span class="inv-tflbl">Total</span><span class="inv-tfval">${rp(d.subtotal)}</span></div></div>`;
 
   // QR verifikasi di pojok kanan header
+  const _verifyUrl = buildInvVerifyUrl(d.invNum);
   const qrBlock = d.invNum && d.invNum !== '—'
-    ? `<a href="${buildInvVerifyUrl(d.invNum)}" onclick="event.preventDefault();openInvVerifyPopup('${d.invNum.replace(/'/g,"\\'")}','${(d.creator||'').replace(/'/g,"\\'")}','${d.invDate||''}')" style="display:flex;flex-direction:column;align-items:center;text-decoration:none;cursor:pointer;gap:4px;" title="Klik untuk verifikasi">
+    ? `<a href="${_verifyUrl}" target="_blank" rel="noopener" style="display:flex;flex-direction:column;align-items:center;text-decoration:none;cursor:pointer;gap:4px;" title="Klik/scan untuk verifikasi">
         <div style="background:#fff;border:1.5px solid rgba(84,60,52,0.18);border-radius:5px;padding:4px;line-height:0;">
           <img src="${buildInvQrSrc(d.invNum)}" style="width:46px;height:46px;display:block;" alt="QR" onerror="this.style.display='none'">
         </div>
@@ -2085,7 +2093,7 @@ function buildInvHTML(d){
   const signId = buildInvSignId(d);
   const ttdBlock = d.signature_mode === 'digital'
     ? `<div style="margin-top:14px;padding:10px 12px;border:1px solid #dde0e8;border-radius:8px;display:flex;align-items:center;gap:12px;">
-        <a href="${buildInvVerifyUrl(d.invNum)}" onclick="event.preventDefault();openInvVerifyPopup('${d.invNum.replace(/'/g,"\\'")}','${(d.creator||'').replace(/'/g,"\\'")}','${d.invDate||''}')" style="text-decoration:none;flex-shrink:0;">
+        <a href="${buildInvVerifyUrl(d.invNum)}" target="_blank" rel="noopener" style="text-decoration:none;flex-shrink:0;">
           <div style="padding:3px;border:1.5px solid #1B6CA8;border-radius:5px;display:inline-block;">
             <img src="${buildInvQrSrc(d.invNum)}" style="width:38px;height:38px;display:block;" alt="QR TTD" onerror="this.style.display='none'">
           </div>
@@ -3420,56 +3428,58 @@ function openReminderWa(){
   closeReminderSheet();
 }
 
-init();
-
 // Auto-verifikasi jika dibuka via QR ?inv_verify=NO_INVOICE
 (function(){
   const _qs = new URLSearchParams(window.location.search);
   const _invVerify = _qs.get('inv_verify');
   if (!_invVerify) return;
 
-  // Body sudah disembunyikan via CSS di <head> — tinggal inject splash screen
+  // Inject splash langsung — script ini jalan setelah semua fungsi didefinisikan
   const splash = document.createElement('div');
   splash.id = 'verifySplash';
   splash.style.cssText = 'position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;';
   splash.innerHTML = `
     <style>
-      @keyframes levitate{0%,100%{transform:translateY(0);}50%{transform:translateY(-16px);}}
-      @keyframes shadow-pulse{0%,100%{transform:scaleX(1);opacity:.22;}50%{transform:scaleX(.65);opacity:.09;}}
-      #verifySplash .sp-logo{animation:levitate 2.4s ease-in-out infinite;width:90px;display:block;}
-      #verifySplash .sp-shadow{width:72px;height:10px;background:rgba(0,0,0,.35);border-radius:50%;margin-top:10px;animation:shadow-pulse 2.4s ease-in-out infinite;}
-      #verifySplash .sp-text{margin-top:24px;font-size:13px;color:rgba(255,255,255,.55);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:500;letter-spacing:.01em;}
+      @keyframes lev{0%,100%{transform:translateY(0);}50%{transform:translateY(-18px);}}
+      @keyframes shd{0%,100%{transform:scaleX(1);opacity:.22;}50%{transform:scaleX(.6);opacity:.08;}}
+      #verifySplash .sp-logo{animation:lev 2.4s ease-in-out infinite;width:90px;display:block;}
+      #verifySplash .sp-shadow{width:72px;height:9px;background:rgba(0,0,0,.3);border-radius:50%;margin-top:8px;animation:shd 2.4s ease-in-out infinite;}
+      #verifySplash .sp-text{margin-top:22px;font-size:13px;color:rgba(255,255,255,.6);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:500;}
     </style>
-    <img class="sp-logo" src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png"
-      alt="Markaz Belajar" onerror="this.style.display='none'">
+    <img class="sp-logo"
+      src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png"
+      alt="MB"
+      onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 60 60%22><circle cx=%2230%22 cy=%2230%22 r=%2230%22 fill=%22rgba(255,255,255,0.15)%22/><text x=%2230%22 y=%2238%22 text-anchor=%22middle%22 font-size=%2222%22>📋</text></svg>'">
     <div class="sp-shadow"></div>
     <div class="sp-text">Memeriksa keaslian invoice…</div>
   `;
   document.body.appendChild(splash);
 
-  // Tunggu data invoice selesai load, retry tiap 500ms maks 16x (~8 detik)
-  const _no = decodeURIComponent(_invVerify);
-  let _verifyDone = false;
+  const _no = decodeURIComponent(_invVerify).trim();
+  let _done = false;
+
+  function _showResult() {
+    if (_done) return;
+    _done = true;
+    // Animasi fade-out splash
+    splash.style.transition = 'opacity .4s';
+    splash.style.opacity = '0';
+    setTimeout(() => { splash.remove(); openInvVerifyPopup(_no, '', ''); }, 400);
+  }
+
   function _tryVerify(attempt) {
-    if (_verifyDone) return;
+    if (_done) return;
     if (invoices.length > 0) {
-      _verifyDone = true;
-      splash.remove();
-      openInvVerifyPopup(_no, '', '');
-    } else if (attempt > 16) {
-      // Data tidak kunjung load — coba sync sekali lagi, lalu tampilkan apapun hasilnya
-      _verifyDone = true;
-      syncFromSheets(false).finally(() => {
-        splash.remove();
-        openInvVerifyPopup(_no, '', '');
-      });
+      _showResult();
+    } else if (attempt >= 24) {
+      _showResult(); // timeout ~12 detik
     } else {
       setTimeout(() => _tryVerify(attempt + 1), 500);
     }
   }
-  // Mulai sync dan cek segera
-  syncFromSheets(false).catch(() => {});
-  setTimeout(() => _tryVerify(0), 400);
+
+  // Tunggu init() selesai sync, lalu tampilkan hasil
+  init().then(() => _showResult()).catch(() => _tryVerify(0));
 })();
 </script>
 
