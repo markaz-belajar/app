@@ -1001,11 +1001,34 @@ document.addEventListener('click', e => {
 });
 
 // ── MAIN INIT ──
+// ⭐ BARU: cache lokal supaya data terakhir yang berhasil dimuat TETAP TAMPIL
+// walau internet lambat/gagal — mencegah kesan "data hilang" padahal cuma
+// belum berhasil sinkron ulang.
+const CACHE_KEY = 'mb_dashboard_cache';
+
+function saveCacheLocal() {
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ allSiswa, screeningMap, ts: Date.now() })); } catch(e) {}
+}
+function loadCacheLocal() {
+  try { const raw = localStorage.getItem(CACHE_KEY); return raw ? JSON.parse(raw) : null; } catch(e) { return null; }
+}
+
 async function init() {
   if (localStorage.getItem('mb_theme') === 'dark')
     document.documentElement.setAttribute('data-theme','dark');
 
-  setSyncStatus('syncing', 'Memuat data...');
+  // ⭐ Tampilkan cache lokal DULU (instan), sambil coba ambil data terbaru
+  const cache = loadCacheLocal();
+  if (cache && cache.allSiswa && cache.allSiswa.length) {
+    allSiswa = cache.allSiswa;
+    screeningMap = cache.screeningMap || {};
+    const menit = Math.round((Date.now() - cache.ts) / 60000);
+    setSyncStatus('syncing', `Menampilkan data ${menit<1?'baru saja':menit+' menit lalu'} • memperbarui...`);
+    updateStats();
+    renderList();
+  } else {
+    setSyncStatus('syncing', 'Memuat data...');
+  }
 
   // ⭐ DIPERBAIKI: kedua panggilan API dijalankan BERSAMAAN (paralel),
   // bukan satu-satu berurutan — mempercepat loading secara signifikan.
@@ -1021,6 +1044,12 @@ async function init() {
   }
 
   if (!finalSiswa || !finalSiswa.ok || !finalSiswa.data) {
+    // ⭐ Gagal ambil data terbaru — kalau ada cache, JANGAN kosongkan layar,
+    // cukup kasih peringatan jelas bahwa ini data lama, bukan data kosong.
+    if (cache && cache.allSiswa && cache.allSiswa.length) {
+      setSyncStatus('error', `⚠️ Gagal perbarui data (koneksi lambat/gagal) — menampilkan data terakhir yang tersimpan. Tarik untuk coba lagi.`);
+      return;
+    }
     setSyncStatus('error', 'Gagal memuat siswa');
     document.getElementById('listWrap').innerHTML = `
       <div class="empty-state">
@@ -1038,12 +1067,18 @@ async function init() {
   screeningMap = {};
   if (rScreen && rScreen.ok) {
     (rScreen.data || []).forEach(r => { if (r.genId) screeningMap[r.genId] = r; });
+  } else if (cache && cache.screeningMap) {
+    // Gagal ambil status terbaru, tapi ada cache — pakai cache-nya daripada kosong
+    screeningMap = cache.screeningMap;
+    setSyncStatus('syncing', 'Status screening pakai data cache (gagal ambil terbaru)');
   }
 
+  saveCacheLocal();
   setSyncStatus('ok', `${allSiswa.length} siswa · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
   updateStats();
   renderList();
 }
+
 
 init();
 </script>
