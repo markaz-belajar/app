@@ -8,7 +8,7 @@
   // Jalan SEBELUM halaman digambar — kalau ini link laporan (?view=1), langsung sembunyikan
   // form & tampilkan loading, supaya orang tua tidak sempat lihat form kosong sekilas.
   if (new URLSearchParams(location.search).get('view') === '1') {
-    document.documentElement.classList.add('view-loading');
+    document.documentElement.classList.add('view-loading', 'view-mode');
   }
 </script>
 <style>
@@ -193,6 +193,15 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 @keyframes viewspin { to { transform: rotate(360deg); } }
 .view-loading-text { font-size: 14px; color: var(--blue-dark); font-weight: 600; }
 .view-loading-sub { font-size: 12px; color: var(--text-3); }
+/* Tampilan laporan untuk orang tua: tanpa kesan 'form' */
+.view-mode #info-card, .view-mode .progress-pill, .view-mode .header-bar { display: none !important; }
+.sync-banner { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 560px; z-index: 250; font-size: 12.5px; line-height: 1.55; padding: 10px 14px; border-radius: 10px; display: none; box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+.sync-banner.show { display: block; }
+.sync-banner.info { background: var(--blue-light); color: var(--blue-dark); border: 1px solid var(--blue-mid); }
+.sync-banner.warn { background: var(--amber-light); color: #92400e; border: 1px solid #fcd34d; }
+.sync-banner.err { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.sync-banner.ok { background: var(--green-light); color: #166534; border: 1px solid #86efac; }
+.sync-banner button { margin-left: 8px; background: var(--blue); color: #fff; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit; }
 
 @media print {
   .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -366,14 +375,19 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 // ⭐ Ganti dengan URL Web App hasil deploy Code_KekuatanBelajar.gs kamu
 const API_KB = 'https://script.google.com/macros/s/AKfycbyMCQqWa5hpH9dsqK1CTLSt0zXfpLGPeFw6fYmHJeaTP0IVNp6cK4sySwqF4QlFUzaB/exec';
 
-function apiKB(action, params={}) {
+function apiKB(action, params={}, timeoutMs=20000) {
   if(!API_KB || API_KB.indexOf('PASTE_') === 0) return Promise.resolve({ ok:false, error:'API_KB belum diisi' });
   const url = new URL(API_KB);
   url.searchParams.set('action', action);
   for(const [k,v] of Object.entries(params)) {
     url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
   }
-  return fetch(url.toString(), { redirect:'follow' }).then(r=>r.json()).catch(()=>({ok:false, error:'Gagal terhubung ke server'}));
+  const controller = new AbortController();
+  const timeoutId = setTimeout(()=>controller.abort(), timeoutMs);
+  return fetch(url.toString(), { redirect:'follow', signal: controller.signal })
+    .then(r=>r.json())
+    .catch((e)=>({ ok:false, error: e && e.name==='AbortError' ? 'Server terlalu lama merespons (>' + Math.round(timeoutMs/1000) + ' detik)' : 'Gagal terhubung ke server' }))
+    .finally(()=>clearTimeout(timeoutId));
 }
 
 const ICONS = {
@@ -469,6 +483,7 @@ let isReadOnly = false;
 let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null };
 let genId = "";
 let onlineMode = false;
+let serverLoadFailed = false;
 let autosaveTimer = null;
 
 function idxRange(stage){ return stage===1 ? [0,1,2] : [3,4,5]; }
@@ -562,14 +577,21 @@ function saveDraftNow() {
   const stageData = { status: isAlreadyFinal ? 'selesai' : 'draft', answers: partialAnswers, dates: partialDates, pertemuan: pertemuanVal, timestamp: new Date().toISOString() };
   if(currentStage === 1) record.tahap1 = stageData; else record.tahap2 = stageData;
   saveLocal(record);
+  writeKBCache();
 
-  if(onlineMode && genId && !isAlreadyFinal) {
+  if(onlineMode && genId && !isAlreadyFinal && !serverLoadFailed) {
+    const stageAtCall = currentStage;
     apiKB('saveKBStage', {
-      genId, stage: currentStage, final: 0,
+      genId, stage: stageAtCall, final: 0,
       namaAnak: record.nama, usia: record.usia, jk: record.jk, namaGuru: record.guru,
       pertemuan: pertemuanVal, answers: JSON.stringify(partialAnswers), dates: JSON.stringify(partialDates)
-    }).then(r => { setAutosaveIndicator(r && r.ok ? "saved" : "error"); })
-      .catch(()=> setAutosaveIndicator("error"));
+    }).then(r => {
+      if(r && r.ok) { writeKBCache({ [stageAtCall]: false }); setAutosaveIndicator("saved"); }
+      else { writeKBCache({ [stageAtCall]: true }); setAutosaveIndicator("error"); }
+    }).catch(()=> { writeKBCache({ [stageAtCall]: true }); setAutosaveIndicator("error"); });
+  } else if(onlineMode && genId && !isAlreadyFinal && serverLoadFailed) {
+    writeKBCache({ [currentStage]: true });
+    setAutosaveIndicator("error");
   } else {
     setAutosaveIndicator("saved");
   }
@@ -605,7 +627,7 @@ function setBadgeState(el, stageData) {
 function pickStage(stage) {
   if(isReadOnly) return;
   const tahap1Done = record.tahap1 && record.tahap1.status === 'selesai';
-  if(stage === 2 && !tahap1Done) {
+  if(stage === 2 && !tahap1Done && !serverLoadFailed) {
     const nama = document.getElementById("f-nama").value.trim();
     if(nama && !onlineMode) {
       const saved = loadLocal(nama);
@@ -624,6 +646,8 @@ function pickStage(stage) {
   const existing = stage === 1 ? record.tahap1 : record.tahap2;
   if(existing && existing.answers) Object.assign(answers, existing.answers);
   if(existing && existing.dates) Object.assign(answerDates, existing.dates);
+  const pEl = document.getElementById("f-pertemuan");
+  if(existing && existing.pertemuan && pEl && !pEl.value) pEl.value = existing.pertemuan;
 
   document.getElementById("stage-picker-section").style.display = "none";
   document.getElementById("fill-notice").style.display = "block";
@@ -654,6 +678,57 @@ function loadLocal(nama) {
   try { const raw = localStorage.getItem("mb_pkb_"+slug(nama)); return raw ? JSON.parse(raw) : null; } catch(e) { return null; }
 }
 
+// ── CACHE LOKAL PER genId ──
+// Tujuan: (1) reload tetap menampilkan data terdahulu walau server lambat,
+//         (2) menyimpan data yang BELUM terkirim ke server supaya tidak hilang.
+function kbCacheKey(g){ return "mb_kb_cache_" + g; }
+function readKBCache(g){ try { const raw = localStorage.getItem(kbCacheKey(g)); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
+function writeKBCache(unsyncedPatch){
+  if(!genId) return;
+  try {
+    const prev = readKBCache(genId) || {};
+    const unsynced = Object.assign({}, prev.unsynced || {}, unsyncedPatch || {});
+    localStorage.setItem(kbCacheKey(genId), JSON.stringify({ record: record, unsynced: unsynced, savedAt: Date.now() }));
+  } catch(e) {}
+}
+
+function showSyncBanner(html, kind) {
+  let el = document.getElementById("sync-banner");
+  if(!el) { el = document.createElement("div"); el.id = "sync-banner"; document.body.appendChild(el); }
+  el.className = "sync-banner show " + (kind || "info");
+  el.innerHTML = html;
+}
+function hideSyncBanner() { const el = document.getElementById("sync-banner"); if(el) el.classList.remove("show"); }
+
+function buildStagePayload(stage, isFinal) {
+  const st = stage === 1 ? record.tahap1 : record.tahap2;
+  return {
+    genId, stage, final: isFinal ? 1 : 0,
+    namaAnak: record.nama, usia: record.usia, jk: record.jk, namaGuru: record.guru,
+    pertemuan: (st && st.pertemuan) || "",
+    answers: JSON.stringify((st && st.answers) || {}), dates: JSON.stringify((st && st.dates) || {})
+  };
+}
+
+// Kirim 1 tahap ke server (dengan 1x ulang otomatis) + beri tahu hasilnya dengan jelas
+async function syncStage(stage) {
+  const st = stage === 1 ? record.tahap1 : record.tahap2;
+  if(!st || !(onlineMode && genId)) return true;
+  const isFinal = st.status === 'selesai';
+  showSyncBanner("💾 Mengirim Tahap " + stage + " ke server…", "info");
+  let r = await apiKB('saveKBStage', buildStagePayload(stage, isFinal), 25000);
+  if(!(r && r.ok)) r = await apiKB('saveKBStage', buildStagePayload(stage, isFinal), 25000);
+  if(r && r.ok) {
+    writeKBCache({ [stage]: false });
+    showSyncBanner("✓ Tahap " + stage + " tersimpan di server.", "ok");
+    setTimeout(hideSyncBanner, 2500);
+    return true;
+  }
+  writeKBCache({ [stage]: true });
+  showSyncBanner("⚠️ Tahap " + stage + " <b>belum terkirim ke server</b> (" + ((r && r.error) || "gagal") + "). Data aman di perangkat ini. <button onclick=\"syncStage(" + stage + ")\">Kirim ulang</button>", "err");
+  return false;
+}
+
 // ── SUBMIT ──
 function handleSubmit() {
   const range = idxRange(currentStage);
@@ -677,13 +752,9 @@ function handleSubmit() {
   const stageData = { status:'selesai', answers: stageAnswers, dates: stageDates, pertemuan: pertemuanVal, timestamp: new Date().toISOString() };
   if(currentStage === 1) record.tahap1 = stageData; else record.tahap2 = stageData;
   saveLocal(record);
-
   if(onlineMode && genId) {
-    apiKB('saveKBStage', {
-      genId, stage: currentStage, final: 1,
-      namaAnak: record.nama, usia: record.usia, jk: record.jk, namaGuru: record.guru,
-      pertemuan: pertemuanVal, answers: JSON.stringify(stageAnswers), dates: JSON.stringify(stageDates)
-    }).then(r => { if(!r || !r.ok) console.warn('Gagal simpan ke server:', r && r.error); });
+    writeKBCache({ [currentStage]: true });   // ditandai "belum terkirim" sampai server mengonfirmasi
+    syncStage(currentStage);
   }
 
   document.getElementById("fill-notice").style.display = "none";
@@ -910,6 +981,39 @@ function copyLink() {
 function closeModal() { document.getElementById("share-modal").classList.remove("open"); }
 
 // ── LOAD DARI URL PARAMS (mode online, dibuka dari dashboard dengan ?gen=...) ──
+function fillFieldIfEmpty(id, val) { const el = document.getElementById(id); if(el && !el.value && val) el.value = val; }
+function syncRecordFromFields() {
+  record.nama = document.getElementById('f-nama').value.trim();
+  record.usia = document.getElementById('f-usia').value;
+  record.jk = document.getElementById('f-jk').value;
+  record.guru = document.getElementById('f-guru').value;
+}
+function rebuildAnswersFromRecord() {
+  Object.keys(answers).forEach(k => delete answers[k]);
+  Object.keys(answerDates).forEach(k => delete answerDates[k]);
+  [record.tahap1, record.tahap2].forEach(st => { if(st) { Object.assign(answers, st.answers || {}); Object.assign(answerDates, st.dates || {}); } });
+}
+function hasAnyFinalStage() {
+  return !!((record.tahap1 && record.tahap1.status === 'selesai') || (record.tahap2 && record.tahap2.status === 'selesai'));
+}
+function enterViewLayout() {
+  isReadOnly = true;
+  document.documentElement.classList.add('view-mode');
+  ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id => { const el = document.getElementById(id); if(el) { el.disabled = true; } });
+  document.getElementById("stage-picker-section").style.display = "none";
+}
+function showViewMessage(html) {
+  const el = document.getElementById("readonly-banner");
+  el.innerHTML = html;
+  el.classList.add("show");
+}
+async function fetchDetailWithRetry(g) {
+  let r = await apiKB('getKBDetail', { genId: g }, 20000);
+  if(!(r && r.ok)) r = await apiKB('getKBDetail', { genId: g }, 20000);
+  return r;
+}
+
+// ── LOAD DARI URL PARAMS (mode online, dibuka dari dashboard dengan ?gen=...) ──
 async function loadFromURLParams() {
   const p = new URLSearchParams(window.location.search);
   const g = p.get('gen');
@@ -917,83 +1021,97 @@ async function loadFromURLParams() {
 
   genId = g;
   onlineMode = true;
-  const namaFromUrl = p.get('nama');
   const viewMode = p.get('view') === '1';
   const stageParam = Number(p.get('stage') || 0);
 
-  if(namaFromUrl) document.getElementById('f-nama').value = namaFromUrl;
+  // Data dasar dari link dashboard — TANPA request tambahan ke server
+  fillFieldIfEmpty('f-nama', p.get('nama'));
+  fillFieldIfEmpty('f-usia', p.get('usia'));
+  const jkRaw = (p.get('jk') || '').toLowerCase();
+  if(jkRaw.indexOf('laki') >= 0) document.getElementById('f-jk').value = 'Laki-laki';
+  else if(jkRaw.indexOf('perempuan') >= 0) document.getElementById('f-jk').value = 'Perempuan';
 
-  // Ambil data siswa (nama, usia, jenis kelamin) dari server kalau tersedia
-  try {
-    const rSiswa = await apiKB('getSiswaByGenId', { genId: g });
-    if(rSiswa && rSiswa.ok && rSiswa.data) {
-      const d = rSiswa.data;
-      if(d.nama) document.getElementById('f-nama').value = d.nama;
-      if(d.usia) document.getElementById('f-usia').value = d.usia;
-      if(d.kelamin) {
-        const k = String(d.kelamin).toLowerCase();
-        const el = document.getElementById('f-jk');
-        if(k.includes('laki')) el.value = 'Laki-laki';
-        else if(k.includes('perempuan')) el.value = 'Perempuan';
-      }
-    }
-  } catch(e) {}
+  // 1) Cadangan lokal dulu → tampil instan, walau server lambat
+  const cache = readKBCache(g);
+  const unsynced = (cache && cache.unsynced) || {};
+  if(cache && cache.record) {
+    record.tahap1 = cache.record.tahap1 || null;
+    record.tahap2 = cache.record.tahap2 || null;
+    fillFieldIfEmpty('f-nama', cache.record.nama);
+    fillFieldIfEmpty('f-usia', cache.record.usia);
+    fillFieldIfEmpty('f-jk', cache.record.jk);
+    fillFieldIfEmpty('f-guru', cache.record.guru);
+    syncRecordFromFields();
+    rebuildAnswersFromRecord();
+    refreshStageBadges();
+  }
+  if(viewMode) {
+    enterViewLayout();
+    if(hasAnyFinalStage()) { showCombinedReport(); document.documentElement.classList.remove('view-loading'); }
+  }
 
-  // Ambil status & jawaban Tahap 1/Tahap 2 yang sudah tersimpan di server
-  let detailFetchFailed = false;
-  let detailErrorMsg = "";
-  try {
-    const rDetail = await apiKB('getKBDetail', { genId: g });
-    if(rDetail && rDetail.ok) {
-      if(rDetail.data) {
-        const d = rDetail.data;
-        record.nama = document.getElementById('f-nama').value || d.namaAnak || '';
-        record.usia = document.getElementById('f-usia').value || d.usia || '';
-        record.jk = document.getElementById('f-jk').value || d.jk || '';
-        record.guru = d.namaGuru || '';
-        if(d.namaGuru) document.getElementById('f-guru').value = d.namaGuru;
-        record.tahap1 = d.tahap1 || null;
-        record.tahap2 = d.tahap2 || null;
-        if(record.tahap1) { Object.assign(answers, record.tahap1.answers); Object.assign(answerDates, record.tahap1.dates || {}); }
-        if(record.tahap2) { Object.assign(answers, record.tahap2.answers); Object.assign(answerDates, record.tahap2.dates || {}); }
-      }
-      // rDetail.ok true + data null = memang belum ada baris untuk siswa ini (bukan error)
+  // 2) Ambil data terbaru dari server (dengan pesan kalau lambat)
+  const slowTimer = setTimeout(() => {
+    const sub = document.querySelector('.view-loading-sub');
+    if(sub) sub.textContent = 'Server sedang lambat, masih mencoba… mohon tunggu sebentar';
+    if(!viewMode) showSyncBanner('⏳ Server sedang lambat, masih memuat data tersimpan…', 'info');
+  }, 6000);
+  const r = await fetchDetailWithRetry(g);
+  clearTimeout(slowTimer);
+  hideSyncBanner();
+
+  let failed = false, errMsg = '';
+  if(r && r.ok) {
+    const localStage = { 1: record.tahap1, 2: record.tahap2 };
+    if(r.data) {
+      const d = r.data;
+      record.tahap1 = d.tahap1 || null;
+      record.tahap2 = d.tahap2 || null;
+      fillFieldIfEmpty('f-nama', d.namaAnak);
+      fillFieldIfEmpty('f-usia', d.usia);
+      fillFieldIfEmpty('f-jk', d.jk);
+      fillFieldIfEmpty('f-guru', d.namaGuru);
     } else {
-      detailFetchFailed = true;
-      detailErrorMsg = (rDetail && rDetail.error) || "Server tidak merespons dengan benar";
+      record.tahap1 = null; record.tahap2 = null;   // server memang tidak punya data (mis. sudah di-reset)
     }
-  } catch(e) { detailFetchFailed = true; detailErrorMsg = e.message || "Gagal terhubung ke server"; }
-
+    // Perubahan lokal yang belum terkirim TIDAK boleh tertimpa data server
+    [1, 2].forEach(st => { if(unsynced[st] && localStage[st]) record['tahap' + st] = localStage[st]; });
+    syncRecordFromFields();
+    rebuildAnswersFromRecord();
+    writeKBCache();
+  } else {
+    failed = true;
+    errMsg = (r && r.error) || 'Server tidak merespons';
+  }
+  serverLoadFailed = failed;
   refreshStageBadges();
 
   try {
     if(viewMode) {
-      // Link laporan untuk ortu/pihak lain — tampilkan langsung, read-only
-      isReadOnly = true;
-      ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
-      document.getElementById("readonly-banner").classList.add("show");
-      document.getElementById("stage-picker-section").style.display = "none";
-
-      if(detailFetchFailed) {
-        document.getElementById("readonly-banner").innerHTML = `⚠️ <strong>Gagal memuat data dari server.</strong> (${detailErrorMsg}) — bukan berarti datanya kosong, coba muat ulang halaman. <button onclick="location.reload()" style="margin-left:6px;background:#0686c7;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;">Muat Ulang</button>`;
-        return true;
-      }
-
-      const hasAnyFinal = (record.tahap1 && record.tahap1.status==='selesai') || (record.tahap2 && record.tahap2.status==='selesai');
-      if(hasAnyFinal) { showCombinedReport(); }
-      else {
-        document.getElementById("readonly-banner").innerHTML = "⏳ <strong>Belum ada data.</strong> Guru belum menyelesaikan observasi tahap manapun untuk siswa ini.";
+      if(hasAnyFinalStage()) {
+        showCombinedReport();
+        if(failed) showSyncBanner('⚠️ Server sedang tidak merespons — menampilkan data tersimpan di perangkat ini.', 'warn');
+      } else if(failed) {
+        showViewMessage('⚠️ <strong>Gagal memuat data dari server.</strong> (' + errMsg + ') — ini bukan berarti datanya kosong. <button onclick="location.reload()" style="margin-left:6px;background:#0686c7;color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;">Muat Ulang</button>');
+      } else {
+        showViewMessage('⏳ <strong>Laporan belum tersedia.</strong> Observasi guru untuk siswa ini belum diselesaikan.');
       }
     } else if(stageParam === 1 || stageParam === 2) {
-      // Dashboard minta langsung buka tahap tertentu (isi baru atau revisi)
+      if(failed && !(cache && cache.record)) {
+        showSyncBanner('⚠️ Data tersimpan <b>belum bisa dimuat</b> (' + errMsg + '). Form di bawah bisa tampak kosong padahal sudah pernah diisi — <b>jangan simpan dulu</b>. <button onclick="location.reload()">Muat ulang</button>', 'err');
+      } else if(failed) {
+        showSyncBanner('⚠️ Server sedang lambat — memakai data tersimpan di perangkat ini. <button onclick="location.reload()">Muat ulang</button>', 'warn');
+      }
       pickStage(stageParam);
     }
+
+    const pending = [1, 2].filter(st => unsynced[st] && record['tahap' + st]);
+    if(pending.length && !failed && !viewMode) {
+      showSyncBanner('⚠️ Ada data Tahap ' + pending.join(' & ') + ' yang belum terkirim ke server. <button onclick="syncStage(' + pending[0] + ')">Kirim sekarang</button>', 'warn');
+    }
   } catch(err) {
-    console.error("Gagal auto-jump ke tahap:", err);
-    const banner = document.createElement("div");
-    banner.style.cssText = "background:#fee2e2;color:#991b1b;font-size:12px;padding:10px 14px;border-radius:8px;margin-bottom:14px;";
-    banner.textContent = "⚠️ Ada masalah saat memuat tahap otomatis (" + err.message + "). Silakan pilih tahap secara manual di bawah.";
-    document.getElementById("info-card").parentNode.insertBefore(banner, document.getElementById("info-card"));
+    console.error("Gagal menyiapkan tampilan:", err);
+    showSyncBanner('⚠️ Ada masalah saat menyiapkan tampilan (' + err.message + '). Silakan muat ulang halaman.', 'err');
   } finally {
     document.documentElement.classList.remove('view-loading');
   }
@@ -1020,7 +1138,7 @@ function loadFromHash() {
       // Link laporan final untuk ortu — read-only
       isReadOnly = true;
       ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
-      document.getElementById("readonly-banner").classList.add("show");
+      document.documentElement.classList.add('view-mode');
       document.getElementById("stage-picker-section").style.display = "none";
       showCombinedReport();
     } else {
