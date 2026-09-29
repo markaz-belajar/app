@@ -569,8 +569,10 @@ async function selectType(type) {
 // ── KB (Kekuatan Belajar) view ──
 function renderKBView(s, rec) {
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const t1Ok = rec?.tahap1 ? true : false;
-  const t2Ok = rec?.tahap2 ? true : false;
+  const st1 = rec?.tahap1?.status || null; // 'selesai' | 'draft' | null
+  const st2 = rec?.tahap2?.status || null;
+  const t1Done = st1 === 'selesai', t1Draft = st1 === 'draft';
+  const t2Done = st2 === 'selesai', t2Draft = st2 === 'draft';
 
   let html = `
     <button class="back-btn-small" onclick="sheetView='menu';renderTypeMenu()">
@@ -586,21 +588,25 @@ function renderKBView(s, rec) {
     <div class="tl">
       <div class="tl-item">
         <div class="tl-left">
-          <div class="tl-dot ${t1Ok?'done':''}">${t1Ok?'✓':'•'}</div>
+          <div class="tl-dot ${t1Done?'done':''}">${t1Done?'✓':(t1Draft?'◐':'•')}</div>
           <div class="tl-line"></div>
         </div>
         <div class="tl-right">
           <div class="tl-title">Tahap 1 — Screening Awal</div>
-          ${t1Ok ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap1.timestamp)}</div>` : `<div class="tl-sub">Belum diisi — setelah ±4 pertemuan pertama</div>`}
+          ${t1Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap1.timestamp)}</div>`
+            : t1Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap1.timestamp)}</div>`
+            : `<div class="tl-sub">Belum diisi — setelah ±4 pertemuan pertama</div>`}
         </div>
       </div>
       <div class="tl-item">
         <div class="tl-left">
-          <div class="tl-dot ${t2Ok?'done':''}">${t2Ok?'✓':'•'}</div>
+          <div class="tl-dot ${t2Done?'done':''}">${t2Done?'✓':(t2Draft?'◐':'•')}</div>
         </div>
         <div class="tl-right">
           <div class="tl-title">Tahap 2 — Screening Lanjutan</div>
-          ${t2Ok ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap2.timestamp)}</div>` : `<div class="tl-sub">${t1Ok ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 1 dulu (boleh dilewati kalau perlu)'}</div>`}
+          ${t2Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap2.timestamp)}</div>`
+            : t2Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap2.timestamp)}</div>`
+            : `<div class="tl-sub">${t1Done ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 1 dulu (boleh dilewati kalau perlu)'}</div>`}
         </div>
       </div>
     </div>
@@ -611,23 +617,23 @@ function renderKBView(s, rec) {
       <div class="sec-lbl" style="margin-bottom:0;">Isi Observasi</div>
     </div>
     <div class="btn-row">
-      <button class="btn ${t1Ok?'btn-ghost':'btn-accent'}" onclick="openFormKB(1)">
+      <button class="btn ${t1Done?'btn-ghost':'btn-accent'}" onclick="openFormKB(1)">
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ${t1Ok ? 'Revisi Tahap 1' : 'Isi Tahap 1'}
+        ${t1Done ? 'Revisi Tahap 1' : t1Draft ? 'Lanjutkan Tahap 1' : 'Isi Tahap 1'}
       </button>
-      <button class="btn ${t2Ok?'btn-ghost':'btn-accent'}" onclick="openFormKB(2)">
+      <button class="btn ${t2Done?'btn-ghost':'btn-accent'}" onclick="openFormKB(2)">
         <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ${t2Ok ? 'Revisi Tahap 2' : 'Isi Tahap 2'}
+        ${t2Done ? 'Revisi Tahap 2' : t2Draft ? 'Lanjutkan Tahap 2' : 'Isi Tahap 2'}
       </button>
     </div>
   </div>`;
 
-  if (t1Ok || t2Ok) {
+  if (t1Done || t2Done) {
     html += `<div class="action-group">
       <div class="sec-lbl">Laporan & Berbagi</div>
       <button class="btn btn-accent btn-full" onclick="lihatLaporanKB()">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Lihat Laporan${(t1Ok&&t2Ok)?' Gabungan':' (Sementara)'}
+        Lihat Laporan${(t1Done&&t2Done)?' Gabungan':' (Sementara)'}
       </button>
     </div>`;
   }
@@ -644,7 +650,7 @@ function renderKBView(s, rec) {
 function openFormKB(stage) {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}&stage=${stage}&v=${Date.now()}`;
+  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}&usia=${encodeURIComponent(s.usia||'')}&jk=${encodeURIComponent(s.kelamin||'')}&stage=${stage}&v=${Date.now()}`;
   window.open(url, '_blank');
 }
 
@@ -1001,34 +1007,11 @@ document.addEventListener('click', e => {
 });
 
 // ── MAIN INIT ──
-// ⭐ BARU: cache lokal supaya data terakhir yang berhasil dimuat TETAP TAMPIL
-// walau internet lambat/gagal — mencegah kesan "data hilang" padahal cuma
-// belum berhasil sinkron ulang.
-const CACHE_KEY = 'mb_dashboard_cache';
-
-function saveCacheLocal() {
-  try { localStorage.setItem(CACHE_KEY, JSON.stringify({ allSiswa, screeningMap, ts: Date.now() })); } catch(e) {}
-}
-function loadCacheLocal() {
-  try { const raw = localStorage.getItem(CACHE_KEY); return raw ? JSON.parse(raw) : null; } catch(e) { return null; }
-}
-
 async function init() {
   if (localStorage.getItem('mb_theme') === 'dark')
     document.documentElement.setAttribute('data-theme','dark');
 
-  // ⭐ Tampilkan cache lokal DULU (instan), sambil coba ambil data terbaru
-  const cache = loadCacheLocal();
-  if (cache && cache.allSiswa && cache.allSiswa.length) {
-    allSiswa = cache.allSiswa;
-    screeningMap = cache.screeningMap || {};
-    const menit = Math.round((Date.now() - cache.ts) / 60000);
-    setSyncStatus('syncing', `Menampilkan data ${menit<1?'baru saja':menit+' menit lalu'} • memperbarui...`);
-    updateStats();
-    renderList();
-  } else {
-    setSyncStatus('syncing', 'Memuat data...');
-  }
+  setSyncStatus('syncing', 'Memuat data...');
 
   // ⭐ DIPERBAIKI: kedua panggilan API dijalankan BERSAMAAN (paralel),
   // bukan satu-satu berurutan — mempercepat loading secara signifikan.
@@ -1044,12 +1027,6 @@ async function init() {
   }
 
   if (!finalSiswa || !finalSiswa.ok || !finalSiswa.data) {
-    // ⭐ Gagal ambil data terbaru — kalau ada cache, JANGAN kosongkan layar,
-    // cukup kasih peringatan jelas bahwa ini data lama, bukan data kosong.
-    if (cache && cache.allSiswa && cache.allSiswa.length) {
-      setSyncStatus('error', `⚠️ Gagal perbarui data (koneksi lambat/gagal) — menampilkan data terakhir yang tersimpan. Tarik untuk coba lagi.`);
-      return;
-    }
     setSyncStatus('error', 'Gagal memuat siswa');
     document.getElementById('listWrap').innerHTML = `
       <div class="empty-state">
@@ -1067,18 +1044,12 @@ async function init() {
   screeningMap = {};
   if (rScreen && rScreen.ok) {
     (rScreen.data || []).forEach(r => { if (r.genId) screeningMap[r.genId] = r; });
-  } else if (cache && cache.screeningMap) {
-    // Gagal ambil status terbaru, tapi ada cache — pakai cache-nya daripada kosong
-    screeningMap = cache.screeningMap;
-    setSyncStatus('syncing', 'Status screening pakai data cache (gagal ambil terbaru)');
   }
 
-  saveCacheLocal();
   setSyncStatus('ok', `${allSiswa.length} siswa · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
   updateStats();
   renderList();
 }
-
 
 init();
 </script>
