@@ -4,15 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Markaz Belajar — Invoice</title>
-<!-- Hide dashboard instantly if opened via QR verify link — must run before any paint -->
-<script>
-(function(){
-  if(new URLSearchParams(window.location.search).get('inv_verify')){
-    document.documentElement.classList.add('verify-mode');
-  }
-})();
-</script>
-<style>.verify-mode body>*{display:none!important;}.verify-mode body{background:linear-gradient(160deg,#1B6CA8,#0D3A5C);}</style>
+
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -398,6 +390,26 @@ textarea{resize:vertical;min-height:80px;}
 @keyframes slideOut{from{transform:translateX(0);opacity:1;}to{transform:translateX(400px);opacity:0;}}
 @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
 .spin{animation:spin 1s linear infinite;}
+
+/* OVERLAY VERIFIKASI INVOICE */
+.inv-verify-overlay{display:none;position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99999;align-items:center;justify-content:center;padding:20px;}
+.inv-verify-overlay.show{display:flex;}
+.inv-verify-wrap{display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%;}
+.inv-verify-logo{width:78px;margin-bottom:18px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));}
+.inv-verify-card{background:#fff;border-radius:22px;padding:32px 26px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35);}
+.verify-spinner{width:34px;height:34px;border:3px solid #E0E7EC;border-top-color:#1B6CA8;border-radius:50%;margin:0 auto;animation:vspin .8s linear infinite;}
+@keyframes vspin{to{transform:rotate(360deg);}}
+.verify-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.verify-icon.ok{background:#E3F6EA;color:#2E9E5B;}
+.verify-icon.fail{background:#FDE8E9;color:#DC3545;}
+.verify-title{font-size:17px;font-weight:800;color:#1C2B3A;margin-bottom:4px;}
+.verify-sub{font-size:12.5px;color:#8FA4B4;margin-bottom:18px;}
+.verify-rows{text-align:left;background:#F7F5EF;border-radius:14px;padding:14px 16px;font-size:13px;color:#1C2B3A;}
+.verify-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #EDE9DF;}
+.verify-row:last-child{border-bottom:none;}
+.verify-row span:first-child{color:#8FA4B4;font-size:11.5px;}
+.verify-row span:last-child{font-weight:600;text-align:right;}
+.verify-close{margin-top:18px;width:100%;padding:11px;border-radius:10px;background:#1B6CA8;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -1515,82 +1527,7 @@ function setTTD(mode) {
   if (prevOpen) renderPrev();
 }
 
-function openInvVerifyPopup(invNum, creator, invDate) {
-  // Normalize — hilangkan encode, trim whitespace
-  const normalNo = decodeURIComponent(invNum || '').trim();
-  // Cari dari data lokal — coba invoice_number dulu, fallback __backendId
-  const inv = invoices.find(i =>
-    (i.invoice_number || '').trim() === normalNo ||
-    (i.__backendId || '') === normalNo
-  );
-  // Kalau belum ada (data mungkin belum selesai load), coba tunggu 1.5 detik
-  if (!inv && invoices.length === 0) {
-    setTimeout(() => openInvVerifyPopup(normalNo, creator, invDate), 1500);
-    return;
-  }
-  invNum = normalNo;
-  const overlay = document.createElement('div');
-  overlay.id = 'invVerifyOverlay';
-  overlay.style.cssText = 'position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99999;display:flex;align-items:center;justify-content:center;padding:20px;';
-  overlay.onclick = e => { if (e.target === overlay) overlay.remove(); };
 
-  let body = '';
-  if (inv) {
-    // Baca signature_mode: prioritas dari data invoice, lalu localStorage cache.
-    // Kalau tidak ada di keduanya → 'kosong' (jangan tampil TTD block).
-    let _invSigMode = inv.signature_mode || '';
-    if (!_invSigMode || _invSigMode === 'kosong') {
-      try {
-        const sigCache = JSON.parse(localStorage.getItem('mrkz_inv_sig') || '{}');
-        // Hanya pakai cache kalau memang ada entry eksplisit untuk nomor ini
-        const cached = sigCache[inv.invoice_number];
-        _invSigMode = (cached === 'digital') ? 'digital' : 'kosong';
-      } catch(e) { _invSigMode = 'kosong'; }
-    }
-    const signId = _invSigMode === 'digital'
-      ? buildInvSignId({ invNum, creator: inv.created_by || creator, invDate: inv.created_date || invDate })
-      : null;
-    body = `
-      <div style="width:56px;height:56px;border-radius:50%;background:#E3F6EA;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-      </div>
-      <div style="font-size:17px;font-weight:800;color:#1C2B3A;margin-bottom:4px;">Invoice Terverifikasi</div>
-      <div style="font-size:12.5px;color:#8FA4B4;margin-bottom:18px;">Data cocok dengan catatan resmi Markaz Belajar</div>
-      <div style="text-align:left;background:#F7F5EF;border-radius:14px;padding:14px 16px;font-size:13px;">
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">No. Invoice</span><span style="font-weight:600;">${inv.invoice_number}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Tanggal</span><span style="font-weight:600;">${fmtShort(inv.created_date)}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Tagihan Kepada</span><span style="font-weight:600;text-align:right;">${inv.student_parent||inv.student_name}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Nama Siswa</span><span style="font-weight:600;">${inv.student_name}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Total</span><span style="font-weight:600;">${rp(inv.amount)}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;border-bottom:1px solid #EDE9DF;"><span style="color:#8FA4B4;font-size:11.5px;">Status</span><span style="font-weight:600;color:${inv.payment_status==='paid'?'#2E9E5B':'#F59F00'}">${inv.payment_status==='paid'?'✓ Lunas':'Belum Lunas'}</span></div>
-        <div style="display:flex;justify-content:space-between;padding:6px 0;"><span style="color:#8FA4B4;font-size:11.5px;">Dibuat Oleh</span><span style="font-weight:600;">${inv.created_by||creator||'—'}</span></div>
-      </div>
-      ${(signId && _invSigMode === 'digital') ? `<div style="margin-top:10px;text-align:left;background:#EAF4FF;border-radius:14px;padding:14px 16px;">
-        <div style="display:flex;align-items:center;gap:6px;color:#1B6CA8;font-size:11.5px;font-weight:700;margin-bottom:8px;">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-          Tanda Tangan Digital
-        </div>
-        <div style="display:flex;justify-content:space-between;padding:4px 0;font-size:12px;border-bottom:1px solid rgba(27,108,168,0.15);"><span style="color:#8FA4B4;">ID TTD</span><span style="font-weight:600;font-family:monospace;">${signId}</span></div>
-      </div>` : ''}`;
-  } else {
-    body = `
-      <div style="width:56px;height:56px;border-radius:50%;background:#FDE8E9;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;">
-        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#DC3545" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-      </div>
-      <div style="font-size:17px;font-weight:800;color:#1C2B3A;margin-bottom:4px;">Tidak Ditemukan</div>
-      <div style="font-size:12.5px;color:#8FA4B4;margin-bottom:18px;">No. invoice <strong>${invNum}</strong> tidak cocok dengan catatan sistem.</div>`;
-  }
-
-  overlay.innerHTML = `
-    <div style="display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%;">
-      <img src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" style="width:72px;margin-bottom:16px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));" onerror="this.style.display='none'">
-      <div style="background:#fff;border-radius:22px;padding:28px 22px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35);">
-        ${body}
-        <button onclick="document.getElementById('invVerifyOverlay').remove()" style="margin-top:18px;width:100%;padding:11px;border-radius:10px;background:#1B6CA8;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;">Tutup</button>
-      </div>
-    </div>`;
-  document.body.appendChild(overlay);
-}
 
 async function init(){
   // Dark mode
@@ -1598,13 +1535,6 @@ async function init(){
   if(saved==='dark')document.documentElement.setAttribute('data-theme','dark');
   updateDarkIcon();
   updateDarkLabel();
-
-  // Verify mode: skip service worker, notif, siswa — langsung sync invoice saja
-  const _isVerifyMode = !!new URLSearchParams(window.location.search).get('inv_verify');
-  if (_isVerifyMode) {
-    await syncFromSheets(false);
-    return; // stop — tidak perlu inisialisasi form/UI
-  }
 
   // Cek GAS_URL
   if(!hasGasUrl()){
@@ -3428,64 +3358,81 @@ function openReminderWa(){
   closeReminderSheet();
 }
 
-// Auto-verifikasi jika dibuka via QR ?inv_verify=NO_INVOICE
-(function(){
-  const _qs = new URLSearchParams(window.location.search);
-  const _invVerify = _qs.get('inv_verify');
-  if (!_invVerify) return;
+// ── INIT & VERIFIKASI (persis pola kwt.html) ──────────────────────────
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
-  // Inject splash langsung — script ini jalan setelah semua fungsi didefinisikan
-  const splash = document.createElement('div');
-  splash.id = 'verifySplash';
-  splash.style.cssText = 'position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;';
-  splash.innerHTML = `
-    <style>
-      @keyframes lev{0%,100%{transform:translateY(0);}50%{transform:translateY(-18px);}}
-      @keyframes shd{0%,100%{transform:scaleX(1);opacity:.22;}50%{transform:scaleX(.6);opacity:.08;}}
-      #verifySplash .sp-logo{animation:lev 2.4s ease-in-out infinite;width:90px;display:block;}
-      #verifySplash .sp-shadow{width:72px;height:9px;background:rgba(0,0,0,.3);border-radius:50%;margin-top:8px;animation:shd 2.4s ease-in-out infinite;}
-      #verifySplash .sp-text{margin-top:22px;font-size:13px;color:rgba(255,255,255,.6);font-family:'Plus Jakarta Sans',system-ui,sans-serif;font-weight:500;}
-    </style>
-    <img class="sp-logo"
-      src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png"
-      alt="MB"
-      onerror="this.src='data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 60 60%22><circle cx=%2230%22 cy=%2230%22 r=%2230%22 fill=%22rgba(255,255,255,0.15)%22/><text x=%2230%22 y=%2238%22 text-anchor=%22middle%22 font-size=%2222%22>📋</text></svg>'">
-    <div class="sp-shadow"></div>
-    <div class="sp-text">Memeriksa keaslian invoice…</div>
-  `;
-  document.body.appendChild(splash);
-
-  const _no = decodeURIComponent(_invVerify).trim();
-  let _done = false;
-
-  function _showResult() {
-    if (_done) return;
-    _done = true;
-    // Animasi fade-out splash
-    splash.style.transition = 'opacity .4s';
-    splash.style.opacity = '0';
-    setTimeout(() => { splash.remove(); openInvVerifyPopup(_no, '', ''); }, 400);
-  }
-
-  function _tryVerify(attempt) {
-    if (_done) return;
-    if (invoices.length > 0) {
-      _showResult();
-    } else if (attempt >= 24) {
-      _showResult(); // timeout ~12 detik
+async function runInvVerification(no) {
+  const overlay = document.getElementById('invVerifyOverlay');
+  const card    = document.getElementById('invVerifyCard');
+  overlay.classList.add('show');
+  try {
+    // Query langsung ke GAS — tidak bergantung array invoices
+    let found = null;
+    if (hasGasUrl()) {
+      const data = await fetchJsonSmart(`${GAS_URL}?action=getInvoices&t=${Date.now()}`);
+      const list = data.invoices || [];
+      found = list.find(i => (i.invoice_number||'').trim() === no.trim()) || null;
     } else {
-      setTimeout(() => _tryVerify(attempt + 1), 500);
+      found = invoices.find(i => (i.invoice_number||'').trim() === no.trim()) || null;
     }
+
+    if (found) {
+      // Cek cache signature_mode
+      let sigMode = found.signature_mode || '';
+      if (!sigMode) {
+        try {
+          const c = JSON.parse(localStorage.getItem('mrkz_inv_sig')||'{}');
+          sigMode = c[found.invoice_number] === 'digital' ? 'digital' : '';
+        } catch(e) {}
+      }
+      const sigBlock = sigMode === 'digital' ? `
+        <div class="verify-sig-block" style="text-align:left;background:#EAF4FF;border-radius:14px;padding:14px 16px;font-size:13px;margin-top:10px;">
+          <div style="display:flex;align-items:center;gap:6px;color:#1B6CA8;font-size:11.5px;font-weight:700;margin-bottom:8px;">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Ditandatangani Digital
+          </div>
+          <div class="verify-row"><span>Ditandatangani Oleh</span><span>${escHtml(found.created_by||'—')}</span></div>
+          <div class="verify-row"><span>ID</span><span style="font-family:monospace;">${buildInvSignId({invNum:found.invoice_number,creator:found.created_by,invDate:found.created_date})}</span></div>
+        </div>` : '';
+      card.innerHTML = `
+        <div class="verify-icon ok"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+        <div class="verify-title">Invoice Terverifikasi</div>
+        <div class="verify-sub">Data cocok dengan catatan resmi Markaz Belajar</div>
+        <div class="verify-rows">
+          <div class="verify-row"><span>No. Invoice</span><span>${escHtml(found.invoice_number)}</span></div>
+          <div class="verify-row"><span>Tanggal</span><span>${fmtShort(found.created_date)}</span></div>
+          <div class="verify-row"><span>Tagihan Kepada</span><span>${escHtml(found.student_parent||found.student_name||'—')}</span></div>
+          <div class="verify-row"><span>Nama Siswa</span><span>${escHtml(found.student_name||'—')}</span></div>
+          <div class="verify-row"><span>Total</span><span>${rp(found.amount)}</span></div>
+          <div class="verify-row"><span>Status</span><span style="color:${found.payment_status==='paid'?'#2E9E5B':'#F59F00'}">${found.payment_status==='paid'?'✓ Lunas':'Belum Lunas'}</span></div>
+          <div class="verify-row"><span>Dibuat Oleh</span><span>${escHtml(found.created_by||'—')}</span></div>
+        </div>
+        ${sigBlock}
+        <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>`;
+    } else {
+      card.innerHTML = `
+        <div class="verify-icon fail"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></div>
+        <div class="verify-title">Tidak Ditemukan</div>
+        <div class="verify-sub">No. invoice <strong>${escHtml(no)}</strong> tidak cocok dengan catatan sistem.</div>
+        <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>`;
+    }
+  } catch(e) {
+    card.innerHTML = `
+      <div class="verify-icon fail"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></div>
+      <div class="verify-title">Gagal Memeriksa</div>
+      <div class="verify-sub">${escHtml(e.message)}</div>
+      <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>`;
   }
-
-  // Tunggu init() selesai sync, lalu tampilkan hasil
-  init().then(() => _showResult()).catch(() => _tryVerify(0));
-})();
-
-// Untuk URL normal (bukan verify) — jalankan init() seperti biasa
-if (!new URLSearchParams(window.location.search).get('inv_verify')) {
-  init();
 }
+
+document.addEventListener('DOMContentLoaded', () => {
+  init();
+  const qs = new URLSearchParams(window.location.search);
+  const invVerify = qs.get('inv_verify');
+  if (invVerify) {
+    runInvVerification(decodeURIComponent(invVerify).trim());
+  }
+});
 </script>
 
 <!-- ══ NOTIF PERMISSION POPUP DIALOG ══ -->
@@ -3549,6 +3496,16 @@ if (!new URLSearchParams(window.location.search).get('inv_verify')) {
     </button>
     <p class="reminder-hint">Paste gambar di chat WA setelah pesan terkirim</p>
     <button onclick="closeReminderSheet()" style="width:100%;margin-top:10px;padding:10px;border:none;background:none;color:var(--text3);font-family:inherit;font-size:13px;cursor:pointer;">Tutup</button>
+  </div>
+</div>
+<!-- OVERLAY VERIFIKASI INVOICE (dipicu via ?inv_verify=NO_INVOICE dari scan QR) -->
+<div id="invVerifyOverlay" class="inv-verify-overlay">
+  <div class="inv-verify-wrap">
+    <img class="inv-verify-logo" src="https://raw.githubusercontent.com/markaz-belajar/invoice-mb/main/Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.style.display='none';">
+    <div class="inv-verify-card" id="invVerifyCard">
+      <div class="verify-spinner"></div>
+      <div style="margin-top:14px;color:#4A6070;font-size:13px;">Memeriksa keaslian invoice…</div>
+    </div>
   </div>
 </div>
 </body>
