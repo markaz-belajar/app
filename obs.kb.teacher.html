@@ -228,6 +228,58 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .sync-banner.ok { background: var(--green-light); color: #166534; border: 1px solid #86efac; }
 .sync-banner button { margin-left: 8px; background: var(--blue); color: #fff; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit; }
 
+/* ══ MODE FOKUS: 1 soal full layar, swipe kiri/kanan ala kartu ══ */
+.qtopbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.qexit-x { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; }
+.qexit-x svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+.qtopbar .qdots-row { flex: 1; margin-bottom: 0; }
+.qtop-spacer { width: 32px; flex-shrink: 0; }
+#checklist { position: relative; }
+.qcard { position: relative; z-index: 1; touch-action: pan-y; user-select: none; -webkit-user-select: none; will-change: transform; transform-origin: 50% 100%; animation: none; }
+.qcard.enter { animation: qcardPop 0.28s cubic-bezier(.2,.8,.3,1); }
+@keyframes qcardPop { from { opacity: 0; transform: scale(0.93) translateY(10px); } to { opacity: 1; transform: none; } }
+.qcard.shake { animation: qshake 0.35s ease; }
+@keyframes qshake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+.qstamp { position: absolute; top: 14px; font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; padding: 5px 10px; border-radius: 8px; border: 2px solid; opacity: 0; pointer-events: none; background: rgba(255,255,255,0.9); }
+.qstamp.next { right: 14px; color: var(--blue); border-color: var(--blue); transform: rotate(6deg); }
+.qstamp.prev { left: 14px; color: var(--gray); border-color: var(--gray); transform: rotate(-6deg); }
+.qstamp.block { left: 50%; top: 46%; margin-left: -70px; width: 140px; text-align: center; color: var(--amber); border-color: var(--amber); background: var(--amber-light); }
+.qswipe-hint { text-align: center; font-size: 11.5px; color: var(--text-3); padding: 2px 0 4px; display: none; }
+.qfreq { font-size: 11px; color: var(--text-3); text-align: center; line-height: 1.5; margin-top: 12px; }
+.qfinish { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.qfinish-ico { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--green-light); }
+.qfinish-ico.warn { background: var(--amber-light); }
+.qfinish-ico svg { width: 30px; height: 30px; stroke: var(--green); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.qfinish-ico.warn svg { stroke: var(--amber); }
+.qfinish h3 { font-size: 18px; color: var(--text); }
+.qfinish p { font-size: 13px; color: var(--text-2); line-height: 1.6; max-width: 280px; }
+.qfinish .btn { margin-top: 8px; max-width: 280px; }
+
+html.focus-mode, html.focus-mode body { height: 100%; overflow: hidden; }
+html.focus-mode .header { padding: 10px 16px 10px; }
+html.focus-mode .header-sub { display: none; }
+html.focus-mode .header-bar { margin-top: 8px; }
+html.focus-mode .qscale-legend { display: none !important; }
+/* Soal menutupi seluruh halaman (form data siswa ada di belakangnya) */
+html.focus-mode #qform-wrap { position: fixed; left: 0; right: 0; bottom: 0; top: var(--hh, 64px); z-index: 90; background: var(--bg); display: flex !important; flex-direction: column; padding: 12px max(16px, calc((100% - 640px) / 2)) 10px; animation: qOverlayIn .3s cubic-bezier(.2,.8,.3,1); }
+@keyframes qOverlayIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+/* Layar awal: tombol tahap tampil di atas, tanpa perlu scroll */
+#stage-picker-section { display: flex; flex-direction: column; }
+#stage-picker-section .stage-grid { order: 1; margin-top: 2px; }
+#stage-picker-section .notice { order: 2; font-size: 12px; padding: 10px 12px; line-height: 1.55; }
+.field-error { border-color: var(--amber) !important; box-shadow: 0 0 0 3px rgba(217,119,6,0.18) !important; animation: qshake .35s ease; }
+html.focus-mode #checklist { flex: 1; min-height: 0; padding-bottom: 6px; }
+html.focus-mode #checklist::before { content: ''; position: absolute; left: 14px; right: 14px; bottom: 0; height: 60%; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); opacity: .7; z-index: 0; }
+html.focus-mode #checklist.is-finish::before { display: none; }
+html.focus-mode .qcard { height: calc(100% - 10px); margin-bottom: 0; padding: 22px 18px 18px; display: flex; flex-direction: column; overflow-y: auto; box-shadow: 0 10px 28px -12px rgba(5,90,150,0.28); }
+html.focus-mode .qcard-text { font-size: 21px; line-height: 1.45; margin-bottom: 14px; }
+html.focus-mode .qcard-note { font-size: 13.5px; }
+html.focus-mode .opts { margin-top: auto; }
+html.focus-mode .opt-btn { padding: 18px 4px; }
+html.focus-mode .opt-num { font-size: 22px; }
+html.focus-mode .opt-lbl { font-size: 11px; }
+html.focus-mode .qswipe-hint { display: block; }
+
 @media print {
   .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .domain-head { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -308,27 +360,21 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
   </div>
 
   <div id="qform-wrap" style="display:none;">
-    <button class="qexit" onclick="backToPicker()">
-      <svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"/></svg>
-      Kembali ke pilihan tahap
-    </button>
+    <div class="qtopbar">
+      <button class="qexit-x" onclick="backToPicker()" aria-label="Keluar ke pilihan tahap" title="Keluar (jawaban tersimpan otomatis)">
+        <svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <div class="qdots-row" id="qdots-row"></div>
+      <span class="qtop-spacer"></span>
+    </div>
     <div class="qscale-legend">
       <span>0 Jarang<small>0–1 dari 4 pertemuan</small></span>
       <span>1 Kadang<small>≈2 dari 4 pertemuan</small></span>
       <span>2 Sering<small>≈3 dari 4 pertemuan</small></span>
       <span>3 Selalu<small>4 dari 4 / lebih</small></span>
     </div>
-    <div class="qdots-row" id="qdots-row"></div>
     <div id="checklist"></div>
-    <div class="qnav-row">
-      <button class="btn btn-gray qnav-btn-prev" id="q-prev-btn" onclick="qGo(-1)" title="Soal sebelumnya">
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><polyline points="15 18 9 12 15 6"/></svg>
-      </button>
-      <button class="btn btn-primary" id="q-next-btn" onclick="qGo(1)" style="flex:1;">
-        Lanjut
-        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>
-      </button>
-    </div>
+    <div class="qswipe-hint">‹ geser kanan: kembali &nbsp;·&nbsp; geser kiri: lanjut ›</div>
   </div>
 
   <div class="actions" id="form-actions" style="display:none;"></div>
@@ -556,7 +602,7 @@ function build(stage) {
   const firstUnanswered = flatQuestionsKB.findIndex(q => answers[q.key] === undefined);
   qIndex = firstUnanswered === -1 ? 0 : firstUnanswered;
   renderDots();
-  renderQuestionCard(qIndex);
+  renderQuestionCard(qIndex, true);
   updateProgress();
 }
 
@@ -570,62 +616,166 @@ function renderDots() {
   }).join("");
 }
 
-function renderQuestionCard(i) {
+// ── Kartu soal bergaya swipe (geser kiri = lanjut, geser kanan = kembali) ──
+let qBusy = false, qDrag = null, qSuppressClick = false;
+const FREQ_HINT = "Jarang 0–1 · Kadang ≈2 · Sering ≈3 · Selalu 4 dari 4 pertemuan";
+
+function setFocus(on) {
+  const h = document.querySelector(".header");
+  if(on && h) document.documentElement.style.setProperty("--hh", h.offsetHeight + "px");
+  document.documentElement.classList.toggle("focus-mode", !!on);
+  if(on && h) requestAnimationFrame(() => document.documentElement.style.setProperty("--hh", h.offsetHeight + "px"));
+}
+
+function qCanForward(i) {
+  const q = flatQuestionsKB[i];
+  return !!q && answers[q.key] !== undefined;
+}
+
+function renderQuestionCard(i, animate) {
+  const wrap = document.getElementById("checklist");
+  const total = flatQuestionsKB.length;
+  // Kartu penutup (setelah soal terakhir)
+  if(i >= total) {
+    const missing = flatQuestionsKB.filter(q => answers[q.key] === undefined);
+    const ok = missing.length === 0;
+    wrap.classList.add("is-finish");
+    wrap.innerHTML = `
+      <div class="qcard qfinish${animate?' enter':''}">
+        <div class="qfinish-ico ${ok?'':'warn'}"><svg viewBox="0 0 24 24">${ok?'<polyline points="20 6 9 17 4 12"/>':'<circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}</svg></div>
+        <h3>${ok ? 'Semua soal sudah terisi' : 'Masih ada soal yang kosong'}</h3>
+        <p>${ok ? 'Periksa lagi kalau perlu (geser kanan untuk kembali), lalu simpan tahap ini.' : `${missing.length} soal belum dijawab. Lengkapi dulu sebelum menyimpan.`}</p>
+        <button type="button" class="btn ${ok?'btn-primary':'btn-gray'}" style="${ok?'background:var(--green);':''}" onclick="${ok?'handleSubmit()':'jumpQuestion('+flatQuestionsKB.indexOf(missing[0])+')'}">${ok ? 'Simpan Tahap Ini' : 'Ke soal yang belum diisi'}</button>
+      </div>`;
+    return;
+  }
+  wrap.classList.remove("is-finish");
   const q = flatQuestionsKB[i];
   if(!q) return;
   const checked = answers[q.key];
   const dateNote = answerDates[q.key] ? `<div class="qcard-date"><span class="item-date-badge">📅 diisi ${fmtDateShort(answerDates[q.key])}</span></div>` : "";
-  const html = `
-    <div class="qcard">
+  const labels = ["Jarang","Kadang","Sering","Selalu"];
+  wrap.innerHTML = `
+    <div class="qcard${animate?' enter':''}">
+      <div class="qstamp prev">‹ Kembali</div>
+      <div class="qstamp next">Lanjut ›</div>
+      <div class="qstamp block">Pilih jawaban dulu</div>
       <div class="qcard-top">
         <div class="qcard-domain-pill" style="background:${q.color}">${ICONS[q.icon]}${q.domainLabel}</div>
-        <div class="qcard-counter">Soal ${i+1} / ${flatQuestionsKB.length}</div>
+        <div class="qcard-counter">Soal ${i+1} / ${total}</div>
       </div>
       <div class="qcard-text">${q.item.text}</div>
       <div class="qcard-note">${q.item.note}</div>
-      <div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${q.key}" value="${v}" ${checked===v?"checked":""} onchange="setAns('${q.key}',${v},'${q.domain}',${i})"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-lbl">${["Jarang","Kadang","Sering","Selalu"][v]}</span></div></label>`).join("")}</div>
+      <div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${q.key}" value="${v}" ${checked===v?"checked":""} onchange="setAns('${q.key}',${v},'${q.domain}',${i})"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-lbl">${labels[v]}</span></div></label>`).join("")}</div>
+      <div class="qfreq">${FREQ_HINT}</div>
       ${dateNote}
     </div>`;
-  document.getElementById("checklist").innerHTML = html;
-  updateNavButtons(i);
 }
 
-function updateNavButtons(i) {
-  const prevBtn = document.getElementById("q-prev-btn");
-  const nextBtn = document.getElementById("q-next-btn");
-  prevBtn.disabled = (i === 0);
-  const isLast = i === flatQuestionsKB.length - 1;
-  const allAnswered = flatQuestionsKB.every(q => answers[q.key] !== undefined);
-  if(isLast && allAnswered) {
-    nextBtn.innerHTML = `<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg> Simpan Tahap Ini`;
-    nextBtn.onclick = handleSubmit;
-    nextBtn.style.background = "var(--green)";
-  } else if(isLast) {
-    nextBtn.innerHTML = `Lengkapi dulu`;
-    nextBtn.onclick = () => qGo(1);
-    nextBtn.style.background = "var(--gray)";
-  } else {
-    nextBtn.innerHTML = `Lanjut <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg>`;
-    nextBtn.onclick = () => qGo(1);
-    nextBtn.style.background = "var(--blue)";
-  }
+function qCurrentCard() { return document.querySelector("#checklist .qcard"); }
+
+function qShake() {
+  const c = qCurrentCard();
+  if(!c) return;
+  c.classList.remove("shake"); void c.offsetWidth; c.classList.add("shake");
+  setTimeout(() => c.classList.remove("shake"), 380);
 }
 
+// dir = 1 → kartu terbang ke kiri (soal berikutnya); dir = -1 → terbang ke kanan (soal sebelumnya)
 function qGo(dir) {
+  if(qBusy) return;
   const next = qIndex + dir;
-  if(next < 0) return;
-  if(next >= flatQuestionsKB.length) { handleSubmit(); return; }
-  qIndex = next;
-  renderDots();
-  renderQuestionCard(qIndex);
+  if(next < 0 || next > flatQuestionsKB.length) return;
+  if(dir === 1 && qIndex < flatQuestionsKB.length && !qCanForward(qIndex)) { qShake(); return; }
+  if(qIndex >= flatQuestionsKB.length && dir === 1) return;
+  qBusy = true;
+  const card = qCurrentCard();
+  if(card) {
+    const W = Math.max(window.innerWidth, 400);
+    card.style.transition = "transform .28s ease-in, opacity .28s ease-in";
+    card.style.transform = `translateX(${-dir * W}px) rotate(${-dir * 20}deg)`;
+    card.style.opacity = "0";
+  }
+  setTimeout(() => {
+    qIndex = next;
+    renderDots();
+    renderQuestionCard(qIndex, true);
+    qBusy = false;
+  }, card ? 250 : 0);
 }
 
 function jumpQuestion(i) {
   if(i < 0 || i >= flatQuestionsKB.length) return;
   qIndex = i;
   renderDots();
-  renderQuestionCard(qIndex);
+  renderQuestionCard(qIndex, true);
 }
+
+function updateNavButtons() { /* tombol lanjut/kembali dihapus — navigasi via swipe */ }
+
+(function initSwipe() {
+  const wrap = document.getElementById("checklist");
+  wrap.addEventListener("pointerdown", e => {
+    if(qBusy || e.button > 0) return;
+    const card = e.target.closest(".qcard");
+    if(!card || e.target.closest(".qfinish .btn")) return;
+    qDrag = { x: e.clientX, y: e.clientY, t: Date.now(), id: e.pointerId, card, dragging: false, dx: 0 };
+  });
+  wrap.addEventListener("pointermove", e => {
+    if(!qDrag || e.pointerId !== qDrag.id) return;
+    const dx = e.clientX - qDrag.x, dy = e.clientY - qDrag.y;
+    if(!qDrag.dragging) {
+      if(Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        qDrag.dragging = true;
+        try { qDrag.card.setPointerCapture(e.pointerId); } catch(_) {}
+        qDrag.card.style.transition = "none";
+        qDrag.card.classList.remove("enter");
+        qDrag.card.style.animation = "none";
+      } else if(Math.abs(dy) > 10) { qDrag = null; return; }
+      else return;
+    }
+    const total = flatQuestionsKB.length;
+    const blockedFwd = dx < 0 && (qIndex >= total || !qCanForward(qIndex));
+    const blockedBack = dx > 0 && qIndex === 0;
+    const eff = (blockedFwd || blockedBack) ? dx * 0.3 : dx;
+    qDrag.dx = dx;
+    qDrag.blocked = blockedFwd || blockedBack;
+    qDrag.card.style.transform = `translateX(${eff}px) rotate(${eff / 18}deg)`;
+    const p = Math.min(Math.abs(dx) / 110, 1);
+    const sNext = qDrag.card.querySelector(".qstamp.next"), sPrev = qDrag.card.querySelector(".qstamp.prev"), sBlock = qDrag.card.querySelector(".qstamp.block");
+    if(sNext) sNext.style.opacity = (dx < 0 && !blockedFwd) ? p : 0;
+    if(sPrev) sPrev.style.opacity = (dx > 0 && !blockedBack) ? p : 0;
+    if(sBlock) sBlock.style.opacity = (dx < 0 && blockedFwd && qIndex < total) ? p : 0;
+  });
+  const end = e => {
+    if(!qDrag || e.pointerId !== qDrag.id) return;
+    const d = qDrag; qDrag = null;
+    if(!d.dragging) return;
+    qSuppressClick = true; setTimeout(() => { qSuppressClick = false; }, 60);
+    const dt = Math.max(Date.now() - d.t, 1);
+    const fast = Math.abs(d.dx) / dt > 0.5 && Math.abs(d.dx) > 40;
+    const pass = !d.blocked && (Math.abs(d.dx) > 100 || fast);
+    if(pass) {
+      // lanjutkan animasi dari posisi sekarang
+      d.card.style.transition = "";
+      qGo(d.dx < 0 ? 1 : -1);
+    } else {
+      d.card.style.transition = "transform .28s cubic-bezier(.2,.9,.3,1.2)";
+      d.card.style.transform = "translateX(0) rotate(0deg)";
+      d.card.querySelectorAll(".qstamp").forEach(s => s.style.opacity = 0);
+      if(d.blocked && d.dx < 0 && qIndex < flatQuestionsKB.length) setTimeout(qShake, 120);
+    }
+  };
+  wrap.addEventListener("pointerup", end);
+  wrap.addEventListener("pointercancel", end);
+  wrap.addEventListener("click", e => { if(qSuppressClick) { e.preventDefault(); e.stopPropagation(); } }, true);
+  document.addEventListener("keydown", e => {
+    if(!document.documentElement.classList.contains("focus-mode")) return;
+    if(e.target && /INPUT|SELECT|TEXTAREA/.test(e.target.tagName) && e.target.type !== "radio") return;
+    if(e.key === "ArrowLeft") qGo(-1);
+    else if(e.key === "ArrowRight") qGo(1);
+  });
+})();
 
 function setAns(key, val, domain, i) {
   if(isReadOnly) return;
@@ -635,11 +785,8 @@ function setAns(key, val, domain, i) {
   updateProgress();
   renderDots();
   scheduleAutosave();
-  updateNavButtons(i);
-  const isLast = i === flatQuestionsKB.length - 1;
-  if(!isLast) {
-    qAutoAdvanceTimer = setTimeout(() => { if(qIndex === i) qGo(1); }, 450);
-  }
+  // Setelah menjawab, kartu otomatis terbang ke kiri (lanjut)
+  qAutoAdvanceTimer = setTimeout(() => { if(qIndex === i && !qBusy) qGo(1); }, 380);
 }
 
 function updateProgress() {
@@ -727,8 +874,14 @@ function setBadgeState(el, stageData) {
   else { el.textContent = "Belum diisi"; el.className = "stage-card-badge pending"; }
 }
 
-function pickStage(stage) {
+function pickStage(stage, fromUrl) {
   if(isReadOnly) return;
+  if(!fromUrl && !document.getElementById("f-nama").value.trim()) {
+    const n = document.getElementById("f-nama");
+    n.classList.add("field-error"); n.focus(); window.scrollTo({top:0, behavior:"smooth"});
+    setTimeout(() => n.classList.remove("field-error"), 1500);
+    return;
+  }
   const tahap1Done = record.tahap1 && record.tahap1.status === 'selesai';
   if(stage === 2 && !tahap1Done && !serverLoadFailed) {
     const nama = document.getElementById("f-nama").value.trim();
@@ -758,11 +911,14 @@ function pickStage(stage) {
   document.getElementById("done-panel").classList.remove("show");
   document.getElementById("result-parent").classList.remove("show");
   build(stage);
-  window.scrollTo({top:0, behavior:"smooth"});
+  setFocus(true);
+  window.scrollTo({top:0});
 }
 
 function backToPicker() {
   currentStage = null;
+  clearTimeout(qAutoAdvanceTimer);
+  setFocus(false);
   document.getElementById("stage-picker-section").style.display = "block";
   document.getElementById("fill-notice").style.display = "none";
   document.getElementById("qform-wrap").style.display = "none";
@@ -841,7 +997,7 @@ function handleSubmit() {
     return;
   }
   const nama = document.getElementById("f-nama").value.trim();
-  if(!nama) { alert("Isi nama siswa dulu sebelum menyimpan."); return; }
+  if(!nama) { setFocus(false); window.scrollTo({top:0}); alert("Isi nama siswa dulu sebelum menyimpan."); return; }
 
   clearTimeout(autosaveTimer);
   setAutosaveIndicator("idle");
@@ -862,6 +1018,7 @@ function handleSubmit() {
     syncStage(currentStage);
   }
 
+  setFocus(false);
   document.getElementById("fill-notice").style.display = "none";
   document.getElementById("qform-wrap").style.display = "none";
 
@@ -1206,7 +1363,7 @@ async function loadFromURLParams() {
       } else if(failed) {
         showSyncBanner('⚠️ Server sedang lambat — memakai data tersimpan di perangkat ini. <button onclick="location.reload()">Muat ulang</button>', 'warn');
       }
-      pickStage(stageParam);
+      pickStage(stageParam, true);
     }
 
     const pending = [1, 2].filter(st => unsynced[st] && record['tahap' + st]);
