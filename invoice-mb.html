@@ -45,6 +45,7 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 .hdr-greeting-card p{font-size:12px;color:#8FA4B4;margin-top:2px;}
 .hdr-greeting-badge{background:#E8F4FD;color:#1B6CA8;font-size:11px;font-weight:600;padding:5px 12px;border-radius:50px;white-space:nowrap;}
 .hdr-greeting-badge.live{background:#E6F7EE;color:#2E9E5B;}
+.hdr-greeting-badge.warn{background:#FFF4DB;color:#B97800;}
 .hdr-topbar{position:absolute;top:0;left:0;right:0;z-index:6000;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
 .hdr-topbar-left{display:flex;align-items:center;gap:8px;}
 
@@ -63,7 +64,7 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 /* NAV TABS */
 .nav-tabs{padding:12px 14px 10px;background:var(--hdr-bg);transition:background .3s;}
 .tab-bar-pill{background:rgba(255,255,255,0.18);border-radius:50px;padding:4px;display:flex;gap:2px;border:1.5px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px);}
-.nav-tab{flex:1;padding:9px 0;border:none;background:transparent;border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.65);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;}
+.nav-tab{flex:1;padding:9px 0;border:none;background:transparent;border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.65);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:5px;transition:all .2s;}
 .nav-tab:hover{color:#fff;background:rgba(255,255,255,0.1);}
 .nav-tab.active{background:#fff;color:#1B6CA8;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
 .notif-dot{width:7px;height:7px;background:var(--danger);border-radius:50%;display:none;flex-shrink:0;}
@@ -71,11 +72,11 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 
 /* LAYOUT */
 .wrap{max-width:1200px;margin:0 auto;padding:16px 14px 16px;}
-/* ── Tab Slider ── */
+/* ── Tab Slider (3 pane) ── */
 .tab-slider-outer{overflow:hidden;width:100%;position:relative;}
-.tab-slider-track{display:flex;width:200%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.tab-slider-track{display:flex;width:300%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
 .tab-slider-track.no-transition{transition:none!important;}
-.tab-slider-pane{width:50%;flex-shrink:0;min-width:0;padding:0;overflow-x:hidden;}
+.tab-slider-pane{width:33.3333%;flex-shrink:0;min-width:0;padding:0;overflow-x:hidden;}
 
 /* SECTION */
 .sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:background .3s,border-color .3s;}
@@ -312,6 +313,7 @@ textarea{resize:vertical;min-height:80px;}
 [data-theme="dark"] .hdr-greeting-card p{color:var(--text3);}
 [data-theme="dark"] .hdr-greeting-badge{background:var(--accent-dim);color:var(--accent);}
 [data-theme="dark"] .hdr-greeting-badge.live{background:var(--success-dim);color:var(--success);}
+[data-theme="dark"] .hdr-greeting-badge.warn{background:var(--warning-dim);color:var(--warning);}
 [data-theme="dark"] input,[data-theme="dark"] select,[data-theme="dark"] textarea{background:var(--surface2);border-color:var(--border);color:var(--text);}
 [data-theme="dark"] .date-btn{background:var(--surface2);border-color:var(--border);color:var(--text);}
 [data-theme="dark"] .cal-popup{background:var(--surface);border-color:var(--border);}
@@ -411,22 +413,33 @@ textarea{resize:vertical;min-height:80px;}
 .verify-row span:last-child{font-weight:600;text-align:right;}
 .verify-close{margin-top:18px;width:100%;padding:11px;border-radius:10px;background:#1B6CA8;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
 
-/* RENEWAL BANNER */
-.renewal-banner{border-radius:var(--rl);overflow:hidden;margin-bottom:14px;border:1.5px solid rgba(245,159,0,.35);background:linear-gradient(135deg,rgba(245,159,0,.08),rgba(245,159,0,.03));}
-.renewal-banner-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;user-select:none;}
-.renewal-banner-header-left{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--warning);}
-.renewal-banner-body{padding:0 10px 10px;}
-.renewal-item{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;background:var(--surface);border:1px solid var(--border);margin-bottom:6px;transition:background .15s;}
-.renewal-item:last-child{margin-bottom:0;}
-.renewal-item:hover{background:var(--surface2);}
-.renewal-item-info{flex:1;min-width:0;}
-.renewal-item-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
-.renewal-item-sub{font-size:11px;color:var(--text3);margin-top:2px;}
-.renewal-item-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
-.renewal-badge-overdue{background:rgba(220,53,69,.12);color:var(--danger);}
-.renewal-badge-soon{background:rgba(245,159,0,.14);color:var(--warning);}
-.renewal-item-btn{flex-shrink:0;padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
-.renewal-item-btn:hover{opacity:.88;}
+/* ══ TAB TAGIHAN ══ */
+.tg-stats{margin-bottom:14px;padding:10px 8px;background:var(--accent-dim);border-radius:var(--r);border:1.5px solid var(--border2);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;}
+.tg-stat{text-align:center;padding:4px 0;}
+.tg-stat-num{font-size:18px;font-weight:800;line-height:1;font-family:'Baloo 2',sans-serif;}
+.tg-stat-lbl{color:var(--text3);margin-top:2px;font-size:10px;}
+.tg-group-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;margin:14px 0 8px;display:flex;align-items:center;gap:6px;}
+.tg-group-title:first-child{margin-top:0;}
+.tg-group-title.overdue{color:var(--danger);}
+.tg-group-title.month{color:var(--warning);}
+.tg-item{display:flex;align-items:center;gap:8px 10px;flex-wrap:wrap;padding:11px 12px;border-radius:12px;background:var(--surface);border:1px solid var(--border);margin-bottom:8px;transition:background .15s;}
+.tg-item:hover{background:var(--surface2);}
+.tg-item.inactive{opacity:.75;}
+.tg-info{flex:1 1 150px;min-width:0;}
+.tg-name{font-size:13px;font-weight:700;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tg-sub{font-size:11px;color:var(--text3);margin-top:2px;line-height:1.5;}
+.tg-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.tg-badge.overdue{background:rgba(220,53,69,.12);color:var(--danger);}
+.tg-badge.soon{background:rgba(245,159,0,.14);color:var(--warning);}
+.tg-btns{display:flex;gap:6px;align-items:center;margin-left:auto;}
+.tg-btn-main{padding:7px 13px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.tg-btn-main:hover{opacity:.88;}
+.tg-btn-off{padding:7px 10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text2);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer;white-space:nowrap;}
+.tg-btn-off:hover{background:var(--danger-dim);color:var(--danger);border-color:var(--danger);}
+.tg-btn-on{padding:7px 12px;border-radius:8px;border:1px solid var(--success);background:var(--success-dim);color:var(--success);font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.tg-toggle{width:100%;display:flex;align-items:center;justify-content:space-between;padding:10px 12px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;font-family:inherit;color:var(--text2);font-size:12px;font-weight:600;margin-bottom:8px;}
+.tg-note{font-size:11px;color:var(--text3);line-height:1.6;margin-top:12px;text-align:center;}
+.tg-empty{text-align:center;padding:28px 16px;color:var(--text3);font-size:13px;border:1px dashed var(--border2);border-radius:var(--r);line-height:1.7;}
 </style>
 </head>
 <body>
@@ -449,7 +462,7 @@ textarea{resize:vertical;min-height:80px;}
   </div>
 </div>
 
-<div>
+<div><!-- PAGE -->
 <header class="hdr">
   <div class="hdr-topbar">
     <div class="hdr-topbar-left">
@@ -525,6 +538,10 @@ textarea{resize:vertical;min-height:80px;}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Tracking
       <span class="notif-dot" id="trackingDot"></span>
+    </button>
+    <button class="nav-tab" onclick="switchTab('tagihan',this)" id="tagihanTab">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+      Tagihan
       <span class="notif-dot" id="renewalDot" style="background:var(--warning);display:none;"></span>
     </button>
   </div>
@@ -811,18 +828,6 @@ textarea{resize:vertical;min-height:80px;}
       </div>
     </div>
 
-    <!-- Renewal Alert Banner -->
-    <div id="renewalBanner" style="display:none;" class="renewal-banner">
-      <div class="renewal-banner-header" onclick="toggleRenewalBanner()">
-        <div class="renewal-banner-header-left">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-          <span id="renewalBannerTitle">Perlu Renewal Invoice</span>
-        </div>
-        <svg id="renewalChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .25s;"><polyline points="6 9 12 15 18 9"/></svg>
-      </div>
-      <div id="renewalBannerBody" class="renewal-banner-body"></div>
-    </div>
-
     <!-- Stats -->
     <div style="margin-bottom:14px;padding:10px 8px;background:var(--accent-dim);border-radius:var(--r);border:1.5px solid var(--border2);display:grid;grid-template-columns:repeat(5,1fr);gap:4px;">
       <div style="text-align:center;padding:4px 0;"><div style="font-size:16px;font-weight:800;line-height:1;color:var(--text);font-family:'Baloo 2',sans-serif;" id="statTotal">0</div><div style="color:var(--text3);margin-top:2px;font-size:10px;">Total</div></div>
@@ -845,9 +850,43 @@ textarea{resize:vertical;min-height:80px;}
       </table>
     </div>
   </div>
-</div>
+</div></div><!-- /wrap /tab-tracking pane -->
 
-</div><!-- /wrap -->
+<!-- ══ PANE 2: TAGIHAN ══ -->
+<div class="tab-slider-pane" id="tab-tagihan"><div class="wrap">
+  <div class="sec">
+    <div class="sec-title" style="flex-direction:column;align-items:flex-start;gap:8px;margin-bottom:12px;">
+      <span style="display:flex;align-items:center;gap:7px;width:100%;justify-content:space-between;">
+        <span style="display:flex;align-items:center;gap:7px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>
+          <span id="tagihanTitle">Siswa Perlu Ditagih</span>
+        </span>
+      </span>
+      <input type="text" id="tagihanSearch" placeholder="Cari nama siswa..." style="width:100%;padding:7px 10px;font-size:12px;">
+    </div>
+
+    <div class="tg-stats">
+      <div class="tg-stat"><div class="tg-stat-num" style="color:var(--danger);" id="tgStatOverdue">0</div><div class="tg-stat-lbl">Sudah Lewat</div></div>
+      <div class="tg-stat"><div class="tg-stat-num" style="color:var(--warning);" id="tgStatMonth">0</div><div class="tg-stat-lbl">Bulan Ini</div></div>
+      <div class="tg-stat"><div class="tg-stat-num" style="color:var(--text3);" id="tgStatInactive">0</div><div class="tg-stat-lbl">Non-aktif</div></div>
+    </div>
+
+    <div id="tagihanList"></div>
+
+    <div id="tagihanInactiveWrap" style="display:none;margin-top:16px;">
+      <button class="tg-toggle" onclick="toggleInactiveList()">
+        <span id="tagihanInactiveLabel">Siswa non-aktif (0)</span>
+        <svg id="tagihanInactiveChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .25s;"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div id="tagihanInactiveList" style="display:none;"></div>
+    </div>
+
+    <div class="tg-note">Siswa non-aktif akan muncul lagi otomatis jika dibuatkan invoice baru. Daftar non-aktif tersimpan di perangkat ini.</div>
+  </div>
+</div></div><!-- /wrap /tab-tagihan pane -->
+
+</div><!-- /tab-slider-track -->
+</div><!-- /tab-slider-outer -->
 </div><!-- /page -->
 
 <!-- MODAL: KIRIM INVOICE -->
@@ -895,10 +934,7 @@ textarea{resize:vertical;min-height:80px;}
 </button>
     </div>
   </div>
-</div></div><!-- /wrap /tab-tracking pane -->
-
-</div><!-- /tab-slider-track -->
-</div><!-- /tab-slider-outer -->
+</div>
 
 <!-- MODAL: PEMBAYARAN -->
 <div class="modal-overlay" id="paymentModal">
@@ -1054,10 +1090,12 @@ textarea{resize:vertical;min-height:80px;}
   </div>
 </div>
 
+</div><!-- /wrapper -->
+
 <script>
 /* ═══════════════════════════════════════════════════════════
    MARKAZ BELAJAR — Invoice Web App
-   Versi: 2.0 dengan Google Sheets Sync + Browser Push Notification
+   Versi: 2.1 — Google Sheets Sync + Push Notification + Tab Tagihan
 ═══════════════════════════════════════════════════════════ */
 
 /* ── KONFIGURASI ─────────────────────────────────────── */
@@ -1392,7 +1430,7 @@ async function syncFromSheets(isManual = false) {
     setSyncStatus('ok', statusMsg);
     document.getElementById('syncBadge').textContent = `Terakhir sync: ${fmtTime(lastSyncTime)}`;
     renderTracking();
-    renderRenewalBanner();
+    renderTagihan();
     
     // Hitung invCnt dari data aktual
     if (invoices.length > 0) {
@@ -1591,6 +1629,7 @@ async function init(){
   document.getElementById('createdBy').addEventListener('change', ()=>{if(prevOpen)renderPrev();if(currentTTDMode==='digital'){document.getElementById('ttdDigitalName').textContent=document.getElementById('createdBy').value||'—';}});
   document.getElementById('trackingSearch').addEventListener('input', renderTracking);
   document.getElementById('trackingFilter').addEventListener('change', renderTracking);
+  document.getElementById('tagihanSearch').addEventListener('input', renderTagihan);
   document.getElementById('paymentProofUploadInput').addEventListener('change', handlePaymentProofUpload);
   document.getElementById('trackingTab').addEventListener('click', clearTrackingDot);
 
@@ -1659,6 +1698,7 @@ function saveQuickGasUrl(){
 const HDR_TABS={
   create:{title:'Buat Invoice',sub:'Tagihan &amp; pembayaran siswa',badge:'● Aktif'},
   tracking:{title:'Tracking',sub:'Riwayat &amp; status pembayaran',badge:'● Live'},
+  tagihan:{title:'Tagihan',sub:'Siswa yang perlu ditagih bulan ini',badge:'● Bulan Ini'},
 };
 function updateHeaderCard(tabName){
   const d=HDR_TABS[tabName]||HDR_TABS.create;
@@ -1666,12 +1706,14 @@ function updateHeaderCard(tabName){
   const sub=document.getElementById('hdrCardSub');
   const badge=document.getElementById('hdrCardBadge');
   title.style.opacity='0';sub.style.opacity='0';
-  setTimeout(()=>{title.innerHTML=d.title;sub.innerHTML=d.sub;if(badge){badge.textContent=d.badge;badge.className='hdr-greeting-badge'+(tabName==='tracking'?' live':'');}title.style.opacity='1';sub.style.opacity='1';},180);
+  setTimeout(()=>{title.innerHTML=d.title;sub.innerHTML=d.sub;if(badge){badge.textContent=d.badge;badge.className='hdr-greeting-badge'+(tabName==='tracking'?' live':tabName==='tagihan'?' warn':'');}title.style.opacity='1';sub.style.opacity='1';},180);
 }
 /* ═══════════════════════════════════════════════════════
-   TAB SLIDER — real-time drag like native app
+   TAB SLIDER — real-time drag like native app (3 pane)
 ═══════════════════════════════════════════════════════ */
-const TAB_ORDER = ['create','tracking'];
+const TAB_ORDER = ['create','tracking','tagihan'];
+const PANE_PCT  = 100 / TAB_ORDER.length;   // lebar 1 pane dalam % track
+const MAX_OFFSET = PANE_PCT * (TAB_ORDER.length - 1);
 let _curTabIdx = 0;
 
 function _getTrack(){ return document.getElementById('tabSliderTrack'); }
@@ -1688,7 +1730,7 @@ function switchTabById(tabName){
   const track = _getTrack();
   if(track){
     track.classList.remove('no-transition');
-    track.style.transform = `translateX(-${idx * 50}%)`;
+    track.style.transform = `translateX(-${idx * PANE_PCT}%)`;
   }
   // Scroll pane tujuan ke atas
   const pane = document.getElementById('tab-'+tabName);
@@ -1696,7 +1738,7 @@ function switchTabById(tabName){
   window.scrollTo(0, 0);
   // Update nav buttons
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-  const navBtn = document.querySelector(`.nav-tab[onclick*="${tabName}"]`);
+  const navBtn = document.querySelector(`.nav-tab[onclick*="'${tabName}'"]`);
   if(navBtn) navBtn.classList.add('active');
   updateHeaderCard(tabName);
 }
@@ -1710,7 +1752,7 @@ function switchTabById(tabName){
 
   const track = ()=> document.getElementById('tabSliderTrack');
   const outer = ()=> document.getElementById('tabSliderOuter');
-  function baseOffset(){ return _curTabIdx * 50; }
+  function baseOffset(){ return _curTabIdx * PANE_PCT; }
 
   // Cek apakah elemen punya scroll horizontal
   function hasHScrollParent(el){
@@ -1753,11 +1795,11 @@ function switchTabById(tabName){
     if(lockDir !== 'x') return;
 
     const totalW = outer()?.offsetWidth || window.innerWidth;
-    const dragPct = (dx / totalW) * 100;
+    const dragPct = (dx / totalW) * PANE_PCT;
     let offset = baseOffset() - dragPct;
     // Rubber-band resistance di ujung
-    if(offset < 0)  offset = offset * 0.15;
-    if(offset > 50) offset = 50 + (offset-50) * 0.15;
+    if(offset < 0)          offset = offset * 0.15;
+    if(offset > MAX_OFFSET) offset = MAX_OFFSET + (offset - MAX_OFFSET) * 0.15;
     const t = track();
     if(t) t.style.transform = `translateX(-${offset}%)`;
   }, {passive:true});
@@ -1776,14 +1818,14 @@ function switchTabById(tabName){
     if(t) t.classList.remove('no-transition');
 
     const dx       = lastX - startX;
-    const dt       = Date.now() - startTime;
+    const dt       = Math.max(1, Date.now() - startTime);
     const velocity = Math.abs(dx) / dt; // px/ms
     const totalW   = outer()?.offsetWidth || window.innerWidth;
     const pct      = Math.abs(dx) / totalW;
 
     let nextIdx = _curTabIdx;
-    const goRight = dx < 0; // geser kiri = ke tracking
-    const goLeft  = dx > 0; // geser kanan = ke create
+    const goRight = dx < 0; // geser kiri = tab berikutnya
+    const goLeft  = dx > 0; // geser kanan = tab sebelumnya
 
     if((pct > SNAP_PCT || velocity > VEL_SNAP)){
       if(goRight && _curTabIdx < TAB_ORDER.length-1) nextIdx++;
@@ -1791,6 +1833,7 @@ function switchTabById(tabName){
     }
 
     switchTabById(TAB_ORDER[nextIdx]);
+    if(TAB_ORDER[nextIdx]==='tracking') clearTrackingDot();
   }, {passive:true});
 })();
 
@@ -3012,9 +3055,6 @@ function downloadInvoicePDF(invId){
 }
 
 /* ═══════════════════════════════════════════════════════
-   RESET FORM
-═══════════════════════════════════════════════════════ */
-/* ═══════════════════════════════════════════════════════
    DISCOUNT
 ═══════════════════════════════════════════════════════ */
 function setDiscountType(type){
@@ -3261,6 +3301,9 @@ async function removeDiscountPreset(id){
   }catch(e){showToast('Gagal hapus: '+e.message,false);}
 }
 
+/* ═══════════════════════════════════════════════════════
+   RESET FORM
+═══════════════════════════════════════════════════════ */
 function resetForm(){
   student=null;progs=[];regOn=false;prevOpen=false;
   document.getElementById('studentSel').value='';
@@ -3319,6 +3362,7 @@ function fmtShort(s){
   return d.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
 }
 function fmtTime(d){return d.toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'});}
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 
 /* DARK MODE */
 function toggleDark(){
@@ -3357,7 +3401,6 @@ document.addEventListener('click',function(e){
   }
 });
 
-/* RUN */
 /* REMINDER SHEET */
 let _reminderNum='';let _reminderMsg='';
 function showReminderSheet(num,msg){
@@ -3389,161 +3432,257 @@ function openReminderWa(){
   closeReminderSheet();
 }
 
-// ── RENEWAL DETECTION ────────────────────────────────────────────────
-let _renewalOpen = true;
+/* ═══════════════════════════════════════════════════════
+   TAB TAGIHAN — siswa yang perlu ditagih (bulan ini + lewat)
+   Tidak mengubah backend. Daftar non-aktif disimpan di localStorage.
+═══════════════════════════════════════════════════════ */
+const INACTIVE_KEY = 'mrkz_inactive_students';
+let _tagihanView = [];       // daftar aktif yang sedang tampil (untuk akses by index)
+let _tagihanInactive = [];   // daftar non-aktif yang sedang tampil
+let _inactiveOpen = false;
 
-function calcRenewalDue(inv) {
-  // Ambil durasi bulan dari invoice_items (cari item dengan dur terpanjang)
-  let durBulan = 1;
-  const items = inv.invoice_items || [];
-  items.forEach(it => {
-    const d = parseInt(it.dur) || 0;
-    if (d > durBulan) durBulan = d;
-  });
-  // Hitung tanggal jatuh renewal dari created_date + durasi
-  const base = inv.created_date || inv.payment_date || '';
-  if (!base) return null;
-  const d = new Date(base + 'T00:00:00');
-  if (isNaN(d.getTime())) return null;
-  d.setMonth(d.getMonth() + durBulan);
-  return { date: d, durBulan };
+function getInactiveMap(){
+  try{ return JSON.parse(localStorage.getItem(INACTIVE_KEY) || '{}'); }catch(e){ return {}; }
 }
+function setInactiveMap(m){
+  try{ localStorage.setItem(INACTIVE_KEY, JSON.stringify(m)); }catch(e){}
+}
+function studentKeyOf(inv){ return (inv.student_name || '').trim().toLowerCase(); }
 
-function buildRenewalList(allInvoices) {
-  const today = new Date();
-  today.setHours(0,0,0,0);
-  const SOON_DAYS = 14; // warning 14 hari sebelum jatuh tempo renewal
-
-  // Kelompokkan per siswa — ambil invoice terakhir (terbaru) per siswa
-  const byStudent = {};
+// Invoice terbaru per siswa (berdasar tanggal dibuat, lalu nomor invoice)
+function latestInvoicePerStudent(allInvoices){
+  const by = {};
   allInvoices.forEach(inv => {
-    const key = (inv.student_name || '').trim().toLowerCase();
-    if (!key) return;
-    if (!byStudent[key] || (inv.created_date || '') > (byStudent[key].created_date || '')) {
-      byStudent[key] = inv;
-    }
+    const key = studentKeyOf(inv);
+    if(!key) return;
+    const cur = by[key];
+    if(!cur){ by[key] = inv; return; }
+    const a = (inv.created_date || '') + '|' + (inv.invoice_number || '');
+    const b = (cur.created_date || '') + '|' + (cur.invoice_number || '');
+    if(a > b) by[key] = inv;
   });
+  return by;
+}
 
-  const results = [];
-  Object.values(byStudent).forEach(inv => {
+// Hitung tanggal tagihan berikutnya = tanggal invoice terakhir + durasi (bulan)
+function calcRenewalDue(inv){
+  let durBulan = 1;
+  (inv.invoice_items || []).forEach(it => {
+    const d = parseInt(it.dur) || 0;
+    if(d > durBulan) durBulan = d;
+  });
+  const base = inv.created_date || inv.payment_date || '';
+  if(!base) return null;
+  const d = parseDate(base);
+  if(!d || isNaN(d.getTime())) return null;
+  const due = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  due.setMonth(due.getMonth() + durBulan);
+  return { date: due, durBulan };
+}
+
+function buildTagihanLists(allInvoices){
+  const today = new Date(); today.setHours(0,0,0,0);
+  const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const inactiveMap = getInactiveMap();
+  const latest = latestInvoicePerStudent(allInvoices);
+
+  const active = [], inactive = [];
+  Object.keys(latest).forEach(key => {
+    const inv = latest[key];
     const renewal = calcRenewalDue(inv);
-    if (!renewal) return;
-    const diffDays = Math.floor((renewal.date - today) / (1000*60*60*24));
-    // Lewat (renewal sudah seharusnya dibuat) atau akan datang dalam 14 hari
-    if (diffDays <= SOON_DAYS) {
-      results.push({
-        inv,
-        renewalDate: renewal.date,
-        durBulan: renewal.durBulan,
-        diffDays,
-        isOverdue: diffDays < 0
-      });
-    }
+    if(!renewal) return;
+    const diffDays = Math.round((renewal.date - today) / 86400000);
+    const entry = {
+      key, inv,
+      renewalDate: renewal.date,
+      durBulan: renewal.durBulan,
+      diffDays,
+      isOverdue: diffDays < 0
+    };
+    const flag = inactiveMap[key];
+    const isInactive = flag && flag.invId === inv.__backendId;
+    if(isInactive){ inactive.push(entry); return; }
+    if(renewal.date <= endOfMonth) active.push(entry);
   });
 
-  // Sort: paling lewat dulu
-  results.sort((a,b) => a.diffDays - b.diffDays);
-  return results;
+  active.sort((a,b) => a.diffDays - b.diffDays);
+  inactive.sort((a,b) => (a.inv.student_name||'').localeCompare(b.inv.student_name||''));
+  return { active, inactive };
 }
 
-function renderRenewalBanner() {
-  const list = buildRenewalList(invoices);
-  const banner = document.getElementById('renewalBanner');
-  const body   = document.getElementById('renewalBannerBody');
-  const title  = document.getElementById('renewalBannerTitle');
-  const dot    = document.getElementById('renewalDot');
+function tagihanItemHTML(e, idx, mode){
+  const inv = e.inv;
+  const dateStr = e.renewalDate.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+  const unpaid = inv.payment_status !== 'paid'
+    ? ` · <span style="color:var(--danger);font-weight:600;">invoice terakhir belum lunas</span>` : '';
+  const sub = `Jatuh tagihan ${dateStr} · ${e.durBulan} bulan · invoice terakhir ${fmtShort(inv.created_date)}${unpaid}`;
 
-  if (!list.length) {
-    if (banner) banner.style.display = 'none';
-    if (dot) dot.style.display = 'none';
-    return;
+  if(mode === 'inactive'){
+    return `<div class="tg-item inactive">
+      <div class="tg-info">
+        <div class="tg-name">${escHtml(inv.student_name)}</div>
+        <div class="tg-sub">Invoice terakhir ${fmtShort(inv.created_date)} · ${e.durBulan} bulan</div>
+      </div>
+      <div class="tg-btns"><button class="tg-btn-on" onclick="reactivateStudent(${idx})">Aktifkan lagi</button></div>
+    </div>`;
   }
 
-  const overdueCount = list.filter(r => r.isOverdue).length;
-  const soonCount    = list.length - overdueCount;
+  const badge = e.isOverdue
+    ? `<span class="tg-badge overdue">Lewat ${Math.abs(e.diffDays)} hari</span>`
+    : `<span class="tg-badge soon">${e.diffDays === 0 ? 'Hari ini' : e.diffDays + ' hari lagi'}</span>`;
 
-  if (title) {
-    if (overdueCount && soonCount) title.textContent = `${overdueCount} siswa perlu invoice baru · ${soonCount} segera`;
-    else if (overdueCount) title.textContent = `${overdueCount} siswa perlu invoice baru`;
-    else title.textContent = `${soonCount} siswa renewal dalam 14 hari`;
+  return `<div class="tg-item">
+    <div class="tg-info">
+      <div class="tg-name">${escHtml(inv.student_name)}</div>
+      <div class="tg-sub">${sub}</div>
+    </div>
+    ${badge}
+    <div class="tg-btns">
+      <button class="tg-btn-off" onclick="deactivateStudent(${idx})" title="Siswa sudah tidak aktif">Non-aktifkan</button>
+      <button class="tg-btn-main" onclick="prefillRenewalIdx(${idx})">Buat Invoice</button>
+    </div>
+  </div>`;
+}
+
+function renderTagihan(){
+  const listEl = document.getElementById('tagihanList');
+  if(!listEl) return;
+
+  const { active, inactive } = buildTagihanLists(invoices || []);
+  const q = (document.getElementById('tagihanSearch')?.value || '').trim().toLowerCase();
+  const matchQ = e => !q || (e.inv.student_name || '').toLowerCase().includes(q);
+
+  const shownActive = active.filter(matchQ);
+  const shownInactive = inactive.filter(matchQ);
+  _tagihanView = shownActive;
+  _tagihanInactive = shownInactive;
+
+  const overdueAll = active.filter(e => e.isOverdue).length;
+  const monthAll = active.length - overdueAll;
+
+  // Judul + stat + dot di tab
+  const now = new Date();
+  const title = document.getElementById('tagihanTitle');
+  if(title) title.textContent = 'Tagihan ' + MO[now.getMonth()] + ' ' + now.getFullYear();
+  document.getElementById('tgStatOverdue').textContent = overdueAll;
+  document.getElementById('tgStatMonth').textContent = monthAll;
+  document.getElementById('tgStatInactive').textContent = inactive.length;
+  const dot = document.getElementById('renewalDot');
+  if(dot) dot.style.display = active.length ? 'inline-block' : 'none';
+
+  // Daftar aktif
+  if(!invoices || invoices.length === 0){
+    listEl.innerHTML = `<div class="tg-empty">Belum ada data invoice.</div>`;
+  } else if(shownActive.length === 0){
+    listEl.innerHTML = q
+      ? `<div class="tg-empty">Tidak ada siswa dengan nama "${escHtml(q)}" di daftar tagihan.</div>`
+      : `<div class="tg-empty">Tidak ada siswa yang perlu ditagih bulan ini. 🎉</div>`;
+  } else {
+    let html = '';
+    let idx = 0;
+    const overdueList = [], monthList = [];
+    shownActive.forEach((e, i) => (e.isOverdue ? overdueList : monthList).push({e, i}));
+    if(overdueList.length){
+      html += `<div class="tg-group-title overdue">Sudah lewat (${overdueList.length})</div>`;
+      html += overdueList.map(o => tagihanItemHTML(o.e, o.i, 'active')).join('');
+    }
+    if(monthList.length){
+      html += `<div class="tg-group-title month">Bulan ini (${monthList.length})</div>`;
+      html += monthList.map(o => tagihanItemHTML(o.e, o.i, 'active')).join('');
+    }
+    listEl.innerHTML = html;
   }
 
-  if (dot) dot.style.display = 'inline-block';
-  if (banner) banner.style.display = 'block';
-
-  if (body) {
-    body.innerHTML = list.map(r => {
-      const inv = r.inv;
-      const dateStr = r.renewalDate.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
-      const sub = r.isOverdue
-        ? `Renewal ${Math.abs(r.diffDays)} hari lalu · ${r.durBulan} bulan · ${fmtShort(inv.created_date)}`
-        : `Renewal ${dateStr} · ${r.durBulan} bulan · ${fmtShort(inv.created_date)}`;
-      const badge = r.isOverdue
-        ? `<span class="renewal-item-badge renewal-badge-overdue">Lewat ${Math.abs(r.diffDays)} hari</span>`
-        : `<span class="renewal-item-badge renewal-badge-soon">${r.diffDays === 0 ? 'Hari ini' : r.diffDays + ' hari lagi'}</span>`;
-
-      // Encode data untuk prefill form
-      const data = encodeURIComponent(JSON.stringify({
-        name: inv.student_name,
-        parent: inv.student_parent,
-        phone: inv.student_phone,
-        jenjang: inv.student_jenjang,
-        alamat: inv.student_alamat,
-        nomorInduk: inv.student_nomor_induk,
-        studentId: inv.student_id,
-        items: inv.invoice_items
-      }));
-
-      return `<div class="renewal-item">
-        <div class="renewal-item-info">
-          <div class="renewal-item-name">${inv.student_name}</div>
-          <div class="renewal-item-sub">${sub}</div>
-        </div>
-        ${badge}
-        <button class="renewal-item-btn" onclick="prefillRenewal('${data}')">Buat Invoice</button>
-      </div>`;
-    }).join('');
+  // Daftar non-aktif
+  const wrap = document.getElementById('tagihanInactiveWrap');
+  const inactiveList = document.getElementById('tagihanInactiveList');
+  const label = document.getElementById('tagihanInactiveLabel');
+  if(wrap){
+    wrap.style.display = inactive.length ? 'block' : 'none';
+    if(label) label.textContent = `Siswa non-aktif (${inactive.length})`;
+    if(inactiveList){
+      inactiveList.innerHTML = shownInactive.map((e, i) => tagihanItemHTML(e, i, 'inactive')).join('');
+      inactiveList.style.display = _inactiveOpen ? 'block' : 'none';
+    }
   }
 }
 
-function toggleRenewalBanner() {
-  _renewalOpen = !_renewalOpen;
-  const body = document.getElementById('renewalBannerBody');
-  const chevron = document.getElementById('renewalChevron');
-  if (body) body.style.display = _renewalOpen ? 'block' : 'none';
-  if (chevron) chevron.style.transform = _renewalOpen ? '' : 'rotate(-90deg)';
+function toggleInactiveList(){
+  _inactiveOpen = !_inactiveOpen;
+  const list = document.getElementById('tagihanInactiveList');
+  const chev = document.getElementById('tagihanInactiveChevron');
+  if(list) list.style.display = _inactiveOpen ? 'block' : 'none';
+  if(chev) chev.style.transform = _inactiveOpen ? 'rotate(180deg)' : '';
 }
 
-function prefillRenewal(encoded) {
+function deactivateStudent(idx){
+  const e = _tagihanView[idx];
+  if(!e) return;
+  const name = e.inv.student_name;
+  if(!confirm(`Non-aktifkan ${name}?\n\nSiswa disembunyikan dari daftar Tagihan. Jika nanti dibuatkan invoice baru, siswa akan muncul lagi otomatis saat jatuh tagihan berikutnya.`)) return;
+  const m = getInactiveMap();
+  m[e.key] = { invId: e.inv.__backendId, name, at: new Date().toISOString() };
+  setInactiveMap(m);
+  renderTagihan();
+  showToast(`${name} dinonaktifkan.`, true);
+}
+
+function reactivateStudent(idx){
+  const e = _tagihanInactive[idx];
+  if(!e) return;
+  const m = getInactiveMap();
+  delete m[e.key];
+  setInactiveMap(m);
+  renderTagihan();
+  showToast(`${e.inv.student_name} diaktifkan kembali.`, true);
+}
+
+function prefillRenewalIdx(idx){
+  const e = _tagihanView[idx];
+  if(!e) return;
+  const inv = e.inv;
+  prefillRenewal({
+    name: inv.student_name,
+    parent: inv.student_parent,
+    phone: inv.student_phone,
+    jenjang: inv.student_jenjang,
+    alamat: inv.student_alamat,
+    nomorInduk: inv.student_nomor_induk,
+    studentId: inv.student_id,
+    items: inv.invoice_items
+  });
+}
+
+function prefillRenewal(d) {
   try {
-    const d = JSON.parse(decodeURIComponent(encoded));
-    // Switch ke tab Buat Invoice
-    switchTab('create', document.querySelector('.nav-tab[data-tab="create"]') || document.querySelector('.nav-tab'));
+    // Pindah ke tab Buat Invoice
+    switchTabById('create');
     // Tunggu tab aktif, lalu isi form
     setTimeout(() => {
       // Cari siswa di dropdown
       const sel = document.getElementById('studentSel');
-      if (sel && d.studentId) {
-        const opt = [...sel.options].find(o => o.value == d.studentId);
-        if (opt) {
-          sel.value = opt.value;
-          onStudent();
-        } else {
-          // Fallback: mode manual
-          if (!isManualStudent) toggleManualStudent();
-          if (d.name) document.getElementById('manNamaSiswa').value = d.name;
-          if (d.parent) document.getElementById('manNamaOrangtua').value = d.parent;
-          if (d.phone) document.getElementById('manHP').value = d.phone;
-          if (d.jenjang) document.getElementById('manJenjang').value = d.jenjang;
-          if (d.alamat) document.getElementById('manAlamat').value = d.alamat;
-          if (d.nomorInduk) document.getElementById('manNomorInduk').value = d.nomorInduk;
-          updateManualStudent();
-        }
+      const opt = (sel && d.studentId && d.studentId !== 'manual')
+        ? [...sel.options].find(o => o.value == d.studentId) : null;
+      if (opt) {
+        if (isManualStudent) toggleManualStudent();
+        sel.value = opt.value;
+        onStudent();
+      } else {
+        // Fallback: mode manual
+        if (!isManualStudent) toggleManualStudent();
+        document.getElementById('manNamaSiswa').value = d.name || '';
+        document.getElementById('manNamaOrangtua').value = d.parent || '';
+        document.getElementById('manHP').value = d.phone || '';
+        document.getElementById('manJenjang').value = d.jenjang || 'Elementary';
+        document.getElementById('manAlamat').value = d.alamat || '';
+        document.getElementById('manNomorInduk').value = d.nomorInduk || '';
+        updateManualStudent();
       }
       // Prefill program dari invoice sebelumnya
       if (d.items && d.items.length) {
         progs = [];
-        d.items.forEach((it, i) => {
+        d.items.forEach(it => {
+          if ((it.label || '') === 'Biaya Pendaftaran') return; // renewal tidak perlu biaya daftar
           pc++;
           progs.push({
             id: pc,
@@ -3564,9 +3703,7 @@ function prefillRenewal(encoded) {
   }
 }
 
-// ── INIT & VERIFIKASI (persis pola kwt.html) ──────────────────────────
-function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
-
+// ── VERIFIKASI INVOICE (scan QR) ──────────────────────────────────────
 async function runInvVerification(no) {
   const overlay = document.getElementById('invVerifyOverlay');
   const card    = document.getElementById('invVerifyCard');
@@ -3575,7 +3712,9 @@ async function runInvVerification(no) {
     // Query langsung ke GAS — tidak bergantung array invoices
     let found = null;
     if (hasGasUrl()) {
-      const data = await fetchJsonSmart(`${GAS_URL}?action=getInvoices&t=${Date.now()}`);
+      const resp = await fetch(`${GAS_URL}?action=getInvoices&t=${Date.now()}`, { cache: 'no-store' });
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
       const list = data.invoices || [];
       found = list.find(i => (i.invoice_number||'').trim() === no.trim()) || null;
     } else {
@@ -3714,179 +3853,5 @@ document.addEventListener('DOMContentLoaded', () => {
     </div>
   </div>
 </div>
-<!-- ═════════ TAB TAGIHAN — TEMPEL TEPAT SEBELUM </body> ═════════ -->
-<style>
-.tab-slider-track{width:300%!important}
-.tab-slider-pane{width:33.3333%!important}
-#renewalBanner,#renewalDot{display:none!important}
-.nav-tab{font-size:12px}
-.tab-count{display:none;min-width:16px;height:16px;padding:0 4px;border-radius:99px;background:var(--warning);color:#fff;font-size:10px;font-weight:700;line-height:16px;text-align:center}
-.renewal-item{flex-wrap:wrap}
-.tg-chips{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:12px}
-.tg-chip{padding:6px 12px;border-radius:99px;border:1.5px solid var(--border2);background:var(--surface);color:var(--text2);font-family:inherit;font-size:12px;font-weight:600;cursor:pointer}
-.tg-chip.on{background:var(--accent);border-color:var(--accent);color:#fff}
-.tg-off-btn{flex-shrink:0;padding:6px 10px;border-radius:8px;border:1px solid var(--border2);background:transparent;color:var(--text3);font-family:inherit;font-size:11px;font-weight:600;cursor:pointer}
-.tg-off-btn:hover{color:var(--danger);border-color:var(--danger)}
-</style>
-<script>
-(function(){
-  /* ── 1. Pane + tombol tab baru ── */
-  const pane=document.createElement('div');
-  pane.className='tab-slider-pane';pane.id='tab-tagihan';
-  pane.innerHTML=`<div class="wrap">
-    <div class="sec">
-      <div class="sec-title">Perlu Ditagih / Renewal</div>
-      <div id="tgChips" class="tg-chips"></div>
-      <div id="tgList"></div>
-    </div>
-    <div class="sec" id="tgOffWrap" style="display:none;">
-      <div class="sec-title" style="cursor:pointer;margin-bottom:0;" onclick="toggleTgOff()">Siswa Non-aktif (<span id="tgOffCount">0</span>) ▾</div>
-      <div id="tgOffList" style="display:none;margin-top:12px;"></div>
-    </div></div>`;
-  document.getElementById('tabSliderTrack').appendChild(pane);
-
-  const btn=document.createElement('button');
-  btn.className='nav-tab';
-  btn.setAttribute('onclick',"switchTab('tagihan',this)");
-  btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>Tagihan <span class="tab-count" id="tagihanCount"></span>';
-  document.querySelector('.tab-bar-pill').appendChild(btn);
-
-  TAB_ORDER.push('tagihan');
-  HDR_TABS.tagihan={title:'Perlu Ditagih',sub:'Renewal siswa bulan ini &amp; terlambat',badge:'● Renewal'};
-
-  /* ── 2. Slider 3 tab ── */
-  window.switchTabById=function(tabName){
-    const idx=TAB_ORDER.indexOf(tabName);if(idx<0)return;
-    _curTabIdx=idx;
-    const t=document.getElementById('tabSliderTrack');
-    t.classList.remove('no-transition');
-    t.style.transform=`translateX(-${idx*100/TAB_ORDER.length}%)`;
-    window.scrollTo(0,0);
-    document.querySelectorAll('.nav-tab').forEach(b=>b.classList.remove('active'));
-    const nb=document.querySelector(`.nav-tab[onclick*="${tabName}"]`);if(nb)nb.classList.add('active');
-    updateHeaderCard(tabName);
-  };
-
-  // Swipe baru (listener lama dimatikan lewat capture + stopImmediatePropagation)
-  let sx=0,sy=0,lx=0,st=0,drag=false,lock=null;
-  const U=()=>100/TAB_ORDER.length;
-  const trk=()=>document.getElementById('tabSliderTrack');
-  const outW=()=>document.getElementById('tabSliderOuter').offsetWidth||window.innerWidth;
-  function hScroll(el){while(el&&el!==document.body){const o=getComputedStyle(el).overflowX;if((o==='auto'||o==='scroll')&&el.scrollWidth>el.clientWidth+2)return true;el=el.parentElement;}return false;}
-  const opt={capture:true,passive:true};
-  window.addEventListener('touchstart',e=>{
-    e.stopImmediatePropagation();
-    if(document.querySelector('.modal-overlay.open')||document.getElementById('invDialog')){drag=false;return;}
-    sx=lx=e.touches[0].clientX;sy=e.touches[0].clientY;st=Date.now();drag=true;lock=null;
-    trk().classList.add('no-transition');
-  },opt);
-  window.addEventListener('touchmove',e=>{
-    e.stopImmediatePropagation();
-    if(!drag)return;
-    const dx=e.touches[0].clientX-sx,dy=e.touches[0].clientY-sy;lx=e.touches[0].clientX;
-    if(!lock&&(Math.abs(dx)>8||Math.abs(dy)>8))lock=(Math.abs(dy)>Math.abs(dx)||hScroll(e.target))?'y':'x';
-    if(lock!=='x')return;
-    const max=(TAB_ORDER.length-1)*U();
-    let off=_curTabIdx*U()-(dx/(outW()*TAB_ORDER.length))*100;
-    if(off<0)off*=0.15;
-    if(off>max)off=max+(off-max)*0.15;
-    trk().style.transform=`translateX(-${off}%)`;
-  },opt);
-  window.addEventListener('touchend',e=>{
-    e.stopImmediatePropagation();
-    if(!drag)return;drag=false;
-    const t=trk();t.classList.remove('no-transition');
-    if(lock!=='x'){lock=null;t.style.transform=`translateX(-${_curTabIdx*U()}%)`;return;}
-    lock=null;
-    const dx=lx-sx,vel=Math.abs(dx)/Math.max(1,Date.now()-st),pct=Math.abs(dx)/outW();
-    let n=_curTabIdx;
-    if(pct>0.3||vel>0.4){if(dx<0&&n<TAB_ORDER.length-1)n++;else if(dx>0&&n>0)n--;}
-    switchTabById(TAB_ORDER[n]);
-  },opt);
-
-  /* ── 3. Logika tagihan / renewal ── */
-  let filter='all';
-  const dismissed=new Set(JSON.parse(localStorage.getItem('mrkz_tg_off')||'[]'));
-  const isOff=inv=>inv.status==='inactive'||dismissed.has(inv.__backendId);
-
-  window.buildRenewalList=function(all){
-    const today=new Date();today.setHours(0,0,0,0);
-    const by={};
-    all.forEach(inv=>{
-      const k=(inv.student_name||'').trim().toLowerCase();if(!k)return;
-      if(!by[k]||(inv.created_date||'')>(by[k].created_date||''))by[k]=inv;
-    });
-    const res=[];
-    Object.values(by).forEach(inv=>{
-      const r=calcRenewalDue(inv);if(!r)return;
-      const diff=Math.floor((r.date-today)/864e5);
-      const thisMonth=r.date.getMonth()===today.getMonth()&&r.date.getFullYear()===today.getFullYear();
-      const cat=diff<0?'late':(thisMonth?'month':(diff<=14?'soon':null));
-      if(!cat)return;
-      res.push({inv,renewalDate:r.date,durBulan:r.durBulan,diffDays:diff,cat,inactive:isOff(inv)});
-    });
-    return res.sort((a,b)=>a.diffDays-b.diffDays);
-  };
-
-  function item(r,off){
-    const inv=r.inv,a=Math.abs(r.diffDays),id=inv.__backendId;
-    const d=r.renewalDate.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
-    const sub=(r.diffDays<0?`Renewal ${a} hari lalu`:`Renewal ${d}`)+` · ${r.durBulan} bulan · ${fmtShort(inv.created_date)}`;
-    const badge=r.diffDays<0
-      ?`<span class="renewal-item-badge renewal-badge-overdue">Lewat ${a} hari</span>`
-      :`<span class="renewal-item-badge renewal-badge-soon">${r.diffDays===0?'Hari ini':r.diffDays+' hari lagi'}</span>`;
-    const btns=off
-      ?`<button class="renewal-item-btn" style="background:var(--success)" onclick="tgSetActive('${id}',true)">Aktifkan</button>`
-      :`<button class="renewal-item-btn" onclick="tgPrefill('${id}')">Buat Invoice</button><button class="tg-off-btn" onclick="tgSetActive('${id}',false)">Non-aktif</button>`;
-    return `<div class="renewal-item"><div class="renewal-item-info"><div class="renewal-item-name">${inv.student_name}</div><div class="renewal-item-sub">${sub}</div></div>${off?'':badge}${btns}</div>`;
-  }
-
-  window.renderRenewalBanner=function(){
-    const all=buildRenewalList(invoices);
-    const act=all.filter(r=>!r.inactive),off=all.filter(r=>r.inactive);
-    const c={late:0,month:0,soon:0};act.forEach(r=>c[r.cat]++);
-    const cnt=document.getElementById('tagihanCount');
-    cnt.textContent=act.length;cnt.style.display=act.length?'inline-block':'none';
-    const defs=[['all','Semua',act.length],['late','Lewat',c.late],['month','Bulan Ini',c.month],['soon','Segera',c.soon]];
-    document.getElementById('tgChips').innerHTML=defs.map(([k,l,n])=>`<button class="tg-chip${filter===k?' on':''}" onclick="setTgFilter('${k}')">${l} (${n})</button>`).join('');
-    const list=act.filter(r=>filter==='all'||r.cat===filter);
-    document.getElementById('tgList').innerHTML=list.length?list.map(r=>item(r,false)).join(''):'<div class="empty-state">Tidak ada tagihan 🎉</div>';
-    document.getElementById('tgOffWrap').style.display=off.length?'block':'none';
-    document.getElementById('tgOffCount').textContent=off.length;
-    document.getElementById('tgOffList').innerHTML=off.map(r=>item(r,true)).join('');
-  };
-
-  window.setTgFilter=k=>{filter=k;renderRenewalBanner();};
-  window.toggleTgOff=()=>{const e=document.getElementById('tgOffList');e.style.display=e.style.display==='none'?'block':'none';};
-
-  window.tgPrefill=function(id){
-    const inv=invoices.find(i=>i.__backendId===id);if(!inv)return;
-    prefillRenewal(encodeURIComponent(JSON.stringify({
-      name:inv.student_name,parent:inv.student_parent,phone:inv.student_phone,jenjang:inv.student_jenjang,
-      alamat:inv.student_alamat,nomorInduk:inv.student_nomor_induk,studentId:inv.student_id,items:inv.invoice_items
-    })));
-  };
-
-  window.tgSetActive=async function(id,active){
-    const inv=invoices.find(i=>i.__backendId===id);if(!inv)return;
-    if(!active&&!confirm(`Non-aktifkan ${inv.student_name}?\nTidak akan muncul di daftar tagihan sampai dibuatkan invoice baru.`))return;
-    inv.status=active?'created':'inactive';
-    if(active)dismissed.delete(id);else dismissed.add(id);
-    localStorage.setItem('mrkz_tg_off',JSON.stringify([...dismissed]));
-    renderRenewalBanner();
-    try{
-      await updateInvoiceInSheets(id,{status:inv.status},document.getElementById('createdBy').value);
-      showToast(active?'Siswa diaktifkan kembali ✓':'Siswa dinonaktifkan ✓',true);
-    }catch(e){showToast('Hanya tersimpan di perangkat ini: '+e.message,false);}
-  };
-
-  /* ── 4. Perbaikan: fungsi ini dipakai scan QR tapi belum ada ── */
-  window.fetchJsonSmart=async u=>(await fetch(u,{cache:'no-store'})).json();
-
-  if(typeof invoices!=='undefined'&&invoices.length)renderRenewalBanner();
-})();
-</script>
-<!-- ═════════ AKHIR BLOK ═════════ -->
-
 </body>
 </html>
