@@ -219,7 +219,7 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 .view-loading-text { font-size: 14px; color: var(--blue-dark); font-weight: 600; }
 .view-loading-sub { font-size: 12px; color: var(--text-3); }
 /* Tampilan laporan untuk orang tua: tanpa kesan 'form' */
-.view-mode #info-card, .view-mode .progress-pill, .view-mode .header-bar { display: none !important; }
+.view-mode #info-card, .view-mode .progress-pill, .view-mode .header-bar, .view-mode .teacher-only { display: none !important; }
 .sync-banner { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 560px; z-index: 250; font-size: 12.5px; line-height: 1.55; padding: 10px 14px; border-radius: 10px; display: none; box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
 .sync-banner.show { display: block; }
 .sync-banner.info { background: var(--blue-light); color: var(--blue-dark); border: 1px solid var(--blue-mid); }
@@ -240,10 +240,10 @@ body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background
 @keyframes qcardPop { from { opacity: 0; transform: scale(0.93) translateY(10px); } to { opacity: 1; transform: none; } }
 .qcard.shake { animation: qshake 0.35s ease; }
 @keyframes qshake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
-.qstamp { position: absolute; top: 14px; font-size: 12px; font-weight: 800; letter-spacing: .6px; text-transform: uppercase; padding: 5px 10px; border-radius: 8px; border: 2px solid; opacity: 0; pointer-events: none; background: rgba(255,255,255,0.9); }
-.qstamp.next { right: 14px; color: var(--blue); border-color: var(--blue); transform: rotate(6deg); }
-.qstamp.prev { left: 14px; color: var(--gray); border-color: var(--gray); transform: rotate(-6deg); }
-.qstamp.block { left: 50%; top: 46%; margin-left: -70px; width: 140px; text-align: center; color: var(--amber); border-color: var(--amber); background: var(--amber-light); }
+.qstamp { position: absolute; z-index: 5; top: 74px; font-size: 12.5px; font-weight: 700; letter-spacing: .2px; color: #fff; padding: 7px 14px; border-radius: 999px; opacity: 0; pointer-events: none; white-space: nowrap; box-shadow: 0 6px 16px -6px rgba(17,24,39,.45); transition: opacity .12s; }
+.qstamp.next { right: 16px; background: var(--blue); }
+.qstamp.prev { left: 16px; background: var(--gray); }
+.qstamp.block { left: 50%; top: 50%; transform: translate(-50%, -50%); background: #111827; padding: 10px 18px; font-size: 13px; }
 .qswipe-hint { text-align: center; font-size: 11.5px; color: var(--text-3); padding: 2px 0 4px; display: none; }
 .qfreq { font-size: 11px; color: var(--text-3); text-align: center; line-height: 1.5; margin-top: 12px; }
 .qfinish { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
@@ -268,27 +268,42 @@ html.focus-mode #qform-wrap { position: fixed; left: 0; right: 0; bottom: 0; top
 #stage-picker-section .stage-grid { order: 1; margin-top: 2px; }
 #stage-picker-section .notice { order: 2; font-size: 12px; padding: 10px 12px; line-height: 1.55; }
 .field-error { border-color: var(--amber) !important; box-shadow: 0 0 0 3px rgba(217,119,6,0.18) !important; animation: qshake .35s ease; }
-html.focus-mode #checklist { flex: 1; min-height: 0; padding-bottom: 6px; }
-html.focus-mode #checklist::before { content: ''; position: absolute; left: 14px; right: 14px; bottom: 0; height: 60%; background: var(--card); border: 1px solid var(--border); border-radius: var(--r); opacity: .7; z-index: 0; }
-html.focus-mode #checklist.is-finish::before { display: none; }
-html.focus-mode .qcard { height: calc(100% - 10px); margin-bottom: 0; padding: 22px 18px 18px; display: flex; flex-direction: column; overflow-y: auto; box-shadow: 0 10px 28px -12px rgba(5,90,150,0.28); }
-html.focus-mode .qcard-text { font-size: 21px; line-height: 1.45; margin-bottom: 14px; }
-html.focus-mode .qcard-note { font-size: 13.5px; }
+html.focus-mode .qtopbar { display: none; }
+html.focus-mode #qform-wrap { background-color: #e6f0f8; background-image: repeating-linear-gradient(90deg, transparent 0, transparent calc(25% - 1px), rgba(6,134,199,0.09) calc(25% - 1px), rgba(6,134,199,0.09) 25%); }
+html.focus-mode #checklist { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 6px 4px 14px; }
+.qstack { position: relative; width: 100%; max-height: 100%; display: flex; }
+.qghost { position: absolute; inset: 0; background: #fff; border-radius: 28px; z-index: 0; opacity: .9; box-shadow: 0 6px 18px -10px rgba(5,90,150,.25); }
+.qghost.g1 { transform: rotate(-4deg) scale(.97); background: #f1f5f8; }
+.qghost.g2 { transform: rotate(3deg) scale(.985); background: #f7f9fb; }
+.qstack.is-finish .qghost { display: none; }
+html.focus-mode .qcard { flex: 1; min-height: 0; width: 100%; margin: 0; border: none; border-radius: 28px; padding: 22px 22px 22px; display: flex; flex-direction: column; overflow-y: auto; box-shadow: 0 18px 40px -18px rgba(5,90,150,0.35); }
+.qcard-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.qsegs { flex: 1; display: flex; gap: 3px; }
+.qseg { flex: 1; height: 4px; border-radius: 3px; background: #d9dee3; padding: 0; border: none; }
+.qseg.answered { background: var(--blue-mid); }
+.qseg.current { background: var(--blue-dark); }
+.qclose { width: 30px; height: 30px; border-radius: 50%; border: none; background: #b8bcbf; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; cursor: pointer; }
+.qclose svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; }
+.qmono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+.qlabel-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.qlabel-row .qmono { color: var(--text); }
+.qpick { color: #a3a8a6; margin: 4px 0 12px; font-weight: 600; }
+html.focus-mode .qcard-text { font-size: 23px; line-height: 1.35; font-weight: 600; margin-bottom: 14px; letter-spacing: -.2px; }
+html.focus-mode .qcard-note { font-size: 13px; margin-bottom: 18px; }
+html.focus-mode .qpick-wrap { margin-top: 2px; }
 .opt-sub { display: none; }
 .opt-txt { display: contents; }
-html.focus-mode .opts { margin-top: auto; flex: 1; display: flex; flex-direction: column; gap: 10px; min-height: 0; max-height: 380px; }
-html.focus-mode .opt { flex: 1; display: block; min-height: 54px; }
-html.focus-mode .opt-btn { height: 100%; flex-direction: row; justify-content: flex-start; gap: 14px; padding: 0 16px; }
-html.focus-mode .opt-num { font-size: 24px; width: 32px; text-align: center; flex-shrink: 0; }
-html.focus-mode .opt-txt { display: flex; flex-direction: column; align-items: flex-start; gap: 2px; text-align: left; }
-html.focus-mode .opt-lbl { font-size: 16px; font-weight: 700; color: var(--text); text-align: left; }
-html.focus-mode .opt-sub { display: block; font-size: 12px; color: var(--text-2); }
-.opt[data-v="0"] input:checked ~ .opt-btn .opt-sub, .opt[data-v="2"] input:checked ~ .opt-btn .opt-sub, .opt[data-v="3"] input:checked ~ .opt-btn .opt-sub { color: rgba(255,255,255,0.9); }
-.opt[data-v="1"] input:checked ~ .opt-btn .opt-sub { color: var(--blue-dark); }
-html.focus-mode .opt input:checked ~ .opt-btn .opt-lbl { color: inherit; }
-html.focus-mode .opt[data-v="0"] input:checked ~ .opt-btn .opt-lbl, html.focus-mode .opt[data-v="2"] input:checked ~ .opt-btn .opt-lbl, html.focus-mode .opt[data-v="3"] input:checked ~ .opt-btn .opt-lbl { color: #fff; }
-html.focus-mode .opt[data-v="1"] input:checked ~ .opt-btn .opt-lbl { color: var(--blue-dark); }
-html.focus-mode .qswipe-hint { display: block; }
+html.focus-mode .qpick { margin: 0 0 8px; }
+html.focus-mode .opts { display: flex; flex-direction: column; gap: 4px; }
+html.focus-mode .opt { display: block; }
+html.focus-mode .opt-btn, html.focus-mode .opt[data-v] input:checked ~ .opt-btn { flex-direction: row; justify-content: flex-start; align-items: center; gap: 14px; padding: 11px 10px; border: 1.5px solid transparent; border-radius: 14px; background: transparent; }
+html.focus-mode .opt[data-v] input:checked ~ .opt-btn { background: var(--blue-light); border-color: var(--blue-mid); }
+html.focus-mode .opt-num, html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-num { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--text); background: transparent; color: var(--text); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-num { background: var(--blue); border-color: var(--blue); color: #fff; }
+html.focus-mode .opt-txt { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; }
+html.focus-mode .opt-lbl, html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-lbl { font-size: 16px; font-weight: 600; color: var(--text); text-align: left; }
+html.focus-mode .opt-sub, html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-sub { display: block; font-size: 12px; color: var(--text-2); }
+html.focus-mode .qswipe-hint { display: block; padding-bottom: 2px; }
 
 @media print {
   .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -445,6 +460,14 @@ html.focus-mode .qswipe-hint { display: block; }
         <svg viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
         Cetak / Simpan PDF
       </button>
+      <div class="teacher-only" id="teacher-actions" style="margin-top:10px;">
+        <div class="continue-box" id="teacher-continue-box" style="display:none;"></div>
+        <button class="btn btn-gray" id="btn-copy-continue" onclick="copyContinueLink()" style="display:none;margin-bottom:8px;">
+          <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          Salin Link Lanjutan Tahap 2
+        </button>
+        <button class="btn btn-primary" onclick="backToPicker()">Kembali ke Menu Tahap</button>
+      </div>
       <div class="disclaimer" style="margin-top:10px;">ℹ️ Profil ini adalah alat bantu pendampingan belajar internal Markz Belajar, berdasarkan observasi guru selama beberapa pertemuan. Bukan tes bakat, IQ, atau alat diagnosis — kecenderungan anak bisa berubah seiring waktu dan konteks.</div>
     </div>
   </div>
@@ -624,6 +647,8 @@ function renderDots() {
     if(i === qIndex) cls += " current";
     return `<button type="button" class="${cls}" style="${i===qIndex?`background:${q.color}`:''}" onclick="jumpQuestion(${i})" title="Soal ${i+1}"></button>`;
   }).join("");
+  const segs = document.getElementById("qsegs");
+  if(segs) segs.innerHTML = flatQuestionsKB.map((q,i) => `<span class="qseg${answers[q.key]!==undefined?' answered':''}${i===qIndex?' current':''}"></span>`).join("");
 }
 
 // ── Kartu soal bergaya swipe (geser kiri = lanjut, geser kanan = kembali) ──
@@ -650,13 +675,13 @@ function renderQuestionCard(i, animate) {
     const missing = flatQuestionsKB.filter(q => answers[q.key] === undefined);
     const ok = missing.length === 0;
     wrap.classList.add("is-finish");
-    wrap.innerHTML = `
+    wrap.innerHTML = `<div class="qstack is-finish"><div class="qghost g1"></div><div class="qghost g2"></div>
       <div class="qcard qfinish${animate?' enter':''}">
         <div class="qfinish-ico ${ok?'':'warn'}"><svg viewBox="0 0 24 24">${ok?'<polyline points="20 6 9 17 4 12"/>':'<circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}</svg></div>
         <h3>${ok ? 'Semua soal sudah terisi' : 'Masih ada soal yang kosong'}</h3>
         <p>${ok ? 'Periksa lagi kalau perlu (geser kanan untuk kembali), lalu simpan tahap ini.' : `${missing.length} soal belum dijawab. Lengkapi dulu sebelum menyimpan.`}</p>
         <button type="button" class="btn ${ok?'btn-primary':'btn-gray'}" style="${ok?'background:var(--green);':''}" onclick="${ok?'handleSubmit()':'jumpQuestion('+flatQuestionsKB.indexOf(missing[0])+')'}">${ok ? 'Simpan Tahap Ini' : 'Ke soal yang belum diisi'}</button>
-      </div>`;
+      </div></div>`;
     return;
   }
   wrap.classList.remove("is-finish");
@@ -665,20 +690,29 @@ function renderQuestionCard(i, animate) {
   const checked = answers[q.key];
   const dateNote = answerDates[q.key] ? `<div class="qcard-date"><span class="item-date-badge">📅 diisi ${fmtDateShort(answerDates[q.key])}</span></div>` : "";
   const labels = ["Jarang","Kadang","Sering","Selalu"];
-  wrap.innerHTML = `
+  const num = String(i+1).padStart(2,"0");
+  wrap.innerHTML = `<div class="qstack"><div class="qghost g1"></div><div class="qghost g2"></div>
     <div class="qcard${animate?' enter':''}">
       <div class="qstamp prev">‹ Kembali</div>
       <div class="qstamp next">Lanjut ›</div>
       <div class="qstamp block">Pilih jawaban dulu</div>
-      <div class="qcard-top">
+      <div class="qcard-head">
+        <div class="qsegs" id="qsegs"></div>
+        <button type="button" class="qclose" onclick="backToPicker()" aria-label="Keluar"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+      </div>
+      <div class="qlabel-row">
+        <div class="qmono">Soal ${num} / ${total}</div>
         <div class="qcard-domain-pill" style="background:${q.color}">${ICONS[q.icon]}${q.domainLabel}</div>
-        <div class="qcard-counter">Soal ${i+1} / ${total}</div>
       </div>
       <div class="qcard-text">${q.item.text}</div>
       <div class="qcard-note">${q.item.note}</div>
-      <div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${q.key}" value="${v}" ${checked===v?"checked":""} onchange="setAns('${q.key}',${v},'${q.domain}',${i})"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-txt"><span class="opt-lbl">${labels[v]}</span><span class="opt-sub">${SUBS[v]}</span></span></div></label>`).join("")}</div>
+      <div class="qpick-wrap">
+        <div class="qmono qpick">Pilih satu</div>
+        <div class="opts">${[0,1,2,3].map(v=>`<label class="opt" data-v="${v}"><input type="radio" name="${q.key}" value="${v}" ${checked===v?"checked":""} onchange="setAns('${q.key}',${v},'${q.domain}',${i})"><div class="opt-btn"><span class="opt-num">${v}</span><span class="opt-txt"><span class="opt-lbl">${labels[v]}</span><span class="opt-sub">${SUBS[v]}</span></span></div></label>`).join("")}</div>
+      </div>
       ${dateNote}
-    </div>`;
+    </div></div>`;
+  renderDots();
 }
 
 function qCurrentCard() { return document.querySelector("#checklist .qcard"); }
@@ -1037,27 +1071,9 @@ function handleSubmit() {
 
 // ── TAHAP 1 SELESAI (ringkasan sementara) ──
 function showStage1Done() {
-  const wrap = document.getElementById("mini-bars");
-  wrap.innerHTML = "";
-  ITEMS.forEach(d => {
-    const sum = [0,1,2].reduce((s,idx)=>s+(record.tahap1.answers[`${d.domain}_${idx}`]||0),0);
-    const pct = Math.round((sum/9)*100);
-    const row = document.createElement("div");
-    row.className = "mini-bar-row";
-    row.innerHTML = `<div class="mini-bar-label">${DOMAIN_META[d.domain].label}</div><div class="mini-bar-track"><div class="mini-bar-fill" style="width:${pct}%;background:${levelColor(pct)}"></div></div><div class="mini-bar-val">${pct}%</div>`;
-    wrap.appendChild(row);
-  });
-  document.getElementById("done-panel").classList.add("show");
-  const continueBox = document.querySelector("#done-panel .continue-box");
-  const continueBtn = document.querySelector("#done-panel button[onclick='copyContinueLink()']");
-  if(onlineMode) {
-    if(continueBox) continueBox.innerHTML = "✅ Data tersimpan ke server Markz Belajar. Tahap 2 bisa dibuka dari perangkat mana pun lewat dashboard, tidak perlu link tambahan.";
-    if(continueBtn) continueBtn.style.display = "none";
-  } else {
-    if(continueBox) continueBox.innerHTML = "💾 Data tersimpan otomatis di perangkat ini. Kalau mau lanjutkan Tahap 2 dari perangkat lain, simpan link lanjutan ini dulu:";
-    if(continueBtn) continueBtn.style.display = "flex";
-  }
-  window.scrollTo({top:0, behavior:"smooth"});
+  // Setelah Tahap 1 selesai, langsung tampilkan laporan (bisa dikirim ke orang tua)
+  document.getElementById("done-panel").classList.remove("show");
+  showCombinedReport();
 }
 
 function copyContinueLink() {
@@ -1171,51 +1187,79 @@ function buildCombinedProfile() {
   const parentNote = document.getElementById("parent-note-box");
   if(hasT1 && hasT2) {
     singleNote.style.display = "none";
+    document.getElementById("teacher-continue-box").style.display = "none";
+    document.getElementById("btn-copy-continue").style.display = "none";
     caption.textContent = "Berikut perbandingan Tahap 1 vs Tahap 2 di tiap area, untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.";
     sub.textContent = "Evaluasi gabungan Tahap 1 & Tahap 2 — observasi guru di Markz Belajar";
     parentNote.innerHTML = `💬 Laporan ini membandingkan dua titik observasi guru dari waktu ke waktu, dan akan menjadi bahan diskusi bersama Ayah/Bunda agar pendampingan belajar si kecil makin sesuai dengan caranya sendiri.`;
   } else {
     singleNote.style.display = "block";
-    caption.textContent = "Berikut profil sementara si kecil di tiap area, berdasarkan satu tahap observasi. Semakin tinggi bar, semakin menonjol kecenderungan tersebut.";
-    sub.textContent = "Berdasarkan observasi guru selama sesi bimbel di Markz Belajar";
+    singleNote.innerHTML = "ℹ️ Ini <strong>hasil awal (Tahap 1)</strong>. Observasi akan <strong>dilanjutkan ke Tahap 2</strong> setelah ±4 pertemuan berikutnya, untuk melihat konsistensi dan perkembangan si kecil dari waktu ke waktu.";
+    caption.textContent = "Berikut profil sementara si kecil di tiap area, berdasarkan satu tahap observasi. Semakin tinggi bintang menjulur ke suatu area, semakin menonjol kecenderungan tersebut — bukan penilaian baik/buruk.";
+    sub.textContent = "Hasil awal (Tahap 1) — observasi guru di Markz Belajar";
+    parentNote.innerHTML = "💬 Hasil ini adalah gambaran awal. Setelah beberapa pertemuan berikutnya, guru akan melakukan observasi lanjutan (Tahap 2) untuk melihat perkembangan si kecil, lalu Ayah/Bunda akan menerima laporan perbandingan Tahap 1 &amp; 2.";
+    const cbox = document.getElementById("teacher-continue-box"), cbtn = document.getElementById("btn-copy-continue");
+    cbox.style.display = "block";
+    if(onlineMode) { cbox.innerHTML = "✅ Data tersimpan ke server Markz Belajar. Tahap 2 bisa dibuka dari perangkat mana pun lewat dashboard, tidak perlu link tambahan."; cbtn.style.display = "none"; }
+    else { cbox.innerHTML = "💾 Data tersimpan otomatis di perangkat ini. Kalau mau lanjutkan Tahap 2 dari perangkat lain, simpan link lanjutan ini dulu:"; cbtn.style.display = "flex"; }
   }
 }
 
 // ── RADAR / SPIDER CHART (inline SVG, tanpa library eksternal) ──
 function buildRadarSVG(items) {
   const n = items.length;
-  const cx = 190, cy = 165, maxR = 78, labelR = maxR + 34;
-  const angleStep = 360 / n;
-  const startAngle = -90;
-  function pt(radius, i) {
-    const ang = (startAngle + i * angleStep) * Math.PI / 180;
-    return { x: cx + radius * Math.cos(ang), y: cy + radius * Math.sin(ang) };
+  const cx = 190, cy = 172, maxR = 82, labelR = maxR + 50;
+  const step = 360 / n;
+  function pol(radius, deg) {
+    const a = (deg - 90) * Math.PI / 180;
+    return { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) };
   }
-  let gridHtml = "";
-  [0.25, 0.5, 0.75, 1].forEach(f => {
-    const pts = items.map((_, i) => { const p = pt(maxR * f, i); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
-    gridHtml += `<polygon points="${pts}" fill="none" stroke="#eef1f5" stroke-width="1"/>`;
+  const rad = items.map(it => maxR * (Math.max(it.pct, 8) / 100));
+  // Bentuk bintang: puncak di tiap sumbu (nilai area), lembah di antara dua sumbu
+  const pts = [];
+  items.forEach((it, i) => {
+    pts.push(pol(rad[i], i * step));
+    const valley = 0.38 * (rad[i] + rad[(i + 1) % n]) / 2;
+    pts.push(pol(valley, i * step + step / 2));
   });
-  let axisHtml = "";
-  items.forEach((_, i) => { const p = pt(maxR, i); axisHtml += `<line x1="${cx}" y1="${cy}" x2="${p.x.toFixed(1)}" y2="${p.y.toFixed(1)}" stroke="#eef1f5" stroke-width="1"/>`; });
-  const dataPts = items.map((it, i) => { const p = pt(maxR * (Math.max(it.pct,3) / 100), i); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
-  const dataPoly = `<polygon points="${dataPts}" fill="#0686c71c" stroke="#0686c7" stroke-width="1.75"/>`;
-  let dotsHtml = "";
-  items.forEach((it, i) => { const p = pt(maxR * (Math.max(it.pct,3) / 100), i); dotsHtml += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3" fill="#fff" stroke="${it.color}" stroke-width="2"/>`; });
+  // Kurva halus tertutup (Catmull-Rom → Bezier)
+  const m = pts.length;
+  let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
+  for (let i = 0; i < m; i++) {
+    const p0 = pts[(i - 1 + m) % m], p1 = pts[i], p2 = pts[(i + 1) % m], p3 = pts[(i + 2) % m];
+    const c1 = { x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6 };
+    const c2 = { x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6 };
+    d += ` C${c1.x.toFixed(1)},${c1.y.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  }
+  d += " Z";
+
+  const avg = Math.round(items.reduce((s, it) => s + it.pct, 0) / n);
+  const defs = `<defs>
+    <radialGradient id="starGrad" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#34d399"/><stop offset="45%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#6366f1"/>
+    </radialGradient>
+    <filter id="starGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs>`;
+  const rings = `<circle cx="${cx}" cy="${cy}" r="${maxR}" fill="none" stroke="#e2e8f0" stroke-width="1" stroke-dasharray="3 4"/>
+    <circle cx="${cx}" cy="${cy}" r="${(maxR/2).toFixed(1)}" fill="none" stroke="#eef2f6" stroke-width="1" stroke-dasharray="3 4"/>`;
+  const star = `<path d="${d}" fill="url(#starGrad)" opacity=".55" filter="url(#starGlow)"/>
+    <path d="${d}" fill="url(#starGrad)" fill-opacity=".92" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>`;
+  let dots = "";
+  items.forEach((it, i) => { const p = pts[i * 2]; dots += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="${it.color}" stroke="#fff" stroke-width="2"/>`; });
+  const center = `<text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" stroke="#055a96" stroke-opacity=".45" stroke-width="3" paint-order="stroke" font-family="Segoe UI, sans-serif">${avg}</text>
+    <text x="${cx}" y="${cy + 20}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff" stroke="#055a96" stroke-opacity=".45" stroke-width="2.5" paint-order="stroke" font-family="Segoe UI, sans-serif">/100 rata-rata</text>`;
 
   let labelHtml = "";
   items.forEach((it, i) => {
-    const p = pt(labelR, i);
-    let anchor = "middle";
-    if (p.x < cx - 8) anchor = "end"; else if (p.x > cx + 8) anchor = "start";
-    const iconY = p.y - 17;
+    const p = pol(labelR, i * step);
+    const iconY = p.y - 18;
     const iconSvg = it.icon ? ICONS[it.icon] : "";
-    labelHtml += `<circle cx="${p.x.toFixed(1)}" cy="${iconY.toFixed(1)}" r="12.5" fill="${it.color}"/>`;
+    labelHtml += `<circle cx="${p.x.toFixed(1)}" cy="${iconY.toFixed(1)}" r="13" fill="${it.color}"/>`;
     labelHtml += `<g transform="translate(${(p.x-8).toFixed(1)}, ${(iconY-8).toFixed(1)})">${iconSvg}</g>`;
-    labelHtml += `<text x="${p.x.toFixed(1)}" y="${p.y.toFixed(1)}" text-anchor="${anchor}" font-size="12" font-weight="700" fill="#374151" font-family="Segoe UI, sans-serif">${it.short}</text>`;
-    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+15).toFixed(1)}" text-anchor="${anchor}" font-size="11.5" font-weight="700" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563" font-family="Segoe UI, sans-serif">${it.short}</text>`;
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+23).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
   });
-  return `<svg viewBox="0 0 380 340" style="width:100%;max-width:340px;overflow:visible;">${gridHtml}${axisHtml}${dataPoly}${dotsHtml}${labelHtml}</svg>`;
+  return `<svg viewBox="0 0 380 350" style="width:100%;max-width:360px;overflow:visible;">${defs}${rings}${star}${dots}${center}${labelHtml}</svg>`;
 }
 
 function showCombinedReport() {
