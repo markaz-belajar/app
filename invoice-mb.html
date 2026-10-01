@@ -410,6 +410,23 @@ textarea{resize:vertical;min-height:80px;}
 .verify-row span:first-child{color:#8FA4B4;font-size:11.5px;}
 .verify-row span:last-child{font-weight:600;text-align:right;}
 .verify-close{margin-top:18px;width:100%;padding:11px;border-radius:10px;background:#1B6CA8;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+
+/* RENEWAL BANNER */
+.renewal-banner{border-radius:var(--rl);overflow:hidden;margin-bottom:14px;border:1.5px solid rgba(245,159,0,.35);background:linear-gradient(135deg,rgba(245,159,0,.08),rgba(245,159,0,.03));}
+.renewal-banner-header{display:flex;align-items:center;justify-content:space-between;padding:11px 14px;cursor:pointer;user-select:none;}
+.renewal-banner-header-left{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--warning);}
+.renewal-banner-body{padding:0 10px 10px;}
+.renewal-item{display:flex;align-items:center;gap:10px;padding:10px 8px;border-radius:10px;background:var(--surface);border:1px solid var(--border);margin-bottom:6px;transition:background .15s;}
+.renewal-item:last-child{margin-bottom:0;}
+.renewal-item:hover{background:var(--surface2);}
+.renewal-item-info{flex:1;min-width:0;}
+.renewal-item-name{font-size:13px;font-weight:700;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.renewal-item-sub{font-size:11px;color:var(--text3);margin-top:2px;}
+.renewal-item-badge{font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;flex-shrink:0;}
+.renewal-badge-overdue{background:rgba(220,53,69,.12);color:var(--danger);}
+.renewal-badge-soon{background:rgba(245,159,0,.14);color:var(--warning);}
+.renewal-item-btn{flex-shrink:0;padding:6px 12px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:inherit;font-size:11px;font-weight:700;cursor:pointer;white-space:nowrap;}
+.renewal-item-btn:hover{opacity:.88;}
 </style>
 </head>
 <body>
@@ -508,6 +525,7 @@ textarea{resize:vertical;min-height:80px;}
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
       Tracking
       <span class="notif-dot" id="trackingDot"></span>
+      <span class="notif-dot" id="renewalDot" style="background:var(--warning);display:none;"></span>
     </button>
   </div>
 </div>
@@ -791,6 +809,18 @@ textarea{resize:vertical;min-height:80px;}
           <option value="overdue">Lewat Tempo</option>
         </select>
       </div>
+    </div>
+
+    <!-- Renewal Alert Banner -->
+    <div id="renewalBanner" style="display:none;" class="renewal-banner">
+      <div class="renewal-banner-header" onclick="toggleRenewalBanner()">
+        <div class="renewal-banner-header-left">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <span id="renewalBannerTitle">Perlu Renewal Invoice</span>
+        </div>
+        <svg id="renewalChevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="transition:transform .25s;"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div id="renewalBannerBody" class="renewal-banner-body"></div>
     </div>
 
     <!-- Stats -->
@@ -1362,6 +1392,7 @@ async function syncFromSheets(isManual = false) {
     setSyncStatus('ok', statusMsg);
     document.getElementById('syncBadge').textContent = `Terakhir sync: ${fmtTime(lastSyncTime)}`;
     renderTracking();
+    renderRenewalBanner();
     
     // Hitung invCnt dari data aktual
     if (invoices.length > 0) {
@@ -3356,6 +3387,181 @@ async function copyReminderImg(){
 function openReminderWa(){
   window.open(`https://wa.me/${_reminderNum}?text=${encodeURIComponent(_reminderMsg)}`,'_blank');
   closeReminderSheet();
+}
+
+// ── RENEWAL DETECTION ────────────────────────────────────────────────
+let _renewalOpen = true;
+
+function calcRenewalDue(inv) {
+  // Ambil durasi bulan dari invoice_items (cari item dengan dur terpanjang)
+  let durBulan = 1;
+  const items = inv.invoice_items || [];
+  items.forEach(it => {
+    const d = parseInt(it.dur) || 0;
+    if (d > durBulan) durBulan = d;
+  });
+  // Hitung tanggal jatuh renewal dari created_date + durasi
+  const base = inv.created_date || inv.payment_date || '';
+  if (!base) return null;
+  const d = new Date(base + 'T00:00:00');
+  if (isNaN(d.getTime())) return null;
+  d.setMonth(d.getMonth() + durBulan);
+  return { date: d, durBulan };
+}
+
+function buildRenewalList(allInvoices) {
+  const today = new Date();
+  today.setHours(0,0,0,0);
+  const SOON_DAYS = 14; // warning 14 hari sebelum jatuh tempo renewal
+
+  // Kelompokkan per siswa — ambil invoice terakhir (terbaru) per siswa
+  const byStudent = {};
+  allInvoices.forEach(inv => {
+    const key = (inv.student_name || '').trim().toLowerCase();
+    if (!key) return;
+    if (!byStudent[key] || (inv.created_date || '') > (byStudent[key].created_date || '')) {
+      byStudent[key] = inv;
+    }
+  });
+
+  const results = [];
+  Object.values(byStudent).forEach(inv => {
+    const renewal = calcRenewalDue(inv);
+    if (!renewal) return;
+    const diffDays = Math.floor((renewal.date - today) / (1000*60*60*24));
+    // Lewat (renewal sudah seharusnya dibuat) atau akan datang dalam 14 hari
+    if (diffDays <= SOON_DAYS) {
+      results.push({
+        inv,
+        renewalDate: renewal.date,
+        durBulan: renewal.durBulan,
+        diffDays,
+        isOverdue: diffDays < 0
+      });
+    }
+  });
+
+  // Sort: paling lewat dulu
+  results.sort((a,b) => a.diffDays - b.diffDays);
+  return results;
+}
+
+function renderRenewalBanner() {
+  const list = buildRenewalList(invoices);
+  const banner = document.getElementById('renewalBanner');
+  const body   = document.getElementById('renewalBannerBody');
+  const title  = document.getElementById('renewalBannerTitle');
+  const dot    = document.getElementById('renewalDot');
+
+  if (!list.length) {
+    if (banner) banner.style.display = 'none';
+    if (dot) dot.style.display = 'none';
+    return;
+  }
+
+  const overdueCount = list.filter(r => r.isOverdue).length;
+  const soonCount    = list.length - overdueCount;
+
+  if (title) {
+    if (overdueCount && soonCount) title.textContent = `${overdueCount} siswa perlu invoice baru · ${soonCount} segera`;
+    else if (overdueCount) title.textContent = `${overdueCount} siswa perlu invoice baru`;
+    else title.textContent = `${soonCount} siswa renewal dalam 14 hari`;
+  }
+
+  if (dot) dot.style.display = 'inline-block';
+  if (banner) banner.style.display = 'block';
+
+  if (body) {
+    body.innerHTML = list.map(r => {
+      const inv = r.inv;
+      const dateStr = r.renewalDate.toLocaleDateString('id-ID',{day:'numeric',month:'short',year:'numeric'});
+      const sub = r.isOverdue
+        ? `Renewal ${Math.abs(r.diffDays)} hari lalu · ${r.durBulan} bulan · ${fmtShort(inv.created_date)}`
+        : `Renewal ${dateStr} · ${r.durBulan} bulan · ${fmtShort(inv.created_date)}`;
+      const badge = r.isOverdue
+        ? `<span class="renewal-item-badge renewal-badge-overdue">Lewat ${Math.abs(r.diffDays)} hari</span>`
+        : `<span class="renewal-item-badge renewal-badge-soon">${r.diffDays === 0 ? 'Hari ini' : r.diffDays + ' hari lagi'}</span>`;
+
+      // Encode data untuk prefill form
+      const data = encodeURIComponent(JSON.stringify({
+        name: inv.student_name,
+        parent: inv.student_parent,
+        phone: inv.student_phone,
+        jenjang: inv.student_jenjang,
+        alamat: inv.student_alamat,
+        nomorInduk: inv.student_nomor_induk,
+        studentId: inv.student_id,
+        items: inv.invoice_items
+      }));
+
+      return `<div class="renewal-item">
+        <div class="renewal-item-info">
+          <div class="renewal-item-name">${inv.student_name}</div>
+          <div class="renewal-item-sub">${sub}</div>
+        </div>
+        ${badge}
+        <button class="renewal-item-btn" onclick="prefillRenewal('${data}')">Buat Invoice</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function toggleRenewalBanner() {
+  _renewalOpen = !_renewalOpen;
+  const body = document.getElementById('renewalBannerBody');
+  const chevron = document.getElementById('renewalChevron');
+  if (body) body.style.display = _renewalOpen ? 'block' : 'none';
+  if (chevron) chevron.style.transform = _renewalOpen ? '' : 'rotate(-90deg)';
+}
+
+function prefillRenewal(encoded) {
+  try {
+    const d = JSON.parse(decodeURIComponent(encoded));
+    // Switch ke tab Buat Invoice
+    switchTab('create', document.querySelector('.nav-tab[data-tab="create"]') || document.querySelector('.nav-tab'));
+    // Tunggu tab aktif, lalu isi form
+    setTimeout(() => {
+      // Cari siswa di dropdown
+      const sel = document.getElementById('studentSel');
+      if (sel && d.studentId) {
+        const opt = [...sel.options].find(o => o.value == d.studentId);
+        if (opt) {
+          sel.value = opt.value;
+          onStudent();
+        } else {
+          // Fallback: mode manual
+          if (!isManualStudent) toggleManualStudent();
+          if (d.name) document.getElementById('manNamaSiswa').value = d.name;
+          if (d.parent) document.getElementById('manNamaOrangtua').value = d.parent;
+          if (d.phone) document.getElementById('manHP').value = d.phone;
+          if (d.jenjang) document.getElementById('manJenjang').value = d.jenjang;
+          if (d.alamat) document.getElementById('manAlamat').value = d.alamat;
+          if (d.nomorInduk) document.getElementById('manNomorInduk').value = d.nomorInduk;
+          updateManualStudent();
+        }
+      }
+      // Prefill program dari invoice sebelumnya
+      if (d.items && d.items.length) {
+        progs = [];
+        d.items.forEach((it, i) => {
+          pc++;
+          progs.push({
+            id: pc,
+            prog: it.label || 'Program',
+            type: it.type && it.type !== '—' ? it.type : 'Reguler',
+            dur: parseInt(it.dur) || 1,
+            manualPrice: it.price || null,
+            useManualPrice: true
+          });
+        });
+        renderProgList();
+      }
+      if (prevOpen) renderPrev();
+      showToast(`Form diisi dari data ${d.name} ✓`, true);
+    }, 350);
+  } catch(e) {
+    showToast('Gagal prefill: ' + e.message, false);
+  }
 }
 
 // ── INIT & VERIFIKASI (persis pola kwt.html) ──────────────────────────
