@@ -305,6 +305,87 @@ html.focus-mode .opt-lbl, html.focus-mode .opt[data-v] input:checked ~ .opt-btn 
 html.focus-mode .opt-sub, html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-sub { display: block; font-size: 12px; color: var(--text-2); }
 html.focus-mode .qswipe-hint { display: block; padding-bottom: 2px; }
 
+/* ── Kartu pengantar laporan untuk orang tua ── */
+.parent-intro { padding: 16px 16px 4px; background: var(--bg); }
+.pcard { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.pcard-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pcard-ico { width: 34px; height: 34px; border-radius: 10px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.pcard h3 { font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.pcard p { font-size: 13.5px; color: var(--text-2); line-height: 1.75; }
+.pcard p + p { margin-top: 8px; }
+.pcard p strong { color: var(--text); }
+.pcard.greet { background: linear-gradient(160deg, var(--blue-light), #fff 75%); border-color: var(--blue-mid); }
+.pcard.greet .salam { font-size: 15px; font-weight: 700; color: var(--blue-dark); margin-bottom: 8px; }
+.pcard.greet .child-name { display: inline-block; font-size: 17px; font-weight: 800; color: var(--blue); }
+.mrow { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); }
+.mrow:first-of-type { border-top: none; padding-top: 4px; }
+.mrow-n { width: 22px; height: 22px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.mrow-t { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+.mrow-t b { color: var(--text); }
+.mdomains { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.mdomain { font-size: 12.5px; color: var(--text-2); line-height: 1.55; padding-left: 12px; position: relative; }
+.mdomain::before { content: ''; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--c, var(--blue)); }
+.mdomain b { color: var(--text); }
+.mnote { margin-top: 6px; background: var(--amber-light); border: 1px solid #fcd34d; border-radius: 10px; padding: 10px 12px; font-size: 12.5px; color: #92400e; line-height: 1.65; }
+
+/* ── Deck kartu pengantar (geser kiri/kanan) ── */
+.intro-stage { background: linear-gradient(180deg, #0b2a4a, #12385f); padding: 22px 20px 16px; }
+#intro-deck { position: relative; width: 100%; max-width: 380px; margin: 0 auto; height: clamp(400px, 64vh, 500px); }
+.istack { position: relative; width: 100%; height: 100%; }
+.ighost { position: absolute; inset: 0; border-radius: 30px; }
+.ighost.g1 { background: #6fa8d6; transform: rotate(5deg) translate(10px, 6px); }
+.ighost.g2 { background: #8cbfe4; transform: rotate(-3deg) translate(-6px, 4px); }
+.icard { position: absolute; inset: 0; z-index: 1; background: #fdf9f2; border: 6px solid #9ccbe9; border-radius: 30px; padding: 26px 22px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none; transform-origin: 50% 100%; overflow: hidden; box-shadow: 0 16px 32px -14px rgba(0,0,0,.5); }
+.icard.enter { animation: qcardPop 0.28s cubic-bezier(.2,.8,.3,1); }
+.icard.shake { animation: qshake 0.35s ease; }
+.iicon { width: 58px; height: 58px; color: #055a96; flex-shrink: 0; margin-bottom: 8px; }
+.iicon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.ititle { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+.ibody { flex: 1; min-height: 0; overflow-y: auto; width: 100%; font-size: 13.5px; color: #374151; line-height: 1.7; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.ibody b, .ibody strong { color: #111827; }
+.ibody .iname { font-size: 20px; font-weight: 800; color: var(--blue-dark); line-height: 1.3; }
+.ibody .isalam { font-size: 15.5px; font-weight: 700; color: #111827; line-height: 1.5; }
+.idomains { text-align: left; display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
+.idomain { font-size: 12.5px; line-height: 1.5; padding-left: 14px; position: relative; color: #4b5563; }
+.idomain::before { content: ''; position: absolute; left: 0; top: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.idomain b { color: #111827; }
+.inum { margin-top: 10px; font-size: 17px; font-weight: 800; color: #0b2a4a; letter-spacing: .5px; flex-shrink: 0; }
+.inum span { font-size: 11px; font-weight: 600; color: #9ca3af; margin-left: 2px; }
+.igo { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #fff; background: var(--blue); border: none; border-radius: 20px; padding: 8px 16px; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+.igo svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.idk-dots { display: flex; justify-content: center; gap: 6px; margin-top: 20px; }
+.idk-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.28); transition: all .2s; }
+.idk-dots i.on { background: #fff; width: 20px; border-radius: 4px; }
+.idk-hint { text-align: center; font-size: 11.5px; color: rgba(255,255,255,.55); margin-top: 8px; }
+
+/* ── Overlay kartu pengantar: 1 layar penuh, tanpa scroll, minimalis ── */
+html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
+.intro-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: radial-gradient(120% 90% at 50% 0%, #17476f 0%, #0b2a4a 60%, #081d35 100%); flex-direction: column; align-items: center; justify-content: center; padding: 18px 22px max(18px, env(safe-area-inset-bottom)); }
+.intro-overlay.open { display: flex; animation: introFade .35s ease; }
+@keyframes introFade { from { opacity: 0; } to { opacity: 1; } }
+.intro-brand { position: absolute; top: max(18px, env(safe-area-inset-top)); left: 0; right: 0; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.55); }
+#intro-deck { width: 100%; max-width: 360px; height: min(66dvh, 520px); max-height: calc(100dvh - 150px); }
+.ighost.g1 { background: rgba(255,255,255,.14); transform: rotate(4deg) translate(8px, 6px); }
+.ighost.g2 { background: rgba(255,255,255,.24); transform: rotate(-3deg) translate(-5px, 4px); }
+.icard { border: none; border-radius: 28px; padding: 34px 26px 24px; background: #fffdf9; box-shadow: 0 24px 50px -20px rgba(0,0,0,.6); }
+.iicon { width: 52px; height: 52px; margin-bottom: 14px; }
+.iicon svg { stroke-width: 1.3; }
+.ititle { font-size: 11px; letter-spacing: 2px; color: #8a97a6; margin-bottom: 14px; }
+.ibody { font-size: 16px; line-height: 1.55; color: #1f2a37; gap: 14px; }
+.ibody .isalam { font-size: 17px; font-weight: 600; }
+.ibody .iname { font-size: 24px; font-weight: 800; color: #055a96; }
+.ibody .isub { font-size: 13px; color: #8a97a6; }
+.ibody .iplain { font-size: 14px; color: #6b7280; }
+.ilist { display: flex; flex-direction: column; gap: 9px; align-items: center; }
+.ilist span { font-size: 14.5px; color: #1f2a37; display: flex; align-items: center; gap: 9px; }
+.ilist span::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.ipills { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.ipills span { font-size: 13.5px; color: #1f2a37; background: #f1f5f9; border-radius: 999px; padding: 7px 14px; }
+.ipills b { color: #055a96; }
+.inum { color: #0b2a4a; font-size: 15px; }
+.igo { margin-top: 12px; padding: 11px 22px; font-size: 13.5px; }
+.idk-dots { margin-top: 22px; }
+
 @media print {
   .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .domain-head { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -429,7 +510,7 @@ html.focus-mode .qswipe-hint { display: block; padding-bottom: 2px; }
 
   <!-- LAPORAN GABUNGAN / ORTU -->
   <div class="result-parent" id="result-parent">
-    <div class="result-parent-banner">
+    <div class="result-parent-banner" id="report-start">
       <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       <h2 id="report-title">Profil Kekuatan Belajar</h2>
       <p id="report-sub">Berdasarkan observasi guru selama sesi bimbel di Markz Belajar</p>
@@ -466,12 +547,20 @@ html.focus-mode .qswipe-hint { display: block; padding-bottom: 2px; }
           <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Salin Link Lanjutan Tahap 2
         </button>
+        <button class="btn btn-gray" onclick="openIntro()" style="margin-bottom:8px;">Pratinjau tampilan orang tua</button>
         <button class="btn btn-primary" onclick="backToPicker()">Kembali ke Menu Tahap</button>
       </div>
       <div class="disclaimer" style="margin-top:10px;">ℹ️ Profil ini adalah alat bantu pendampingan belajar internal Markz Belajar, berdasarkan observasi guru selama beberapa pertemuan. Bukan tes bakat, IQ, atau alat diagnosis — kecenderungan anak bisa berubah seiring waktu dan konteks.</div>
     </div>
   </div>
 
+</div>
+
+<!-- KARTU PENGANTAR (layar penuh, untuk orang tua) -->
+<div class="intro-overlay" id="intro-overlay">
+  <div class="intro-brand">Markz Belajar</div>
+  <div id="intro-deck"></div>
+  <div class="idk-dots" id="idk-dots"></div>
 </div>
 
 <!-- SHARE MODAL -->
@@ -1181,6 +1270,8 @@ function buildCombinedProfile() {
   document.getElementById("hero-sub").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area ini${extra}.`;
   document.getElementById("report-title").textContent = `Profil Kekuatan Belajar ${nama}`;
 
+
+  buildIntroDeck(record.nama || "Ananda", hasT1, hasT2);
   const singleNote = document.getElementById("single-stage-note");
   const caption = document.getElementById("areas-caption");
   const sub = document.getElementById("report-sub");
@@ -1193,7 +1284,7 @@ function buildCombinedProfile() {
     sub.textContent = "Evaluasi gabungan Tahap 1 & Tahap 2 — observasi guru di Markz Belajar";
     parentNote.innerHTML = `💬 Laporan ini membandingkan dua titik observasi guru dari waktu ke waktu, dan akan menjadi bahan diskusi bersama Ayah/Bunda agar pendampingan belajar si kecil makin sesuai dengan caranya sendiri.`;
   } else {
-    singleNote.style.display = "block";
+    singleNote.style.display = "none";   // sudah dijelaskan di kartu pengantar
     singleNote.innerHTML = "ℹ️ Ini <strong>hasil awal (Tahap 1)</strong>. Observasi akan <strong>dilanjutkan ke Tahap 2</strong> setelah ±4 pertemuan berikutnya, untuk melihat konsistensi dan perkembangan si kecil dari waktu ke waktu.";
     caption.textContent = "Berikut profil sementara si kecil di tiap area, berdasarkan satu tahap observasi. Semakin tinggi bintang menjulur ke suatu area, semakin menonjol kecenderungan tersebut — bukan penilaian baik/buruk.";
     sub.textContent = "Hasil awal (Tahap 1) — observasi guru di Markz Belajar";
@@ -1205,6 +1296,148 @@ function buildCombinedProfile() {
   }
 }
 
+
+// ── DECK KARTU PENGANTAR (swipe kiri/kanan seperti kartu soal) ──
+const IICONS = {
+  heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>',
+  calendar: '<rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3M9 15l2 2 4-4"/>',
+  eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  chart: '<path d="M5 20v-6M12 20V6M19 20v-10"/><path d="M3 20h18"/>',
+  shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M12 11v4M12 8h.01"/>'
+};
+let iCards = [], iIdx = 0, iBusy = false, iDrag = null, iSuppress = false;
+
+function escHtml(t) { return String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function buildIntroDeck(nama, hasT1, hasT2) {
+  const both = hasT1 && hasT2;
+  const stageLabel = both ? "Tahap 1 &amp; Tahap 2" : (hasT2 ? "Tahap 2" : "Tahap 1");
+  const dom = (c, t, d) => `<div class="idomain" style="--c:${c}"><b>${t}</b> — ${d}</div>`;
+  const dot = (c, t) => `<span style="--c:${c}">${t}</span>`;
+  iCards = [
+    { icon: "heart", title: "", body:
+      `<div class="isalam">Assalamu'alaikum, Ayah/Bunda</div>
+       <div class="iplain">Profil Kekuatan Belajar</div>
+       <div class="iname">${escHtml(nama)}</div>
+       <div class="isub">Hasil observasi guru · ${stageLabel}</div>` },
+    { icon: "calendar", title: both ? "Evaluasi gabungan" : "Laporan pertama", body: both
+      ? `<div>Membandingkan <strong>dua observasi guru</strong> dari waktu ke waktu.</div>
+         <div class="iplain">Menjadi bahan diskusi kita untuk pendampingan yang lebih pas.</div>`
+      : `<div>Kami akan observasi lagi setelah <strong>±4 pertemuan</strong> berikutnya, untuk melihat perkembangan ananda.</div>
+         <div class="iplain">Hasilnya jadi bahan diskusi bersama Ayah/Bunda.</div>` },
+    { icon: "eye", title: "Metode", body:
+      `<div>Observasi guru saat ananda belajar.<br><strong>Bukan tes.</strong></div>
+       <div class="ilist">
+         ${dot("#0686c7","Fokus")}${dot("#d97706","Ketekunan")}${dot("#7c3aed","Kemandirian")}${dot("#16a34a","Motivasi")}${dot("#dc2626","Cara menyerap informasi")}
+       </div>
+       <div class="isub">Berbasis konsep perhatian, grit, <i>self-regulated learning</i> &amp; motivasi</div>` },
+    { icon: "chart", title: "Cara menilai", body:
+      `<div>Seberapa sering perilaku muncul selama <strong>±4 pertemuan</strong>, skala 0–3, lalu jadi persen.</div>
+       <div class="ipills"><span><b>0–33%</b> berkembang</span><span><b>34–66%</b> menonjol</span><span><b>67–100%</b> kekuatan utama</span></div>` },
+    { icon: "shield", title: "Perlu diingat", last: true, body:
+      `<div>Ini alat bantu pendampingan, <strong>bukan</strong> tes IQ, bakat, atau diagnosis.</div>
+       <div class="iplain">Hasil bisa berubah seiring waktu.</div>` }
+  ];
+  iIdx = 0;
+  renderIntro(false);
+}
+
+function renderIntro(anim) {
+  const c = iCards[iIdx], total = iCards.length;
+  const num = String(iIdx + 1).padStart(2, "0");
+  document.getElementById("intro-deck").innerHTML = `<div class="istack"><div class="ighost g1"></div><div class="ighost g2"></div>
+    <div class="icard${anim ? ' enter' : ''}">
+      <div class="iicon"><svg viewBox="0 0 24 24">${IICONS[c.icon]}</svg></div>
+      ${c.title ? `<div class="ititle">${c.title}</div>` : ""}
+      <div class="ibody">${c.body}</div>
+      ${c.last ? `<button type="button" class="igo" onclick="introToResult()">Lihat hasil <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>` : ""}
+      <div class="inum">${num}<span>/${String(total).padStart(2,"0")}</span></div>
+    </div></div>`;
+  document.getElementById("idk-dots").innerHTML = iCards.map((_, k) => `<i class="${k === iIdx ? 'on' : ''}"></i>`).join("");
+}
+
+function openIntro() {
+  iIdx = 0; renderIntro(false);
+  document.getElementById("intro-overlay").classList.add("open");
+  document.documentElement.classList.add("intro-open");
+}
+function closeIntro() {
+  document.getElementById("intro-overlay").classList.remove("open");
+  document.documentElement.classList.remove("intro-open");
+  window.scrollTo({ top: 0 });
+}
+function introToResult() { closeIntro(); }
+
+function introGo(dir) {
+  if(iBusy) return;
+  const next = iIdx + dir;
+  const card = document.querySelector("#intro-deck .icard");
+  if(next < 0) return;
+  if(next >= iCards.length) {   // geser kiri di kartu terakhir → ke hasil
+    if(card) { card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake"); }
+    introToResult();
+    return;
+  }
+  iBusy = true;
+  if(card) {
+    const W = Math.max(window.innerWidth, 400);
+    card.style.transition = "transform .28s ease-in, opacity .28s ease-in";
+    card.style.transform = `translateX(${-dir * W}px) rotate(${-dir * 20}deg)`;
+    card.style.opacity = "0";
+  }
+  setTimeout(() => { iIdx = next; renderIntro(true); iBusy = false; }, 250);
+}
+
+(function initIntroSwipe() {
+  const wrap = document.getElementById("intro-deck");
+  wrap.addEventListener("pointerdown", e => {
+    if(iBusy || e.button > 0) return;
+    const card = e.target.closest(".icard");
+    if(!card || e.target.closest(".igo")) return;
+    iDrag = { x: e.clientX, y: e.clientY, t: Date.now(), id: e.pointerId, card, dragging: false, dx: 0 };
+  });
+  wrap.addEventListener("pointermove", e => {
+    if(!iDrag || e.pointerId !== iDrag.id) return;
+    const dx = e.clientX - iDrag.x, dy = e.clientY - iDrag.y;
+    if(!iDrag.dragging) {
+      if(Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        iDrag.dragging = true;
+        try { iDrag.card.setPointerCapture(e.pointerId); } catch(_) {}
+        iDrag.card.style.transition = "none"; iDrag.card.style.animation = "none";
+      } else if(Math.abs(dy) > 10) { iDrag = null; return; }
+      else return;
+    }
+    const lastFwd = dx < 0 && iIdx >= iCards.length - 1;
+    const blocked = lastFwd || (dx > 0 && iIdx === 0);
+    const eff = blocked ? dx * 0.3 : dx;
+    iDrag.dx = dx; iDrag.blocked = blocked; iDrag.lastFwd = lastFwd;
+    iDrag.card.style.transform = `translateX(${eff}px) rotate(${eff / 18}deg)`;
+  });
+  const end = e => {
+    if(!iDrag || e.pointerId !== iDrag.id) return;
+    const d = iDrag; iDrag = null;
+    if(!d.dragging) return;
+    iSuppress = true; setTimeout(() => { iSuppress = false; }, 60);
+    const dt = Math.max(Date.now() - d.t, 1);
+    const fast = Math.abs(d.dx) / dt > 0.5 && Math.abs(d.dx) > 40;
+    const far = Math.abs(d.dx) > 90 || fast;
+    if(d.lastFwd && far) {
+      d.card.style.transition = "transform .28s cubic-bezier(.2,.9,.3,1.2)";
+      d.card.style.transform = "translateX(0) rotate(0deg)";
+      introToResult();
+    } else if(!d.blocked && far) {
+      d.card.style.transition = "";
+      introGo(d.dx < 0 ? 1 : -1);
+    } else {
+      d.card.style.transition = "transform .28s cubic-bezier(.2,.9,.3,1.2)";
+      d.card.style.transform = "translateX(0) rotate(0deg)";
+    }
+  };
+  wrap.addEventListener("pointerup", end);
+  wrap.addEventListener("pointercancel", end);
+  wrap.addEventListener("click", e => { if(iSuppress) { e.preventDefault(); e.stopPropagation(); } }, true);
+})();
+
 // ── RADAR / SPIDER CHART (inline SVG, tanpa library eksternal) ──
 function buildRadarSVG(items) {
   const n = items.length;
@@ -1215,35 +1448,30 @@ function buildRadarSVG(items) {
     return { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) };
   }
   const rad = items.map(it => maxR * (Math.max(it.pct, 8) / 100));
-  // Bentuk bintang: puncak di tiap sumbu, lembah di antara dua sumbu; kurva halus tertutup
-  function starPath(radii, valleyK) {
-    const pts = [];
-    radii.forEach((r, i) => {
-      pts.push(pol(r, i * step));
-      pts.push(pol(valleyK * (r + radii[(i + 1) % n]) / 2, i * step + step / 2));
-    });
-    const m = pts.length;
-    let d = `M${pts[0].x.toFixed(1)},${pts[0].y.toFixed(1)}`;
-    for (let i = 0; i < m; i++) {
-      const p0 = pts[(i - 1 + m) % m], p1 = pts[i], p2 = pts[(i + 1) % m], p3 = pts[(i + 2) % m];
-      const c1 = { x: p1.x + (p2.x - p0.x) / 6, y: p1.y + (p2.y - p0.y) / 6 };
-      const c2 = { x: p2.x - (p3.x - p1.x) / 6, y: p2.y - (p3.y - p1.y) / 6 };
-      d += ` C${c1.x.toFixed(1)},${c1.y.toFixed(1)} ${c2.x.toFixed(1)},${c2.y.toFixed(1)} ${p2.x.toFixed(1)},${p2.y.toFixed(1)}`;
+  // Bentuk data: bintang dengan sisi melengkung ke DALAM di antara dua titik area
+  function starCurve(radii, pull) {
+    const P = radii.map((r, i) => pol(r, i * step));
+    let d = `M${P[0].x.toFixed(1)},${P[0].y.toFixed(1)}`;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const c = pol(pull * (radii[i] + radii[j]) / 2, i * step + step / 2);
+      d += ` Q${c.x.toFixed(1)},${c.y.toFixed(1)} ${P[j].x.toFixed(1)},${P[j].y.toFixed(1)}`;
     }
-    return { d: d + " Z", pts };
+    return d + " Z";
   }
-  const main = starPath(rad, 0.95);
-  const d = main.d, pts = main.pts;
-  // Garis latar: bentuk bintang bulat (5 lobus membulat, lekuk landai) — dua lapis bersarang
+  const d = starCurve(rad, 0.3);
+  const pts = [];
+  items.forEach((_, i) => { pts[i * 2] = pol(rad[i], i * step); });
+  // Garis latar: bintang bulat 5 lobus (ujung membulat, lekuk landai), berlapis 25/50/75/100%
   function flowerPath(R, k) {
-    let d = "";
+    let dd = "";
     for (let deg = 0; deg <= 360; deg += 3) {
       const t = deg * Math.PI / 180;
       const r = R * (k + (1 - k) * (1 + Math.cos(n * t)) / 2);
-      const p = pol(r, deg);
-      d += (deg === 0 ? "M" : "L") + p.x.toFixed(1) + "," + p.y.toFixed(1) + " ";
+      const q = pol(r, deg);
+      dd += (deg === 0 ? "M" : "L") + q.x.toFixed(1) + "," + q.y.toFixed(1) + " ";
     }
-    return d + "Z";
+    return dd + "Z";
   }
   const levels = [1, 0.75, 0.5, 0.25];   // 100%, 75%, 50%, 25%
 
@@ -1286,7 +1514,8 @@ function buildRadarSVG(items) {
 function showCombinedReport() {
   buildCombinedProfile();
   document.getElementById("result-parent").classList.add("show");
-  window.scrollTo({top:0, behavior:"smooth"});
+  if(document.documentElement.classList.contains("view-mode")) { openIntro(); }
+  else window.scrollTo({top:0, behavior:"smooth"});
 }
 
 // ── SHARE ──
