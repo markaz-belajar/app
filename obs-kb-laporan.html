@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Profil Kekuatan Belajar — Markz Belajar</title>
+<script>document.documentElement.classList.add('view-loading', 'view-mode');</script>
+<style>
+:root {
+  --blue: #0686c7; --blue-dark: #055a96; --blue-light: #e8f4fc; --blue-mid: #b3d9f0;
+  --amber: #d97706; --amber-light: #fef3c7;
+  --green: #16a34a; --green-light: #dcfce7;
+  --purple: #7c3aed; --purple-light: #ede9fe;
+  --gray: #6b7280; --gray-light: #f3f4f6;
+  --border: #e5e7eb; --text: #111827; --text-2: #6b7280; --text-3: #9ca3af;
+  --bg: #f0f7fd; --card: #ffffff; --r: 12px; --r-sm: 8px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+
+.header { background: var(--blue); padding: 16px 16px 14px; position: sticky; top: 0; z-index: 100; }
+.header-top { display: flex; align-items: center; justify-content: space-between; }
+.header-brand { display: flex; align-items: center; gap: 10px; }
+.header-logo { width: 36px; height: 36px; border-radius: 8px; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; }
+.header-logo svg { width: 20px; height: 20px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.header-title { color: #fff; font-size: 15px; font-weight: 700; line-height: 1.2; }
+.header-sub { color: rgba(255,255,255,0.75); font-size: 11px; margin-top: 1px; }
+.progress-pill { background: rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 12px; color: #fff; font-size: 13px; font-weight: 600; white-space: nowrap; }
+.header-bar { margin-top: 12px; height: 5px; background: rgba(255,255,255,0.25); border-radius: 3px; overflow: hidden; }
+.header-bar-fill { height: 100%; background: #fff; border-radius: 3px; width: 0%; transition: width 0.4s ease; }
+
+.body { padding: 16px; max-width: 640px; margin: 0 auto; }
+.notice { background: var(--blue-light); border: 1px solid var(--blue-mid); border-radius: var(--r); padding: 12px 14px; font-size: 13px; color: var(--blue-dark); margin-bottom: 16px; line-height: 1.6; }
+.notice strong { color: var(--blue); }
+
+.info-card { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 14px; margin-bottom: 16px; }
+.info-card-title { font-size: 13px; font-weight: 600; color: var(--blue); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
+.info-card-title svg { width: 15px; height: 15px; stroke: var(--blue); fill: none; stroke-width: 2; stroke-linecap: round; }
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.info-field label { display: block; font-size: 11px; color: var(--text-2); margin-bottom: 4px; font-weight: 500; }
+.info-field input, .info-field select { width: 100%; padding: 9px 10px; border: 1px solid var(--border); border-radius: var(--r-sm); font-size: 14px; color: var(--text); background: var(--gray-light); outline: none; -webkit-appearance: none; font-family: inherit; }
+.info-field input:focus, .info-field select:focus { border-color: var(--blue); background: #fff; box-shadow: 0 0 0 3px rgba(6,134,199,0.12); }
+.info-field.full { grid-column: 1 / -1; }
+
+/* STAGE PICKER */
+.stage-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+.stage-card { background: var(--card); border: 2px solid var(--border); border-radius: var(--r); padding: 14px 12px; cursor: pointer; text-align: left; transition: all 0.15s; font-family: inherit; }
+.stage-card:active { transform: scale(0.98); }
+.stage-card-num { font-size: 11px; font-weight: 700; color: var(--blue); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 4px; }
+.stage-card-title { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 6px; }
+.stage-card-sub { font-size: 11.5px; color: var(--text-3); line-height: 1.5; margin-bottom: 8px; }
+.stage-card-badge { display: inline-block; font-size: 10.5px; font-weight: 700; padding: 3px 9px; border-radius: 20px; }
+.stage-card-badge.pending { background: var(--gray-light); color: var(--text-3); }
+.stage-card-badge.draft { background: var(--amber-light); color: var(--amber); }
+.stage-card-badge.done { background: var(--green-light); color: var(--green); }
+.item-date-row { min-height: 2px; }
+.item-date-badge { display: inline-block; font-size: 10.5px; color: var(--text-3); margin-top: 6px; background: var(--gray-light); padding: 2px 8px; border-radius: 20px; }
+
+/* ── Kartu per soal (1 soal per layar, auto-lanjut) ── */
+.qexit { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; color: var(--text-2); background: none; border: none; cursor: pointer; padding: 8px 0 12px; font-family: inherit; }
+.qexit svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.3; stroke-linecap: round; }
+.qdots-row { display: flex; gap: 5px; justify-content: center; flex-wrap: wrap; margin-bottom: 16px; padding: 0 4px; }
+.qdot { width: 9px; height: 9px; border-radius: 50%; background: var(--border); cursor: pointer; transition: all .15s; flex-shrink: 0; border: none; padding: 0; }
+.qdot.answered { background: var(--blue-mid); }
+.qdot.current { background: var(--blue); transform: scale(1.7); }
+.qscale-legend { display: flex; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--blue-light); margin-bottom: 14px; overflow: hidden; }
+.qscale-legend span { flex: 1; text-align: center; font-size: 9.5px; font-weight: 600; padding: 7px 3px; color: var(--blue-dark); line-height: 1.35; border-right: 1px solid var(--blue-mid); }
+.qscale-legend span:last-child { border-right: none; }
+.qscale-legend span small { display: block; font-size: 8px; font-weight: 500; opacity: 0.8; }
+.qcard { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); padding: 20px 18px; margin-bottom: 12px; animation: qcardIn 0.22s ease; }
+@keyframes qcardIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+.qcard-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 16px; }
+.qcard-domain-pill { display: inline-flex; align-items: center; gap: 6px; font-size: 11.5px; font-weight: 700; padding: 5px 11px; border-radius: 20px; color: #fff; white-space: nowrap; }
+.qcard-domain-pill svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.qcard-counter { font-size: 12px; color: var(--text-3); font-weight: 700; white-space: nowrap; }
+.qcard-num { width: 26px; height: 26px; border-radius: 50%; background: var(--blue-light); color: var(--blue); font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-bottom: 10px; }
+.qcard-text { font-size: 16px; font-weight: 700; color: var(--text); line-height: 1.5; margin-bottom: 10px; }
+.qcard-note { font-size: 12.5px; color: var(--text-2); background: var(--gray-light); border-left: 3px solid var(--blue-mid); padding: 10px 12px; border-radius: 0 8px 8px 0; margin-bottom: 16px; line-height: 1.6; }
+.qcard-date { text-align: center; margin-top: 12px; }
+.qnav-row { display: flex; gap: 8px; }
+.qnav-row .btn { margin-bottom: 0; }
+.qnav-btn-prev { flex: 0 0 auto; width: 52px; display: flex; align-items: center; justify-content: center; padding: 13px 0; }
+.autosave-pill { position: fixed; bottom: 18px; left: 50%; transform: translateX(-50%) translateY(20px); background: var(--text); color: #fff; font-size: 12px; font-weight: 600; padding: 8px 16px; border-radius: 20px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 300; box-shadow: 0 4px 14px rgba(0,0,0,0.2); }
+.autosave-pill.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+.autosave-pill.ok { background: var(--green); }
+.autosave-pill.err { background: var(--amber); }
+.stage-card.locked { opacity: 0.6; }
+
+.domain { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); margin-bottom: 12px; overflow: hidden; }
+.domain-head { background: var(--blue); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.domain-head-left { display: flex; align-items: center; gap: 10px; }
+.domain-head-icon { width: 30px; height: 30px; background: rgba(255,255,255,0.2); border-radius: 7px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+.domain-head-icon svg { width: 16px; height: 16px; stroke: #fff; fill: none; stroke-width: 2; stroke-linecap: round; }
+.domain-head-title { font-size: 13px; font-weight: 700; color: #fff; }
+.domain-head-sub { font-size: 11px; color: rgba(255,255,255,0.75); margin-top: 1px; }
+.domain-badge { background: rgba(255,255,255,0.2); color: #fff; font-size: 12px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; flex-shrink: 0; }
+.legend-strip { display: flex; border-bottom: 1px solid var(--border); background: var(--blue-light); }
+.legend-strip span { flex: 1; text-align: center; font-size: 10px; font-weight: 600; padding: 6px 2px; color: var(--blue-dark); line-height:1.4; }
+.legend-strip span small { display:block; font-size:8.5px; font-weight:500; opacity:0.75; }
+
+.item { padding: 14px; border-bottom: 1px solid var(--border); }
+.item:last-child { border-bottom: none; }
+.item-header { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.item-num { width: 24px; height: 24px; border-radius: 50%; background: var(--blue-light); color: var(--blue); font-size: 11px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.item-text { font-size: 14px; color: var(--text); line-height: 1.5; flex: 1; }
+.item-note { font-size: 12px; color: var(--text-3); margin-top: 3px; font-style: italic; }
+.opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.opt input { display: none; }
+.opt-btn { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 10px 4px; border: 1.5px solid var(--border); border-radius: var(--r-sm); background: var(--gray-light); cursor: pointer; transition: all 0.15s; user-select: none; min-height: 52px; }
+.opt-btn:active { transform: scale(0.96); }
+.opt-num { font-size: 16px; font-weight: 700; color: var(--text-2); }
+.opt-lbl { font-size: 10px; color: var(--text-3); text-align: center; line-height: 1.2; }
+.opt[data-v="0"] input:checked ~ .opt-btn { background: #6b7280; border-color: #6b7280; }
+.opt[data-v="1"] input:checked ~ .opt-btn { background: var(--blue-mid); border-color: var(--blue); }
+.opt[data-v="2"] input:checked ~ .opt-btn { background: var(--blue); border-color: var(--blue); }
+.opt[data-v="3"] input:checked ~ .opt-btn { background: var(--green); border-color: var(--green); }
+.opt[data-v="0"] input:checked ~ .opt-btn .opt-num, .opt[data-v="0"] input:checked ~ .opt-btn .opt-lbl,
+.opt[data-v="2"] input:checked ~ .opt-btn .opt-num, .opt[data-v="2"] input:checked ~ .opt-btn .opt-lbl,
+.opt[data-v="3"] input:checked ~ .opt-btn .opt-num, .opt[data-v="3"] input:checked ~ .opt-btn .opt-lbl { color: #fff; }
+.opt[data-v="1"] input:checked ~ .opt-btn .opt-num, .opt[data-v="1"] input:checked ~ .opt-btn .opt-lbl { color: var(--blue-dark); }
+
+.actions { padding: 4px 0 14px; display: flex; flex-direction: column; gap: 8px; }
+.btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 13px 16px; border-radius: var(--r-sm); font-size: 14px; font-weight: 600; cursor: pointer; border: none; transition: all 0.15s; width: 100%; font-family: inherit; }
+.btn:active { transform: scale(0.98); }
+.btn-primary { background: var(--blue); color: #fff; }
+.btn-wa { background: #25D366; color: #fff; }
+.btn-gray { background: var(--gray-light); color: var(--text-2); border: 1px solid var(--border); }
+.btn svg { width: 16px; height: 16px; stroke: currentColor; fill: none; stroke-width: 2; stroke-linecap: round; }
+.disclaimer { background: var(--gray-light); padding: 12px 14px; font-size: 11.5px; color: var(--text-3); line-height: 1.6; border-radius: var(--r-sm); margin-top: 4px; }
+
+/* STAGE 1 DONE SCREEN */
+.done-panel { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 16px; display: none; }
+.done-panel.show { display: block; }
+.done-banner { background: linear-gradient(135deg, var(--green), #15803d); padding: 22px 18px 18px; text-align: center; }
+.done-banner svg { width: 38px; height: 38px; stroke: #fff; fill: none; stroke-width: 1.8; stroke-linecap: round; margin-bottom: 6px; }
+.done-banner h2 { color: #fff; font-size: 16px; font-weight: 700; margin-bottom: 4px; }
+.done-banner p { color: rgba(255,255,255,0.9); font-size: 12.5px; line-height: 1.5; }
+.done-body { padding: 16px; }
+.mini-bars { display: flex; flex-direction: column; gap: 8px; margin-bottom: 14px; }
+.mini-bar-row { display: flex; align-items: center; gap: 8px; }
+.mini-bar-label { font-size: 12px; color: var(--text-2); width: 110px; flex-shrink: 0; }
+.mini-bar-track { flex: 1; height: 8px; background: var(--gray-light); border-radius: 4px; overflow: hidden; }
+.mini-bar-fill { height: 100%; border-radius: 4px; }
+.mini-bar-val { font-size: 11px; font-weight: 700; color: var(--text); width: 32px; text-align: right; flex-shrink: 0; }
+.continue-box { background: var(--blue-light); border: 1.5px dashed var(--blue-mid); border-radius: var(--r-sm); padding: 12px 14px; font-size: 12.5px; color: var(--blue-dark); line-height: 1.6; margin-bottom: 12px; }
+
+/* PARENT / COMBINED REPORT */
+.result-parent { background: var(--card); border: 1px solid var(--border); border-radius: var(--r); overflow: hidden; margin-bottom: 16px; display: none; }
+.result-parent.show { display: block; }
+.result-parent-banner { background: linear-gradient(135deg, var(--blue), var(--blue-dark)); padding: 24px 18px 20px; text-align: center; }
+.result-parent-banner svg { width: 40px; height: 40px; stroke: #fff; fill: none; stroke-width: 1.5; stroke-linecap: round; margin-bottom: 8px; }
+.result-parent-banner h2 { color: #fff; font-size: 17px; font-weight: 700; margin-bottom: 4px; }
+.result-parent-banner p { color: rgba(255,255,255,0.85); font-size: 13px; line-height: 1.5; }
+.result-parent-body { padding: 16px; }
+.profile-areas { display: flex; flex-direction: column; gap: 10px; margin: 4px 0 14px; }
+.parea-card { border: 1px solid var(--border); border-radius: var(--r-sm); overflow: hidden; }
+.parea-head { display: flex; align-items: center; gap: 10px; padding: 10px 12px; background: var(--gray-light); }
+.parea-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.parea-label { font-size: 13px; font-weight: 600; color: var(--text); flex: 1; }
+.parea-pill { font-size: 11px; font-weight: 700; padding: 3px 9px; border-radius: 20px; white-space: nowrap; }
+.parea-trend { font-size: 10.5px; font-weight: 700; padding: 2px 7px; border-radius: 20px; white-space: nowrap; margin-left: 6px; }
+.parea-bar-wrap { padding: 8px 12px 4px; }
+.parea-bar-compare { display: flex; flex-direction: column; gap: 4px; }
+.parea-bar-compare-row { display: flex; align-items: center; gap: 6px; }
+.parea-bar-compare-lbl { font-size: 9.5px; color: var(--text-3); width: 42px; flex-shrink: 0; }
+.parea-bar-track { flex:1; height: 7px; background: var(--border); border-radius: 4px; overflow: hidden; }
+.parea-bar-fill { height: 100%; border-radius: 4px; transition: width 0.5s; }
+.parea-bar-compare-val { font-size: 10px; font-weight: 700; color: var(--text); width: 30px; text-align: right; flex-shrink: 0; }
+.parea-body { padding: 10px 12px 12px; border-top: 1px solid var(--border); }
+.parea-desc { font-size: 13px; color: var(--text-2); line-height: 1.65; margin-bottom: 8px; }
+.parea-tips { display: flex; flex-direction: column; gap: 5px; }
+.parea-tip { display: flex; align-items: flex-start; gap: 7px; font-size: 12.5px; color: var(--text-2); line-height: 1.5; }
+.parea-tip-icon { font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+.highlight-box { background: var(--blue-light); border: 1.5px solid var(--blue-mid); border-radius: var(--r-sm); padding: 14px; margin-bottom: 14px; }
+.highlight-box-title { font-size: 11px; font-weight: 700; color: var(--blue-dark); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 6px; }
+.highlight-box-text { font-size: 14px; color: var(--blue-dark); line-height: 1.6; }
+.highlight-box-text strong { color: var(--blue); }
+
+.hero-specialty { text-align: center; padding: 26px 18px 22px; border-radius: 18px; margin-bottom: 4px; border: 1px solid; }
+.hero-icon-badge { width: 54px; height: 54px; border-radius: 16px; display: flex; align-items: center; justify-content: center; margin: 0 auto 14px; box-shadow: 0 6px 16px -4px rgba(0,0,0,0.25); }
+.hero-icon-badge svg { width: 26px; height: 26px; }
+.hero-specialty-label { display: inline-block; font-size: 10.5px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; padding: 5px 14px; border-radius: 20px; color: #fff; }
+.hero-specialty-title { font-size: 27px; font-weight: 800; color: var(--text); margin-bottom: 8px; line-height: 1.2; letter-spacing: -0.3px; }
+.hero-specialty-sub { font-size: 13.5px; color: var(--text-2); line-height: 1.6; max-width: 400px; margin: 0 auto; }
+.radar-chart-container { margin: 4px auto 6px; text-align: center; }
+.radar-chart-container svg { overflow: visible; }
+
+.parent-note { font-size: 13px; color: var(--text-2); line-height: 1.7; padding: 12px; background: var(--blue-light); border-radius: var(--r-sm); margin-top: 4px; }
+.parent-note strong { color: var(--blue); }
+.share-section { padding: 14px 16px; border-top: 1px solid var(--border); }
+.single-stage-note { background: var(--amber-light); border: 1px solid #fcd34d; border-radius: var(--r-sm); padding: 10px 12px; font-size: 12px; color: #92400e; line-height: 1.6; margin-bottom: 14px; }
+
+/* MODAL */
+.modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 200; align-items: center; justify-content: center; padding: 20px; }
+.modal-overlay.open { display: flex; }
+.modal { background: #fff; border-radius: var(--r); padding: 20px 16px; width: 100%; max-width: 420px; }
+.modal h3 { font-size: 15px; font-weight: 700; margin-bottom: 6px; }
+.modal p { font-size: 13px; color: var(--text-2); line-height: 1.6; margin-bottom: 14px; }
+.modal-close { background: none; border: none; font-size: 13px; color: var(--text-3); cursor: pointer; text-align: center; width: 100%; padding: 8px; margin-top: 4px; }
+
+.readonly-banner { background: var(--amber-light); border: 1px solid #fcd34d; border-radius: var(--r); padding: 12px 14px; margin-bottom: 16px; font-size: 13px; color: var(--amber); line-height: 1.6; display: none; }
+.readonly-banner.show { display: block; }
+.readonly-banner strong { color: #92400e; }
+
+/* Mode lihat laporan (?view=1): sembunyikan form sepenuhnya sampai data siap */
+.view-loading-overlay { display: none; position: fixed; inset: 0; background: var(--bg); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 14px; text-align: center; padding: 20px; }
+.view-loading .view-loading-overlay { display: flex; }
+.view-loading #info-card, .view-loading #stage-picker-section, .view-loading #fill-notice,
+.view-loading #checklist, .view-loading #form-actions, .view-loading #done-panel { display: none !important; }
+.view-loading-spinner { width: 40px; height: 40px; border: 4px solid var(--blue-mid); border-top-color: var(--blue); border-radius: 50%; animation: viewspin 0.8s linear infinite; }
+@keyframes viewspin { to { transform: rotate(360deg); } }
+.view-loading-text { font-size: 14px; color: var(--blue-dark); font-weight: 600; }
+.view-loading-sub { font-size: 12px; color: var(--text-3); }
+/* Tampilan laporan untuk orang tua: tanpa kesan 'form' */
+.view-mode #info-card, .view-mode .progress-pill, .view-mode .header-bar, .view-mode .teacher-only { display: none !important; }
+.sync-banner { position: fixed; top: 84px; left: 50%; transform: translateX(-50%); width: 92%; max-width: 560px; z-index: 250; font-size: 12.5px; line-height: 1.55; padding: 10px 14px; border-radius: 10px; display: none; box-shadow: 0 6px 18px rgba(0,0,0,0.15); }
+.sync-banner.show { display: block; }
+.sync-banner.info { background: var(--blue-light); color: var(--blue-dark); border: 1px solid var(--blue-mid); }
+.sync-banner.warn { background: var(--amber-light); color: #92400e; border: 1px solid #fcd34d; }
+.sync-banner.err { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+.sync-banner.ok { background: var(--green-light); color: #166534; border: 1px solid #86efac; }
+.sync-banner button { margin-left: 8px; background: var(--blue); color: #fff; border: none; padding: 4px 10px; border-radius: 6px; font-size: 12px; cursor: pointer; font-family: inherit; }
+
+/* ══ MODE FOKUS: 1 soal full layar, swipe kiri/kanan ala kartu ══ */
+.qtopbar { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; }
+.qexit-x { width: 32px; height: 32px; border-radius: 50%; border: 1px solid var(--border); background: var(--card); color: var(--text-2); display: flex; align-items: center; justify-content: center; cursor: pointer; flex-shrink: 0; padding: 0; }
+.qexit-x svg { width: 14px; height: 14px; stroke: currentColor; fill: none; stroke-width: 2.4; stroke-linecap: round; }
+.qtopbar .qdots-row { flex: 1; margin-bottom: 0; }
+.qtop-spacer { width: 32px; flex-shrink: 0; }
+#checklist { position: relative; }
+.qcard { position: relative; z-index: 1; touch-action: pan-y; user-select: none; -webkit-user-select: none; will-change: transform; transform-origin: 50% 100%; animation: none; }
+.qcard.enter { animation: qcardPop 0.28s cubic-bezier(.2,.8,.3,1); }
+@keyframes qcardPop { from { opacity: 0; transform: scale(0.93) translateY(10px); } to { opacity: 1; transform: none; } }
+.qcard.shake { animation: qshake 0.35s ease; }
+@keyframes qshake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-9px); } 40% { transform: translateX(8px); } 60% { transform: translateX(-5px); } 80% { transform: translateX(3px); } }
+.qstamp { position: absolute; z-index: 5; top: 74px; font-size: 12.5px; font-weight: 700; letter-spacing: .2px; color: #fff; padding: 7px 14px; border-radius: 999px; opacity: 0; pointer-events: none; white-space: nowrap; box-shadow: 0 6px 16px -6px rgba(17,24,39,.45); transition: opacity .12s; }
+.qstamp.next { right: 16px; background: var(--blue); }
+.qstamp.prev { left: 16px; background: var(--gray); }
+.qstamp.block { left: 50%; top: 50%; transform: translate(-50%, -50%); background: #111827; padding: 10px 18px; font-size: 13px; }
+.qswipe-hint { text-align: center; font-size: 11.5px; color: var(--text-3); padding: 2px 0 4px; display: none; }
+.qfreq { font-size: 11px; color: var(--text-3); text-align: center; line-height: 1.5; margin-top: 12px; }
+.qfinish { text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; }
+.qfinish-ico { width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: var(--green-light); }
+.qfinish-ico.warn { background: var(--amber-light); }
+.qfinish-ico svg { width: 30px; height: 30px; stroke: var(--green); fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.qfinish-ico.warn svg { stroke: var(--amber); }
+.qfinish h3 { font-size: 18px; color: var(--text); }
+.qfinish p { font-size: 13px; color: var(--text-2); line-height: 1.6; max-width: 280px; }
+.qfinish .btn { margin-top: 8px; max-width: 280px; }
+
+html.focus-mode, html.focus-mode body { height: 100%; overflow: hidden; }
+html.focus-mode .header { padding: 10px 16px 10px; }
+html.focus-mode .header-sub { display: none; }
+html.focus-mode .header-bar { margin-top: 8px; }
+html.focus-mode .qscale-legend { display: none !important; }
+/* Soal menutupi seluruh halaman (form data siswa ada di belakangnya) */
+html.focus-mode #qform-wrap { position: fixed; left: 0; right: 0; bottom: 0; top: var(--hh, 64px); z-index: 90; background: var(--bg); display: flex !important; flex-direction: column; padding: 12px max(16px, calc((100% - 640px) / 2)) 10px; animation: qOverlayIn .3s cubic-bezier(.2,.8,.3,1); }
+@keyframes qOverlayIn { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+/* Layar awal: tombol tahap tampil di atas, tanpa perlu scroll */
+#stage-picker-section { display: flex; flex-direction: column; }
+#stage-picker-section .stage-grid { order: 1; margin-top: 2px; }
+#stage-picker-section .notice { order: 2; font-size: 12px; padding: 10px 12px; line-height: 1.55; }
+.field-error { border-color: var(--amber) !important; box-shadow: 0 0 0 3px rgba(217,119,6,0.18) !important; animation: qshake .35s ease; }
+html.focus-mode .qtopbar { display: none; }
+html.focus-mode #qform-wrap { background-color: #e6f0f8; background-image: repeating-linear-gradient(90deg, transparent 0, transparent calc(25% - 1px), rgba(6,134,199,0.09) calc(25% - 1px), rgba(6,134,199,0.09) 25%); }
+html.focus-mode #checklist { flex: 1; min-height: 0; display: flex; align-items: center; justify-content: center; padding: 6px 4px 14px; }
+.qstack { position: relative; width: 100%; max-height: 100%; display: flex; }
+.qghost { position: absolute; inset: 0; background: #fff; border-radius: 28px; z-index: 0; opacity: .9; box-shadow: 0 6px 18px -10px rgba(5,90,150,.25); }
+.qghost.g1 { transform: rotate(-4deg) scale(.97); background: #f1f5f8; }
+.qghost.g2 { transform: rotate(3deg) scale(.985); background: #f7f9fb; }
+.qstack.is-finish .qghost { display: none; }
+html.focus-mode .qcard { flex: 1; min-height: 0; width: 100%; margin: 0; border: none; border-radius: 28px; padding: 22px 22px 22px; display: flex; flex-direction: column; overflow-y: auto; box-shadow: 0 18px 40px -18px rgba(5,90,150,0.35); }
+.qcard-head { display: flex; align-items: center; gap: 14px; margin-bottom: 20px; }
+.qsegs { flex: 1; display: flex; gap: 3px; }
+.qseg { flex: 1; height: 4px; border-radius: 3px; background: #d9dee3; padding: 0; border: none; }
+.qseg.answered { background: var(--blue-mid); }
+.qseg.current { background: var(--blue-dark); }
+.qclose { width: 30px; height: 30px; border-radius: 50%; border: none; background: #b8bcbf; color: #fff; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding: 0; cursor: pointer; }
+.qclose svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 3; stroke-linecap: round; }
+.qmono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 12px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; }
+.qlabel-row { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 12px; }
+.qlabel-row .qmono { color: var(--text); }
+.qpick { color: #a3a8a6; margin: 4px 0 12px; font-weight: 600; }
+html.focus-mode .qcard-text { font-size: 23px; line-height: 1.35; font-weight: 600; margin-bottom: 14px; letter-spacing: -.2px; }
+html.focus-mode .qcard-note { font-size: 13px; margin-bottom: 18px; }
+html.focus-mode .qpick-wrap { margin-top: 2px; }
+.opt-sub { display: none; }
+.opt-txt { display: contents; }
+html.focus-mode .qpick { margin: 0 0 8px; }
+html.focus-mode .opts { display: flex; flex-direction: column; gap: 4px; }
+html.focus-mode .opt { display: block; }
+html.focus-mode .opt-btn, html.focus-mode .opt[data-v] input:checked ~ .opt-btn { flex-direction: row; justify-content: flex-start; align-items: center; gap: 14px; padding: 11px 10px; border: 1.5px solid transparent; border-radius: 14px; background: transparent; }
+html.focus-mode .opt[data-v] input:checked ~ .opt-btn { background: var(--blue-light); border-color: var(--blue-mid); }
+html.focus-mode .opt-num, html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-num { width: 28px; height: 28px; border-radius: 50%; border: 2px solid var(--text); background: transparent; color: var(--text); font-size: 13px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-num { background: var(--blue); border-color: var(--blue); color: #fff; }
+html.focus-mode .opt-txt { display: flex; flex-direction: column; align-items: flex-start; gap: 1px; text-align: left; }
+html.focus-mode .opt-lbl, html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-lbl { font-size: 16px; font-weight: 600; color: var(--text); text-align: left; }
+html.focus-mode .opt-sub, html.focus-mode .opt[data-v] input:checked ~ .opt-btn .opt-sub { display: block; font-size: 12px; color: var(--text-2); }
+html.focus-mode .qswipe-hint { display: block; padding-bottom: 2px; }
+
+/* ── Kartu pengantar laporan untuk orang tua ── */
+.parent-intro { padding: 16px 16px 4px; background: var(--bg); }
+.pcard { background: var(--card); border: 1px solid var(--border); border-radius: 16px; padding: 16px; margin-bottom: 12px; }
+.pcard-head { display: flex; align-items: center; gap: 10px; margin-bottom: 10px; }
+.pcard-ico { width: 34px; height: 34px; border-radius: 10px; background: var(--blue-light); display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
+.pcard h3 { font-size: 14.5px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.pcard p { font-size: 13.5px; color: var(--text-2); line-height: 1.75; }
+.pcard p + p { margin-top: 8px; }
+.pcard p strong { color: var(--text); }
+.pcard.greet { background: linear-gradient(160deg, var(--blue-light), #fff 75%); border-color: var(--blue-mid); }
+.pcard.greet .salam { font-size: 15px; font-weight: 700; color: var(--blue-dark); margin-bottom: 8px; }
+.pcard.greet .child-name { display: inline-block; font-size: 17px; font-weight: 800; color: var(--blue); }
+.mrow { display: flex; gap: 10px; padding: 10px 0; border-top: 1px solid var(--border); }
+.mrow:first-of-type { border-top: none; padding-top: 4px; }
+.mrow-n { width: 22px; height: 22px; border-radius: 50%; background: var(--blue); color: #fff; font-size: 11.5px; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+.mrow-t { font-size: 13px; color: var(--text-2); line-height: 1.7; }
+.mrow-t b { color: var(--text); }
+.mdomains { display: flex; flex-direction: column; gap: 4px; margin-top: 6px; }
+.mdomain { font-size: 12.5px; color: var(--text-2); line-height: 1.55; padding-left: 12px; position: relative; }
+.mdomain::before { content: ''; position: absolute; left: 0; top: 7px; width: 6px; height: 6px; border-radius: 50%; background: var(--c, var(--blue)); }
+.mdomain b { color: var(--text); }
+.mnote { margin-top: 6px; background: var(--amber-light); border: 1px solid #fcd34d; border-radius: 10px; padding: 10px 12px; font-size: 12.5px; color: #92400e; line-height: 1.65; }
+
+/* ── Deck kartu pengantar (geser kiri/kanan) ── */
+.intro-stage { background: linear-gradient(180deg, #0b2a4a, #12385f); padding: 22px 20px 16px; }
+#intro-deck { position: relative; width: 100%; max-width: 380px; margin: 0 auto; height: clamp(400px, 64vh, 500px); }
+.istack { position: relative; width: 100%; height: 100%; }
+.ighost { position: absolute; inset: 0; border-radius: 30px; }
+.ighost.g1 { background: #6fa8d6; transform: rotate(5deg) translate(10px, 6px); }
+.ighost.g2 { background: #8cbfe4; transform: rotate(-3deg) translate(-6px, 4px); }
+.icard { position: absolute; inset: 0; z-index: 1; background: #fdf9f2; border: 6px solid #9ccbe9; border-radius: 30px; padding: 26px 22px 20px; display: flex; flex-direction: column; align-items: center; text-align: center; touch-action: pan-y; user-select: none; -webkit-user-select: none; transform-origin: 50% 100%; overflow: hidden; box-shadow: 0 16px 32px -14px rgba(0,0,0,.5); }
+.icard.enter { animation: qcardPop 0.28s cubic-bezier(.2,.8,.3,1); }
+.icard.shake { animation: qshake 0.35s ease; }
+.iicon { width: 58px; height: 58px; color: #055a96; flex-shrink: 0; margin-bottom: 8px; }
+.iicon svg { width: 100%; height: 100%; fill: none; stroke: currentColor; stroke-width: 1.4; stroke-linecap: round; stroke-linejoin: round; }
+.ititle { font-size: 12px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--blue); margin-bottom: 10px; }
+.ibody { flex: 1; min-height: 0; overflow-y: auto; width: 100%; font-size: 13.5px; color: #374151; line-height: 1.7; display: flex; flex-direction: column; justify-content: center; gap: 8px; }
+.ibody b, .ibody strong { color: #111827; }
+.ibody .iname { font-size: 20px; font-weight: 800; color: var(--blue-dark); line-height: 1.3; }
+.ibody .isalam { font-size: 15.5px; font-weight: 700; color: #111827; line-height: 1.5; }
+.idomains { text-align: left; display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
+.idomain { font-size: 12.5px; line-height: 1.5; padding-left: 14px; position: relative; color: #4b5563; }
+.idomain::before { content: ''; position: absolute; left: 0; top: 6px; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.idomain b { color: #111827; }
+.inum { margin-top: 10px; font-size: 17px; font-weight: 800; color: #0b2a4a; letter-spacing: .5px; flex-shrink: 0; }
+.inum span { font-size: 11px; font-weight: 600; color: #9ca3af; margin-left: 2px; }
+.igo { margin-top: 8px; display: inline-flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 700; color: #fff; background: var(--blue); border: none; border-radius: 20px; padding: 8px 16px; cursor: pointer; font-family: inherit; flex-shrink: 0; }
+.igo svg { width: 13px; height: 13px; stroke: #fff; fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.idk-dots { display: flex; justify-content: center; gap: 6px; margin-top: 20px; }
+.idk-dots i { width: 7px; height: 7px; border-radius: 50%; background: rgba(255,255,255,.28); transition: all .2s; }
+.idk-dots i.on { background: #fff; width: 20px; border-radius: 4px; }
+.idk-hint { text-align: center; font-size: 11.5px; color: rgba(255,255,255,.55); margin-top: 8px; }
+
+/* ── Overlay kartu pengantar: 1 layar penuh, tanpa scroll, minimalis ── */
+html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
+.intro-overlay { display: none; position: fixed; inset: 0; z-index: 300; background: radial-gradient(120% 90% at 50% 0%, #17476f 0%, #0b2a4a 60%, #081d35 100%); flex-direction: column; align-items: center; justify-content: center; padding: 18px 22px max(18px, env(safe-area-inset-bottom)); }
+.intro-overlay.open { display: flex; animation: introFade .35s ease; }
+@keyframes introFade { from { opacity: 0; } to { opacity: 1; } }
+.intro-brand { position: absolute; top: max(18px, env(safe-area-inset-top)); left: 0; right: 0; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,.55); }
+#intro-deck { width: 100%; max-width: 360px; height: min(66dvh, 520px); max-height: calc(100dvh - 150px); }
+.ighost.g1 { background: rgba(255,255,255,.14); transform: rotate(4deg) translate(8px, 6px); }
+.ighost.g2 { background: rgba(255,255,255,.24); transform: rotate(-3deg) translate(-5px, 4px); }
+.icard { border: none; border-radius: 28px; padding: 34px 26px 24px; background: #fffdf9; box-shadow: 0 24px 50px -20px rgba(0,0,0,.6); }
+.iicon { width: 52px; height: 52px; margin-bottom: 14px; }
+.iicon svg { stroke-width: 1.3; }
+.ititle { font-size: 11px; letter-spacing: 2px; color: #8a97a6; margin-bottom: 14px; }
+.ibody { font-size: 16px; line-height: 1.55; color: #1f2a37; gap: 14px; }
+.ibody .isalam { font-size: 17px; font-weight: 600; }
+.ibody .iname { font-size: 24px; font-weight: 800; color: #055a96; }
+.ibody .isub { font-size: 13px; color: #8a97a6; }
+.ibody .iplain { font-size: 14px; color: #6b7280; }
+.ilist { display: flex; flex-direction: column; gap: 9px; align-items: center; }
+.ilist span { font-size: 14.5px; color: #1f2a37; display: flex; align-items: center; gap: 9px; }
+.ilist span::before { content: ''; width: 7px; height: 7px; border-radius: 50%; background: var(--c); }
+.ipills { display: flex; flex-direction: column; gap: 8px; align-items: center; }
+.ipills span { font-size: 13.5px; color: #1f2a37; background: #f1f5f9; border-radius: 999px; padding: 7px 14px; }
+.ipills b { color: #055a96; }
+.inum { color: #0b2a4a; font-size: 15px; }
+.igo { margin-top: 12px; padding: 11px 22px; font-size: 13.5px; }
+.idk-dots { margin-top: 22px; }
+
+@media print {
+  .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .domain-head { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .result-parent-banner { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .actions, .share-section, .stage-grid { display: none !important; }
+  .domain { break-inside: avoid; }
+  .body { padding: 8px; }
+}
+</style>
+<style>
+/* Halaman laporan orang tua: sembunyikan elemen form/guru dan header progres */
+.progress-pill, .header-bar, .header-sub { display: none !important; }
+.view-loading .result-parent { display: none; }
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="header-top">
+    <div class="header-brand">
+      <div class="header-logo">
+        <svg viewBox="0 0 24 24"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+      </div>
+      <div><div class="header-title">Markz Belajar</div></div>
+    </div>
+  </div>
+</header>
+
+<div class="view-loading-overlay">
+  <div class="view-loading-spinner"></div>
+  <div class="view-loading-text">Menyiapkan laporan…</div>
+  <div class="view-loading-sub">Mengambil data dari Markz Belajar, mohon tunggu sebentar</div>
+</div>
+
+<div class="body">
+  <div class="readonly-banner" id="readonly-banner"></div>
+
+  <div class="result-parent" id="result-parent">
+    <div class="result-parent-banner" id="report-start">
+      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      <h2 id="report-title">Profil Kekuatan Belajar</h2>
+      <p id="report-sub">Berdasarkan observasi guru selama sesi bimbel di Markz Belajar</p>
+    </div>
+    <div class="result-parent-body">
+      <div class="single-stage-note" id="single-stage-note" style="display:none;">⚠️ Laporan ini baru berdasarkan <strong>Tahap 1 saja</strong> — belum ada data Tahap 2 untuk perbandingan. Hasil masih bersifat awal.</div>
+
+      <div class="hero-specialty" id="hero-specialty">
+        <div class="hero-icon-badge" id="hero-icon-badge"></div>
+        <div class="hero-specialty-label" id="hero-label">✨ Kekuatan Utama</div>
+        <div class="hero-specialty-title" id="hero-title">—</div>
+        <div class="hero-specialty-sub" id="hero-sub">—</div>
+      </div>
+
+      <div class="radar-chart-container" id="radar-chart-container"></div>
+
+      <p style="font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:10px;" id="areas-caption">Berikut profil lengkap si kecil di tiap area. Semakin tinggi bar, semakin menonjol kecenderungan tersebut — bukan penilaian "baik/buruk".</p>
+      <div class="profile-areas" id="profile-areas"></div>
+
+      <div class="parent-note" id="parent-note-box">💬 Laporan ini akan menjadi bahan diskusi guru dengan Ayah/Bunda agar pendampingan belajar si kecil di Markz Belajar makin sesuai dengan caranya sendiri.</div>
+    </div>
+    <div class="share-section">
+      <div class="disclaimer">Profil ini adalah alat bantu pendampingan belajar internal Markz Belajar, berdasarkan observasi guru selama beberapa pertemuan. Bukan tes bakat, IQ, atau alat diagnosis — kecenderungan anak bisa berubah seiring waktu dan konteks.</div>
+    </div>
+  </div>
+
+</div>
+
+<div class="intro-overlay" id="intro-overlay">
+  <div class="intro-brand">Markz Belajar</div>
+  <div id="intro-deck"></div>
+  <div class="idk-dots" id="idk-dots"></div>
+</div>
+
+<script>
+const API_KB = 'https://script.google.com/macros/s/AKfycbyMCQqWa5hpH9dsqK1CTLSt0zXfpLGPeFw6fYmHJeaTP0IVNp6cK4sySwqF4QlFUzaB/exec';
+
+function apiKB(action, params={}, timeoutMs=20000) {
+  if(!API_KB || API_KB.indexOf('PASTE_') === 0) return Promise.resolve({ ok:false, error:'API_KB belum diisi' });
+  const url = new URL(API_KB);
+  url.searchParams.set('action', action);
+  for(const [k,v] of Object.entries(params)) {
+    url.searchParams.set(k, typeof v === 'object' ? encodeURIComponent(JSON.stringify(v)) : v);
+  }
+  const controller = new AbortController();
+  const timeoutId = setTimeout(()=>controller.abort(), timeoutMs);
+  return fetch(url.toString(), { redirect:'follow', signal: controller.signal })
+    .then(r=>r.json())
+    .catch((e)=>({ ok:false, error: e && e.name==='AbortError' ? 'Server terlalu lama merespons (>' + Math.round(timeoutMs/1000) + ' detik)' : 'Gagal terhubung ke server' }))
+    .finally(()=>clearTimeout(timeoutId));
+}
+
+const ICONS = {
+  focus:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
+  grit:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
+  indep:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`,
+  motiv:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M12 2l2.5 6.5L21 9l-5 4.5L17.5 21 12 17l-5.5 4L8 13.5 3 9l6.5-.5z"/></svg>`,
+  absorb:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`
+};
+
+// ── 30 item, tapi tiap domain dipecah: index 0-2 = Tahap 1, index 3-5 = Tahap 2 ──
+const ITEMS = [
+  { domain:"A", label:"Fokus & Konsentrasi", metaLabel:"Fokus & Konsentrasi", icon:"focus", color:"#0686c7", items:[
+    { text:"Bisa fokus mengerjakan tugas tanpa mudah terganggu hal di sekitarnya", note:"Misalnya ada teman lain ribut atau suara notifikasi HP — apakah ia tetap lanjut mengerjakan soal, atau langsung menoleh dan kehilangan konsentrasi?" },
+    { text:"Cepat kembali fokus setelah sempat teralihkan", note:"Misalnya setelah menoleh sebentar karena ada yang lewat, apakah ia langsung kembali ke soal dalam hitungan detik, atau butuh ditegur ulang untuk fokus lagi?" },
+    { text:"Menyelesaikan tugas dalam waktu yang wajar tanpa banyak jeda", note:"Misalnya diberi 10 soal dalam 15 menit — apakah ia mengerjakan mengalir dari soal ke soal, atau sering berhenti lama di tengah tanpa alasan jelas (melamun, main alat tulis)?" },
+    { text:"Bisa duduk tenang mengikuti sesi sampai selesai tanpa sering berpindah tempat", note:"Misalnya dalam sesi 1 jam, apakah ia tetap di kursinya, atau berkali-kali berdiri/pindah tempat duduk tanpa alasan yang perlu?" },
+    { text:"Tetap memperhatikan meski instruksi yang diberikan agak panjang", note:"Misalnya guru menjelaskan cara mengerjakan soal cerita dalam 3-4 kalimat berturut-turut — apakah ia masih menyimak sampai akhir, atau perhatiannya sudah kabur di tengah?" },
+    { text:"Tidak mudah teralihkan saat mengerjakan tugas dengan beberapa langkah berurutan", note:"Misalnya soal yang butuh 'hitung dulu, lalu bulatkan, lalu tulis jawabannya' — apakah ia ingat menyelesaikan semua langkah, atau berhenti di tengah dan lupa lanjut?" }
+  ]},
+  { domain:"B", label:"Ketekunan Menghadapi Tantangan", metaLabel:"Ketekunan & Daya Juang", icon:"grit", items:[
+    { text:"Tetap mencoba saat soal terasa sulit, tidak langsung menyerah", note:"Misalnya diberi soal yang levelnya sedikit di atas kemampuannya — apakah ia mencoba beberapa pendekatan dulu, atau langsung bilang 'nggak bisa' dan berhenti tanpa mencoba?" },
+    { text:"Mau mencoba cara lain saat cara pertama tidak berhasil", note:"Misalnya cara menghitung yang biasa dipakai tidak berhasil — apakah ia mencoba cara lain (menggambar, pakai jari), atau terus mengulang cara yang sama meski gagal?" },
+    { text:"Tidak mudah frustrasi atau menyerah saat membuat kesalahan", note:"Misalnya jawabannya dikoreksi salah oleh guru — apakah ia menerima dan lanjut mencoba lagi, atau langsung kesal, menyalahkan soalnya, atau menolak melanjutkan?" },
+    { text:"Mau mengulang latihan yang sama meski sudah beberapa kali salah", note:"Misalnya latihan yang sama diberikan 3x karena masih salah — apakah ia tetap mau mencoba lagi tanpa mengeluh berlebihan, atau menolak setelah gagal 1-2 kali?" },
+    { text:"Tidak langsung minta bantuan sebelum benar-benar mencoba sendiri dulu", note:"Misalnya diberi soal baru — apakah ia membaca dan mencoba dulu sebelum bertanya, atau langsung mengangkat tangan sebelum sempat membaca soalnya sendiri?" },
+    { text:"Tetap tenang saat diberi tahu jawabannya salah, tidak ngambek atau menolak lanjut", note:"Misalnya dikoreksi 'ini belum tepat, coba lagi' — apakah responnya tenang dan mencoba ulang, atau merajuk, menangis, atau menutup buku menolak lanjut?" }
+  ]},
+  { domain:"C", label:"Kemandirian", metaLabel:"Kemandirian Belajar", icon:"indep", items:[
+    { text:"Memulai tugas tanpa harus diarahkan berulang kali", note:"Misalnya instruksi 'ayo kerjakan halaman ini' diberikan sekali — apakah ia langsung mulai, atau perlu diingatkan 2-3 kali sebelum benar-benar mulai mengerjakan?" },
+    { text:"Mengecek pekerjaannya sendiri sebelum bertanya ke guru", note:"Misalnya sebelum bilang 'sudah selesai' — apakah ia sempat membaca ulang jawabannya sendiri, atau langsung menyerahkan tanpa dicek sama sekali?" },
+    { text:"Merapikan alat belajarnya sendiri setelah sesi selesai", note:"Misalnya sesi sudah selesai — apakah ia memasukkan sendiri buku dan alat tulis ke tasnya, atau meninggalkannya berantakan sampai diingatkan orang lain?" },
+    { text:"Bisa mengikuti instruksi dengan beberapa langkah tanpa harus diulang-ulang", note:"Misalnya diminta 'buka halaman 5, kerjakan nomor 1-3, lalu panggil saya' — apakah ia mengikuti ketiga langkah itu, atau lupa salah satu dan perlu diingatkan ulang?" },
+    { text:"Mengelola waktu pengerjaan tugasnya sendiri tanpa terus diingatkan", note:"Misalnya diberi waktu 10 menit untuk satu bagian — apakah ia sadar sendiri harus mempercepat saat waktu menipis, atau baru sadar setelah diingatkan berkali-kali?" },
+    { text:"Berani mencoba menyelesaikan sendiri dulu sebelum bertanya ke guru", note:"Misalnya di awal mengerjakan soal baru — apakah ia mencoba membaca dan memahami sendiri dulu, atau langsung bertanya 'ini gimana?' sebelum sempat mencoba?" }
+  ]},
+  { domain:"D", label:"Minat & Motivasi", metaLabel:"Sumber Motivasi", icon:"motiv", items:[
+    { text:"Lebih semangat saat ada unsur permainan atau tantangan (skor, lomba kecil)", note:"Misalnya diajak 'siapa cepat selesai dapat bintang' — apakah semangatnya langsung naik dan lebih cepat mengerjakan dibanding kalau tanpa tantangan seperti itu?" },
+    { text:"Lebih semangat saat belajar bersama teman dibanding sendirian", note:"Misalnya dalam kelompok kecil 2-3 anak dibanding belajar satu-satu dengan guru — apakah ia tampak lebih hidup dan aktif saat ada teman belajar bareng?" },
+    { text:"Senang dan makin semangat saat mendapat pujian verbal langsung", note:"Misalnya diberi kalimat 'bagus sekali, kamu pintar!' setelah menjawab benar — apakah ekspresinya senang dan makin bersemangat mengerjakan soal berikutnya?" },
+    { text:"Termotivasi oleh pencapaian yang terlihat konkret (bintang, stiker, progress bar)", note:"Misalnya ada sistem stiker/bintang untuk tiap tugas selesai — apakah ia jadi lebih semangat mengejar mengumpulkan stiker dibanding tanpa sistem itu?" },
+    { text:"Lebih semangat saat diberi pilihan cara mengerjakan, bukan hanya satu cara baku", note:"Misalnya ditawari 'mau jawab lisan atau ditulis dulu?' — apakah ia tampak lebih antusias saat punya pilihan dibanding saat caranya sudah ditentukan sepenuhnya?" },
+    { text:"Bertahan lebih lama mengerjakan tugas yang berkaitan dengan minat pribadinya", note:"Misalnya soal cerita bertema dinosaurus/mobil yang ia sukai dibanding tema netral — apakah ia bertahan fokus lebih lama dan lebih antusias mengerjakannya?" }
+  ]},
+  { domain:"E", label:"Cara Menyerap Informasi", metaLabel:"Cara Menyerap Informasi", icon:"absorb", items:[
+    { text:"Paling cepat paham saat materi disertai gambar, diagram, atau video", note:"Misalnya menjelaskan konsep pecahan — apakah ia lebih cepat 'ngeh' saat ditunjukkan gambar potongan kue dibanding hanya dijelaskan dengan kata-kata?" },
+    { text:"Paling cepat paham saat dijelaskan secara lisan atau lewat cerita", note:"Misalnya konsep yang sama dijelaskan lewat cerita atau analogi lisan tanpa gambar — apakah ia cukup paham hanya dari mendengarkan penjelasan guru?" },
+    { text:"Paling cepat paham saat langsung praktik atau memegang benda konkret", note:"Misalnya diberi benda nyata (kelereng, kertas lipat) untuk mempraktikkan sendiri — apakah pemahamannya lebih cepat muncul dibanding hanya melihat/mendengar penjelasan?" },
+    { text:"Lebih mudah mengingat informasi lewat lagu, ritme, atau pengulangan berirama", note:"Misalnya menghafal urutan abjad atau perkalian — apakah ia lebih cepat hafal kalau dibuat lagu/irama dibanding dibacakan atau ditulis biasa?" },
+    { text:"Lebih cepat paham saat materi dikaitkan dengan pengalaman nyata sehari-hari", note:"Misalnya konsep 'setengah' dijelaskan lewat cerita berbagi kue dengan adik/kakak — apakah ia lebih cepat paham dibanding dijelaskan lewat rumus atau angka langsung?" },
+    { text:"Lebih mudah paham saat materi dipecah jadi langkah-langkah kecil bertahap", note:"Misalnya soal yang rumit dipecah jadi beberapa langkah kecil satu per satu — apakah pemahamannya jadi lebih jelas dibanding diberi penjelasan sekaligus secara utuh?" }
+  ]}
+];
+
+const DOMAIN_META = {
+  A: { label:"Fokus & Konsentrasi", color:"#0686c7",
+    low:{desc:"Si kecil masih dalam proses membangun daya fokus — ini wajar dan bisa terus dilatih.", tips:["Pecah tugas jadi bagian-bagian kecil dengan jeda singkat","Kurangi gangguan visual/suara di area belajarnya di rumah","Beri apresiasi setiap kali ia bertahan fokus lebih lama dari biasanya"]},
+    mid:{desc:"Si kecil cukup bisa menjaga fokus, dengan sedikit bantuan di momen tertentu.", tips:["Sesi belajar singkat namun konsisten lebih efektif daripada sesi panjang","Beri jeda kecil di antara tugas untuk menjaga energinya"]},
+    high:{desc:"Fokus dan konsentrasi adalah salah satu kekuatan si kecil.", tips:["Beri tugas yang sedikit menantang agar fokusnya tetap terpakai optimal","Manfaatkan kekuatan ini untuk tugas yang butuh ketelitian tinggi"]}
+  },
+  B: { label:"Ketekunan & Daya Juang", color:"#d97706",
+    low:{desc:"Si kecil cenderung mudah menyerah saat menemui kesulitan — ini area yang bisa dikembangkan bertahap.", tips:["Rayakan proses/usaha, bukan cuma hasil akhir","Bantu ia mengingat pengalaman berhasil sebelumnya saat menghadapi kesulitan baru","Berikan tantangan kecil dulu agar terbiasa merasakan 'berhasil setelah mencoba'"]},
+    mid:{desc:"Si kecil cukup gigih, meski kadang butuh dorongan tambahan saat kesulitan meningkat.", tips:["Ajak ia menyusun 'rencana B' saat cara pertama tidak berhasil","Ingatkan bahwa membuat kesalahan adalah bagian normal dari belajar"]},
+    high:{desc:"Ketekunan dan daya juang adalah kekuatan besar si kecil.", tips:["Beri soal dengan tingkat kesulitan bertahap untuk terus mengasah daya juangnya","Jadikan sikap pantang menyerahnya sebagai contoh yang diapresiasi terbuka"]}
+  },
+  C: { label:"Kemandirian Belajar", color:"#7c3aed",
+    low:{desc:"Si kecil masih membutuhkan banyak arahan — ini normal dan akan berkembang seiring waktu.", tips:["Beri instruksi satu per satu, bukan sekaligus banyak","Latih rutinitas kecil yang sama setiap sesi agar familiar","Kurangi bantuan secara bertahap, bukan langsung dilepas"]},
+    mid:{desc:"Si kecil cukup mandiri, dengan sesekali masih perlu diingatkan.", tips:["Beri checklist visual sederhana untuk tugas rutin","Biarkan ia mencoba dulu sebelum menawarkan bantuan"]},
+    high:{desc:"Kemandirian adalah salah satu kekuatan si kecil.", tips:["Beri tanggung jawab kecil tambahan yang sesuai usianya","Manfaatkan kemandiriannya untuk melatih kepemimpinan dalam kelompok kecil"]}
+  },
+  D: { label:"Sumber Motivasi", color:"#16a34a",
+    low:{desc:"Belum terlihat pola motivasi yang menonjol dari observasi — dapat diamati lebih lanjut di sesi berikutnya.", tips:["Coba variasikan pendekatan (permainan, kelompok, pujian, progress visual) dan amati responnya","Tanyakan langsung ke si kecil apa yang membuatnya paling semangat belajar"]},
+    mid:{desc:"Si kecil merespons cukup baik terhadap beberapa bentuk motivasi.", tips:["Kombinasikan pendekatan yang paling direspons positif secara konsisten"]},
+    high:{desc:"Si kecil punya sumber motivasi yang jelas dan bisa dimanfaatkan secara konsisten.", tips:["Gunakan pendekatan yang paling ia respons sebagai 'pemicu semangat' rutin","Di rumah, coba terapkan pendekatan serupa saat mengerjakan PR"]}
+  },
+  E: { label:"Cara Menyerap Informasi", color:"#dc2626",
+    low:{desc:"Belum terlihat kecenderungan yang menonjol dari observasi — wajar, karena anak-anak umumnya menyerap informasi lewat kombinasi berbagai cara.", tips:["Coba variasikan cara penyampaian materi dan amati mana yang paling cepat 'nyambung'"]},
+    mid:{desc:"Si kecil cukup fleksibel menyerap informasi lewat beberapa cara.", tips:["Kombinasikan penjelasan lisan dengan gambar/diagram saat membantu belajar di rumah"]},
+    high:{desc:"Ada kecenderungan yang cukup jelas dalam cara si kecil paling cepat memahami materi baru.", tips:["Perkenalkan topik baru lewat cara ini terlebih dulu, baru diperkuat dengan cara lain","Ini bukan berarti cara lain tidak perlu — kombinasi tetap penting, ini hanya titik awal yang paling efektif"]}
+  }
+};
+
+function levelOf(pct){ return pct<=33?"low":pct<=66?"mid":"high"; }
+function levelLabel(pct){ return pct<=33?"Sedang berkembang":pct<=66?"Cukup menonjol":"Kekuatan utama"; }
+function levelColor(pct){ return pct<=33?"#6b7280":pct<=66?"#0686c7":"#16a34a"; }
+function slug(s){ return (s||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-"); }
+
+let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null };
+let genId = "";
+function domainPct(stageData, domain, range) {
+  if(!stageData) return null;
+  const sum = range.reduce((s,idx)=>s+(stageData.answers[`${domain}_${idx}`]||0),0);
+  return Math.round((sum/(range.length*3))*100);
+}
+
+function buildCombinedProfile() {
+  const areas = document.getElementById("profile-areas");
+  areas.innerHTML = "";
+  let best = { domain:null, pct:-1 };
+  const hasT1 = !!(record.tahap1 && record.tahap1.status === 'selesai');
+  const hasT2 = !!(record.tahap2 && record.tahap2.status === 'selesai');
+  const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Info" };
+  const radarData = [];
+
+  ITEMS.forEach(d => {
+    const pct1 = hasT1 ? domainPct(record.tahap1, d.domain, [0,1,2]) : null;
+    const pct2 = hasT2 ? domainPct(record.tahap2, d.domain, [3,4,5]) : null;
+    // pct gabungan: rata-rata dari tahap yang tersedia (kalau 2 tahap ada, dari 6 item asli)
+    let combinedPct;
+    if(hasT1 && hasT2) {
+      const sum = [0,1,2,3,4,5].reduce((s,idx)=>{
+        const src = idx<3 ? record.tahap1 : record.tahap2;
+        return s + (src.answers[`${d.domain}_${idx}`]||0);
+      },0);
+      combinedPct = Math.round((sum/18)*100);
+    } else {
+      combinedPct = pct1 !== null ? pct1 : pct2;
+    }
+    if(combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
+    radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, color: DOMAIN_META[d.domain].color, icon: d.icon });
+
+    const meta = DOMAIN_META[d.domain];
+    const level = levelOf(combinedPct);
+    const info = meta[level];
+
+    let trendHtml = "";
+    if(hasT1 && hasT2) {
+      const delta = pct2 - pct1;
+      let trendLabel, trendColor;
+      if(delta >= 12){ trendLabel="▲ Meningkat"; trendColor="#16a34a"; }
+      else if(delta <= -12){ trendLabel="▼ Menurun"; trendColor="#dc2626"; }
+      else { trendLabel="≈ Konsisten"; trendColor="#0686c7"; }
+      trendHtml = `<span class="parea-trend" style="background:${trendColor}22;color:${trendColor}">${trendLabel}</span>`;
+    }
+
+    const barsHtml = (hasT1 && hasT2) ? `
+      <div class="parea-bar-compare">
+        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">Tahap 1</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct1}%;background:${levelColor(pct1)}"></div></div><span class="parea-bar-compare-val">${pct1}%</span></div>
+        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">Tahap 2</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct2}%;background:${levelColor(pct2)}"></div></div><span class="parea-bar-compare-val">${pct2}%</span></div>
+      </div>` : `
+      <div class="parea-bar-compare">
+        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${hasT1?"Tahap 1":"Tahap 2"}</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${combinedPct}%;background:${levelColor(combinedPct)}"></div></div><span class="parea-bar-compare-val">${combinedPct}%</span></div>
+      </div>`;
+
+    const card = document.createElement("div");
+    card.className = "parea-card";
+    card.innerHTML = `
+      <div class="parea-head">
+        <div class="parea-dot" style="background:${meta.color}"></div>
+        <div class="parea-label">${meta.label}</div>
+        <div class="parea-pill" style="background:${levelColor(combinedPct)}22;color:${levelColor(combinedPct)}">${levelLabel(combinedPct)}</div>
+        ${trendHtml}
+      </div>
+      <div class="parea-bar-wrap">${barsHtml}</div>
+      <div class="parea-body">
+        <div class="parea-desc">${info.desc}</div>
+        <div class="parea-tips">${info.tips.map(t=>`<div class="parea-tip"><span class="parea-tip-icon"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#d97706" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3z"/></svg></span><span>${t}</span></div>`).join("")}</div>
+      </div>`;
+    areas.appendChild(card);
+  });
+
+  document.getElementById("radar-chart-container").innerHTML = buildRadarSVG(radarData);
+
+  const nama = record.nama || "Si kecil";
+  const bestMeta = DOMAIN_META[best.domain];
+  const bestItemDef = ITEMS.find(d => d.domain === best.domain);
+  let extra = "";
+  if(best.domain === "E") {
+    const subLabels = ["gambar/diagram/video (visual)","penjelasan lisan/cerita (auditori)","praktik langsung (kinestetik)"];
+    let subBest = -1, subIdx = 0;
+    const srcE = hasT1 ? record.tahap1.answers : (hasT2 ? record.tahap2.answers : {});
+    if(hasT1) {
+      subLabels.forEach((_,i)=>{ const v=srcE[`E_${i}`]||0; if(v>subBest){subBest=v;subIdx=i;} });
+      extra = ` — terutama lewat ${subLabels[subIdx]}`;
+    }
+  }
+  const heroCard = document.getElementById("hero-specialty");
+  heroCard.style.borderColor = bestMeta.color + "35";
+  heroCard.style.background = `linear-gradient(180deg, ${bestMeta.color}14, #ffffff 65%)`;
+  document.getElementById("hero-icon-badge").style.background = bestMeta.color;
+  document.getElementById("hero-icon-badge").innerHTML = ICONS[bestItemDef.icon];
+  document.getElementById("hero-label").style.background = bestMeta.color;
+  document.getElementById("hero-title").textContent = bestMeta.label;
+  document.getElementById("hero-title").style.color = bestMeta.color;
+  document.getElementById("hero-sub").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area ini${extra}.`;
+  document.getElementById("report-title").textContent = `Profil Kekuatan Belajar ${nama}`;
+
+
+  buildIntroDeck(record.nama || "Ananda", hasT1, hasT2);
+  const singleNote = document.getElementById("single-stage-note");
+  const caption = document.getElementById("areas-caption");
+  const sub = document.getElementById("report-sub");
+  const parentNote = document.getElementById("parent-note-box");
+  if(hasT1 && hasT2) {
+    singleNote.style.display = "none";
+    caption.textContent = "Berikut perbandingan Tahap 1 vs Tahap 2 di tiap area, untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.";
+    sub.textContent = "Evaluasi gabungan Tahap 1 & Tahap 2 — observasi guru di Markz Belajar";
+    parentNote.innerHTML = `💬 Laporan ini membandingkan dua titik observasi guru dari waktu ke waktu, dan akan menjadi bahan diskusi bersama Ayah/Bunda agar pendampingan belajar si kecil makin sesuai dengan caranya sendiri.`;
+  } else {
+    singleNote.style.display = "none";   // sudah dijelaskan di kartu pengantar
+    singleNote.innerHTML = "ℹ️ Ini <strong>hasil awal (Tahap 1)</strong>. Observasi akan <strong>dilanjutkan ke Tahap 2</strong> setelah ±4 pertemuan berikutnya, untuk melihat konsistensi dan perkembangan si kecil dari waktu ke waktu.";
+    caption.textContent = "Berikut profil sementara si kecil di tiap area, berdasarkan satu tahap observasi. Semakin tinggi bintang menjulur ke suatu area, semakin menonjol kecenderungan tersebut — bukan penilaian baik/buruk.";
+    sub.textContent = "Hasil awal (Tahap 1) — observasi guru di Markz Belajar";
+    parentNote.innerHTML = "💬 Hasil ini adalah gambaran awal. Setelah beberapa pertemuan berikutnya, guru akan melakukan observasi lanjutan (Tahap 2) untuk melihat perkembangan si kecil, lalu Ayah/Bunda akan menerima laporan perbandingan Tahap 1 &amp; 2.";
+  }
+}
+
+
+// ── DECK KARTU PENGANTAR (swipe kiri/kanan seperti kartu soal) ──
+const IICONS = {
+  heart: '<path d="M20.8 4.6a5.5 5.5 0 0 0-7.8 0L12 5.7l-1-1.1a5.5 5.5 0 0 0-7.8 7.8l1 1L12 21l7.8-7.6 1-1a5.5 5.5 0 0 0 0-7.8z"/>',
+  calendar: '<rect x="3" y="4.5" width="18" height="16" rx="3"/><path d="M3 9.5h18M8 3v3M16 3v3M9 15l2 2 4-4"/>',
+  eye: '<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/>',
+  chart: '<path d="M5 20v-6M12 20V6M19 20v-10"/><path d="M3 20h18"/>',
+  shield: '<path d="M12 3l8 3v6c0 4.5-3.4 8-8 9-4.6-1-8-4.5-8-9V6z"/><path d="M12 11v4M12 8h.01"/>'
+};
+let iCards = [], iIdx = 0, iBusy = false, iDrag = null, iSuppress = false;
+
+function escHtml(t) { return String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function buildIntroDeck(nama, hasT1, hasT2) {
+  const both = hasT1 && hasT2;
+  const stageLabel = both ? "Tahap 1 &amp; Tahap 2" : (hasT2 ? "Tahap 2" : "Tahap 1");
+  const dom = (c, t, d) => `<div class="idomain" style="--c:${c}"><b>${t}</b> — ${d}</div>`;
+  const dot = (c, t) => `<span style="--c:${c}">${t}</span>`;
+  iCards = [
+    { icon: "heart", title: "", body:
+      `<div class="isalam">Assalamu'alaikum, Ayah/Bunda</div>
+       <div class="iplain">Profil Kekuatan Belajar</div>
+       <div class="iname">${escHtml(nama)}</div>
+       <div class="isub">Hasil observasi guru · ${stageLabel}</div>` },
+    { icon: "calendar", title: both ? "Evaluasi gabungan" : "Laporan pertama", body: both
+      ? `<div>Membandingkan <strong>dua observasi guru</strong> dari waktu ke waktu.</div>
+         <div class="iplain">Menjadi bahan diskusi kita untuk pendampingan yang lebih pas.</div>`
+      : `<div>Kami akan observasi lagi setelah <strong>±4 pertemuan</strong> berikutnya, untuk melihat perkembangan ananda.</div>
+         <div class="iplain">Hasilnya jadi bahan diskusi bersama Ayah/Bunda.</div>` },
+    { icon: "eye", title: "Metode", body:
+      `<div>Observasi guru saat ananda belajar.<br><strong>Bukan tes.</strong></div>
+       <div class="ilist">
+         ${dot("#0686c7","Fokus")}${dot("#d97706","Ketekunan")}${dot("#7c3aed","Kemandirian")}${dot("#16a34a","Motivasi")}${dot("#dc2626","Cara menyerap informasi")}
+       </div>
+       <div class="isub">Berbasis konsep perhatian, grit, <i>self-regulated learning</i> &amp; motivasi</div>` },
+    { icon: "chart", title: "Cara menilai", body:
+      `<div>Seberapa sering perilaku muncul selama <strong>±4 pertemuan</strong>, skala 0–3, lalu jadi persen.</div>
+       <div class="ipills"><span><b>0–33%</b> berkembang</span><span><b>34–66%</b> menonjol</span><span><b>67–100%</b> kekuatan utama</span></div>` },
+    { icon: "shield", title: "Perlu diingat", last: true, body:
+      `<div>Ini alat bantu pendampingan, <strong>bukan</strong> tes IQ, bakat, atau diagnosis.</div>
+       <div class="iplain">Hasil bisa berubah seiring waktu.</div>` }
+  ];
+  iIdx = 0;
+  renderIntro(false);
+}
+
+function renderIntro(anim) {
+  const c = iCards[iIdx], total = iCards.length;
+  const num = String(iIdx + 1).padStart(2, "0");
+  document.getElementById("intro-deck").innerHTML = `<div class="istack"><div class="ighost g1"></div><div class="ighost g2"></div>
+    <div class="icard${anim ? ' enter' : ''}">
+      <div class="iicon"><svg viewBox="0 0 24 24">${IICONS[c.icon]}</svg></div>
+      ${c.title ? `<div class="ititle">${c.title}</div>` : ""}
+      <div class="ibody">${c.body}</div>
+      ${c.last ? `<button type="button" class="igo" onclick="introToResult()">Lihat hasil <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></button>` : ""}
+      <div class="inum">${num}<span>/${String(total).padStart(2,"0")}</span></div>
+    </div></div>`;
+  document.getElementById("idk-dots").innerHTML = iCards.map((_, k) => `<i class="${k === iIdx ? 'on' : ''}"></i>`).join("");
+}
+
+function openIntro() {
+  window.__introSeen = true;
+  iIdx = 0; renderIntro(false);
+  document.getElementById("intro-overlay").classList.add("open");
+  document.documentElement.classList.add("intro-open");
+}
+function closeIntro() {
+  document.getElementById("intro-overlay").classList.remove("open");
+  document.documentElement.classList.remove("intro-open");
+  window.scrollTo({ top: 0 });
+}
+function introToResult() { closeIntro(); }
+
+function introGo(dir) {
+  if(iBusy) return;
+  const next = iIdx + dir;
+  const card = document.querySelector("#intro-deck .icard");
+  if(next < 0) return;
+  if(next >= iCards.length) {   // geser kiri di kartu terakhir → ke hasil
+    if(card) { card.classList.remove("shake"); void card.offsetWidth; card.classList.add("shake"); }
+    introToResult();
+    return;
+  }
+  iBusy = true;
+  if(card) {
+    const W = Math.max(window.innerWidth, 400);
+    card.style.transition = "transform .28s ease-in, opacity .28s ease-in";
+    card.style.transform = `translateX(${-dir * W}px) rotate(${-dir * 20}deg)`;
+    card.style.opacity = "0";
+  }
+  setTimeout(() => { iIdx = next; renderIntro(true); iBusy = false; }, 250);
+}
+
+(function initIntroSwipe() {
+  const wrap = document.getElementById("intro-deck");
+  wrap.addEventListener("pointerdown", e => {
+    if(iBusy || e.button > 0) return;
+    const card = e.target.closest(".icard");
+    if(!card || e.target.closest(".igo")) return;
+    iDrag = { x: e.clientX, y: e.clientY, t: Date.now(), id: e.pointerId, card, dragging: false, dx: 0 };
+  });
+  wrap.addEventListener("pointermove", e => {
+    if(!iDrag || e.pointerId !== iDrag.id) return;
+    const dx = e.clientX - iDrag.x, dy = e.clientY - iDrag.y;
+    if(!iDrag.dragging) {
+      if(Math.abs(dx) > 10 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+        iDrag.dragging = true;
+        try { iDrag.card.setPointerCapture(e.pointerId); } catch(_) {}
+        iDrag.card.style.transition = "none"; iDrag.card.style.animation = "none";
+      } else if(Math.abs(dy) > 10) { iDrag = null; return; }
+      else return;
+    }
+    const lastFwd = dx < 0 && iIdx >= iCards.length - 1;
+    const blocked = lastFwd || (dx > 0 && iIdx === 0);
+    const eff = blocked ? dx * 0.3 : dx;
+    iDrag.dx = dx; iDrag.blocked = blocked; iDrag.lastFwd = lastFwd;
+    iDrag.card.style.transform = `translateX(${eff}px) rotate(${eff / 18}deg)`;
+  });
+  const end = e => {
+    if(!iDrag || e.pointerId !== iDrag.id) return;
+    const d = iDrag; iDrag = null;
+    if(!d.dragging) return;
+    iSuppress = true; setTimeout(() => { iSuppress = false; }, 60);
+    const dt = Math.max(Date.now() - d.t, 1);
+    const fast = Math.abs(d.dx) / dt > 0.5 && Math.abs(d.dx) > 40;
+    const far = Math.abs(d.dx) > 90 || fast;
+    if(d.lastFwd && far) {
+      d.card.style.transition = "transform .28s cubic-bezier(.2,.9,.3,1.2)";
+      d.card.style.transform = "translateX(0) rotate(0deg)";
+      introToResult();
+    } else if(!d.blocked && far) {
+      d.card.style.transition = "";
+      introGo(d.dx < 0 ? 1 : -1);
+    } else {
+      d.card.style.transition = "transform .28s cubic-bezier(.2,.9,.3,1.2)";
+      d.card.style.transform = "translateX(0) rotate(0deg)";
+    }
+  };
+  wrap.addEventListener("pointerup", end);
+  wrap.addEventListener("pointercancel", end);
+  wrap.addEventListener("click", e => { if(iSuppress) { e.preventDefault(); e.stopPropagation(); } }, true);
+})();
+
+// ── RADAR / SPIDER CHART (inline SVG, tanpa library eksternal) ──
+function buildRadarSVG(items) {
+  const n = items.length;
+  const cx = 190, cy = 172, maxR = 82, labelR = maxR + 50;
+  const step = 360 / n;
+  function pol(radius, deg) {
+    const a = (deg - 90) * Math.PI / 180;
+    return { x: cx + radius * Math.cos(a), y: cy + radius * Math.sin(a) };
+  }
+  const rad = items.map(it => maxR * (Math.max(it.pct, 8) / 100));
+  // Bentuk data: bintang dengan sisi melengkung ke DALAM di antara dua titik area
+  function starCurve(radii, pull) {
+    const P = radii.map((r, i) => pol(r, i * step));
+    let d = `M${P[0].x.toFixed(1)},${P[0].y.toFixed(1)}`;
+    for (let i = 0; i < n; i++) {
+      const j = (i + 1) % n;
+      const c = pol(pull * (radii[i] + radii[j]) / 2, i * step + step / 2);
+      d += ` Q${c.x.toFixed(1)},${c.y.toFixed(1)} ${P[j].x.toFixed(1)},${P[j].y.toFixed(1)}`;
+    }
+    return d + " Z";
+  }
+  const d = starCurve(rad, 0.3);
+  const pts = [];
+  items.forEach((_, i) => { pts[i * 2] = pol(rad[i], i * step); });
+  // Garis latar: bintang bulat 5 lobus (ujung membulat, lekuk landai), berlapis 25/50/75/100%
+  function flowerPath(R, k) {
+    let dd = "";
+    for (let deg = 0; deg <= 360; deg += 3) {
+      const t = deg * Math.PI / 180;
+      const r = R * (k + (1 - k) * (1 + Math.cos(n * t)) / 2);
+      const q = pol(r, deg);
+      dd += (deg === 0 ? "M" : "L") + q.x.toFixed(1) + "," + q.y.toFixed(1) + " ";
+    }
+    return dd + "Z";
+  }
+  const levels = [1, 0.75, 0.5, 0.25];   // 100%, 75%, 50%, 25%
+
+  const avg = Math.round(items.reduce((s, it) => s + it.pct, 0) / n);
+  const defs = `<defs>
+    <radialGradient id="starGrad" cx="50%" cy="50%" r="55%">
+      <stop offset="0%" stop-color="#34d399"/><stop offset="45%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#6366f1"/>
+    </radialGradient>
+    <filter id="txtShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#055a96" flood-opacity=".55"/></filter>
+    <filter id="starGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+  </defs>`;
+  let rings = "";
+  levels.forEach((f, k) => {
+    rings += `<path d="${flowerPath(maxR * f, 0.72)}" fill="${k===0?'#f8fafc':'none'}" stroke="${k===0?'#cfd8e3':'#e3e9f0'}" stroke-width="${k===0?1.3:1}" stroke-linejoin="round"/>`;
+  });
+  // Garis sumbu: dari titik tengah ke tiap area (Fokus, Ketekunan, Kemandirian, Motivasi, Info)
+  items.forEach((_, i) => { const e = pol(maxR, i * step); rings += `<line x1="${cx}" y1="${cy}" x2="${e.x.toFixed(1)}" y2="${e.y.toFixed(1)}" stroke="#d5dde8" stroke-width="1"/>`; });
+  const star = `<path d="${d}" fill="url(#starGrad)" opacity=".55" filter="url(#starGlow)"/>
+    <path d="${d}" fill="url(#starGrad)" fill-opacity=".92" stroke="#fff" stroke-width="1.5" stroke-linejoin="round"/>`;
+  let dots = "";
+  items.forEach((it, i) => { const p = pts[i * 2]; dots += `<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.5" fill="${it.color}" stroke="#fff" stroke-width="2"/>`; });
+  const center = `<g filter="url(#txtShadow)">
+      <text x="${cx}" y="${cy + 4}" text-anchor="middle" font-size="30" font-weight="800" fill="#fff" font-family="Segoe UI, sans-serif">${avg}</text>
+      <text x="${cx}" y="${cy + 20}" text-anchor="middle" font-size="10.5" font-weight="700" fill="#fff" font-family="Segoe UI, sans-serif">/100 rata-rata</text>
+    </g>`;
+
+  let labelHtml = "";
+  items.forEach((it, i) => {
+    const p = pol(labelR, i * step);
+    const iconY = p.y - 18;
+    const iconSvg = it.icon ? ICONS[it.icon] : "";
+    labelHtml += `<circle cx="${p.x.toFixed(1)}" cy="${iconY.toFixed(1)}" r="13" fill="${it.color}"/>`;
+    labelHtml += `<g transform="translate(${(p.x-8).toFixed(1)}, ${(iconY-8).toFixed(1)})">${iconSvg}</g>`;
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563" font-family="Segoe UI, sans-serif">${it.short}</text>`;
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+23).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
+  });
+  return `<svg viewBox="0 0 380 350" style="width:100%;max-width:360px;overflow:visible;">${defs}${rings}${star}${dots}${center}${labelHtml}</svg>`;
+}
+
+function showCombinedReport() {
+  buildCombinedProfile();
+  document.getElementById("result-parent").classList.add("show");
+  if(document.documentElement.classList.contains("view-mode")) { openIntro(); }
+  else window.scrollTo({top:0, behavior:"smooth"});
+}
+
+function showCombinedReport() {
+  buildCombinedProfile();
+  document.getElementById("result-parent").classList.add("show");
+  openIntro();
+}
+
+// ── MUAT DATA ──
+function showViewMessage(html) {
+  const el = document.getElementById("readonly-banner");
+  el.innerHTML = html; el.classList.add("show");
+}
+function hasAnyFinalStage() {
+  return !!((record.tahap1 && record.tahap1.status === 'selesai') || (record.tahap2 && record.tahap2.status === 'selesai'));
+}
+function kbCacheKey(g){ return "mb_kb_cache_" + g; }
+function readKBCache(g){ try { const raw = localStorage.getItem(kbCacheKey(g)); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
+async function fetchDetailWithRetry(g) {
+  let r = await apiKB('getKBDetail', { genId: g }, 20000);
+  if(!(r && r.ok)) r = await apiKB('getKBDetail', { genId: g }, 20000);
+  return r;
+}
+function reportOrMessage(failed, errMsg) {
+  if(hasAnyFinalStage()) { showCombinedReport(); return; }
+  if(failed) showViewMessage('⚠️ <strong>Gagal memuat laporan.</strong> (' + errMsg + ') <button onclick="location.reload()" style="margin-left:6px;background:#0686c7;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;">Muat ulang</button>');
+  else showViewMessage('⏳ <strong>Laporan belum tersedia.</strong> Observasi guru untuk ananda belum diselesaikan.');
+}
+
+async function loadReport() {
+  const p = new URLSearchParams(window.location.search);
+  const g = p.get('gen');
+  if(g) {
+    genId = g;
+    record.nama = p.get('nama') || "";
+    const cache = readKBCache(g);
+    if(cache && cache.record) {
+      record.nama = cache.record.nama || record.nama;
+      record.tahap1 = cache.record.tahap1 || null;
+      record.tahap2 = cache.record.tahap2 || null;
+    }
+    if(hasAnyFinalStage()) { showCombinedReport(); document.documentElement.classList.remove('view-loading'); }
+    const slowTimer = setTimeout(() => {
+      const sub = document.querySelector('.view-loading-sub');
+      if(sub) sub.textContent = 'Server sedang lambat, masih mencoba… mohon tunggu sebentar';
+    }, 6000);
+    const r = await fetchDetailWithRetry(g);
+    clearTimeout(slowTimer);
+    let failed = false, errMsg = '';
+    if(r && r.ok && r.data) {
+      const d = r.data;
+      record.tahap1 = d.tahap1 || null;
+      record.tahap2 = d.tahap2 || null;
+      record.nama = d.namaAnak || record.nama;
+      record.usia = d.usia || ""; record.jk = d.jk || ""; record.guru = d.namaGuru || "";
+    } else if(r && r.ok) {
+      record.tahap1 = null; record.tahap2 = null;
+    } else { failed = true; errMsg = (r && r.error) || 'Server tidak merespons'; }
+    // tampilkan ulang hanya jika data berubah / belum tampil
+    if(!document.getElementById("result-parent").classList.contains("show") || (r && r.ok)) {
+      const wasOpen = document.getElementById("intro-overlay").classList.contains("open");
+      if(hasAnyFinalStage()) { buildCombinedProfile(); document.getElementById("result-parent").classList.add("show"); if(!wasOpen && !window.__introSeen) openIntro(); }
+      else reportOrMessage(failed, errMsg);
+    }
+    return true;
+  }
+  // Mode offline: data di dalam link (#d=...)
+  const hash = window.location.hash;
+  if(hash && hash.startsWith("#d=")) {
+    try {
+      const data = JSON.parse(decodeURIComponent(escape(atob(hash.slice(3)))));
+      record = Object.assign({ nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null }, data);
+      reportOrMessage(false, '');
+      return true;
+    } catch(e) { console.error(e); }
+  }
+  showViewMessage('⚠️ <strong>Link laporan tidak valid.</strong> Mohon minta link baru kepada guru.');
+  return false;
+}
+loadReport().finally(() => document.documentElement.classList.remove('view-loading'));
+</script>
+</body>
+</html>
