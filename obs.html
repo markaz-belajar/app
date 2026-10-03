@@ -127,19 +127,31 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 .grp-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
 .grp-cnt{font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;color:var(--text3);background:var(--surface2);padding:2px 9px;border-radius:50px;}
 .tile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
-.tile{position:relative;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:28px 10px 12px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;gap:5px;transition:transform .12s,box-shadow .12s;}
+.tile{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:10px 12px 12px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;flex-direction:column;gap:8px;min-width:0;transition:transform .12s;}
 .tile:active{transform:scale(0.98);}
 .tile.urgent{border-color:var(--danger);background:var(--danger-dim);}
-.tile .student-avatar{width:40px;height:40px;border-radius:12px;font-size:14px;}
-.tile-name{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;line-height:1.3;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;}
-.tile-name span{background:linear-gradient(transparent 58%,var(--accent-dim) 58%);padding:0 3px;-webkit-box-decoration-break:clone;box-decoration-break:clone;}
-.tile-meta{font-size:10.5px;color:var(--text3);line-height:1.3;}
-.tile-badges{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;min-height:18px;margin-top:2px;}
-.tbadge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;}
-.lvl-badge{position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;}
+.tile-top{display:flex;align-items:center;justify-content:space-between;gap:6px;}
+.tile-age{font-size:11px;color:var(--text3);font-weight:500;white-space:nowrap;}
+.lvl-badge{font-size:9.5px;font-weight:700;padding:2px 9px;border-radius:99px;white-space:nowrap;}
 .lvl-pre{background:#FEF3C7;color:#B45309;}
 .lvl-elem{background:var(--accent-dim);color:var(--accent);}
 .lvl-lain{background:var(--surface2);color:var(--text3);}
+.tile-main{display:flex;align-items:center;gap:9px;min-width:0;}
+.tile .student-avatar{width:40px;height:40px;border-radius:11px;font-size:14px;flex-shrink:0;}
+.tile-names{min-width:0;flex:1;font-family:'Baloo 2',sans-serif;font-weight:800;color:var(--text);line-height:1.2;}
+.tn1{font-size:17px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.tn2{font-size:12.5px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;}
+.tile-names span{background:linear-gradient(transparent 55%,var(--accent-dim) 55%);padding:0 2px;-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+.tile-meta{font-size:11px;color:var(--text3);line-height:1.3;}
+.tile-badges{display:flex;gap:5px;flex-wrap:wrap;min-height:22px;align-items:center;}
+.tbadge{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);font-size:10px;font-weight:700;padding:3px 9px;border-radius:99px;white-space:nowrap;}
+.dots{display:inline-flex;gap:3px;align-items:center;}
+.dot{width:9px;height:9px;border-radius:50%;border:1.5px solid transparent;flex-shrink:0;}
+.dot.y{background:#F59F00;}            /* sedang diisi / menunggu */
+.dot.g{background:#16A34A;}            /* selesai */
+.dot.b{background:#1B6CA8;}            /* ortu selesai */
+.dot.r{background:#DC3545;}            /* perlu lanjut */
+.dot.n{background:transparent;border-color:var(--border2);}   /* belum */
 
 /* ── EMPTY ── */
 .empty-state{text-align:center;padding:40px 20px;color:var(--text3);}
@@ -567,8 +579,11 @@ function metaOf(s) {
   const parts = String(s.program || s.kelas || '').split(/\s*[-–]\s*/).filter(Boolean);
   if (parts.length > 1) parts.shift();          // buang awalan level (Preschool/Elementary)
   else if (parts.length === 1 && /school|elementary/i.test(parts[0])) parts.length = 0;
-  if (s.usia) parts.push(s.usia);
-  return parts.join(' · ') || '—';
+  return parts.join(' · ');
+}
+function splitName(nama) {
+  const t = String(nama).trim().split(/\s+/);
+  return { first: t[0] || '', rest: t.slice(1).join(' ') };
 }
 function rankOf(s) {
   // makin kecil = makin atas. Hanya screening yang sudah berjalan yang dihitung.
@@ -578,13 +593,15 @@ function rankOf(s) {
   else if (k.t1 === 'selesai' || k.t2 === 'selesai') r.push(4);
   return r.length ? Math.min(...r) : 3;
 }
+function dotCls(st) { return st === 'selesai' ? 'g' : st === 'draft' ? 'y' : 'n'; }
 function tileBadges(s) {
   const a = getStatus(s), k = kbOf(s), out = [];
-  if (a !== 'belum_kirim') out.push(`<span class="tbadge ${STATUS_META[a].cls}">ASD</span>`);
-  const kb = kbBadge(k);
-  if (kb) {
-    const t = (k.t1 === 'selesai' && k.t2 === 'selesai') ? ' T1+2' : (k.t1 === 'selesai' ? ' T1' : (k.t2 === 'selesai' ? ' T2' : ''));
-    out.push(`<span class="tbadge ${kb.cls}">Kekuatan${t}</span>`);
+  if (a !== 'belum_kirim') {
+    const c = { menunggu:'y', ortu_selesai:'b', selesai:'g', perlu_lanjut:'r' }[a] || 'n';
+    out.push(`<span class="tbadge" title="Screening ASD">ASD<span class="dots"><span class="dot ${c}"></span></span></span>`);
+  }
+  if (k.t1 || k.t2) {
+    out.push(`<span class="tbadge" title="Tahap 1 · Tahap 2">Kekuatan<span class="dots"><span class="dot ${dotCls(k.t1)}" title="Tahap 1"></span><span class="dot ${dotCls(k.t2)}" title="Tahap 2"></span></span></span>`);
   }
   return out.join('');
 }
@@ -607,11 +624,14 @@ function renderList() {
     const L = LEVELS[k];
     const tiles = groups[k].map(s => {
       const urgent = getStatus(s) === 'perlu_lanjut' ? ' urgent' : '';
+      const nm = splitName(s.nama), meta = metaOf(s);
       return `<div class="tile${urgent}" onclick="openSheet('${s.id}')">
-        <span class="lvl-badge ${L.cls}">${L.label}</span>
-        <div class="student-avatar">${s.inisial || s.nama.charAt(0)}</div>
-        <div class="tile-name"><span>${s.nama}</span></div>
-        <div class="tile-meta">${metaOf(s)}</div>
+        <div class="tile-top"><span class="lvl-badge ${L.cls}">${L.label}</span><span class="tile-age">${s.usia || ''}</span></div>
+        <div class="tile-main">
+          <div class="student-avatar">${s.inisial || s.nama.charAt(0)}</div>
+          <div class="tile-names"><div class="tn1"><span>${nm.first}</span></div>${nm.rest ? `<div class="tn2"><span>${nm.rest}</span></div>` : ''}</div>
+        </div>
+        ${meta ? `<div class="tile-meta">${meta}</div>` : ''}
         <div class="tile-badges">${tileBadges(s)}</div>
       </div>`;
     }).join('');
