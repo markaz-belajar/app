@@ -4,10 +4,19 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Profil Kekuatan Belajar — Markz Belajar</title>
+<meta name="theme-color" content="#0686c7">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon_mb_app.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <script>
   // Jalan SEBELUM halaman digambar — kalau ini link laporan (?view=1), langsung sembunyikan
   // form & tampilkan loading, supaya orang tua tidak sempat lihat form kosong sekilas.
   if (new URLSearchParams(location.search).get('view') === '1') {
+    // Link laporan lama (?view=1) → arahkan ke halaman laporan khusus orang tua
+    location.replace(location.pathname.replace(/[^\/]*$/, 'obs.kb.laporan.html') + location.search + location.hash);
     document.documentElement.classList.add('view-loading', 'view-mode');
   }
 </script>
@@ -386,6 +395,10 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
 .igo { margin-top: 12px; padding: 11px 22px; font-size: 13.5px; }
 .idk-dots { margin-top: 22px; }
 
+/* Teks tidak bisa diblok/ditahan; geser kiri-kanan tetap jalan walau mulai dari atas teks */
+.icard, .icard *, .qcard, .qcard * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; touch-action: pan-y; }
+.icard .igo { touch-action: manipulation; }
+
 @media print {
   .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .domain-head { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -547,7 +560,7 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
           <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
           Salin Link Lanjutan Tahap 2
         </button>
-        <button class="btn btn-gray" onclick="openIntro()" style="margin-bottom:8px;">Pratinjau tampilan orang tua</button>
+        <button class="btn btn-gray" onclick="previewParent()" style="margin-bottom:8px;">Pratinjau tampilan orang tua</button>
         <button class="btn btn-primary" onclick="backToPicker()">Kembali ke Menu Tahap</button>
       </div>
       <div class="disclaimer" style="margin-top:10px;">ℹ️ Profil ini adalah alat bantu pendampingan belajar internal Markz Belajar, berdasarkan observasi guru selama beberapa pertemuan. Bukan tes bakat, IQ, atau alat diagnosis — kecenderungan anak bisa berubah seiring waktu dan konteks.</div>
@@ -1519,14 +1532,15 @@ function showCombinedReport() {
 }
 
 // ── SHARE ──
+const LAPORAN_FILE = "obs.kb.laporan.html";   // halaman laporan khusus orang tua (satu folder dengan file ini)
+function parentReportUrl() {
+  const base = window.location.origin + window.location.pathname.replace(/[^\/]*$/, LAPORAN_FILE);
+  if(onlineMode && genId) return base + "?gen=" + encodeURIComponent(genId) + "&nama=" + encodeURIComponent(record.nama || "");
+  return base + "#d=" + btoa(unescape(encodeURIComponent(JSON.stringify(record))));
+}
+function previewParent() { window.open(parentReportUrl(), "_blank"); }
 function shareWhatsApp() {
-  let url;
-  if(onlineMode && genId) {
-    url = window.location.origin + window.location.pathname + "?gen=" + encodeURIComponent(genId) + "&view=1";
-  } else {
-    const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(record))));
-    url = window.location.origin + window.location.pathname + "#d=" + encoded;
-  }
+  const url = parentReportUrl();
   const nama = record.nama || "siswa";
   const hasBoth = record.tahap1 && record.tahap2;
   const msg = hasBoth
