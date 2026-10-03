@@ -4,6 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Profil Kekuatan Belajar — Markz Belajar</title>
+<meta name="theme-color" content="#0b2a4a">
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon_mb_app.png">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+
 <script>document.documentElement.classList.add('view-loading', 'view-mode');</script>
 <style>
 :root {
@@ -380,6 +387,10 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
 .igo { margin-top: 12px; padding: 11px 22px; font-size: 13.5px; }
 .idk-dots { margin-top: 22px; }
 
+/* Teks tidak bisa diblok/ditahan; geser kiri-kanan tetap jalan walau mulai dari atas teks */
+.icard, .icard *, .qcard, .qcard * { -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; -webkit-user-drag: none; touch-action: pan-y; }
+.icard .igo { touch-action: manipulation; }
+
 @media print {
   .header { position: static; background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
   .domain-head { background: var(--blue) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
@@ -736,13 +747,28 @@ function renderIntro(anim) {
   document.getElementById("idk-dots").innerHTML = iCards.map((_, k) => `<i class="${k === iIdx ? 'on' : ''}"></i>`).join("");
 }
 
+function setThemeColor(c) { const m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", c); }
+function tryFullscreen() {
+  // Coba sembunyikan bar browser (butuh sentuhan pengguna; tidak semua browser/in-app WhatsApp mengizinkan)
+  try {
+    const el = document.documentElement;
+    if(!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
+  } catch(e) {}
+}
+document.getElementById("intro-overlay").addEventListener("pointerup", function once() {
+  tryFullscreen();
+  document.getElementById("intro-overlay").removeEventListener("pointerup", once);
+});
 function openIntro() {
   window.__introSeen = true;
+  setThemeColor("#0b2a4a");
   iIdx = 0; renderIntro(false);
   document.getElementById("intro-overlay").classList.add("open");
   document.documentElement.classList.add("intro-open");
 }
 function closeIntro() {
+  setThemeColor("#0686c7");
+  try { if(document.fullscreenElement) document.exitFullscreen(); } catch(e) {}
   document.getElementById("intro-overlay").classList.remove("open");
   document.documentElement.classList.remove("intro-open");
   window.scrollTo({ top: 0 });
