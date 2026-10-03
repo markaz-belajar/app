@@ -45,13 +45,40 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 [data-theme="dark"] .hdr-greeting-card p{color:var(--text3);}
 [data-theme="dark"] .hdr-greeting-badge{background:var(--accent-dim);color:var(--accent);}
 
-/* ── NAV FILTER (compact, wraps to next line instead of cramming/scrolling) ── */
-.nav-tabs{padding:10px 14px 12px;background:var(--hdr-bg);position:sticky;top:0;z-index:200;transition:background .3s;}
-.tab-bar-pill{display:flex;flex-wrap:wrap;gap:6px;}
-.nav-tab{padding:7px 13px;border:1.5px solid rgba(255,255,255,0.22);background:rgba(255,255,255,0.10);border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:12px;font-weight:600;color:rgba(255,255,255,0.85);cursor:pointer;display:flex;align-items:center;gap:5px;transition:all .2s;white-space:nowrap;}
-.nav-tab svg{width:12px;height:12px;flex-shrink:0;stroke:currentColor;fill:none;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;}
-.nav-tab:hover{color:#fff;background:rgba(255,255,255,0.18);}
-.nav-tab.active{background:#fff;color:#1B6CA8;border-color:#fff;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+/* ── TOOLS ROW: cari + tombol filter ── */
+.tools-row{display:flex;gap:8px;align-items:center;margin-bottom:12px;}
+.tools-row .search-wrap{flex:1;margin-bottom:0;}
+.filter-btn{position:relative;width:40px;height:40px;border-radius:50%;border:1.5px solid var(--border);background:var(--surface);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;transition:all .15s;}
+.filter-btn svg{width:17px;height:17px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;}
+.filter-btn.on{background:var(--accent);border-color:var(--accent);color:#fff;}
+.filter-chip{display:none;align-items:center;gap:8px;margin:-2px 0 12px;font-size:12px;color:var(--text2);}
+.filter-chip.show{display:flex;}
+.filter-chip .fc-pill{display:inline-flex;align-items:center;gap:6px;background:var(--accent-dim);color:var(--accent);font-weight:700;padding:5px 6px 5px 12px;border-radius:50px;}
+.filter-chip .fc-pill button{width:18px;height:18px;border-radius:50%;border:none;background:var(--accent);color:#fff;display:flex;align-items:center;justify-content:center;cursor:pointer;padding:0;}
+.filter-chip .fc-pill button svg{width:9px;height:9px;stroke:#fff;fill:none;stroke-width:3.5;stroke-linecap:round;}
+
+/* ── FILTER SHEET ── */
+.f-hdr{display:flex;align-items:center;justify-content:space-between;padding:20px 52px 4px 20px;}
+.f-title{font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:var(--text);}
+.f-reset{font-size:12px;color:var(--accent);background:none;border:none;cursor:pointer;font-weight:700;font-family:inherit;}
+.f-body{padding:0 12px 4px;}
+.f-sec{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;padding:14px 10px 6px;}
+.f-opt{display:flex;align-items:center;gap:10px;padding:11px 10px;border-radius:12px;cursor:pointer;font-size:13.5px;font-weight:500;color:var(--text);}
+.f-opt:active{background:var(--surface2);}
+.f-opt.sel{background:var(--accent-dim);color:var(--accent);font-weight:700;}
+.f-opt .f-lbl{flex:1;}
+.f-cnt{font-size:11.5px;color:var(--text3);font-weight:600;}
+.f-chk{width:18px;height:18px;border-radius:50%;border:2px solid var(--border2);flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.f-opt.sel .f-chk{background:var(--accent);border-color:var(--accent);}
+.f-chk svg{width:10px;height:10px;stroke:#fff;fill:none;stroke-width:3.5;stroke-linecap:round;stroke-linejoin:round;display:none;}
+.f-opt.sel .f-chk svg{display:block;}
+
+/* ── BADGE STATUS PER SCREENING DI BARIS SISWA ── */
+.row-badges{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0;}
+.status-badge .bt{font-weight:800;opacity:.7;}
+.status-badge .bt::after{content:' ·';}
+.type-card .status-badge{font-size:10px;}
+.type-sec-lbl{font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.7px;margin:16px 0 8px;}
 
 /* ── SYNC STATUS ── */
 #syncStatus{display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;font-weight:500;}
@@ -94,18 +121,40 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 .st-selesai{background:var(--success-dim);color:var(--success);}
 .st-lanjut{background:var(--danger-dim);color:var(--danger);}
 
+/* ── KELOMPOK & KOTAK SISWA ── */
+.grp{margin-bottom:18px;}
+.grp-hdr{display:flex;align-items:center;gap:8px;font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:800;color:var(--text);margin:0 2px 10px;}
+.grp-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;}
+.grp-cnt{font-family:'Plus Jakarta Sans',sans-serif;font-size:11px;font-weight:700;color:var(--text3);background:var(--surface2);padding:2px 9px;border-radius:50px;}
+.tile-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;}
+.tile{position:relative;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:28px 10px 12px;text-align:center;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,0.06);display:flex;flex-direction:column;align-items:center;gap:5px;transition:transform .12s,box-shadow .12s;}
+.tile:active{transform:scale(0.98);}
+.tile.urgent{border-color:var(--danger);background:var(--danger-dim);}
+.tile .student-avatar{width:40px;height:40px;border-radius:12px;font-size:14px;}
+.tile-name{font-family:'Baloo 2',sans-serif;font-size:14px;font-weight:800;line-height:1.3;color:var(--text);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;margin-top:2px;}
+.tile-name span{background:linear-gradient(transparent 58%,var(--accent-dim) 58%);padding:0 3px;-webkit-box-decoration-break:clone;box-decoration-break:clone;}
+.tile-meta{font-size:10.5px;color:var(--text3);line-height:1.3;}
+.tile-badges{display:flex;gap:4px;justify-content:center;flex-wrap:wrap;min-height:18px;margin-top:2px;}
+.tbadge{font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;white-space:nowrap;}
+.lvl-badge{position:absolute;top:8px;right:8px;font-size:9px;font-weight:700;padding:2px 8px;border-radius:99px;}
+.lvl-pre{background:#FEF3C7;color:#B45309;}
+.lvl-elem{background:var(--accent-dim);color:var(--accent);}
+.lvl-lain{background:var(--surface2);color:var(--text3);}
+
 /* ── EMPTY ── */
 .empty-state{text-align:center;padding:40px 20px;color:var(--text3);}
 .empty-icon{font-size:36px;margin-bottom:10px;}
 .empty-lbl{font-size:13px;}
 
-/* ── BOTTOM SHEET ── */
-.sheet-overlay{position:fixed;inset:0;background:rgba(28,43,58,0);z-index:400;pointer-events:none;transition:background .3s;display:flex;align-items:flex-end;justify-content:center;}
+/* ── POP-UP (di tengah layar) ── */
+.sheet-overlay{position:fixed;inset:0;background:rgba(28,43,58,0);z-index:400;pointer-events:none;transition:background .25s;display:flex;align-items:center;justify-content:center;padding:20px;}
 .sheet-overlay.open{background:rgba(28,43,58,0.55);pointer-events:auto;}
-.sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;z-index:401;transform:translateY(100%);transition:transform .35s cubic-bezier(.4,0,.2,1);max-height:90vh;overflow-y:auto;padding-bottom:32px;}
-.sheet-overlay.open .sheet{transform:translateY(0);}
-.sheet-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:12px auto 0;}
-.sheet-hdr{padding:16px 20px 12px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
+.sheet{background:var(--surface);border-radius:24px;width:100%;max-width:420px;z-index:401;transform:scale(.94) translateY(10px);opacity:0;transition:transform .25s cubic-bezier(.2,.8,.3,1),opacity .2s;max-height:85vh;overflow-y:auto;padding-bottom:22px;box-shadow:0 20px 60px rgba(0,0,0,0.3);position:relative;}
+.sheet-overlay.open .sheet{transform:none;opacity:1;}
+.sheet-handle{display:none;}
+.sheet-x{position:absolute;top:12px;right:12px;width:30px;height:30px;border-radius:50%;border:none;background:var(--surface2);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:2;padding:0;}
+.sheet-x svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.6;stroke-linecap:round;}
+.sheet-hdr{padding:20px 52px 12px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;}
 .sheet-avatar{width:48px;height:48px;border-radius:14px;background:linear-gradient(135deg,var(--accent),#4DA3D4);display:flex;align-items:center;justify-content:center;font-family:'Baloo 2',sans-serif;font-size:17px;font-weight:800;color:#fff;flex-shrink:0;}
 .sheet-name{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:var(--text);}
 .sheet-meta{font-size:11.5px;color:var(--text3);margin-top:2px;}
@@ -185,10 +234,10 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 .btn:active{transform:scale(0.98);}
 
 /* ── WA SHEET ── */
-.wa-overlay{position:fixed;inset:0;background:rgba(28,43,58,0.55);z-index:500;display:none;align-items:flex-end;justify-content:center;}
+.wa-overlay{position:fixed;inset:0;background:rgba(28,43,58,0.55);z-index:500;display:none;align-items:center;justify-content:center;padding:20px;}
 .wa-overlay.open{display:flex;animation:fadeIn .2s ease;}
-.wa-sheet{background:var(--surface);border-radius:24px 24px 0 0;width:100%;max-width:480px;padding:20px 20px 36px;}
-.wa-handle{width:36px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 16px;}
+.wa-sheet{background:var(--surface);border-radius:24px;width:100%;max-width:420px;padding:22px 20px 20px;box-shadow:0 20px 60px rgba(0,0,0,0.3);animation:slideIn .25s ease;}
+.wa-handle{display:none;}
 .wa-title{font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
 .wa-preview{background:var(--surface2);border-radius:var(--r);padding:12px;font-size:12px;color:var(--text2);line-height:1.65;margin-bottom:14px;max-height:120px;overflow-y:auto;border-left:3px solid #25D366;white-space:pre-wrap;}
 .wa-close{text-align:center;font-size:12px;color:var(--text3);cursor:pointer;padding:8px;margin-top:4px;}
@@ -213,7 +262,7 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 @keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
 @keyframes slideIn{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
 @media print{
-  .nav-tabs,.ham-btn,.sheet-overlay,.wa-overlay{display:none!important;}
+  .ham-btn,.sheet-overlay,.wa-overlay{display:none!important;}
 }
 </style>
 </head>
@@ -269,21 +318,6 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
   </div>
 </div>
 
-<!-- ── FILTER TABS ── -->
-<div class="nav-tabs">
-  <div class="tab-bar-pill">
-    <button class="nav-tab active" onclick="setFilter('semua',this)">Semua</button>
-    <button class="nav-tab" onclick="setFilter('belum_kirim',this)">Belum Kirim</button>
-    <button class="nav-tab" onclick="setFilter('menunggu',this)">Menunggu</button>
-    <button class="nav-tab" onclick="setFilter('ortu_selesai',this)">Ortu Selesai</button>
-    <button class="nav-tab" onclick="setFilter('selesai',this)">Selesai</button>
-    <button class="nav-tab" onclick="setFilter('perlu_lanjut',this)">
-      <svg viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 17h.01"/></svg>
-      Perlu Lanjut
-    </button>
-  </div>
-</div>
-
 <!-- ── MAIN CONTENT ── -->
 <div class="wrap">
   <!-- Stats -->
@@ -302,14 +336,20 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
     </div>
   </div>
 
-  <!-- Search -->
-  <div class="search-wrap">
-    <div class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
-    <input class="search-input" id="searchInput" placeholder="Cari nama siswa..." oninput="renderList()">
+  <!-- Search + Filter -->
+  <div class="tools-row">
+    <div class="search-wrap">
+      <div class="search-icon"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div>
+      <input class="search-input" id="searchInput" placeholder="Cari nama siswa..." oninput="renderList()">
+    </div>
+    <button class="filter-btn" id="filterBtn" onclick="openFilter()" aria-label="Filter">
+      <svg viewBox="0 0 24 24"><line x1="4" y1="6" x2="20" y2="6"/><line x1="7" y1="12" x2="17" y2="12"/><line x1="10" y1="18" x2="14" y2="18"/></svg>
+    </button>
   </div>
+  <div class="filter-chip" id="filterChip"></div>
 
   <!-- List -->
-  <div class="sec" style="padding:12px;">
+  <div>
     <div id="listWrap">
       <div class="empty-state"><div class="empty-icon"><svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:34px;height:34px;color:var(--accent);"><path d="M21 12a9 9 0 1 1-9-9"/></svg></div><div class="empty-lbl">Memuat data siswa...</div></div>
     </div>
@@ -322,6 +362,7 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 <div class="sheet-overlay" id="sheetOverlay" onclick="closeSheet()">
   <div class="sheet" id="sheet" onclick="event.stopPropagation()">
     <div class="sheet-handle"></div>
+    <button class="sheet-x" onclick="closeSheet()" aria-label="Tutup"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
     <div class="sheet-hdr">
       <div class="sheet-avatar" id="sh-avatar">—</div>
       <div>
@@ -333,6 +374,19 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
     <div class="sheet-body" id="sheetBody">
       <div class="empty-state" style="padding:20px 0;"><div class="empty-icon"><svg class="spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" style="width:34px;height:34px;color:var(--accent);"><path d="M21 12a9 9 0 1 1-9-9"/></svg></div></div>
     </div>
+  </div>
+</div>
+
+<!-- ── FILTER SHEET ── -->
+<div class="sheet-overlay" id="filterOverlay" onclick="closeFilter()">
+  <div class="sheet" onclick="event.stopPropagation()">
+    <div class="sheet-handle"></div>
+    <button class="sheet-x" onclick="closeFilter()" aria-label="Tutup"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    <div class="f-hdr">
+      <div class="f-title">Filter siswa</div>
+      <button class="f-reset" onclick="setFilter('semua')">Reset</button>
+    </div>
+    <div class="f-body" id="filterBody"></div>
   </div>
 </div>
 
@@ -365,6 +419,7 @@ const FORM_REPORT   = 'https://markaz-belajar.github.io/app/obs.autism.report.ht
 // ⭐ BARU — Kekuatan Belajar (2 tahap). Ganti API_KB setelah deploy Code_KekuatanBelajar.gs
 const API_KB      = 'https://script.google.com/macros/s/AKfycbyMCQqWa5hpH9dsqK1CTLSt0zXfpLGPeFw6fYmHJeaTP0IVNp6cK4sySwqF4QlFUzaB/exec';
 const FORM_KB     = 'https://markaz-belajar.github.io/app/obs.kb.teacher.html';
+const FORM_KB_LAPORAN = 'https://markaz-belajar.github.io/app/obs.kb.laporan.html';   // halaman laporan khusus orang tua
 
 let allSiswa = [], screeningMap = {}, currentFilter = 'semua', currentSiswa = null;
 let sheetView = 'menu', pendingWA = null;
@@ -403,58 +458,179 @@ const STATUS_META = {
   perlu_lanjut: { label:'<svg viewBox="0 0 24 24"><path d="M12 9v3.5"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0Z"/><path d="M12 16h.01"/></svg> Perlu lanjut', cls:'st-lanjut' },
 };
 
-// ── Filter ──
-function setFilter(f, btn) {
-  currentFilter = f;
-  document.querySelectorAll('.nav-tab').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  renderList();
+// ── Status Kekuatan Belajar per siswa (diambil dari API_KB, di latar belakang) ──
+let kbMap = {};
+try { kbMap = JSON.parse(sessionStorage.getItem('mb_kb_map') || '{}'); } catch(e) { kbMap = {}; }
+function genIdOf(s) { return s.nomorInduk || ('ID-' + s.id); }
+function kbOf(s) { const k = kbMap[genIdOf(s)]; return (k && k.loaded) ? k : { loaded:false, t1:null, t2:null }; }
+function setKB(g, rec) {
+  kbMap[g] = { loaded:true, t1: rec?.tahap1?.status || null, t2: rec?.tahap2?.status || null };
+  try { sessionStorage.setItem('mb_kb_map', JSON.stringify(kbMap)); } catch(e) {}
+}
+function kbBadge(k) {
+  if (!k.loaded) return null;
+  if (k.t1 === 'selesai' && k.t2 === 'selesai') return { label:'Tahap 1 & 2', cls:'st-selesai' };
+  if (k.t1 === 'selesai') return { label:'Tahap 1 selesai', cls:'st-ortu' };
+  if (k.t2 === 'selesai') return { label:'Tahap 2 selesai', cls:'st-ortu' };
+  if (k.t1 === 'draft' || k.t2 === 'draft') return { label:'Sedang diisi', cls:'st-menunggu' };
+  return null;
+}
+let renderTimer = null;
+function scheduleRender() {
+  clearTimeout(renderTimer);
+  renderTimer = setTimeout(() => {
+    renderList(); updateStats();
+    if (document.getElementById('filterOverlay').classList.contains('open')) renderFilterSheet();
+  }, 120);
+}
+async function loadAllKB() {
+  const ids = allSiswa.map(genIdOf);
+  let i = 0;
+  const worker = async () => {
+    while (i < ids.length) {
+      const g = ids[i++];
+      const r = await apiGet(API_KB, { action:'getKBDetail', genId:g }, 15000);
+      if (r && r.ok) { setKB(g, r.data); scheduleRender(); }
+    }
+  };
+  await Promise.all([worker(), worker(), worker(), worker()]);
+  scheduleRender();
 }
 
-// ── Render list ──
+// ── Filter (satu tombol → bottom sheet) ──
+const FILTERS = [
+  { sec:'Umum', items:[ ['semua','Semua siswa'], ['kosong','Belum dikirim apa pun'] ] },
+  { sec:'Screening ASD', items:[ ['asd:belum_kirim','Belum dikirim'], ['asd:menunggu','Menunggu orang tua'], ['asd:ortu_selesai','Ortu selesai'], ['asd:selesai','Selesai'], ['asd:perlu_lanjut','Perlu lanjut'] ] },
+  { sec:'Profil Kekuatan Belajar', items:[ ['kb:belum','Belum diisi'], ['kb:draft','Sedang diisi'], ['kb:t1','Tahap 1 selesai'], ['kb:lengkap','Tahap 1 & 2 selesai'] ] }
+];
+function matchFilter(s, key) {
+  if (key === 'semua') return true;
+  const a = getStatus(s), k = kbOf(s);
+  if (key === 'kosong')    return a === 'belum_kirim' && k.loaded && !k.t1 && !k.t2;
+  if (key.startsWith('asd:')) return a === key.slice(4);
+  if (key === 'kb:belum')  return k.loaded && !k.t1 && !k.t2;
+  if (key === 'kb:draft')  return k.t1 === 'draft' || k.t2 === 'draft';
+  if (key === 'kb:t1')     return k.t1 === 'selesai' && k.t2 !== 'selesai';
+  if (key === 'kb:lengkap')return k.t1 === 'selesai' && k.t2 === 'selesai';
+  return true;
+}
+function filterLabel(key) {
+  for (const g of FILTERS) for (const [k,l] of g.items) if (k === key) {
+    return key.startsWith('asd:') ? 'ASD · ' + l : key.startsWith('kb:') ? 'Kekuatan Belajar · ' + l : l;
+  }
+  return 'Semua siswa';
+}
+function setFilter(f) {
+  currentFilter = f || 'semua';
+  const on = currentFilter !== 'semua';
+  document.getElementById('filterBtn').classList.toggle('on', on);
+  const chip = document.getElementById('filterChip');
+  chip.classList.toggle('show', on);
+  chip.innerHTML = on ? `<span class="fc-pill">${filterLabel(currentFilter)}<button onclick="setFilter('semua')" aria-label="Hapus filter"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button></span>` : '';
+  renderList();
+  if (document.getElementById('filterOverlay').classList.contains('open')) closeFilter();
+}
+function openFilter() {
+  renderFilterSheet();
+  document.getElementById('filterOverlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeFilter() {
+  document.getElementById('filterOverlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+function renderFilterSheet() {
+  document.getElementById('filterBody').innerHTML = FILTERS.map(g => `
+    <div class="f-sec">${g.sec}</div>
+    ${g.items.map(([k,l]) => {
+      const n = allSiswa.filter(s => matchFilter(s, k)).length;
+      const sel = k === currentFilter ? ' sel' : '';
+      return `<div class="f-opt${sel}" onclick="setFilter('${k}')">
+        <span class="f-chk"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></span>
+        <span class="f-lbl">${l}</span><span class="f-cnt">${n}</span></div>`;
+    }).join('')}`).join('');
+}
+
+// ── Render list: dikelompokkan Preschool / Elementary, tampil sebagai kotak 2 kolom ──
+function levelOfSiswa(s) {
+  const p = String(s.program || s.kelas || '').toLowerCase();
+  if (p.includes('elementary')) return 'elem';
+  if (p.includes('school')) return 'pre';      // Preschool (termasuk tulisan "Perschool")
+  return 'lain';
+}
+const LEVELS = {
+  pre:  { label:'Preschool',  color:'#F59F00', cls:'lvl-pre'  },
+  elem: { label:'Elementary', color:'#1B6CA8', cls:'lvl-elem' },
+  lain: { label:'Lainnya',    color:'#8FA4B4', cls:'lvl-lain' }
+};
+function metaOf(s) {
+  const parts = String(s.program || s.kelas || '').split(/\s*[-–]\s*/).filter(Boolean);
+  if (parts.length > 1) parts.shift();          // buang awalan level (Preschool/Elementary)
+  else if (parts.length === 1 && /school|elementary/i.test(parts[0])) parts.length = 0;
+  if (s.usia) parts.push(s.usia);
+  return parts.join(' · ') || '—';
+}
+function rankOf(s) {
+  // makin kecil = makin atas. Hanya screening yang sudah berjalan yang dihitung.
+  const a = getStatus(s), k = kbOf(s), r = [];
+  if (a !== 'belum_kirim') r.push({ perlu_lanjut:0, ortu_selesai:1, menunggu:2, selesai:4 }[a] ?? 3);
+  if (k.t1 === 'draft' || k.t2 === 'draft') r.push(2);
+  else if (k.t1 === 'selesai' || k.t2 === 'selesai') r.push(4);
+  return r.length ? Math.min(...r) : 3;
+}
+function tileBadges(s) {
+  const a = getStatus(s), k = kbOf(s), out = [];
+  if (a !== 'belum_kirim') out.push(`<span class="tbadge ${STATUS_META[a].cls}">ASD</span>`);
+  const kb = kbBadge(k);
+  if (kb) {
+    const t = (k.t1 === 'selesai' && k.t2 === 'selesai') ? ' T1+2' : (k.t1 === 'selesai' ? ' T1' : (k.t2 === 'selesai' ? ' T2' : ''));
+    out.push(`<span class="tbadge ${kb.cls}">Kekuatan${t}</span>`);
+  }
+  return out.join('');
+}
 function renderList() {
   const wrap = document.getElementById('listWrap');
   const q = document.getElementById('searchInput').value.toLowerCase();
 
-  let data = allSiswa.filter(s => {
-    const st = getStatus(s);
-    const matchF = currentFilter === 'semua' || st === currentFilter;
-    const matchQ = !q || s.nama.toLowerCase().includes(q);
-    return matchF && matchQ;
-  });
-
-  // Sort by urgency
-  const ord = { perlu_lanjut:0, ortu_selesai:1, menunggu:2, belum_kirim:3, selesai:4 };
-  data.sort((a,b) => (ord[getStatus(a)]||5) - (ord[getStatus(b)]||5));
+  const data = allSiswa.filter(s => matchFilter(s, currentFilter) && (!q || s.nama.toLowerCase().includes(q)));
+  data.sort((x,y) => (rankOf(x) - rankOf(y)) || x.nama.localeCompare(y.nama, 'id'));
 
   if (!data.length) {
-    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:38px;height:38px;color:var(--text3);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="empty-lbl">Tidak ada siswa di kategori ini</div></div>`;
+    wrap.innerHTML = `<div class="empty-state"><div class="empty-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:38px;height:38px;color:var(--text3);"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg></div><div class="empty-lbl">Tidak ada siswa yang cocok</div></div>`;
     return;
   }
 
-  wrap.innerHTML = data.map(s => {
-    const st = getStatus(s);
-    const sm = STATUS_META[st] || STATUS_META.belum_kirim;
-    const urgent = st === 'perlu_lanjut' ? ' urgent' : '';
-    return `<div class="student-row${urgent}" onclick="openSheet('${s.id}')">
-      <div class="student-avatar">${s.inisial || s.nama.charAt(0)}</div>
-      <div class="student-info">
-        <div class="student-name">${s.nama}</div>
-        <div class="student-meta">${s.program || s.kelas || '—'} · ${s.usia || '—'}</div>
-      </div>
-      <span class="status-badge ${sm.cls}">${sm.label}</span>
+  const groups = { pre:[], elem:[], lain:[] };
+  data.forEach(s => groups[levelOfSiswa(s)].push(s));
+
+  wrap.innerHTML = ['pre','elem','lain'].filter(k => groups[k].length).map(k => {
+    const L = LEVELS[k];
+    const tiles = groups[k].map(s => {
+      const urgent = getStatus(s) === 'perlu_lanjut' ? ' urgent' : '';
+      return `<div class="tile${urgent}" onclick="openSheet('${s.id}')">
+        <span class="lvl-badge ${L.cls}">${L.label}</span>
+        <div class="student-avatar">${s.inisial || s.nama.charAt(0)}</div>
+        <div class="tile-name"><span>${s.nama}</span></div>
+        <div class="tile-meta">${metaOf(s)}</div>
+        <div class="tile-badges">${tileBadges(s)}</div>
+      </div>`;
+    }).join('');
+    return `<div class="grp">
+      <div class="grp-hdr"><span class="grp-dot" style="background:${L.color}"></span>${L.label}<span class="grp-cnt">${groups[k].length}</span></div>
+      <div class="tile-grid">${tiles}</div>
     </div>`;
   }).join('');
 }
 
-// ── Update stats ──
+// ── Update stats (gabungan semua jenis screening) ──
 function updateStats() {
   let selesai=0, proses=0, lanjut=0;
   allSiswa.forEach(s => {
-    const st = getStatus(s);
-    if (st === 'selesai') selesai++;
-    else if (st === 'perlu_lanjut') { selesai++; lanjut++; }
-    else if (st !== 'belum_kirim') proses++;
+    const a = getStatus(s), k = kbOf(s);
+    const done = a === 'selesai' || a === 'perlu_lanjut' || k.t1 === 'selesai' || k.t2 === 'selesai';
+    const prog = a === 'menunggu' || a === 'ortu_selesai' || k.t1 === 'draft' || k.t2 === 'draft';
+    if (done) selesai++; else if (prog) proses++;
+    if (a === 'perlu_lanjut') lanjut++;
   });
   document.getElementById('st-selesai').textContent = selesai;
   document.getElementById('st-proses').textContent = proses;
@@ -486,10 +662,16 @@ function closeSheet() {
   document.body.style.overflow = '';
 }
 
-// ── Type menu ──
+// ── Type menu (yang aktif di atas, "segera" di bawah; badge = status screening anak ini) ──
 function renderTypeMenu() {
   const s = currentSiswa;
-  const genId = s.nomorInduk || ('ID-' + s.id);
+  const genId = genIdOf(s);
+  const a = getStatus(s), k = kbOf(s), kb = kbBadge(k);
+  const asdBadge = a === 'belum_kirim'
+    ? '<span class="status-badge st-belum">Belum dikirim</span>'
+    : `<span class="status-badge ${STATUS_META[a].cls}">${STATUS_META[a].label}</span>`;
+  const kbBadgeHtml = kb ? `<span class="status-badge ${kb.cls}">${kb.label}</span>`
+    : `<span class="status-badge st-belum">${k.loaded ? 'Belum diisi' : '···'}</span>`;
   document.getElementById('sheetBody').innerHTML = `
     <div class="tags">
       <span class="tag tag-blue">${s.program || s.kelas || '—'}</span>
@@ -504,16 +686,7 @@ function renderTypeMenu() {
         <div class="type-name">ASD — Autism Spectrum Disorder</div>
         <div class="type-desc">Identifikasi indikator autisme melalui observasi guru dan laporan orang tua</div>
       </div>
-      <span class="type-badge tb-aktif">Aktif</span>
-    </div>
-
-    <div class="type-card soon" onclick="showSoonToast()">
-      <div class="type-icon" style="background:#FEF9C3;">⚡</div>
-      <div class="type-info">
-        <div class="type-name">ADHD</div>
-        <div class="type-desc">Attention Deficit Hyperactivity Disorder</div>
-      </div>
-      <span class="type-badge tb-soon">Segera</span>
+      ${asdBadge}
     </div>
 
     <div class="type-card" onclick="selectType('kb')">
@@ -522,7 +695,18 @@ function renderTypeMenu() {
         <div class="type-name">Profil Kekuatan Belajar</div>
         <div class="type-desc">Fokus, ketekunan, kemandirian, motivasi & cara menyerap informasi (2 tahap)</div>
       </div>
-      <span class="type-badge tb-aktif">Aktif</span>
+      ${kbBadgeHtml}
+    </div>
+
+    <div class="type-sec-lbl">Segera hadir</div>
+
+    <div class="type-card soon" onclick="showSoonToast()">
+      <div class="type-icon" style="background:#FEF9C3;">⚡</div>
+      <div class="type-info">
+        <div class="type-name">ADHD</div>
+        <div class="type-desc">Attention Deficit Hyperactivity Disorder</div>
+      </div>
+      <span class="type-badge tb-soon">Segera</span>
     </div>
 
     <div class="type-card soon" onclick="showSoonToast()">
@@ -561,7 +745,7 @@ async function selectType(type) {
   let rec = null;
   try {
     const r = await apiGet(API_KB, { action:'getKBDetail', genId });
-    if (r.ok) rec = r.data;
+    if (r.ok) { rec = r.data; setKB(genId, rec); scheduleRender(); }
   } catch(e) {}
   renderKBView(currentSiswa, rec);
 }
@@ -657,7 +841,7 @@ function openFormKB(stage) {
 function lihatLaporanKB() {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const url = `${FORM_KB}?gen=${encodeURIComponent(genId)}&view=1&v=${Date.now()}`;
+  const url = `${FORM_KB_LAPORAN}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}&v=${Date.now()}`;
   window.open(url, '_blank');
 }
 
@@ -670,6 +854,7 @@ function resetKBTesting() {
     .then(r => {
       if (!r || !r.ok) { showToast(r?.error || 'Gagal reset data.', false); return; }
       showToast('Data Kekuatan Belajar berhasil direset.', true);
+      setKB(genId, null); scheduleRender();
       closeSheet();
     });
 }
@@ -1049,6 +1234,7 @@ async function init() {
   setSyncStatus('ok', `${allSiswa.length} siswa · ${new Date().toLocaleTimeString('id-ID',{hour:'2-digit',minute:'2-digit'})}`);
   updateStats();
   renderList();
+  loadAllKB();   // status Kekuatan Belajar per siswa, dimuat di latar belakang
 }
 
 init();
