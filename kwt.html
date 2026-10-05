@@ -258,6 +258,36 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .detail-actions-grid .btn{justify-content:center;width:100%;}
 .detail-actions-grid .span2{grid-column:1 / -1;}
 .verify-warn{background:#FFF4E0;color:#9A6200;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:600;margin:-6px 0 14px;line-height:1.45;}
+
+/* ===== DETAIL SHEET (gaya sheet invoice: header menempel, tile aksi) ===== */
+#detailModal{align-items:center;}
+.modal.sheet{padding:0;display:flex;flex-direction:column;width:100%;max-width:480px;max-height:88vh;overflow:hidden;border-radius:22px;animation:sheetUp .28s cubic-bezier(.2,.8,.2,1);}
+@keyframes sheetUp{from{transform:translateY(36px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+.sheet-handle{width:38px;height:4px;border-radius:99px;background:var(--border2);margin:10px auto 0;flex-shrink:0;}
+.sheet-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 20px 14px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;}
+.sheet-head-text{min-width:0;}
+.sheet-no{font-family:'Geist Mono',monospace;font-size:15px;font-weight:700;color:var(--text);letter-spacing:.01em;}
+.sheet-sub{font-size:12.5px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sheet-close{width:38px;height:38px;border-radius:50%;border:none;background:var(--surface2);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
+.sheet-close:hover{background:var(--border);}
+.sheet-body{overflow-y:auto;flex:1;padding:6px 20px max(22px, env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;}
+.sheet-sec{font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 8px;}
+.sheet-body .detail-row{padding:11px 0;}
+.sheet-body .kw-chips{margin:10px 0 2px;}
+.tile-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.tile{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;min-height:86px;padding:12px;border-radius:16px;border:none;font-family:inherit;font-size:13.5px;font-weight:700;cursor:pointer;width:100%;transition:transform .12s,opacity .12s;}
+.tile:hover{opacity:.92;}
+.tile:active{transform:scale(.98);}
+.tile-green{background:var(--success-dim);color:var(--success);}
+.tile-blue{background:var(--accent-dim);color:var(--accent);}
+.tile-wa{background:#25D366;color:#fff;}
+.tile-wide{flex-direction:row;min-height:50px;gap:9px;margin-top:10px;font-size:13.5px;}
+.tile-warn{background:var(--warning-dim);color:#B87500;border:1px solid rgba(245,159,0,.35);}
+@media(max-width:640px){
+  #detailModal{align-items:flex-end;}
+  .modal.sheet{max-width:100%;border-radius:24px 24px 0 0;max-height:90vh;}
+}
+@media(min-width:641px){.sheet-handle{display:none;}.sheet-head{padding-top:18px;}}
 </style>
 </head>
 <body>
@@ -545,17 +575,23 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
   </div>
 </div>
 
-<!-- DETAIL SHEET (mobile) -->
+<!-- DETAIL SHEET -->
 <div id="detailModal" class="modal-overlay">
-  <div class="modal">
-    <div class="modal-title" style="justify-content:space-between;">
-      <span id="detailModalNo" style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--accent);font-weight:700;"></span>
-      <button class="btn-icon" onclick="closeDetailModal()" style="width:28px;height:28px;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+  <div class="modal sheet">
+    <div class="sheet-handle"></div>
+    <div class="sheet-head">
+      <div class="sheet-head-text">
+        <div class="sheet-no" id="detailModalNo"></div>
+        <div class="sheet-sub" id="detailModalSub"></div>
+      </div>
+      <button class="sheet-close" onclick="closeDetailModal()" aria-label="Tutup">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <div id="detailModalBody"></div>
-    <div class="detail-actions-grid" id="detailModalActions"></div>
+    <div class="sheet-body">
+      <div id="detailModalBody"></div>
+      <div id="detailModalActions"></div>
+    </div>
   </div>
 </div>
 
@@ -648,7 +684,7 @@ async function loadInvoiceRefList() {
 }
 
 function populateRefInvoiceDropdown() {
-  const statusLabel = { paid: '✓ Lunas', unpaid: 'Belum Bayar', installment: 'Cicilan' };
+  const statusLabel = { paid: 'Lunas', unpaid: 'Belum Bayar', installment: 'Cicilan' };
   const opts = invoiceRefList.map((inv, idx) => {
     const parent = inv.student_parent || '';
     const child = inv.student_name || '';
@@ -810,7 +846,7 @@ function quickFillRefInvoice() {
       if (ex) showToast('Perhatian: invoice ini sudah punya kuitansi aktif (' + ex.no_kuitansi + ')', false);
       // WA Ibu dari data pendaftaran (sumber utama); kalau tidak ketemu, tetap pakai nomor dari invoice
       autofillFromRegistration(inv.student_name, inv.student_parent, 'fWa', 'fAnak', true).then(ok => {
-        if (ok && !ex) showToast('No. WA Ibu terisi dari data pendaftaran ✓', true);
+        if (ok && !ex) showToast('No. WA Ibu terisi dari data pendaftaran', true);
       });
     }
   }
@@ -1186,7 +1222,7 @@ async function doSaveKuitansi(data, andPrint) {
     populateFilterBulan();
     document.getElementById('filterStatus').value = 'aktif';
     renderList();
-    showToast('Kuitansi tersimpan & terkunci ✓', true);
+    showToast('Kuitansi tersimpan & terkunci', true);
     if (andPrint) promptSignatureAndPrint(data);
     resetForm();
     switchTab('riwayat');
@@ -1357,36 +1393,54 @@ function openDetailSheet(id) {
   const ananda = getAnanda(k);
   const pc = Number(k.printed_count) || 0;
   const sc = Number(k.sent_count) || 0;
+  const row = (l, v) => `<div class="detail-row"><span>${l}</span><strong>${v}</strong></div>`;
+  const big = ic => ic.replace('width="14" height="14"', 'width="20" height="20"');
+  const small = ic => ic.replace('width="14" height="14"', 'width="16" height="16"');
+
   document.getElementById('detailModalNo').textContent = k.no_kuitansi;
+  document.getElementById('detailModalSub').textContent = `${k.diterima_dari || ''} · ${rp(k.jumlah)}`;
+
   document.getElementById('detailModalBody').innerHTML = `
-    <div class="kw-chips" style="margin:0 0 6px;">${buildChips(k)}</div>
-    <div class="detail-row"><span>Tanggal</span><strong>${fmtDateLong(k.date)}</strong></div>
-    <div class="detail-row"><span>Diterima Dari</span><strong>${esc(k.diterima_dari)}</strong></div>
-    <div class="detail-row"><span>Nama Ananda</span><strong>${esc(ananda) || '—'}</strong></div>
-    <div class="detail-row"><span>WhatsApp Ortu</span><strong>${esc(k.no_wa) || '<span style="color:var(--danger);">Belum ada</span>'}</strong></div>
-    <div class="detail-row"><span>Jumlah</span><strong>${rp(k.jumlah)}</strong></div>
-    ${k.ref_invoice ? `<div class="detail-row"><span>Ref Invoice</span><strong>${esc(k.ref_invoice)}</strong></div>` : ''}
+    <div class="kw-chips">${buildChips(k)}</div>
+    <div class="sheet-sec">Rincian</div>
+    ${row('Tanggal', fmtDateLong(k.date))}
+    ${row('Diterima Dari', esc(k.diterima_dari))}
+    ${row('Nama Ananda', esc(ananda) || '—')}
+    ${row('WhatsApp Ortu', esc(k.no_wa) || '<span style="color:var(--text3);">Belum tersimpan</span>')}
+    ${row('Jumlah', rp(k.jumlah))}
+    ${k.ref_invoice ? row('Ref Invoice', esc(k.ref_invoice)) : ''}
     <div class="detail-block">
       <span class="db-lbl">Untuk Pembayaran</span>
       <div class="db-val">${nl2br(k.untuk_pembayaran) || '—'}</div>
     </div>
     ${k.catatan ? `<div class="detail-block"><span class="db-lbl">Catatan</span><div class="db-val">${nl2br(k.catatan)}</div></div>` : ''}
-    <div class="detail-row"><span>Dibuat Oleh</span><strong>${esc(createdByText(k))}</strong></div>
-    <div class="detail-row"><span>Dibuat Pada</span><strong>${esc(fmtTimestamp(k.created_at))}</strong></div>
-    <div class="detail-row"><span>Riwayat Cetak</span><strong>${pc > 0 ? `${pc}× · terakhir ${esc(fmtTimestamp(k.last_printed_at))}` : 'Belum pernah dicetak'}</strong></div>
-    <div class="detail-row"><span>Riwayat Kirim WA</span><strong>${sc > 0 ? `${sc}× · terakhir ${esc(fmtTimestamp(k.last_sent_at))}` : 'Belum pernah dikirim'}</strong></div>
-    ${arch ? `<div class="detail-row"><span>Diarsipkan</span><strong>${esc(fmtTimestamp(k.archived_at))}</strong></div>
-      ${k.archive_reason ? `<div class="detail-block"><span class="db-lbl">Alasan Arsip</span><div class="db-val">${nl2br(k.archive_reason)}</div></div>` : ''}` : ''}
+    <div class="sheet-sec">Riwayat</div>
+    ${row('Dibuat Oleh', esc(createdByText(k)))}
+    ${row('Dibuat Pada', esc(fmtTimestamp(k.created_at)))}
+    ${row('Dicetak', pc > 0 ? `${pc}× · terakhir ${esc(fmtTimestamp(k.last_printed_at))}` : 'Belum pernah')}
+    ${row('Dikirim WA', sc > 0 ? `${sc}× · terakhir ${esc(fmtTimestamp(k.last_sent_at))}` : 'Belum pernah')}
+    ${arch ? row('Diarsipkan', esc(fmtTimestamp(k.archived_at))) : ''}
+    ${arch && k.archive_reason ? `<div class="detail-block"><span class="db-lbl">Alasan Arsip</span><div class="db-val">${nl2br(k.archive_reason)}</div></div>` : ''}
   `;
+
   document.getElementById('detailModalActions').innerHTML = `
-    <button class="btn btn-ghost" onclick="detailModalPrint()">${IC_BTN.print} ${pc > 0 ? 'Cetak Lagi' : 'Cetak'}</button>
-    <button class="btn btn-wa" onclick="detailModalWa()">${IC_BTN.wa} Kirim WA</button>
-    <button class="btn btn-ghost" onclick="detailModalContact()">Ubah Kontak</button>
+    <div class="sheet-sec">Aksi</div>
+    <div class="tile-grid">
+      <button class="tile tile-green" onclick="detailModalPrint()">${big(IC_BTN.print)}<span>${pc > 0 ? 'Cetak Lagi' : 'Cetak'}</span></button>
+      <button class="tile tile-blue" onclick="detailModalContact()">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+        <span>Ubah Kontak</span>
+      </button>
+    </div>
+    <div class="sheet-sec">Kirim via WhatsApp</div>
+    <button class="tile tile-wa tile-wide" style="margin-top:0;" onclick="detailModalWa()">${small(IC_BTN.wa)}<span>${sc > 0 ? 'Kirim Ulang Kuitansi' : 'Kirim Kuitansi'}</span></button>
     ${arch
-      ? `<button class="btn btn-accent" onclick="detailModalRestore()">${IC_BTN.restore} Pulihkan</button>`
-      : `<button class="btn btn-warning" onclick="detailModalArchive()">${IC_BTN.archive} Arsipkan</button>`}
+      ? `<button class="tile tile-blue tile-wide" onclick="detailModalRestore()">${small(IC_BTN.restore)}<span>Pulihkan dari Arsip</span></button>`
+      : `<button class="tile tile-warn tile-wide" onclick="detailModalArchive()">${small(IC_BTN.archive)}<span>Arsipkan Kuitansi</span></button>`}
   `;
   document.getElementById('detailModal').classList.add('open');
+  const sb = document.querySelector('#detailModal .sheet-body');
+  if (sb && !document.getElementById('detailModal').dataset.keepScroll) sb.scrollTop = 0;
 }
 function closeDetailModal() {
   document.getElementById('detailModal').classList.remove('open');
@@ -1510,7 +1564,7 @@ async function confirmArchive() {
   try {
     await applyMark(archivingId, 'archive', { reason: document.getElementById('archiveReason').value.trim() });
     closeArchiveModal();
-    showToast('Kuitansi diarsipkan ✓', true);
+    showToast('Kuitansi diarsipkan', true);
   } catch(e) {
     showToast('Gagal arsipkan: ' + e.message, false);
   } finally {
@@ -1530,7 +1584,7 @@ function restoreKuitansi(id) {
   showConfirm({ title: 'Pulihkan Kuitansi', okText: 'Pulihkan',
     body: `Kembalikan <b>${esc(k.no_kuitansi)}</b> (${esc(k.diterima_dari)} · ${rp(k.jumlah)}) menjadi kuitansi aktif?`,
     onOk: async () => {
-      try { await applyMark(id, 'restore', {}); showToast('Kuitansi dipulihkan ✓', true); }
+      try { await applyMark(id, 'restore', {}); showToast('Kuitansi dipulihkan', true); }
       catch(e) { showToast('Gagal pulihkan: ' + e.message, false); }
     } });
 }
@@ -1542,6 +1596,7 @@ let contactId = null, contactForSend = false;
 function openContactModal(id, forSend) {
   const k = kuitansiList.find(x => x.__id === id);
   if (!k) return;
+  if (detailModalId) closeDetailModal(); // jangan biarkan jendela detail menutupi kotak kontak
   contactId = id; contactForSend = !!forSend;
   document.getElementById('contactModalDesc').innerHTML = forSend
     ? `Nomor WhatsApp orang tua untuk <b>${esc(k.diterima_dari)}</b> belum tersimpan. Isi nomornya, lalu WhatsApp langsung terbuka.`
@@ -1582,7 +1637,7 @@ async function saveContact() {
     if (detailModalId === k.__id) openDetailSheet(k.__id);
     closeContactModal();
     if (contactForSend) doOpenWhatsApp(k, normalizePhone(wa), preWin);
-    else showToast('Kontak disimpan ✓', true);
+    else showToast('Kontak disimpan', true);
   } catch(e) {
     if (preWin) preWin.close();
     showToast('Gagal simpan kontak: ' + e.message, false);
@@ -1608,23 +1663,52 @@ function buildWaMessage(k) {
     `Tanggal: ${fmtDateLong(k.date)}`,
   ];
   if (anak) lines.push(`Ananda: ${anak}`);
-  lines.push(`Jumlah: *${rp(k.jumlah)}*`, '', 'Cek keaslian kuitansi:', buildVerifyUrl(k), '', 'Terima kasih 🙏', 'Markaz Belajar');
+  lines.push(`Jumlah: *${rp(k.jumlah)}*`, '', 'Cek keaslian kuitansi:', buildVerifyUrl(k), '', 'Terima kasih', 'Markaz Belajar');
   return lines.join('\n');
 }
 
 function sendWhatsApp(id) {
   const k = kuitansiList.find(x => x.__id === id);
   if (!k) return;
-  const phone = normalizePhone(k.no_wa);
-  if (!phone) { openContactModal(id, true); return; }
   const sc = Number(k.sent_count) || 0;
   if (sc > 0) {
+    // hanya muncul bila kuitansi ini SUDAH pernah dikirim (cegah kirim ganda tidak sengaja)
     showConfirm({ title: 'Kirim Ulang ke WhatsApp?', okText: 'Kirim Lagi',
-      body: `Kuitansi ini sudah pernah dikirim <b>${sc}×</b> (terakhir ${esc(fmtTimestamp(k.last_sent_at))}) ke <b>${esc(k.no_wa)}</b>.`,
-      onOk: () => doOpenWhatsApp(k, phone, null) });
+      body: `Kuitansi ini sudah pernah dikirim <b>${sc}×</b> (terakhir ${esc(fmtTimestamp(k.last_sent_at))}).`,
+      onOk: () => startSendWhatsApp(k) });
     return;
   }
-  doOpenWhatsApp(k, phone, null);
+  startSendWhatsApp(k);
+}
+
+// Langsung ke WhatsApp tanpa konfirmasi nomor. Bila nomor belum tersimpan, cari otomatis
+// dari data pendaftaran (Whatsapp Ibu), simpan, lalu buka chat. Kotak isian nomor hanya
+// muncul jika nomor benar-benar tidak ditemukan.
+async function startSendWhatsApp(k) {
+  const phone = normalizePhone(k.no_wa);
+  if (phone) { doOpenWhatsApp(k, phone, null); return; }
+
+  // buka tab dulu (masih dalam aksi klik) supaya tidak diblokir popup-blocker
+  const preWin = window.open('', '_blank');
+  try { if (preWin) preWin.document.write('<p style="font-family:system-ui;padding:24px;color:#555;">Membuka WhatsApp…</p>'); } catch(e) {}
+  showToast('Mencari nomor WhatsApp Ibu…', true);
+
+  const st = pickStudent(await lookupStudent(getAnanda(k), k.diterima_dari));
+  const found = st ? normalizePhone(st.wa_ibu) : '';
+  if (!found) {
+    if (preWin) preWin.close();
+    openContactModal(k.__id, true);
+    return;
+  }
+
+  // simpan diam-diam ke kuitansi (nomor & nama anak) supaya berikutnya langsung terbuka
+  const nama = getAnanda(k) || st.nama_peserta || '';
+  k.no_wa = st.wa_ibu;
+  if (nama && !k.nama_anak) k.nama_anak = nama;
+  updateKuitansiInSheets(k.__id, { nama_anak: k.nama_anak || '', no_wa: k.no_wa }).catch(() => {});
+  cacheList();
+  renderList();
+  doOpenWhatsApp(k, found, preWin);
 }
 
 function doOpenWhatsApp(k, phone, preWin) {
@@ -1888,7 +1972,7 @@ ${KW_DOC_CSS}
 ${html}
 <div class="no-print" style="text-align:center;margin-top:20px;font-family:system-ui;font-size:13px;color:#888;">
   <p style="margin-bottom:10px;">Klik <strong>Cetak / Save as PDF</strong></p>
-  <button onclick="window.print()" style="padding:10px 24px;background:#1c1c1c;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🖨️ Cetak / Save PDF</button>
+  <button onclick="window.print()" style="padding:10px 24px;background:#1c1c1c;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Cetak / Save PDF</button>
 </div>
 <script>
 window.addEventListener('load', function(){
@@ -2156,7 +2240,7 @@ async function runVerification(no, sigInfo) {
 
     if (found) {
       const archivedNote = String(found.status || '').toLowerCase() === 'archived'
-        ? `<div class="verify-warn">⚠️ Kuitansi ini sudah <b>diarsipkan</b> oleh Markaz Belajar dan tidak lagi berlaku sebagai kuitansi aktif.</div>` : '';
+        ? `<div class="verify-warn">Kuitansi ini sudah <b>diarsipkan</b> oleh Markaz Belajar dan tidak lagi berlaku sebagai kuitansi aktif.</div>` : '';
       const sigBlock = (sigInfo && sigInfo.sig) ? `
         <div class="verify-sig-block">
           <div class="verify-sig-head">
