@@ -1,1 +1,2236 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Markaz Belajar — Kuitansi</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Baloo+2:wght@600;800&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:#FDFAF4;--surface:#FFFFFF;--surface2:#F0EBE3;--border:#EDE9DF;--border2:#D8D1C7;
+  --text:#1C2B3A;--text2:#4A6070;--text3:#8FA4B4;
+  --accent:#1B6CA8;--accent-dim:rgba(27,108,168,0.10);
+  --success:#2E9E5B;--success-dim:rgba(46,158,91,0.10);
+  --danger:#DC3545;--danger-dim:rgba(220,53,69,0.10);
+  --warning:#F59F00;--warning-dim:rgba(245,159,0,0.12);
+  --r:10px;--rl:16px;--hdr-bg:#1B6CA8;--outer-bg:#1B6CA8;
+}
+[data-theme="dark"]{
+  --bg:#0F1923;--surface:#1A2535;--surface2:#222F40;--border:#2A3A4E;--border2:#344A60;
+  --text:#E8EEF4;--text2:#8FA4B4;--text3:#506070;
+  --accent:#4DA3D4;--accent-dim:rgba(77,163,212,0.12);
+  --success:#3BBF6E;--success-dim:rgba(59,191,110,0.12);
+  --danger:#F06070;--danger-dim:rgba(240,96,112,0.12);
+  --warning:#F59F00;--warning-dim:rgba(245,159,0,0.12);
+  --hdr-bg:#0D1520;--outer-bg:#0D1520;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;width:100%;}
+body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer-bg);color:var(--text);min-height:100vh;font-size:14px;line-height:1.5;transition:background .3s,color .3s;}
+.outer{max-width:1200px;margin:0 auto;min-height:100vh;background:linear-gradient(to bottom,var(--hdr-bg) 0%,var(--hdr-bg) 60%,var(--bg) 100%);box-shadow:0 0 40px rgba(28,43,58,0.15);}
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:99px;}
 
+/* HEADER */
+.hdr{background:var(--hdr-bg);transition:background .3s;position:relative;}
+.hdr-b1{position:absolute;top:-30px;right:-40px;width:160px;height:160px;border-radius:50%;background:rgba(255,255,255,0.07);}
+.hdr-b2{position:absolute;bottom:-50px;left:-30px;width:130px;height:130px;border-radius:50%;background:rgba(243,213,101,0.12);}
+.hdr-inner{position:relative;z-index:2;padding:28px 20px 46px;display:flex;flex-direction:column;align-items:center;}
+.hdr-logo-img{width:90px;margin-bottom:0;}
+.hdr-greeting{max-width:1200px;margin:-24px auto 0;padding:0 14px;position:relative;z-index:10;box-sizing:border-box;}
+.hdr-greeting-card{background:#fff;border-radius:20px;box-shadow:0 4px 24px rgba(28,43,58,0.12);padding:15px 18px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-greeting-card h2{font-family:'Baloo 2',sans-serif;font-size:16px;font-weight:800;color:#1C2B3A;line-height:1.2;}
+.hdr-greeting-card p{font-size:12px;color:#8FA4B4;margin-top:2px;}
+.hdr-greeting-badge{background:#FFF3E0;color:#E65100;font-size:11px;font-weight:600;padding:5px 12px;border-radius:50px;white-space:nowrap;}
+.hdr-topbar{position:absolute;top:0;left:0;right:0;z-index:6000;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;}
+.hdr-topbar-btn{width:34px;height:34px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.3);background:rgba(255,255,255,0.15);display:flex;align-items:center;justify-content:center;cursor:pointer;color:#fff;flex-shrink:0;}
+
+/* MENU */
+.menu-wrap{position:relative;}
+.menu-pop{display:none;position:absolute;top:42px;right:0;background:var(--surface);border:1.5px solid var(--border);border-radius:14px;box-shadow:0 8px 32px rgba(0,0,0,0.18);overflow:hidden;min-width:190px;z-index:7000;}
+.menu-pop.open{display:block;}
+.menu-item{width:100%;padding:11px 16px;background:none;border:none;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;cursor:pointer;color:var(--text);font-family:inherit;font-size:13px;font-weight:500;text-decoration:none;}
+.menu-item:last-child{border-bottom:none;}
+.menu-ic{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+
+/* NAV TABS */
+.nav-tabs{padding:12px 14px 10px;background:var(--hdr-bg);transition:background .3s;}
+.nav-tabs-inner{max-width:1200px;margin:0 auto;}
+.tab-bar-pill{background:rgba(255,255,255,0.18);border-radius:50px;padding:4px;display:flex;gap:2px;border:1.5px solid rgba(255,255,255,0.2);backdrop-filter:blur(8px);}
+.nav-tab{flex:1;padding:9px 0;border:none;background:transparent;border-radius:50px;font-family:'Plus Jakarta Sans',sans-serif;font-size:13px;font-weight:600;color:rgba(255,255,255,0.65);cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:all .2s;}
+.nav-tab svg{flex-shrink:0;}
+.nav-tab:hover{color:#fff;background:rgba(255,255,255,0.1);}
+.nav-tab.active{background:#fff;color:#1B6CA8;box-shadow:0 2px 8px rgba(0,0,0,0.15);}
+
+/* LAYOUT */
+.wrap{max-width:1200px;margin:0 auto;padding:16px 14px 40px;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+.tab-slider-outer{overflow:hidden;width:100%;position:relative;}
+.tab-slider-track{display:flex;width:200%;transition:transform .35s cubic-bezier(.4,0,.2,1);will-change:transform;}
+.tab-slider-track.no-transition{transition:none!important;}
+.tab-slider-pane{width:50%;flex-shrink:0;min-width:0;padding:0 10px;overflow-x:hidden;box-sizing:border-box;}
+
+/* SECTION */
+.sec{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:18px;margin-bottom:14px;box-shadow:0 2px 10px rgba(0,0,0,0.08);transition:background .3s,border-color .3s;}
+.sec-title{font-size:11px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;display:flex;align-items:center;gap:7px;margin-bottom:14px;}
+.sec-title svg{width:13px;height:13px;flex-shrink:0;}
+
+/* GRID */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;}
+@media(max-width:640px){.g2{grid-template-columns:1fr;gap:10px;}.g3{grid-template-columns:1fr;gap:10px;}}
+
+label{display:block;font-size:12px;color:var(--text2);margin-bottom:5px;font-weight:500;}
+input,select,textarea{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:var(--r);padding:8px 11px;color:var(--text);font-family:inherit;font-size:13px;outline:none;transition:border-color .15s,box-shadow .15s;-webkit-appearance:none;appearance:none;}
+input:focus,select:focus,textarea:focus{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-dim);}
+textarea{resize:vertical;min-height:70px;}
+input[readonly]{opacity:.75;cursor:not-allowed;}
+.hint{font-size:11px;color:var(--text3);margin-top:4px;}
+.terbilang-box{margin-top:6px;font-size:11.5px;color:var(--accent);background:var(--accent-dim);border-radius:8px;padding:6px 10px;font-style:italic;min-height:14px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:6px;padding:10px 16px;border-radius:var(--r);font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;border:none;outline:none;transition:all .15s;white-space:nowrap;}
+.btn svg{width:14px;height:14px;flex-shrink:0;}
+.btn-ghost{background:var(--surface);color:var(--text2);border:1.5px solid var(--border2);}
+.btn-ghost:hover{background:var(--surface2);color:var(--text);border-color:var(--border2);}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-accent:hover{opacity:.9;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{opacity:.9;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{opacity:.9;}
+.btn-small{padding:6px 10px;font-size:11px;border-radius:8px;}
+.btn-icon{background:var(--surface2);border:1px solid var(--border);padding:0;width:32px;height:32px;border-radius:50%;color:var(--text3);cursor:pointer;transition:all .15s;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;}
+.btn-icon:hover{background:var(--danger-dim);color:var(--danger);}
+.btn-full{width:100%;justify-content:center;}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:6px;}
+.btn[disabled]{opacity:.7;cursor:not-allowed;pointer-events:none;}
+.btn-ic.spin{animation:spin .8s linear infinite;}
+.actions .btn{flex:1;justify-content:center;min-width:120px;}
+
+/* TABLE / LIST */
+.kw-row{display:flex;align-items:center;gap:14px;padding:14px 12px;border-bottom:1px solid var(--border);transition:background .15s;}
+.kw-row:last-child{border-bottom:none;}
+.kw-row:hover{background:rgba(27,108,168,0.045);}
+.kw-row-main{flex:1;min-width:0;}
+.kw-row-no{display:inline-block;font-family:'Geist Mono',monospace;font-size:10.5px;font-weight:700;color:var(--accent);background:var(--accent-dim);padding:2px 8px;border-radius:6px;letter-spacing:.02em;}
+.kw-row-new{background:rgba(46,158,91,0.05);}
+.kw-new-badge{display:inline-flex;align-items:center;gap:3px;background:var(--success);color:#fff;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;letter-spacing:.02em;vertical-align:middle;}
+.kw-row-amt-m{display:none;}
+.kw-row-name{font-size:14px;font-weight:700;color:var(--text);margin-top:6px;line-height:1.3;}
+.kw-row-sub{font-size:11.5px;color:var(--text3);margin-top:3px;cursor:help;display:inline-block;line-height:1.4;}
+.kw-row-right{display:flex;align-items:center;gap:12px;flex-shrink:0;margin-left:auto;}
+.kw-row-amt{font-family:'Geist Mono',monospace;font-size:14px;font-weight:700;color:var(--text);white-space:nowrap;}
+.kw-row-actions{display:flex;gap:6px;flex-shrink:0;}
+.kw-row-chevron{display:none;color:var(--text3);flex-shrink:0;}
+
+/* MOBILE: gaya list "tap untuk detail" — sembunyikan tombol aksi & nominal desktop,
+   tampilkan nominal besar di alur konten + panah kanan (chevron) */
+@media (max-width:640px){
+  .kw-row{cursor:pointer;align-items:flex-start;}
+  .kw-row-right{display:none;}
+  .kw-row-amt-m{display:block;font-family:'Geist Mono',monospace;font-size:19px;font-weight:800;color:var(--text);margin:7px 0 3px;letter-spacing:-.01em;}
+  .kw-row-name{margin-top:0;}
+  .kw-row-chevron{display:flex;align-items:center;margin-left:auto;flex-shrink:0;align-self:center;}
+
+  /* Tombol aksi (Reset/Simpan/Cetak) — full-width bertumpuk, teks tetap terlihat */
+  .actions{flex-direction:column-reverse;gap:10px;}
+  .actions .btn{width:100%;height:48px;font-size:14px;justify-content:center;}
+}
+
+/* DETAIL SHEET (dibuka saat baris riwayat di-tap, mode mobile) */
+.detail-row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.detail-row:last-child{border-bottom:none;}
+.detail-row span{color:var(--text3);font-size:11.5px;flex-shrink:0;}
+.detail-row strong{text-align:right;color:var(--text);font-weight:600;}
+.detail-block{padding:10px 0;border-bottom:1px solid var(--border);font-size:13px;}
+.detail-block .db-lbl{display:block;color:var(--text3);font-size:10.5px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px;}
+.detail-block .db-val{color:var(--text);line-height:1.55;white-space:pre-wrap;}
+
+/* DETAIL POPOVER (hover desktop / long-press mobile) */
+.detail-popover{display:none;position:fixed;z-index:8500;max-width:280px;background:#1C2B3A;color:#fff;padding:11px 14px;border-radius:12px;font-size:12.5px;line-height:1.55;box-shadow:0 10px 28px rgba(0,0,0,.3);pointer-events:none;}
+.detail-popover.show{display:block;}
+.detail-popover .dp-label{font-size:9.5px;opacity:.55;text-transform:uppercase;letter-spacing:.06em;margin-bottom:2px;}
+.detail-popover .dp-block + .dp-block{margin-top:9px;}
+
+/* FILTER BAR */
+.filter-bar{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px;align-items:center;}
+.filter-bar select,.filter-bar input{width:auto;flex:1;min-width:100px;}
+.filter-count{font-size:12px;color:var(--text3);white-space:nowrap;padding:6px 0;}
+
+/* EMPTY STATE */
+.empty-state{text-align:center;padding:32px 20px;color:var(--text3);font-size:13px;border:1px dashed var(--border);border-radius:var(--r);}
+.empty-state svg{width:28px;height:28px;margin:0 auto 10px;display:block;opacity:.25;}
+
+/* SYNC STATUS (pojok kiri header) */
+.spin{animation:spin 1s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(100px);background:#1C2B3A;color:#fff;padding:10px 20px;border-radius:99px;font-size:13px;font-weight:500;z-index:9999;transition:transform .3s cubic-bezier(.34,1.56,.64,1),opacity .3s;opacity:0;pointer-events:none;}
+.toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+.toast.success{background:var(--success);}
+.toast.error{background:var(--danger);}
+
+/* MODAL */
+.modal-overlay{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(28,43,58,0.6);z-index:5000;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal-overlay.open{display:flex;}
+.modal{background:var(--surface);border:1.5px solid var(--border);border-radius:var(--rl);padding:20px;max-width:480px;width:90%;max-height:85vh;overflow-y:auto;}
+.modal-title{font-size:15px;font-weight:700;color:var(--text);margin-bottom:16px;display:flex;align-items:center;gap:10px;}
+.modal-title svg{width:16px;height:16px;color:var(--danger);}
+.modal-actions{display:flex;gap:10px;margin-top:16px;}
+.modal-field{margin-bottom:14px;}
+
+/* PILIHAN JENIS TANDA TANGAN */
+.sig-option{display:flex;align-items:flex-start;gap:12px;width:100%;text-align:left;background:var(--surface2);border:1.5px solid var(--border);border-radius:14px;padding:14px;margin-bottom:10px;cursor:pointer;font-family:inherit;transition:all .15s;}
+.sig-option:hover{border-color:var(--accent);background:var(--accent-dim);}
+.sig-option-ic{width:38px;height:38px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.sig-option-ic svg{width:18px;height:18px;}
+.sig-ic-manual{background:var(--surface);color:var(--text2);border:1.5px solid var(--border2);}
+.sig-ic-digital{background:var(--accent-dim);color:var(--accent);}
+.sig-option-title{font-size:13.5px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.sig-option-desc{font-size:11.5px;color:var(--text3);line-height:1.4;}
+
+/* SETUP BANNER */
+.setup-banner{background:var(--warning-dim);border:1.5px solid var(--warning);border-radius:var(--rl);padding:14px 16px;margin-bottom:14px;font-size:12.5px;color:var(--text);display:flex;gap:10px;align-items:flex-start;}
+.setup-banner svg{width:18px;height:18px;color:var(--warning);flex-shrink:0;margin-top:1px;}
+
+/* PRATINJAU */
+.preview-frame-wrap{width:100%;overflow:auto;border:1px solid var(--border);border-radius:var(--r);background:#e9e9e9;padding:14px;display:flex;justify-content:center;}
+.preview-scale-box{overflow:hidden;flex-shrink:0;}
+.preview-frame{width:793px;border:none;display:block;background:#fff;box-shadow:0 4px 16px rgba(0,0,0,.12);transform-origin:top left;pointer-events:none;}
+
+@media print{.no-print{display:none !important;}}
+
+/* OVERLAY VERIFIKASI */
+.verify-overlay{display:none;position:fixed;inset:0;background:linear-gradient(160deg,#1B6CA8,#0D3A5C);z-index:99999;align-items:center;justify-content:center;padding:20px;}
+.verify-overlay.show{display:flex;}
+.verify-wrap{display:flex;flex-direction:column;align-items:center;max-width:380px;width:100%;}
+.verify-logo{width:78px;margin-bottom:18px;filter:drop-shadow(0 4px 12px rgba(0,0,0,.25));}
+.verify-card{background:#fff;border-radius:22px;padding:32px 26px;max-width:380px;width:100%;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.35);}
+.verify-spinner{width:34px;height:34px;border:3px solid #E0E7EC;border-top-color:#1B6CA8;border-radius:50%;margin:0 auto;animation:vspin .8s linear infinite;}
+@keyframes vspin{to{transform:rotate(360deg);}}
+.verify-icon{width:56px;height:56px;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;}
+.verify-icon.ok{background:#E3F6EA;color:#2E9E5B;}
+.verify-icon.fail{background:#FDE8E9;color:#DC3545;}
+.verify-title{font-size:17px;font-weight:800;color:#1C2B3A;margin-bottom:4px;}
+.verify-sub{font-size:12.5px;color:#8FA4B4;margin-bottom:18px;}
+.verify-rows{text-align:left;background:#F7F5EF;border-radius:14px;padding:14px 16px;font-size:13px;color:#1C2B3A;}
+.verify-row{display:flex;justify-content:space-between;gap:10px;padding:6px 0;border-bottom:1px solid #EDE9DF;}
+.verify-row:last-child{border-bottom:none;}
+.verify-row span:first-child{color:#8FA4B4;font-size:11.5px;}
+.verify-row span:last-child{font-weight:600;text-align:right;}
+.verify-close{margin-top:18px;width:100%;padding:11px;border-radius:10px;background:#1B6CA8;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
+.verify-sig-block{text-align:left;background:#EAF4FF;border-radius:14px;padding:14px 16px;font-size:13px;color:#1C2B3A;margin-top:10px;}
+.verify-sig-head{display:flex;align-items:center;gap:6px;color:#1B6CA8;font-size:11.5px;font-weight:700;margin-bottom:8px;letter-spacing:.02em;}
+.verify-sig-block .verify-row{border-bottom-color:rgba(27,108,168,0.15);}
+
+/* ===== v2: LOCK / ARSIP / STATUS / WHATSAPP ===== */
+.btn-warning{background:var(--warning);color:#fff;}
+.btn-warning:hover{opacity:.9;}
+.btn-wa{background:#25D366;color:#fff;}
+.btn-wa:hover{opacity:.9;}
+.btn-icon-wa:hover{background:rgba(37,211,102,.14);color:#1DA851;}
+.btn-icon-arch:hover{background:var(--warning-dim);color:#B87500;}
+.kw-row-arch{opacity:.62;}
+.kw-row-arch .kw-row-name{text-decoration:line-through;text-decoration-color:var(--text3);}
+.kw-arch-badge{display:inline-flex;align-items:center;gap:3px;background:var(--warning);color:#fff;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;letter-spacing:.02em;vertical-align:middle;}
+.kw-row-anak{font-size:12.5px;font-weight:600;color:var(--accent);margin-top:3px;display:flex;align-items:center;gap:5px;}
+.kw-row-anak svg{flex-shrink:0;}
+.kw-row-by{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4;}
+.kw-row-by b{color:var(--text2);font-weight:600;}
+.kw-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.01em;line-height:1.3;}
+.chip svg{flex-shrink:0;}
+.chip-lock{background:var(--accent-dim);color:var(--accent);}
+.chip-arch{background:var(--warning-dim);color:#B87500;}
+.chip-ok{background:var(--success-dim);color:var(--success);}
+.chip-wa{background:rgba(37,211,102,.14);color:#1DA851;}
+.chip-muted{background:var(--surface2);color:var(--text3);}
+.sig-status{border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5;display:flex;flex-direction:column;gap:6px;}
+.sig-status.warn{background:var(--warning-dim);border:1.5px solid var(--warning);color:var(--text);}
+.sig-status.neutral{background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);}
+.sig-status.danger{background:var(--danger-dim);border:1.5px solid var(--danger);color:var(--text);}
+.sig-status-line{display:flex;gap:7px;align-items:flex-start;}
+.sig-status-line svg{flex-shrink:0;margin-top:2px;}
+.detail-actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+.detail-actions-grid .btn{justify-content:center;width:100%;}
+.detail-actions-grid .span2{grid-column:1 / -1;}
+.verify-warn{background:#FFF4E0;color:#9A6200;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:600;margin:-6px 0 14px;line-height:1.45;}
+</style>
+</head>
+<body>
+
+<div class="outer">
+<div class="container">
+
+<header class="hdr">
+  
+  <div class="hdr-topbar">
+    <div id="syncStatus" style="display:flex;align-items:center;gap:5px;font-size:11px;color:#fff;max-width:220px;overflow:hidden;font-weight:500;">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>
+      <span>Memuat...</span>
+    </div>
+    <div class="menu-wrap">
+      <button class="hdr-topbar-btn" onclick="toggleMenu()" title="Menu">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <div id="menuPop" class="menu-pop">
+        <button class="menu-item" onclick="toggleDark();closeMenu();">
+          <span class="menu-ic" style="background:var(--warning-dim);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg></span>
+          <span id="darkModeLabel">Mode Gelap</span>
+        </button>
+        <button class="menu-item" onclick="manualRefresh();closeMenu();">
+          <span class="menu-ic" style="background:var(--success-dim);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg></span>
+          <span>Reload Data</span>
+        </button>
+        <a class="menu-item" href="./invoice-mb.html">
+          <span class="menu-ic" style="background:var(--accent-dim);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg></span>
+          <span>Invoice</span>
+        </a>
+        <a class="menu-item" href="./expense.html">
+          <span class="menu-ic" style="background:var(--danger-dim);"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+          <span>Pengeluaran</span>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="hdr-inner">
+    <img class="hdr-logo-img" src="./Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.style.display='none';">
+  </div>
+</header>
+
+<div class="hdr-greeting">
+  <div class="hdr-greeting-card">
+    <div>
+      <h2>Kuitansi</h2>
+      <p>Bukti pembayaran / penerimaan</p>
+    </div>
+  </div>
+</div>
+
+<div style="position:sticky;top:0;z-index:200;">
+<div class="nav-tabs">
+  <div class="nav-tabs-inner">
+    <div class="tab-bar-pill">
+      <button class="nav-tab active" data-tab="buat" onclick="switchTab('buat')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Buat Kuitansi
+      </button>
+      <button class="nav-tab" data-tab="riwayat" onclick="switchTab('riwayat')">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"/><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"/><path d="M12 7v5l4 2"/></svg>
+        Riwayat
+      </button>
+    </div>
+  </div>
+</div>
+</div>
+
+<div class="wrap">
+
+<div id="setupBanner" class="setup-banner" style="display:none;">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div>GAS_URL belum diisi — kuitansi disimpan lokal di perangkat ini saja (belum tersinkron ke tim). Deploy backend <code>Kuitansi_Code.gs</code> lalu tempel URL-nya di variabel <code>GAS_URL</code> pada file ini.</div>
+</div>
+
+<!-- ═══════════════ TAB: BUAT KUITANSI ═══════════════ -->
+<div class="tab-slider-outer" id="tabSliderOuter">
+<div class="tab-slider-track" id="tabSliderTrack">
+
+<div id="tab-buat" class="tab-slider-pane">
+
+  <div class="sec">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Detail Kuitansi
+    </div>
+    <div class="g3">
+      <div>
+        <label>No. Kuitansi</label>
+        <input id="fNo" type="text" readonly>
+        <div class="hint">Otomatis · bisa diubah manual jika perlu</div>
+      </div>
+      <div>
+        <label>Ref Invoice <span style="opacity:.6;">(opsional)</span></label>
+        <select id="fRefQuick" class="fRefQuickSelect" onchange="quickFillRefInvoice()" style="margin-bottom:7px;">
+          <option value="">— Pilih dari daftar invoice —</option>
+        </select>
+        <input id="fRef" type="text" placeholder="mis. INV/2026/07/012 atau kosongkan">
+      </div>
+      <div>
+        <label>Tanggal</label>
+        <input id="fDate" type="date">
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+      Pembayaran
+    </div>
+    <div style="margin-bottom:12px;">
+      <label>Diterima Dari</label>
+      <input id="fDari" type="text" placeholder="Nama orang tua / wali / pihak pembayar">
+    </div>
+    <div class="g2" style="margin-bottom:12px;">
+      <div>
+        <label>Nama Ananda <span style="opacity:.6;">(opsional)</span></label>
+        <input id="fAnak" type="text" placeholder="Nama anak / siswa">
+      </div>
+      <div>
+        <label>No. WhatsApp Orang Tua <span style="opacity:.6;">(opsional)</span></label>
+        <input id="fWa" type="tel" inputmode="tel" placeholder="mis. 0812xxxxxxxx">
+        <div class="hint">Terisi otomatis dari data pendaftaran (Whatsapp Ibu). Dipakai untuk kirim kuitansi via WhatsApp.</div>
+      </div>
+    </div>
+    <div style="margin-bottom:4px;">
+      <label>Sejumlah Uang (Rp)</label>
+      <input id="fJumlah" type="text" inputmode="numeric" placeholder="0" style="font-family:'Geist Mono',monospace;font-size:15px;font-weight:700;">
+      <div id="terbilangBox" class="terbilang-box"></div>
+    </div>
+    <div style="margin:12px 0;">
+      <label>Untuk Pembayaran</label>
+      <textarea id="fUntuk" placeholder="mis. Pembayaran anyaman custom 3 unit — DP 50%" style="min-height:60px;"></textarea>
+    </div>
+    <div>
+      <label>Catatan <span style="opacity:.6;">(opsional)</span></label>
+      <textarea id="fCatatan" placeholder="Catatan tambahan…" style="min-height:50px;"></textarea>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+      Penerima
+    </div>
+    <div class="g2">
+      <div>
+        <label>Penerima (penanda tangan)</label>
+        <select id="fPenerimaQuick" onchange="quickFill('fPenerimaQuick','fPenerima')" style="margin-bottom:7px;">
+          <option value="">— Pilih cepat dari daftar —</option>
+          <option value="Elis Rosmiati, S.Pd.">Elis Rosmiati, S.Pd.</option>
+          <option value="Nita Fuziati">Nita Fuziati</option>
+          <option value="Annisa Zahrotun J, S.Kom.">Annisa Zahrotun J, S.Kom.</option>
+        </select>
+        <input id="fPenerima" type="text" placeholder="mis. Elis Rosmiati (atau ketik nama lain)">
+        <div class="hint">Pilih dari daftar lalu hapus gelarnya bila perlu, atau ketik nama baru langsung.</div>
+      </div>
+      <div>
+        <label>Jabatan Penerima</label>
+        <select id="fCreatorQuick" onchange="quickFill('fCreatorQuick','fCreator')" style="margin-bottom:7px;">
+          <option value="">— Pilih cepat —</option>
+          <option value="Cashier">Cashier</option>
+          <option value="Financial">Financial</option>
+          <option value="Admission">Admission</option>
+          <option value="Operational">Operational</option>
+        </select>
+        <input id="fCreator" type="text" placeholder="Cashier/Financial, atau ketik custom">
+        <div class="hint">Tercetak kecil di bawah nama Penerima pada kuitansi.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-title" style="justify-content:space-between;">
+      <span style="display:flex;align-items:center;gap:7px;">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        Pratinjau
+      </span>
+      <button class="btn btn-small btn-ghost" id="previewToggleBtn" onclick="togglePreview()" style="text-transform:none;letter-spacing:0;">Sembunyikan</button>
+    </div>
+    <div class="preview-frame-wrap" id="previewWrap">
+      <div class="preview-scale-box" id="previewScaleBox">
+        <iframe id="previewFrame" class="preview-frame" title="Pratinjau Kuitansi"></iframe>
+      </div>
+    </div>
+  </div>
+
+  <div class="actions">
+    <button class="btn btn-ghost" id="btnReset" onclick="resetForm()" title="Reset">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>
+      <span class="btn-label">Reset</span>
+    </button>
+    <button class="btn btn-accent" id="btnSimpan" onclick="saveKuitansi(false)" title="Simpan">
+      <svg class="btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      <span class="btn-label">Simpan</span>
+    </button>
+    <button class="btn btn-success" id="btnSimpanCetak" onclick="saveKuitansi(true)" title="Simpan & Cetak PDF">
+      <svg class="btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+      <span class="btn-label">Simpan &amp; Cetak PDF</span>
+    </button>
+  </div>
+
+</div><!-- /tab-buat -->
+
+<!-- ═══════════════ TAB: RIWAYAT ═══════════════ -->
+<div id="tab-riwayat" class="tab-slider-pane">
+
+  <div class="sec">
+    <div class="filter-bar">
+      <input id="searchInput" type="text" placeholder="Cari no. / nama / keterangan…" oninput="renderList()">
+      <select id="filterStatus" onchange="renderList()">
+        <option value="aktif">Aktif</option>
+        <option value="arsip">Arsip</option>
+        <option value="semua">Semua</option>
+      </select>
+      <select id="filterBulan" onchange="renderList()">
+        <option value="">Semua bulan</option>
+      </select>
+      <div class="filter-count" id="filterCount"></div>
+    </div>
+    <div id="listWrap"></div>
+  </div>
+
+</div><!-- /tab-riwayat -->
+
+</div><!-- /tab-slider-track -->
+</div><!-- /tab-slider-outer -->
+
+</div><!-- /wrap -->
+</div><!-- /container -->
+</div><!-- /outer -->
+
+<!-- ARSIP MODAL -->
+<div id="archiveModal" class="modal-overlay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      Arsipkan Kuitansi
+    </div>
+    <p style="font-size:13px;color:var(--text2);margin-bottom:6px;line-height:1.5;">Kuitansi dipindah ke <strong>Arsip</strong> dan tidak lagi dihitung sebagai kuitansi aktif. Data <strong>tidak dihapus</strong>, nomornya tidak dipakai ulang, dan bisa dipulihkan kapan saja.</p>
+    <p id="archiveModalDesc" style="font-size:13px;color:var(--text);font-weight:600;"></p>
+    <div class="modal-field" style="margin-top:12px;">
+      <label>Alasan <span style="opacity:.6;">(opsional)</span></label>
+      <textarea id="archiveReason" placeholder="mis. salah input nominal — dibuat ulang sebagai KWT/..." style="min-height:56px;"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-full" id="btnCancelArchive" onclick="closeArchiveModal()">Batal</button>
+      <button class="btn btn-warning btn-full" id="btnConfirmArchive" onclick="confirmArchive()">Arsipkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- KONTAK MODAL (nama anak + WhatsApp ortu) -->
+<div id="contactModal" class="modal-overlay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1DA851" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      Kontak Orang Tua
+    </div>
+    <p id="contactModalDesc" style="font-size:12.5px;color:var(--text2);margin-bottom:14px;line-height:1.5;"></p>
+    <div class="modal-field"><label>Nama Ananda</label><input id="cNama" type="text" placeholder="Nama anak / siswa"></div>
+    <div class="modal-field">
+      <label>No. WhatsApp Orang Tua</label>
+      <input id="cWa" type="tel" inputmode="tel" placeholder="mis. 0812xxxxxxxx">
+      <div class="hint">Boleh diawali 08…, 62…, atau +62…</div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-full" onclick="closeContactModal()">Batal</button>
+      <button class="btn btn-accent btn-full" id="btnContactSave" onclick="saveContact()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- KONFIRMASI UMUM -->
+<div id="confirmModal" class="modal-overlay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title" id="confirmTitle"></div>
+    <div id="confirmBody" style="font-size:13px;color:var(--text2);line-height:1.55;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-full" id="btnConfirmCancel" onclick="closeConfirm()">Batal</button>
+      <button class="btn btn-accent btn-full" id="btnConfirmOk" onclick="runConfirm()">Lanjutkan</button>
+    </div>
+  </div>
+</div>
+
+<!-- DETAIL SHEET (mobile) -->
+<div id="detailModal" class="modal-overlay">
+  <div class="modal">
+    <div class="modal-title" style="justify-content:space-between;">
+      <span id="detailModalNo" style="font-family:'Geist Mono',monospace;font-size:13px;color:var(--accent);font-weight:700;"></span>
+      <button class="btn-icon" onclick="closeDetailModal()" style="width:28px;height:28px;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="detailModalBody"></div>
+    <div class="detail-actions-grid" id="detailModalActions"></div>
+  </div>
+</div>
+
+<!-- MODAL PILIH JENIS TANDA TANGAN (muncul setiap kali mau cetak/save PDF) -->
+<div id="signatureModal" class="modal-overlay">
+  <div class="modal" style="max-width:400px;">
+    <div class="modal-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+      Jenis Tanda Tangan
+    </div>
+    <div id="sigStatusInfo"></div>
+    <p style="font-size:12.5px;color:var(--text2);margin-bottom:14px;">Pilih bagaimana kuitansi ini ditandatangani sebelum dicetak.</p>
+
+    <button class="sig-option" onclick="confirmPrintWithSignature('manual')">
+      <div class="sig-option-ic sig-ic-manual">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
+      </div>
+      <div class="sig-option-text">
+        <div class="sig-option-title">Tanda Tangan Manual</div>
+        <div class="sig-option-desc">Kolom TTD dikosongkan — untuk ditandatangani basah setelah dicetak.</div>
+      </div>
+    </button>
+
+    <button class="sig-option" onclick="confirmPrintWithSignature('digital')">
+      <div class="sig-option-ic sig-ic-digital">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <div class="sig-option-text">
+        <div class="sig-option-title">Tanda Tangan Digital</div>
+        <div class="sig-option-desc">Segel digital tercetak otomatis, bisa diverifikasi lewat QR di kuitansi.</div>
+      </div>
+    </button>
+
+    <button class="btn btn-ghost btn-full" onclick="closeSignatureModal()" style="margin-top:6px;">Batal</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<div id="detailPopover" class="detail-popover"></div>
+
+<!-- OVERLAY VERIFIKASI (muncul saat kuitansi di-scan via QR, ?verify=NO_KUITANSI) -->
+<div id="verifyOverlay" class="verify-overlay">
+  <div class="verify-wrap">
+    <img class="verify-logo" src="./Open_MB_Icon.png" alt="Markaz Belajar" onerror="this.style.display='none';">
+    <div class="verify-card" id="verifyCard">
+      <div class="verify-spinner"></div>
+      <div style="margin-top:14px;color:#4A6070;font-size:13px;">Memeriksa keaslian kuitansi…</div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════
+// LOGO ASSETS — file gambar TERPISAH, di-hosting di root repo GitHub
+// (letterhead kuitansi: kop surat atas, kop surat bawah, stempel resmi)
+// Upload 3 file berikut ke ROOT repo Anda (sejajar dengan invoice-mb.html,
+// dashboard.html, dll — TIDAK perlu folder khusus), lalu sesuaikan
+// REPO_BASE di bawah bila nama repo/branch Anda berbeda:
+//   kwt.img.header.png
+//   kwt.img.footer.png
+//   kwt.img.stamp.png
+// ══════════════════════════════════════
+const REPO_BASE = 'https://raw.githubusercontent.com/markaz-belajar/app/main';
+const HEADER_BANNER_SRC = REPO_BASE + '/kwt.img.header.png'; // kop surat atas (judul KUITANSI + logo pita)
+const FOOTER_BANNER_SRC = REPO_BASE + '/kwt.img.footer.png'; // kop surat bawah (badge + kontak + garis strip)
+const STAMP_SRC         = REPO_BASE + '/kwt.img.stamp.png';  // stempel resmi
+
+// ══════════════════════════════════════
+// CONFIG — GANTI dengan URL Web App hasil deploy Kuitansi_Code.gs
+// ══════════════════════════════════════
+let GAS_URL = 'https://script.google.com/macros/s/AKfycbzMziCavEtxpMEVucvRWNmfwResoHABIPKb4oP2Db8NwZiSBt8LTK8NOOJdmLk6k27xfw/exec';
+
+function hasGasUrl() {
+  return GAS_URL && GAS_URL.startsWith('https://script.google.com') && GAS_URL.indexOf('GANTI_DENGAN') === -1;
+}
+
+// URL backend app Invoice (invoice-mb.html) — dipakai HANYA untuk membaca daftar
+// invoice ke dropdown "Ref Invoice", tidak terkait dengan penyimpanan data Kuitansi.
+const INVOICE_GAS_URL = 'https://script.google.com/macros/s/AKfycbxbyZtQyblDlDZgRyRLy_grf-W66O7nWwsL9vn1iI46GENgWtjAkcg5u7-LeBERXbiX7A/exec';
+let invoiceRefList = [];
+
+async function loadInvoiceRefList() {
+  try {
+    const data = await fetchJsonSmart(`${INVOICE_GAS_URL}?action=getInvoices&t=${Date.now()}`);
+    invoiceRefList = (data.invoices || []).sort((a,b) => (b.invoice_number||'').localeCompare(a.invoice_number||''));
+    populateRefInvoiceDropdown();
+  } catch(e) {
+    // Diam-diam gagal — dropdown tetap kosong, field Ref Invoice tetap bisa diisi manual.
+  }
+}
+
+function populateRefInvoiceDropdown() {
+  const statusLabel = { paid: '✓ Lunas', unpaid: 'Belum Bayar', installment: 'Cicilan' };
+  const opts = invoiceRefList.map((inv, idx) => {
+    const parent = inv.student_parent || '';
+    const child = inv.student_name || '';
+    let who;
+    if (parent && child) who = `${parent} (Ananda: ${child})`;
+    else who = parent || child || '';
+    const st = statusLabel[inv.payment_status] || inv.payment_status || '';
+    return `<option value="${esc(inv.invoice_number)}" data-idx="${idx}">${esc(inv.invoice_number)} · ${esc(who)} · ${rp(inv.amount)}${st ? ' · '+esc(st) : ''}</option>`;
+  }).join('');
+  document.querySelectorAll('.fRefQuickSelect').forEach(sel => {
+    sel.innerHTML = '<option value="">— Pilih dari daftar invoice —</option>' + opts;
+  });
+}
+
+// Daftar fasilitas standar yang otomatis disertakan saat kuitansi terdeteksi
+// untuk PENDAFTARAN SISWA BARU (invoice mengandung item "Biaya Pendaftaran").
+// Kalau paket welcome kit berubah, cukup ubah daftar di sini.
+const FASILITAS_SISWA_BARU = [
+  'Personal Student Display Folder',
+  'Exclusive Tote Bag',
+  'Structured Learning Module Book',
+];
+
+function formatProgramLine(it) {
+  let s = (it.label || '').trim();
+  if (it.type && it.type !== '—') s += ' - ' + it.type;
+  if (it.dur) s += ' - ' + it.dur + ' Bulan';
+  return s;
+}
+
+function buildInvoiceItemsDesc(inv) {
+  let items = inv.invoice_items;
+  if (typeof items === 'string') {
+    try { items = JSON.parse(items); } catch(e) { items = []; }
+  }
+  if (!items) items = [];
+
+  const anandaLine = inv.student_name ? `\nAtas Nama Ananda: ${inv.student_name}` : '';
+
+  if (!items.length) {
+    return `Pembayaran invoice ${inv.invoice_number}${anandaLine}`;
+  }
+
+  const isPendaftaran = (label) => /pendaftaran/i.test(label || '');
+  const pendaftaranItems = items.filter(it => isPendaftaran(it.label));
+  const programItems = items.filter(it => !isPendaftaran(it.label));
+
+  // SISWA BARU — invoice mengandung Biaya Pendaftaran → rincian lengkap +
+  // fasilitas welcome kit otomatis, supaya jelas ini kuitansi pendaftaran baru.
+  if (pendaftaranItems.length > 0) {
+    const lines = ['Pembayaran untuk:', '1. Biaya Pendaftaran', '2. Fasilitas Siswa:'];
+    FASILITAS_SISWA_BARU.forEach(f => lines.push('    • ' + f));
+    if (programItems.length > 0) {
+      lines.push('3. Biaya Program Pembelajaran: ' + programItems.map(formatProgramLine).join('; '));
+    }
+    return lines.join('\n') + anandaLine;
+  }
+
+  // SISWA LAMA / pembayaran rutin — format ringkas seperti biasa.
+  const parts = items.map(formatProgramLine).filter(Boolean);
+  return `Pembayaran untuk Program Pembelajaran: ${parts.join('; ')}${anandaLine}`;
+}
+
+// ══════════════════════════════════════
+// HELPER v2 — status kuitansi, nomor WhatsApp, nama anak
+// ══════════════════════════════════════
+const isArchived = k => String(k.status || '').toLowerCase() === 'archived';
+
+function getAnanda(k) {
+  return String(k.nama_anak || '').trim() || extractAnandaName(k.untuk_pembayaran);
+}
+function createdByText(k) {
+  const who = (k.penerima || '').trim();
+  const role = (k.created_by || '').trim();
+  if (!who && !role) return '—';
+  return who + (role ? (who ? ' (' + role + ')' : role) : '');
+}
+
+// Normalisasi nomor HP Indonesia → format internasional tanpa "+" (untuk wa.me)
+function normalizePhone(raw) {
+  let d = digitsOnly(raw);
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('0')) d = '62' + d.slice(1);
+  else if (d.startsWith('8')) d = '62' + d;
+  if (d.length < 10 || d.length > 15) return '';
+  return d;
+}
+
+// Ambil nomor orang tua dari data invoice. Nama field di database invoice bisa
+// berbeda-beda, jadi dicoba beberapa kandidat lalu fallback ke pola nama kolom.
+function pickPhone(inv) {
+  if (!inv) return '';
+  const prefer = ['parent_phone','parent_wa','parent_whatsapp','parent_hp','mother_phone','mother_wa',
+                  'student_parent_phone','student_parent_wa','wa_parent','phone_parent','whatsapp','wa',
+                  'no_wa','phone','no_hp','hp','telp','telepon','student_phone','contact'];
+  const ok = v => digitsOnly(v).length >= 8;
+  for (const key of prefer) {
+    if (inv[key] && ok(inv[key])) return String(inv[key]).trim();
+  }
+  for (const key of Object.keys(inv)) {
+    if (/(phone|whats|^wa$|_wa$|^wa_|(^|_)hp($|_)|telp|kontak|contact)/i.test(key) && inv[key] && ok(inv[key])) {
+      return String(inv[key]).trim();
+    }
+  }
+  return '';
+}
+
+// ── Lookup data pendaftaran (Google Sheet "(Responses) 2026") via backend kuitansi ──
+async function lookupStudent(name, parent) {
+  if (!hasGasUrl()) return [];
+  const n = String(name || '').trim(), p = String(parent || '').trim();
+  if (n.length < 3 && p.length < 3) return [];
+  try {
+    const d = await fetchJsonSmart(`${GAS_URL}?action=lookupStudent&name=${encodeURIComponent(n)}&parent=${encodeURIComponent(p)}&t=${Date.now()}`, { retries: 1 });
+    return d.matches || [];
+  } catch(e) { return []; }
+}
+function pickStudent(ms) {
+  if (!ms || !ms.length) return null;
+  const top = ms[0];
+  const same = ms.filter(m => m.score === top.score);
+  const uniq = new Set(same.map(m => m.nama_peserta)).size === 1;
+  return {
+    wa_ibu: normalizePhone(top.wa_ibu) ? top.wa_ibu : '',
+    nama_ibu: top.nama_ibu,
+    nama_peserta: (top.score >= 6 || uniq) ? top.nama_peserta : '',
+  };
+}
+// Isi kolom No. WA (dan nama anak bila kosong) dari data pendaftaran.
+async function autofillFromRegistration(nama, parent, waId, namaId, override) {
+  const st = pickStudent(await lookupStudent(nama, parent));
+  if (!st) return false;
+  const waEl = document.getElementById(waId), nmEl = namaId ? document.getElementById(namaId) : null;
+  let did = false;
+  if (st.wa_ibu && waEl && (override || !waEl.value.trim())) { waEl.value = st.wa_ibu; did = true; }
+  if (st.nama_peserta && nmEl && !nmEl.value.trim()) { nmEl.value = st.nama_peserta; did = true; }
+  return did;
+}
+
+function quickFillRefInvoice() {
+  const sel = document.getElementById('fRefQuick');
+  const opt = sel.selectedOptions[0];
+  if (sel.value && opt.dataset.idx !== undefined) {
+    const inv = invoiceRefList[Number(opt.dataset.idx)];
+    if (inv) {
+      document.getElementById('fRef').value = inv.invoice_number || '';
+      document.getElementById('fDari').value = inv.student_parent || inv.student_name || '';
+      document.getElementById('fAnak').value = inv.student_name || '';
+      document.getElementById('fWa').value = pickPhone(inv);
+      document.getElementById('fJumlah').value = fmtThousand(inv.amount || 0);
+      document.getElementById('fUntuk').value = buildInvoiceItemsDesc(inv);
+      document.getElementById('fPenerima').value = 'Elis Rosmiati, S.Pd.';
+      document.getElementById('fCreator').value = 'Admission';
+      updateTerbilang();
+      renderLivePreview();
+      const ex = kuitansiList.find(k => !isArchived(k) &&
+        String(k.ref_invoice || '').trim().toLowerCase() === String(inv.invoice_number || '').trim().toLowerCase());
+      if (ex) showToast('Perhatian: invoice ini sudah punya kuitansi aktif (' + ex.no_kuitansi + ')', false);
+      // WA Ibu dari data pendaftaran (sumber utama); kalau tidak ketemu, tetap pakai nomor dari invoice
+      autofillFromRegistration(inv.student_name, inv.student_parent, 'fWa', 'fAnak', true).then(ok => {
+        if (ok && !ex) showToast('No. WA Ibu terisi dari data pendaftaran ✓', true);
+      });
+    }
+  }
+  sel.selectedIndex = 0;
+}
+
+// ══════════════════════════════════════
+// FETCH SMART — timeout + retry otomatis, supaya sync tidak gampang gagal
+// karena jaringan lemot / GAS lagi "cold start" (baru bangun dari idle).
+// Dipakai untuk operasi BACA (get/verify). Operasi TULIS (save/update/delete)
+// sengaja tidak di-retry otomatis, untuk mencegah data tersimpan dobel.
+// ══════════════════════════════════════
+async function fetchJsonSmart(url, { retries = 2, timeoutMs = 9000 } = {}) {
+  let lastErr;
+  for (let attempt = 0; attempt <= retries; attempt++) {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), timeoutMs);
+    try {
+      const resp = await fetch(url, { cache: 'no-store', signal: controller.signal });
+      clearTimeout(timer);
+      if (!resp.ok) throw new Error('HTTP ' + resp.status);
+      const data = await resp.json();
+      if (data.error) throw new Error(data.error);
+      return data;
+    } catch (e) {
+      clearTimeout(timer);
+      lastErr = (e.name === 'AbortError') ? new Error('Waktu tunggu habis (timeout)') : e;
+      if (attempt < retries) {
+        await new Promise(res => setTimeout(res, 600 * (attempt + 1))); // jeda sebelum coba lagi
+      }
+    }
+  }
+  throw lastErr;
+}
+
+async function gasPost(action, payload) {
+  const encoded = encodeURIComponent(JSON.stringify({ action, ...payload }));
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), 12000);
+  try {
+    const resp = await fetch(`${GAS_URL}?method=post&data=${encoded}`, { cache: 'no-store', signal: controller.signal });
+    clearTimeout(timer);
+    if (!resp.ok) throw new Error('HTTP ' + resp.status);
+    const data = await resp.json();
+    if (data.error) throw new Error(data.error);
+    return data;
+  } catch (e) {
+    clearTimeout(timer);
+    if (e.name === 'AbortError') throw new Error('Waktu tunggu habis (timeout) — coba lagi.');
+    throw e;
+  }
+}
+
+// ══════════════════════════════════════
+// STATE
+// ══════════════════════════════════════
+let kuitansiList = [];
+let lastCreatedId = null; // id kuitansi yang baru saja dibuat — ditandai di Riwayat
+const LOCAL_KEY = 'mrkz_kuitansi';
+
+function loadLocal() { return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'); }
+function saveLocal(list) { localStorage.setItem(LOCAL_KEY, JSON.stringify(list)); }
+
+// ══════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════
+function rp(n) {
+  n = Number(n) || 0;
+  return 'Rp ' + n.toLocaleString('id-ID');
+}
+function nowYMD() {
+  const d = new Date();
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+function fmtDateLong(ymd) {
+  if (!ymd) return '—';
+  const [y,m,d] = ymd.split('-').map(Number);
+  const bulan = ['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  return `${d} ${bulan[m-1]} ${y}`;
+}
+function fmtDateShort(ymd) {
+  if (!ymd) return '—';
+  const [y,m,d] = ymd.split('-');
+  return `${d}/${m}/${y}`;
+}
+function fmtTimestamp(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return '—';
+  const bulan = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const jam = String(d.getHours()).padStart(2,'0');
+  const menit = String(d.getMinutes()).padStart(2,'0');
+  return `${d.getDate()} ${bulan[d.getMonth()]} ${d.getFullYear()}, ${jam}:${menit}`;
+}
+function digitsOnly(v){ return String(v||'').replace(/[^\d]/g,''); }
+function fmtThousand(v){
+  const d = digitsOnly(v);
+  if (!d) return '';
+  return Number(d).toLocaleString('id-ID');
+}
+
+// ══════════════════════════════════════
+// TERBILANG (angka → kata, Bahasa Indonesia)
+// ══════════════════════════════════════
+const TB_SATUAN = ['','satu','dua','tiga','empat','lima','enam','tujuh','delapan','sembilan','sepuluh','sebelas'];
+function terbilangBase(n) {
+  n = Math.floor(n);
+  if (n < 12) return TB_SATUAN[n];
+  if (n < 20) return terbilangBase(n - 10) + ' belas';
+  if (n < 100) return terbilangBase(Math.floor(n/10)) + ' puluh' + (n%10 ? ' ' + terbilangBase(n%10) : '');
+  if (n < 200) return 'seratus' + (n-100 ? ' ' + terbilangBase(n-100) : '');
+  if (n < 1000) return terbilangBase(Math.floor(n/100)) + ' ratus' + (n%100 ? ' ' + terbilangBase(n%100) : '');
+  if (n < 2000) return 'seribu' + (n-1000 ? ' ' + terbilangBase(n-1000) : '');
+  if (n < 1000000) return terbilangBase(Math.floor(n/1000)) + ' ribu' + (n%1000 ? ' ' + terbilangBase(n%1000) : '');
+  if (n < 1000000000) return terbilangBase(Math.floor(n/1000000)) + ' juta' + (n%1000000 ? ' ' + terbilangBase(n%1000000) : '');
+  if (n < 1000000000000) return terbilangBase(Math.floor(n/1000000000)) + ' miliar' + (n%1000000000 ? ' ' + terbilangBase(n%1000000000) : '');
+  return terbilangBase(Math.floor(n/1000000000000)) + ' triliun' + (n%1000000000000 ? ' ' + terbilangBase(n%1000000000000) : '');
+}
+function terbilang(n) {
+  n = Math.floor(Number(n) || 0);
+  if (n === 0) return 'nol rupiah';
+  const words = terbilangBase(n).replace(/\s+/g,' ').trim();
+  const cap = words.charAt(0).toUpperCase() + words.slice(1);
+  return cap + ' rupiah';
+}
+
+// ══════════════════════════════════════
+// NOMOR OTOMATIS — format KWT/YYYY/MM/NNN, reset tiap bulan
+// ══════════════════════════════════════
+function generateNextNo(dateYMD) {
+  const [y,m] = (dateYMD || nowYMD()).split('-');
+  const prefix = `KWT/${y}/${m}/`;
+  const nums = kuitansiList
+    .filter(k => (k.no_kuitansi||'').startsWith(prefix))
+    .map(k => parseInt((k.no_kuitansi||'').split('/').pop()) || 0);
+  const next = (nums.length ? Math.max(...nums) : 0) + 1;
+  return prefix + String(next).padStart(3,'0');
+}
+
+// ══════════════════════════════════════
+// SYNC — backend Google Sheets (Kuitansi_Code.gs)
+// ══════════════════════════════════════
+function setSync(state, text) {
+  const icons = {
+    ok: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>`,
+    syncing: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="spin"><path d="M21 2v6h-6"/><path d="M3 12a9 9 0 0 1 15-6.7L21 8"/><path d="M3 22v-6h6"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16"/></svg>`,
+    error: `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>`,
+  };
+  const colors = { ok:'var(--success)', syncing:'rgba(255,255,255,0.8)', error:'var(--danger)' };
+  const el = document.getElementById('syncStatus');
+  if (el) {
+    el.style.color = colors[state] || 'rgba(255,255,255,0.7)';
+    el.innerHTML = `${icons[state]||''}<span>${text}</span>`;
+  }
+}
+
+const CACHE_KEY = 'mrkz_kuitansi_cache'; // cache read-only hasil fetch terakhir yang berhasil
+
+async function fetchKuitansiFromSheets() {
+  if (!hasGasUrl()) return loadLocal();
+  const data = await fetchJsonSmart(`${GAS_URL}?action=getKuitansi&t=${Date.now()}`);
+  const list = data.kuitansi || [];
+  try { localStorage.setItem(CACHE_KEY, JSON.stringify(list)); } catch(e) {}
+  return list;
+}
+function loadCachedKuitansi() {
+  try { return JSON.parse(localStorage.getItem(CACHE_KEY) || '[]'); } catch(e) { return []; }
+}
+async function saveKuitansiToSheets(k) {
+  if (!hasGasUrl()) {
+    const local = loadLocal();
+    k.__id = k.__id || ('local_' + Date.now());
+    local.push(k);
+    saveLocal(local);
+    return { ok: true, id: k.__id, offline: true };
+  }
+  return await gasPost('saveKuitansi', { kuitansi: k });
+}
+async function updateKuitansiInSheets(id, updates) {
+  if (!hasGasUrl()) {
+    const local = loadLocal();
+    const idx = local.findIndex(x => x.__id === id);
+    if (idx >= 0) { local[idx] = {...local[idx], ...updates}; saveLocal(local); }
+    return { ok: true };
+  }
+  return await gasPost('updateKuitansi', { id, updates });
+}
+function computeMarkFields(k, type, extra) {
+  const now = new Date().toISOString();
+  extra = extra || {};
+  if (type === 'print')   return { printed_count: (Number(k.printed_count) || 0) + 1, last_printed_at: now };
+  if (type === 'send')    return { sent_count: (Number(k.sent_count) || 0) + 1, last_sent_at: now };
+  if (type === 'archive') return { status: 'archived', archived_at: now, archive_reason: extra.reason || '' };
+  if (type === 'restore') return { status: 'aktif', archived_at: '', archive_reason: '' };
+  return {};
+}
+async function markKuitansiInSheets(id, type, extra) {
+  if (!hasGasUrl()) {
+    const local = loadLocal();
+    const idx = local.findIndex(x => x.__id === id);
+    const fields = computeMarkFields(idx >= 0 ? local[idx] : {}, type, extra);
+    if (idx >= 0) { local[idx] = { ...local[idx], ...fields }; saveLocal(local); }
+    return { ok: true, fields };
+  }
+  return await gasPost('markKuitansi', { id, type, extra: extra || {} });
+}
+function cacheList() { try { localStorage.setItem(CACHE_KEY, JSON.stringify(kuitansiList)); } catch(e) {} }
+
+async function loadAll() {
+  setSync('syncing', 'Memuat...');
+  document.getElementById('setupBanner').style.display = hasGasUrl() ? 'none' : 'flex';
+  try {
+    kuitansiList = await fetchKuitansiFromSheets();
+    kuitansiList.sort((a,b) => (b.created_at||'').localeCompare(a.created_at||''));
+    const now = new Date();
+    const timeStr = now.toLocaleTimeString('id-ID', {hour:'2-digit', minute:'2-digit'});
+    setSync('ok', hasGasUrl() ? `${kuitansiList.length} entri · sync ${timeStr}` : `${kuitansiList.length} entri · lokal`);
+    populateFilterBulan();
+    renderList();
+    document.getElementById('fNo').value = generateNextNo(document.getElementById('fDate').value);
+    renderLivePreview();
+  } catch(e) {
+    // Sinkron gagal (jaringan lemot / GAS lagi cold-start) — jangan biarkan
+    // Riwayat mendadak kosong. Tampilkan cache hasil sync terakhir yang berhasil.
+    const cached = loadCachedKuitansi();
+    if (cached.length) {
+      kuitansiList = cached;
+      kuitansiList.sort((a,b) => (b.created_at||'').localeCompare(a.created_at||''));
+      populateFilterBulan();
+      renderList();
+      document.getElementById('fNo').value = generateNextNo(document.getElementById('fDate').value);
+      renderLivePreview();
+      setSync('error', `Gagal sync · tampil data cache (${cached.length})`);
+    } else {
+      setSync('error', 'Gagal sinkron');
+    }
+    showToast('Gagal sinkron: ' + e.message, false);
+  }
+}
+function manualRefresh() { loadAll(); showToast('Memuat ulang…', true); }
+
+// ══════════════════════════════════════
+// FORM — BUAT KUITANSI
+// ══════════════════════════════════════
+document.getElementById('fJumlah').addEventListener('input', function(){
+  const caret = this.selectionStart;
+  const before = this.value.length;
+  this.value = fmtThousand(this.value);
+  const after = this.value.length;
+  this.selectionStart = this.selectionEnd = Math.max(0, caret + (after-before));
+  updateTerbilang();
+});
+function updateTerbilang() {
+  const v = digitsOnly(document.getElementById('fJumlah').value);
+  document.getElementById('terbilangBox').textContent = v ? '≈ ' + terbilang(v) : '';
+}
+document.getElementById('fDate').addEventListener('change', function(){
+  document.getElementById('fNo').value = generateNextNo(this.value);
+});
+
+function resetForm() {
+  document.getElementById('fDate').value = nowYMD();
+  document.getElementById('fNo').value = generateNextNo(nowYMD());
+  document.getElementById('fRef').value = '';
+  document.getElementById('fDari').value = '';
+  document.getElementById('fJumlah').value = '';
+  document.getElementById('fUntuk').value = '';
+  document.getElementById('fCatatan').value = '';
+  document.getElementById('fPenerima').value = '';
+  document.getElementById('fAnak').value = '';
+  document.getElementById('fWa').value = '';
+  document.getElementById('fPenerimaQuick').selectedIndex = 0;
+  document.getElementById('fCreatorQuick').selectedIndex = 0;
+  updateTerbilang();
+  renderLivePreview();
+}
+
+function quickFill(selectId, targetId) {
+  const sel = document.getElementById(selectId);
+  if (sel.value) {
+    document.getElementById(targetId).value = sel.value;
+    if (targetId === 'fPenerima') renderLivePreview();
+  }
+  sel.selectedIndex = 0;
+}
+
+function collectForm() {
+  return {
+    no_kuitansi: document.getElementById('fNo').value.trim(),
+    ref_invoice: document.getElementById('fRef').value.trim(),
+    date: document.getElementById('fDate').value,
+    diterima_dari: document.getElementById('fDari').value.trim(),
+    jumlah: Number(digitsOnly(document.getElementById('fJumlah').value)) || 0,
+    untuk_pembayaran: document.getElementById('fUntuk').value.trim(),
+    catatan: document.getElementById('fCatatan').value.trim(),
+    penerima: document.getElementById('fPenerima').value.trim(),
+    created_by: document.getElementById('fCreator').value.trim(),
+    created_at: new Date().toISOString(),
+    nama_anak: document.getElementById('fAnak').value.trim(),
+    no_wa: document.getElementById('fWa').value.trim(),
+    status: 'aktif',
+    printed_count: 0,
+    sent_count: 0,
+  };
+}
+
+let _isSaving = false;
+
+// Kunci pembanding kuitansi identik (sama dengan logika server)
+function dupKey(k) {
+  const n = v => String(v == null ? '' : v).trim().toLowerCase().replace(/\s+/g, ' ');
+  return [n(k.ref_invoice), Number(k.jumlah) || 0, n(k.date), n(k.diterima_dari), n(k.untuk_pembayaran)].join('|');
+}
+function findExactDuplicate(data, ignoreId) {
+  const key = dupKey(data);
+  return kuitansiList.find(k => k.__id !== ignoreId && !isArchived(k) && dupKey(k) === key) || null;
+}
+function findSameRefActive(data) {
+  const ref = String(data.ref_invoice || '').trim().toLowerCase();
+  if (!ref) return null;
+  return kuitansiList.find(k => !isArchived(k) && String(k.ref_invoice || '').trim().toLowerCase() === ref) || null;
+}
+
+async function saveKuitansi(andPrint) {
+  if (_isSaving) return; // cegah double-click / double-submit
+
+  const data = collectForm();
+  if (!data.no_kuitansi || !data.date || !data.diterima_dari || !data.jumlah || !data.untuk_pembayaran) {
+    showToast('Lengkapi No, Tanggal, Diterima Dari, Jumlah, dan Untuk Pembayaran', false);
+    return;
+  }
+  if (data.no_wa && !normalizePhone(data.no_wa)) {
+    showToast('Nomor WhatsApp tidak valid — kosongkan atau perbaiki', false);
+    return;
+  }
+
+  // 1) Nomor kuitansi sudah dipakai
+  const sameNo = kuitansiList.find(k => String(k.no_kuitansi || '').trim() === data.no_kuitansi);
+  if (sameNo) {
+    showConfirm({ title: 'Nomor Sudah Dipakai', info: true, okText: 'Mengerti',
+      body: `Nomor <b>${esc(data.no_kuitansi)}</b> sudah ada di Riwayat. Muat ulang data lalu coba lagi.` });
+    return;
+  }
+  // 2) Kuitansi aktif yang identik → diblokir
+  const exact = findExactDuplicate(data, null);
+  if (exact) {
+    showConfirm({ title: 'Kuitansi Sama Sudah Ada', info: true, okText: 'Mengerti',
+      body: `Sudah ada kuitansi aktif yang identik: <b>${esc(exact.no_kuitansi)}</b> (${esc(exact.diterima_dari)} · ${rp(exact.jumlah)}).<br><br>Bila itu salah input, <b>arsipkan</b> dulu kuitansi lama dari tab Riwayat.` });
+    return;
+  }
+  // 3) Invoice yang sama sudah punya kuitansi aktif (mis. cicilan) → minta konfirmasi
+  const sameRef = findSameRefActive(data);
+  if (sameRef) {
+    showConfirm({ title: 'Invoice Sudah Punya Kuitansi', okText: 'Tetap Buat',
+      body: `Invoice <b>${esc(data.ref_invoice)}</b> sudah punya kuitansi aktif <b>${esc(sameRef.no_kuitansi)}</b> (${rp(sameRef.jumlah)}).<br><br>Lanjutkan hanya bila ini pembayaran berbeda (mis. cicilan berikutnya).`,
+      onOk: () => doSaveKuitansi(data, andPrint) });
+    return;
+  }
+  doSaveKuitansi(data, andPrint);
+}
+
+async function doSaveKuitansi(data, andPrint) {
+  if (_isSaving) return;
+  _isSaving = true;
+  setSavingUI(true, andPrint);
+  try {
+    data.__id = data.__id || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : ('k_' + Date.now() + Math.random().toString(16).slice(2)));
+    const res = await saveKuitansiToSheets(data);
+    data.__id = res.id || res.__id || data.__id;
+    lastCreatedId = data.__id;
+    kuitansiList.unshift(data);
+    cacheList();
+    populateFilterBulan();
+    document.getElementById('filterStatus').value = 'aktif';
+    renderList();
+    showToast('Kuitansi tersimpan & terkunci ✓', true);
+    if (andPrint) promptSignatureAndPrint(data);
+    resetForm();
+    switchTab('riwayat');
+  } catch(e) {
+    showToast('Gagal simpan: ' + e.message, false);
+  } finally {
+    _isSaving = false;
+    setSavingUI(false, andPrint);
+  }
+}
+
+function setSavingUI(isSaving, andPrint) {
+  const btnReset = document.getElementById('btnReset');
+  const btnSimpan = document.getElementById('btnSimpan');
+  const btnSimpanCetak = document.getElementById('btnSimpanCetak');
+  const activeBtn = andPrint ? btnSimpanCetak : btnSimpan;
+  const otherBtn = andPrint ? btnSimpan : btnSimpanCetak;
+
+  [btnReset, btnSimpan, btnSimpanCetak].forEach(b => { if (b) b.disabled = isSaving; });
+
+  if (!activeBtn) return;
+  const label = activeBtn.querySelector('.btn-label');
+  const icon = activeBtn.querySelector('.btn-ic');
+  if (isSaving) {
+    activeBtn.dataset.origLabel = label.textContent;
+    label.textContent = 'Menyimpan…';
+    if (icon) icon.classList.add('spin');
+    if (otherBtn) otherBtn.style.opacity = '.5';
+  } else {
+    if (activeBtn.dataset.origLabel) label.textContent = activeBtn.dataset.origLabel;
+    if (icon) icon.classList.remove('spin');
+    if (otherBtn) otherBtn.style.opacity = '';
+  }
+}
+
+// ══════════════════════════════════════
+// RIWAYAT — LIST / SEARCH / FILTER
+// ══════════════════════════════════════
+function populateFilterBulan() {
+  const sel = document.getElementById('filterBulan');
+  const cur = sel.value;
+  const bulanSet = new Set(kuitansiList.map(k => (k.date||'').slice(0,7)).filter(Boolean));
+  const bulanArr = Array.from(bulanSet).sort().reverse();
+  const bulanName = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  sel.innerHTML = '<option value="">Semua bulan</option>' + bulanArr.map(b => {
+    const [y,m] = b.split('-');
+    return `<option value="${b}">${bulanName[Number(m)-1]} ${y}</option>`;
+  }).join('');
+  sel.value = cur;
+}
+
+// Ekstrak nama anak (Ananda) dari teks "Untuk Pembayaran" — supaya di daftar
+// Riwayat & dropdown, admin bisa langsung tahu ini transaksi anak yang mana,
+// bukan cuma nama orang tua/pembayarnya.
+function extractAnandaName(text) {
+  if (!text) return '';
+  const m = text.match(/Atas Nama Ananda:\s*(.+)/i);
+  return m ? m[1].trim() : '';
+}
+
+const IC = {
+  lock:    '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  print:   '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  wa:      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+  archive: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+  child:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+};
+const IC_BTN = {
+  print:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  wa:      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+  archive: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+  restore: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>',
+};
+
+function buildChips(k) {
+  const pc = Number(k.printed_count) || 0;
+  const sc = Number(k.sent_count) || 0;
+  const c = [];
+  c.push(isArchived(k)
+    ? `<span class="chip chip-arch">${IC.archive} Diarsipkan</span>`
+    : `<span class="chip chip-lock">${IC.lock} Terkunci</span>`);
+  c.push(pc > 0
+    ? `<span class="chip chip-ok" title="Terakhir dicetak ${esc(fmtTimestamp(k.last_printed_at))}">${IC.print} Sudah dicetak ${pc}×</span>`
+    : `<span class="chip chip-muted">${IC.print} Belum dicetak</span>`);
+  c.push(sc > 0
+    ? `<span class="chip chip-wa" title="Terakhir dikirim ${esc(fmtTimestamp(k.last_sent_at))}">${IC.wa} Terkirim WA ${sc}×</span>`
+    : `<span class="chip chip-muted">${IC.wa} Belum dikirim WA</span>`);
+  return c.join('');
+}
+
+function renderList() {
+  const q = document.getElementById('searchInput').value.trim().toLowerCase();
+  const bulan = document.getElementById('filterBulan').value;
+  const st = document.getElementById('filterStatus').value || 'aktif';
+  let list = kuitansiList.filter(k => {
+    const arch = isArchived(k);
+    if (st === 'aktif' && arch) return false;
+    if (st === 'arsip' && !arch) return false;
+    if (bulan && (k.date||'').slice(0,7) !== bulan) return false;
+    if (q) {
+      const hay = `${k.no_kuitansi} ${k.diterima_dari} ${getAnanda(k)} ${k.untuk_pembayaran} ${k.ref_invoice}`.toLowerCase();
+      if (!hay.includes(q)) return false;
+    }
+    return true;
+  });
+  document.getElementById('filterCount').textContent = `${list.length} kuitansi`;
+  const wrap = document.getElementById('listWrap');
+  if (list.length === 0) {
+    wrap.innerHTML = `<div class="empty-state">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      ${st === 'arsip' ? 'Belum ada kuitansi di arsip' : 'Belum ada kuitansi'}
+    </div>`;
+    return;
+  }
+  wrap.innerHTML = list.map(k => {
+    const arch = isArchived(k);
+    const ananda = getAnanda(k);
+    const untuk = k.untuk_pembayaran || '';
+    const subText = `${fmtDateShort(k.date)} · ${esc(untuk.replace(/\s*\n\s*/g,' ').slice(0,44))}${untuk.length>44?'…':''}`;
+    const isNew = k.__id === lastCreatedId;
+    const id = esc(k.__id);
+    return `
+    <div class="kw-row${isNew ? ' kw-row-new' : ''}${arch ? ' kw-row-arch' : ''}" onclick="handleRowTap(event,'${id}')">
+      <div class="kw-row-main">
+        <div class="kw-row-no">${esc(k.no_kuitansi)}${isNew ? `<span class="kw-new-badge" title="Baru saja ditambahkan"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Baru</span>` : ''}${arch ? `<span class="kw-arch-badge">ARSIP</span>` : ''}</div>
+        <div class="kw-row-amt-m">${rp(k.jumlah)}</div>
+        <div class="kw-row-name">${esc(k.diterima_dari)}</div>
+        ${ananda ? `<div class="kw-row-anak">${IC.child}<span>Ananda: ${esc(ananda)}</span></div>` : ''}
+        <div class="kw-row-sub" data-detail-id="${id}">${subText}</div>
+        <div class="kw-row-by">Dibuat oleh <b>${esc(createdByText(k))}</b> · ${esc(fmtTimestamp(k.created_at))}</div>
+        <div class="kw-chips">${buildChips(k)}</div>
+      </div>
+      <div class="kw-row-right">
+        <div class="kw-row-amt">${rp(k.jumlah)}</div>
+        <div class="kw-row-actions">
+          <button class="btn-icon" title="Cetak ulang" onclick="event.stopPropagation();printById('${id}')">${IC_BTN.print}</button>
+          <button class="btn-icon btn-icon-wa" title="Kirim ke WhatsApp orang tua" onclick="event.stopPropagation();sendWhatsApp('${id}')">${IC_BTN.wa}</button>
+          ${arch
+            ? `<button class="btn-icon btn-icon-arch" title="Pulihkan dari arsip" onclick="event.stopPropagation();restoreKuitansi('${id}')">${IC_BTN.restore}</button>`
+            : `<button class="btn-icon btn-icon-arch" title="Arsipkan" onclick="event.stopPropagation();openArchive('${id}')">${IC_BTN.archive}</button>`}
+        </div>
+      </div>
+      <svg class="kw-row-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </div>
+  `;
+  }).join('');
+}
+
+function printById(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (k) promptSignatureAndPrint(k);
+}
+
+function handleRowTap(e, id) {
+  if (e.target.closest('.kw-row-actions')) return;
+  openDetailSheet(id);
+}
+
+// ══════════════════════════════════════
+// DETAIL SHEET — tap baris riwayat: detail lengkap + riwayat cetak/kirim + aksi
+// ══════════════════════════════════════
+let detailModalId = null;
+function openDetailSheet(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  detailModalId = id;
+  const arch = isArchived(k);
+  const ananda = getAnanda(k);
+  const pc = Number(k.printed_count) || 0;
+  const sc = Number(k.sent_count) || 0;
+  document.getElementById('detailModalNo').textContent = k.no_kuitansi;
+  document.getElementById('detailModalBody').innerHTML = `
+    <div class="kw-chips" style="margin:0 0 6px;">${buildChips(k)}</div>
+    <div class="detail-row"><span>Tanggal</span><strong>${fmtDateLong(k.date)}</strong></div>
+    <div class="detail-row"><span>Diterima Dari</span><strong>${esc(k.diterima_dari)}</strong></div>
+    <div class="detail-row"><span>Nama Ananda</span><strong>${esc(ananda) || '—'}</strong></div>
+    <div class="detail-row"><span>WhatsApp Ortu</span><strong>${esc(k.no_wa) || '<span style="color:var(--danger);">Belum ada</span>'}</strong></div>
+    <div class="detail-row"><span>Jumlah</span><strong>${rp(k.jumlah)}</strong></div>
+    ${k.ref_invoice ? `<div class="detail-row"><span>Ref Invoice</span><strong>${esc(k.ref_invoice)}</strong></div>` : ''}
+    <div class="detail-block">
+      <span class="db-lbl">Untuk Pembayaran</span>
+      <div class="db-val">${nl2br(k.untuk_pembayaran) || '—'}</div>
+    </div>
+    ${k.catatan ? `<div class="detail-block"><span class="db-lbl">Catatan</span><div class="db-val">${nl2br(k.catatan)}</div></div>` : ''}
+    <div class="detail-row"><span>Dibuat Oleh</span><strong>${esc(createdByText(k))}</strong></div>
+    <div class="detail-row"><span>Dibuat Pada</span><strong>${esc(fmtTimestamp(k.created_at))}</strong></div>
+    <div class="detail-row"><span>Riwayat Cetak</span><strong>${pc > 0 ? `${pc}× · terakhir ${esc(fmtTimestamp(k.last_printed_at))}` : 'Belum pernah dicetak'}</strong></div>
+    <div class="detail-row"><span>Riwayat Kirim WA</span><strong>${sc > 0 ? `${sc}× · terakhir ${esc(fmtTimestamp(k.last_sent_at))}` : 'Belum pernah dikirim'}</strong></div>
+    ${arch ? `<div class="detail-row"><span>Diarsipkan</span><strong>${esc(fmtTimestamp(k.archived_at))}</strong></div>
+      ${k.archive_reason ? `<div class="detail-block"><span class="db-lbl">Alasan Arsip</span><div class="db-val">${nl2br(k.archive_reason)}</div></div>` : ''}` : ''}
+  `;
+  document.getElementById('detailModalActions').innerHTML = `
+    <button class="btn btn-ghost" onclick="detailModalPrint()">${IC_BTN.print} ${pc > 0 ? 'Cetak Lagi' : 'Cetak'}</button>
+    <button class="btn btn-wa" onclick="detailModalWa()">${IC_BTN.wa} Kirim WA</button>
+    <button class="btn btn-ghost" onclick="detailModalContact()">Ubah Kontak</button>
+    ${arch
+      ? `<button class="btn btn-accent" onclick="detailModalRestore()">${IC_BTN.restore} Pulihkan</button>`
+      : `<button class="btn btn-warning" onclick="detailModalArchive()">${IC_BTN.archive} Arsipkan</button>`}
+  `;
+  document.getElementById('detailModal').classList.add('open');
+}
+function closeDetailModal() {
+  document.getElementById('detailModal').classList.remove('open');
+  detailModalId = null;
+}
+function detailModalPrint() { printById(detailModalId); }
+function detailModalWa() { sendWhatsApp(detailModalId); }
+function detailModalContact() { const id = detailModalId; closeDetailModal(); openContactModal(id, false); }
+function detailModalArchive() { const id = detailModalId; closeDetailModal(); openArchive(id); }
+function detailModalRestore() { const id = detailModalId; closeDetailModal(); restoreKuitansi(id); }
+
+// ══════════════════════════════════════
+// DETAIL POPOVER — hover (desktop) / tekan-tahan (mobile) pada baris Riwayat
+// menampilkan nama pembuat + keterangan pembayaran lengkap
+// ══════════════════════════════════════
+function showDetailPopover(x, y, k) {
+  const pop = document.getElementById('detailPopover');
+  let html = `<div class="dp-block"><div class="dp-label">Untuk Pembayaran</div>${nl2br(k.untuk_pembayaran) || '—'}</div>`;
+  if (k.catatan) html += `<div class="dp-block"><div class="dp-label">Catatan</div>${nl2br(k.catatan)}</div>`;
+  const an = getAnanda(k);
+  if (an) html += `<div class="dp-block"><div class="dp-label">Nama Ananda</div>${esc(an)}</div>`;
+  html += `<div class="dp-block"><div class="dp-label">Dibuat Oleh</div>${esc(createdByText(k))}<br>${esc(fmtTimestamp(k.created_at))}</div>`;
+  pop.innerHTML = html;
+  pop.classList.add('show');
+
+  const rect = pop.getBoundingClientRect();
+  let left = x, top = y;
+  if (left + rect.width > window.innerWidth - 12) left = window.innerWidth - rect.width - 12;
+  if (left < 12) left = 12;
+  if (top + rect.height > window.innerHeight - 12) top = y - rect.height - 16;
+  pop.style.left = left + 'px';
+  pop.style.top = top + 'px';
+}
+function hideDetailPopover() {
+  document.getElementById('detailPopover').classList.remove('show');
+}
+
+let detailLongPressTimer = null;
+function initDetailPopoverEvents() {
+  const wrap = document.getElementById('listWrap');
+  wrap.addEventListener('mouseover', e => {
+    const el = e.target.closest('[data-detail-id]');
+    if (!el) return;
+    const k = kuitansiList.find(x => x.__id === el.dataset.detailId);
+    if (!k) return;
+    const rect = el.getBoundingClientRect();
+    showDetailPopover(rect.left, rect.bottom + 8, k);
+  });
+  wrap.addEventListener('mouseout', e => {
+    if (e.target.closest('[data-detail-id]')) hideDetailPopover();
+  });
+  wrap.addEventListener('touchstart', e => {
+    const el = e.target.closest('[data-detail-id]');
+    if (!el) return;
+    const touch = e.touches[0];
+    clearTimeout(detailLongPressTimer);
+    detailLongPressTimer = setTimeout(() => {
+      const k = kuitansiList.find(x => x.__id === el.dataset.detailId);
+      if (k) showDetailPopover(Math.min(touch.clientX, window.innerWidth - 200), touch.clientY - 10, k);
+    }, 420);
+  }, { passive: true });
+  wrap.addEventListener('touchend', () => { clearTimeout(detailLongPressTimer); hideDetailPopover(); });
+  wrap.addEventListener('touchmove', () => { clearTimeout(detailLongPressTimer); hideDetailPopover(); });
+}
+
+// ══════════════════════════════════════
+// KONFIRMASI UMUM
+// ══════════════════════════════════════
+let _confirmCb = null;
+function showConfirm({ title, body, okText = 'Lanjutkan', okClass = 'btn-accent', onOk = null, info = false }) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').innerHTML = body;
+  const ok = document.getElementById('btnConfirmOk');
+  ok.className = 'btn ' + okClass + ' btn-full';
+  ok.textContent = okText;
+  document.getElementById('btnConfirmCancel').style.display = info ? 'none' : '';
+  _confirmCb = onOk;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirm() { _confirmCb = null; document.getElementById('confirmModal').classList.remove('open'); }
+function runConfirm() {
+  const cb = _confirmCb;
+  closeConfirm();
+  if (cb) cb();
+}
+
+// ══════════════════════════════════════
+// APPLY MARK — kirim aksi ke backend lalu sinkronkan state lokal
+// ══════════════════════════════════════
+async function applyMark(id, type, extra) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) throw new Error('Data tidak ditemukan');
+  const res = await markKuitansiInSheets(id, type, extra || {});
+  Object.assign(k, res.fields || computeMarkFields(k, type, extra));
+  cacheList();
+  renderList();
+  if (detailModalId === id) openDetailSheet(id);
+  return k;
+}
+
+// ══════════════════════════════════════
+// ARSIP / PULIHKAN
+// ══════════════════════════════════════
+let archivingId = null;
+function openArchive(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  archivingId = id;
+  document.getElementById('archiveModalDesc').textContent = `${k.no_kuitansi} — ${k.diterima_dari} — ${rp(k.jumlah)}`;
+  document.getElementById('archiveReason').value = '';
+  document.getElementById('archiveModal').classList.add('open');
+}
+function closeArchiveModal() { archivingId = null; document.getElementById('archiveModal').classList.remove('open'); }
+let _isArchiving = false;
+async function confirmArchive() {
+  if (_isArchiving || !archivingId) return;
+  _isArchiving = true;
+  const btn = document.getElementById('btnConfirmArchive');
+  const btnCancel = document.getElementById('btnCancelArchive');
+  btn.disabled = true; btn.textContent = 'Mengarsipkan…'; btnCancel.disabled = true;
+  try {
+    await applyMark(archivingId, 'archive', { reason: document.getElementById('archiveReason').value.trim() });
+    closeArchiveModal();
+    showToast('Kuitansi diarsipkan ✓', true);
+  } catch(e) {
+    showToast('Gagal arsipkan: ' + e.message, false);
+  } finally {
+    _isArchiving = false;
+    btn.disabled = false; btn.textContent = 'Arsipkan'; btnCancel.disabled = false;
+  }
+}
+function restoreKuitansi(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  const dup = findExactDuplicate(k, k.__id);
+  if (dup) {
+    showConfirm({ title: 'Tidak Bisa Dipulihkan', info: true, okText: 'Mengerti',
+      body: `Sudah ada kuitansi aktif yang identik: <b>${esc(dup.no_kuitansi)}</b>. Arsipkan yang itu dulu bila ingin memulihkan ini.` });
+    return;
+  }
+  showConfirm({ title: 'Pulihkan Kuitansi', okText: 'Pulihkan',
+    body: `Kembalikan <b>${esc(k.no_kuitansi)}</b> (${esc(k.diterima_dari)} · ${rp(k.jumlah)}) menjadi kuitansi aktif?`,
+    onOk: async () => {
+      try { await applyMark(id, 'restore', {}); showToast('Kuitansi dipulihkan ✓', true); }
+      catch(e) { showToast('Gagal pulihkan: ' + e.message, false); }
+    } });
+}
+
+// ══════════════════════════════════════
+// KONTAK (nama anak + WhatsApp ortu) — satu-satunya data yang boleh dilengkapi setelah terkunci
+// ══════════════════════════════════════
+let contactId = null, contactForSend = false;
+function openContactModal(id, forSend) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  contactId = id; contactForSend = !!forSend;
+  document.getElementById('contactModalDesc').innerHTML = forSend
+    ? `Nomor WhatsApp orang tua untuk <b>${esc(k.diterima_dari)}</b> belum tersimpan. Isi nomornya, lalu WhatsApp langsung terbuka.`
+    : `Lengkapi kontak untuk <b>${esc(k.no_kuitansi)}</b>. Data nominal & isi kuitansi tetap terkunci.`;
+  document.getElementById('cNama').value = getAnanda(k);
+  document.getElementById('cWa').value = k.no_wa || '';
+  document.getElementById('btnContactSave').textContent = forSend ? 'Simpan & Kirim WA' : 'Simpan';
+  document.getElementById('contactModal').classList.add('open');
+  setTimeout(() => document.getElementById(forSend ? 'cWa' : 'cNama').focus(), 60);
+  if (!k.no_wa) {
+    autofillFromRegistration(getAnanda(k), k.diterima_dari, 'cWa', 'cNama', false).then(ok => {
+      if (ok && contactId === id) showToast('Data terisi dari data pendaftaran — periksa lalu simpan', true);
+    });
+  }
+}
+function closeContactModal() { contactId = null; document.getElementById('contactModal').classList.remove('open'); }
+let _isSavingContact = false;
+async function saveContact() {
+  if (_isSavingContact) return;
+  const k = kuitansiList.find(x => x.__id === contactId);
+  if (!k) return;
+  const nama = document.getElementById('cNama').value.trim();
+  const wa = document.getElementById('cWa').value.trim();
+  if (contactForSend && !normalizePhone(wa)) { showToast('Isi nomor WhatsApp yang valid', false); return; }
+  if (!contactForSend && wa && !normalizePhone(wa)) { showToast('Nomor WhatsApp tidak valid', false); return; }
+
+  const btn = document.getElementById('btnContactSave');
+  const label = btn.textContent;
+  _isSavingContact = true;
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+  // buka tab WA lebih dulu (masih dalam aksi klik) supaya tidak diblokir popup-blocker
+  const preWin = contactForSend ? window.open('', '_blank') : null;
+  try {
+    await updateKuitansiInSheets(k.__id, { nama_anak: nama, no_wa: wa });
+    k.nama_anak = nama; k.no_wa = wa;
+    cacheList();
+    renderList();
+    if (detailModalId === k.__id) openDetailSheet(k.__id);
+    closeContactModal();
+    if (contactForSend) doOpenWhatsApp(k, normalizePhone(wa), preWin);
+    else showToast('Kontak disimpan ✓', true);
+  } catch(e) {
+    if (preWin) preWin.close();
+    showToast('Gagal simpan kontak: ' + e.message, false);
+  } finally {
+    _isSavingContact = false;
+    btn.disabled = false; btn.textContent = label;
+  }
+}
+
+// ══════════════════════════════════════
+// KIRIM KE WHATSAPP — langsung buka chat ke nomor orang tua dengan pesan terisi
+// (WhatsApp tidak mengizinkan lampiran file otomatis lewat link; pesan memuat
+//  tautan verifikasi resmi kuitansi. PDF bisa dilampirkan manual bila perlu.)
+// ══════════════════════════════════════
+function buildWaMessage(k) {
+  const anak = getAnanda(k);
+  const lines = [
+    `Yth. Bapak/Ibu ${k.diterima_dari},`,
+    '',
+    'Terima kasih, pembayaran Anda telah kami terima. Berikut rincian kuitansi dari *Markaz Belajar*:',
+    '',
+    `No. Kuitansi: ${k.no_kuitansi}`,
+    `Tanggal: ${fmtDateLong(k.date)}`,
+  ];
+  if (anak) lines.push(`Ananda: ${anak}`);
+  lines.push(`Jumlah: *${rp(k.jumlah)}*`, '', 'Cek keaslian kuitansi:', buildVerifyUrl(k), '', 'Terima kasih 🙏', 'Markaz Belajar');
+  return lines.join('\n');
+}
+
+function sendWhatsApp(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  const phone = normalizePhone(k.no_wa);
+  if (!phone) { openContactModal(id, true); return; }
+  const sc = Number(k.sent_count) || 0;
+  if (sc > 0) {
+    showConfirm({ title: 'Kirim Ulang ke WhatsApp?', okText: 'Kirim Lagi',
+      body: `Kuitansi ini sudah pernah dikirim <b>${sc}×</b> (terakhir ${esc(fmtTimestamp(k.last_sent_at))}) ke <b>${esc(k.no_wa)}</b>.`,
+      onOk: () => doOpenWhatsApp(k, phone, null) });
+    return;
+  }
+  doOpenWhatsApp(k, phone, null);
+}
+
+function doOpenWhatsApp(k, phone, preWin) {
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(buildWaMessage(k))}`;
+  if (preWin) {
+    preWin.location.href = url;
+  } else {
+    const w = window.open(url, '_blank');
+    if (!w) window.location.href = url;
+  }
+  showToast('WhatsApp dibuka — lampirkan PDF kuitansi bila perlu', true);
+  applyMark(k.__id, 'send', {}).catch(e => showToast('WA terbuka, tapi gagal mencatat status kirim: ' + e.message, false));
+}
+
+// ══════════════════════════════════════
+// CETAK — bangun halaman A4 satu kuitansi, tinggi mengikuti isi
+// ══════════════════════════════════════
+function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function nl2br(s) { return esc(s).replace(/\n/g,'<br>'); }
+
+// CSS dokumen kuitansi — dipakai bersama oleh jendela cetak & panel pratinjau
+const KW_DOC_CSS = `
+*{box-sizing:border-box;margin:0;padding:0;}
+html,body{background:#f2f2f2;}
+body{display:flex;justify-content:center;padding:24px 0 40px;font-family:'Plus Jakarta Sans',sans-serif;}
+.kw-doc{background:#fff;width:210mm;min-height:150mm;position:relative;color:#1c1c1c;padding-bottom:4px;}
+
+.kw-headband{width:100%;line-height:0;}
+.kw-headband-img{width:100%;display:block;}
+
+.kw-meta3{display:flex;gap:8mm;padding:9mm 10mm 3mm;flex-wrap:wrap;align-items:flex-start;}
+.kw-metabox{flex:0 0 auto;border:1px solid #b8b8b8;border-radius:8px;padding:14px 16px 10px;position:relative;min-width:32mm;max-width:80mm;}
+.kw-metalbl{position:absolute;top:-9px;left:10px;background:#fff;padding:0 6px;font-size:11px;font-weight:700;color:#8a8a8a;border:1px solid #b8b8b8;border-radius:20px;white-space:nowrap;}
+.kw-metaval{margin-top:2px;font-family:'Geist Mono',monospace;font-size:13px;font-weight:600;color:#1c1c1c;line-height:1.4;word-break:break-word;}
+.kw-qr-inline{margin-left:auto;flex-shrink:0;}
+.kw-qr-small{width:15mm;height:15mm;display:block;}
+
+.kw-body{padding:5mm 10mm 2mm;}
+.kw-fieldrow{display:flex;align-items:flex-start;gap:4mm;margin-bottom:6mm;}
+.kw-fieldrow-top{align-items:flex-start;}
+.kw-flbl{width:38mm;flex-shrink:0;font-size:11.5px;font-weight:700;color:#8a8a8a;letter-spacing:.03em;padding-top:2px;}
+.kw-fsep{width:3mm;flex-shrink:0;color:#8a8a8a;padding-top:2px;}
+.kw-fval{flex:1;font-size:14px;font-weight:600;color:#1c1c1c;}
+.kw-fval-line{border-bottom:1px solid #ccc;padding-bottom:6px;min-height:20px;}
+.kw-fval-box{background:#f4f5f8;border-radius:6px;padding:8px 12px;font-family:'Geist Mono',monospace;font-size:16px;font-weight:700;display:flex;flex-direction:column;gap:3px;}
+.kw-terbilang-sentence{background:#f4f5f8;border-radius:6px;padding:9px 12px;font-style:italic;font-weight:500;font-size:13.5px;color:#333;line-height:1.5;}
+.kw-fval-border{border:1px solid #b8b8b8;border-radius:8px;padding:10px 12px;min-height:16mm;font-weight:500;line-height:1.55;white-space:pre-wrap;}
+
+.kw-bottomrow{display:flex;justify-content:space-between;align-items:flex-start;padding:6mm 10mm 4mm;gap:10mm;}
+.kw-rp-block{flex:1;max-width:80mm;}
+.kw-rp-val{background:#f4f5f8;border-radius:6px;padding:9px 12px;font-family:'Geist Mono',monospace;font-size:16px;font-weight:800;}
+.kw-penerima-block{text-align:center;width:52mm;flex-shrink:0;}
+.kw-penerima-lbl{font-size:11px;font-weight:700;color:#8a8a8a;letter-spacing:.04em;margin-bottom:2px;}
+.kw-penerima-stampwrap{height:22mm;display:flex;align-items:flex-end;justify-content:center;}
+.kw-stamp{height:22mm;opacity:.9;}
+.kw-penerima-line{border-bottom:1.4px solid #999;margin:3px 0 7px;}
+.kw-penerima-name{font-size:12.5px;font-weight:700;color:#1c1c1c;}
+.kw-penerima-role{font-size:10.5px;font-weight:500;color:#7a7a7a;margin-top:2px;}
+
+/* TANDA TANGAN DIGITAL */
+.kw-digisign-link{display:block;text-decoration:none;color:inherit;cursor:pointer;}
+.kw-digisign-stampwrap{display:flex;align-items:center;justify-content:center;padding-top:2mm;}
+.kw-digisign-qr-frame{padding:2mm;background:#fff;border:1.4px solid #1B6CA8;border-radius:4px;}
+.kw-digisign-qr{width:17mm;height:17mm;display:block;}
+.kw-digisign-caption{display:inline-flex;align-items:center;gap:4px;background:#EAF4FF;color:#1B6CA8;font-size:8.5px;font-weight:700;padding:3px 9px;border-radius:20px;letter-spacing:.02em;margin-top:6px;}
+.kw-digisign-caption svg{width:9px;height:9px;flex-shrink:0;}
+.kw-digisign-timestamp{font-size:8px;color:#8a8a8a;margin-top:4px;line-height:1.4;}
+.kw-digisign-id{font-family:'Geist Mono',monospace;font-size:7.5px;color:#a8a8a8;margin-top:2px;letter-spacing:.02em;}
+
+.kw-footband{width:100%;line-height:0;margin-top:4mm;}
+.kw-footband-img{width:100%;display:block;}
+
+.kw-timestamp{margin-top:7px;font-size:8.5px;color:#1c1c1c;opacity:.22;font-style:italic;letter-spacing:.01em;}
+
+.kw-doc,.kw-doc *{-webkit-print-color-adjust:exact;print-color-adjust:exact;color-adjust:exact;}
+`;
+
+// ══════════════════════════════════════
+// QR VERIFIKASI — encode URL verifikasi ke QR code (via API publik)
+// ══════════════════════════════════════
+function buildVerifyUrl(k) {
+  const base = window.location.origin + window.location.pathname;
+  return `${base}?verify=${encodeURIComponent(k.no_kuitansi || '')}`;
+}
+function buildQrSrc(k) {
+  const url = buildVerifyUrl(k);
+  return `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=0&data=${encodeURIComponent(url)}`;
+}
+
+// ID referensi tanda tangan digital — bukan kriptografi asli, cuma kode
+// tampilan unik & konsisten per kuitansi (bisa dicocokkan lewat QR di atas).
+function buildSignatureId(k) {
+  const str = `${k.no_kuitansi || ''}|${k.created_at || ''}|${k.penerima || ''}`;
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = (hash * 31 + str.charCodeAt(i)) >>> 0;
+  }
+  return 'TTD-' + hash.toString(16).toUpperCase().padStart(8, '0');
+}
+
+// QR & link khusus tanda tangan digital — membawa info TTD (id, waktu, siapa)
+// di URL sehingga popup verifikasi bisa menampilkannya meski belum tersinkron.
+function buildSignVerifyUrl(k) {
+  const base = window.location.origin + window.location.pathname;
+  const params = new URLSearchParams({
+    verify: k.no_kuitansi || '',
+    sig: '1',
+    sigId: buildSignatureId(k),
+    signedBy: k.penerima || '',
+    signedRole: k.created_by || '',
+    signedAt: k.created_at || new Date().toISOString(),
+  });
+  return `${base}?${params.toString()}`;
+}
+function buildSignQrSrc(k) {
+  const url = buildSignVerifyUrl(k);
+  return `https://api.qrserver.com/v1/create-qr-code/?size=160x160&margin=0&data=${encodeURIComponent(url)}`;
+}
+
+function buildKuitansiHTML(k) {
+  return `
+  <div class="kw-doc">
+    <div class="kw-headband">
+      <img class="kw-headband-img" src="${HEADER_BANNER_SRC}" alt="Kuitansi Markaz Belajar" onerror="this.style.visibility='hidden'">
+    </div>
+
+    <div class="kw-meta3">
+      <div class="kw-metabox"><span class="kw-metalbl">No.</span><div class="kw-metaval">${esc(k.no_kuitansi)}</div></div>
+      <div class="kw-metabox"><span class="kw-metalbl">Ref Invoice</span><div class="kw-metaval">${esc(k.ref_invoice) || '—'}</div></div>
+      <div class="kw-metabox"><span class="kw-metalbl">Date</span><div class="kw-metaval">${fmtDateLong(k.date)}</div></div>
+      <div class="kw-qr-inline"><img class="kw-qr-small" src="${buildQrSrc(k)}" alt="QR" onerror="this.style.visibility='hidden'"></div>
+    </div>
+
+    <div class="kw-body">
+      <div class="kw-fieldrow">
+        <div class="kw-flbl">DITERIMA DARI</div>
+        <div class="kw-fsep">:</div>
+        <div class="kw-fval kw-fval-line">${esc(k.diterima_dari)}</div>
+      </div>
+      <div class="kw-fieldrow">
+        <div class="kw-flbl">SEJUMLAH UANG</div>
+        <div class="kw-fsep">:</div>
+        <div class="kw-fval kw-terbilang-sentence">${terbilang(k.jumlah)}</div>
+      </div>
+      <div class="kw-fieldrow kw-fieldrow-top">
+        <div class="kw-flbl">UNTUK PEMBAYARAN</div>
+        <div class="kw-fsep">:</div>
+        <div class="kw-fval kw-fval-border">${nl2br(k.untuk_pembayaran)}</div>
+      </div>
+      ${k.catatan ? `<div class="kw-fieldrow kw-fieldrow-top">
+        <div class="kw-flbl">CATATAN</div>
+        <div class="kw-fsep">:</div>
+        <div class="kw-fval kw-fval-border">${nl2br(k.catatan)}</div>
+      </div>` : ''}
+    </div>
+
+    <div class="kw-bottomrow">
+      <div class="kw-rp-block">
+        <div class="kw-penerima-lbl">JUMLAH DIBAYAR</div>
+        <div class="kw-rp-val">${rp(k.jumlah)}</div>
+        <div class="kw-timestamp">Dibuat ${fmtTimestamp(k.created_at)}</div>
+      </div>
+      <div class="kw-penerima-block">
+        <div class="kw-penerima-lbl">PENERIMA</div>
+        ${k.signature_mode === 'digital' ? `
+        <a class="kw-digisign-link" href="${buildSignVerifyUrl(k)}" target="_blank" rel="noopener">
+          <div class="kw-digisign-stampwrap">
+            <div class="kw-digisign-qr-frame">
+              <img class="kw-digisign-qr" src="${buildSignQrSrc(k)}" alt="QR Verifikasi TTD" onerror="this.style.visibility='hidden'">
+            </div>
+          </div>
+          <div class="kw-penerima-name" style="margin-top:6px;">${esc(k.penerima) || '&nbsp;'}</div>
+          ${k.created_by ? `<div class="kw-penerima-role">${esc(k.created_by)}</div>` : ''}
+          <div class="kw-digisign-caption">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Ditandatangani Digital
+          </div>
+          <div class="kw-digisign-timestamp">Scan untuk lihat bukti &amp; detail TTD</div>
+          <div class="kw-digisign-id">${buildSignatureId(k)}</div>
+        </a>
+        ` : `
+        <div class="kw-penerima-stampwrap">
+          <img class="kw-stamp" src="${STAMP_SRC}" alt="" onerror="this.style.visibility='hidden'">
+        </div>
+        <div class="kw-penerima-line"></div>
+        <div class="kw-penerima-name">${esc(k.penerima) || '&nbsp;'}</div>
+        ${k.created_by ? `<div class="kw-penerima-role">${esc(k.created_by)}</div>` : ''}
+        `}
+      </div>
+    </div>
+
+    <div class="kw-footband">
+      <img class="kw-footband-img" src="${FOOTER_BANNER_SRC}" alt="" onerror="this.style.visibility='hidden'">
+    </div>
+  </div>`;
+}
+
+// ══════════════════════════════════════
+// PILIH JENIS TANDA TANGAN sebelum cetak (manual / digital)
+// ══════════════════════════════════════
+let _pendingPrintData = null;
+
+function promptSignatureAndPrint(k) {
+  _pendingPrintData = k;
+  renderSigStatus(k);
+  document.getElementById('signatureModal').classList.add('open');
+}
+
+// Info status di modal "Jenis Tanda Tangan": sudah pernah dicetak / dikirim / diarsipkan
+function renderSigStatus(k) {
+  const pc = Number(k.printed_count) || 0;
+  const sc = Number(k.sent_count) || 0;
+  const chk = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  const dot = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>';
+  const lines = [];
+  lines.push(pc > 0
+    ? `<div class="sig-status-line">${chk}<span><b>Sudah pernah dicetak ${pc}×</b> — terakhir ${esc(fmtTimestamp(k.last_printed_at))}. Tetap bisa dicetak lagi kapan pun.</span></div>`
+    : `<div class="sig-status-line">${dot}<span>Belum pernah dicetak.</span></div>`);
+  lines.push(sc > 0
+    ? `<div class="sig-status-line">${chk}<span><b>Sudah dikirim via WhatsApp ${sc}×</b> — terakhir ${esc(fmtTimestamp(k.last_sent_at))}.</span></div>`
+    : `<div class="sig-status-line">${dot}<span>Belum pernah dikirim via WhatsApp.</span></div>`);
+  let cls = (pc > 0 || sc > 0) ? 'warn' : 'neutral';
+  if (isArchived(k)) {
+    lines.unshift(`<div class="sig-status-line">${dot}<span><b>Kuitansi ini sudah diarsipkan</b> (tidak aktif).</span></div>`);
+    cls = 'danger';
+  }
+  document.getElementById('sigStatusInfo').innerHTML = `<div class="sig-status ${cls}">${lines.join('')}</div>`;
+}
+
+function closeSignatureModal() {
+  _pendingPrintData = null;
+  document.getElementById('signatureModal').classList.remove('open');
+}
+function confirmPrintWithSignature(mode) {
+  if (!_pendingPrintData) return;
+  const base = _pendingPrintData;
+  const data = { ...base, signature_mode: mode };
+  document.getElementById('signatureModal').classList.remove('open');
+  _pendingPrintData = null;
+  printKuitansi(data); // harus sinkron (dalam aksi klik) supaya popup tidak diblokir
+  if (base.__id) {
+    applyMark(base.__id, 'print', {}).catch(e => showToast('Tercetak, tapi gagal mencatat status cetak: ' + e.message, false));
+  }
+}
+
+function printKuitansi(k) {
+  const html = buildKuitansiHTML(k);
+  const pw = window.open('', '_blank');
+  if (!pw) { showToast('Popup diblokir browser — izinkan popup untuk mencetak.', false); return; }
+  pw.document.write(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>${esc(k.no_kuitansi)}</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+${KW_DOC_CSS}
+@media print{
+  html,body{background:#fff !important;}
+  body{padding:0;display:block;}
+  .kw-doc{width:100%;min-height:0;}
+  .no-print{display:none !important;}
+}
+</style></head><body>
+${html}
+<div class="no-print" style="text-align:center;margin-top:20px;font-family:system-ui;font-size:13px;color:#888;">
+  <p style="margin-bottom:10px;">Klik <strong>Cetak / Save as PDF</strong></p>
+  <button onclick="window.print()" style="padding:10px 24px;background:#1c1c1c;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">🖨️ Cetak / Save PDF</button>
+</div>
+<script>
+window.addEventListener('load', function(){
+  setTimeout(function(){
+    try {
+      // Ukur tinggi konten kuitansi asli, lalu set ukuran halaman cetak
+      // mengikuti tinggi itu — bukan fixed A4. Kalau kontennya sampai
+      // sepanjang/melebihi A4, tetap dibatasi maksimal A4 (297mm).
+      var doc = document.querySelector('.kw-doc');
+      var heightPx = doc.getBoundingClientRect().height;
+      var heightMM = heightPx * 25.4 / 96;
+      var A4_HEIGHT_MM = 297;
+      var finalMM = Math.min(Math.ceil(heightMM) + 3, A4_HEIGHT_MM);
+      var styleTag = document.createElement('style');
+      styleTag.textContent = '@page{size:210mm ' + finalMM + 'mm;margin:0;}';
+      document.head.appendChild(styleTag);
+    } catch(e) {}
+    window.print();
+  }, 500);
+});
+<\/script>
+</body></html>`);
+  pw.document.close();
+}
+
+// ══════════════════════════════════════
+// PRATINJAU LANGSUNG — panel di tab "Buat Kuitansi"
+// ══════════════════════════════════════
+function collectPreviewData() {
+  return {
+    no_kuitansi: document.getElementById('fNo').value.trim() || '—',
+    ref_invoice: document.getElementById('fRef').value.trim(),
+    date: document.getElementById('fDate').value,
+    diterima_dari: document.getElementById('fDari').value.trim() || '…',
+    jumlah: Number(digitsOnly(document.getElementById('fJumlah').value)) || 0,
+    untuk_pembayaran: document.getElementById('fUntuk').value.trim() || '…',
+    catatan: document.getElementById('fCatatan').value.trim(),
+    penerima: document.getElementById('fPenerima').value.trim(),
+    created_at: new Date().toISOString(),
+  };
+}
+
+let previewVisible = true;
+function renderLivePreview() {
+  if (!previewVisible) return;
+  const data = collectPreviewData();
+  const html = buildKuitansiHTML(data);
+  const frame = document.getElementById('previewFrame');
+  const srcdoc = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>${KW_DOC_CSS} body{padding:0;}</style></head><body>${html}</body></html>`;
+  frame.srcdoc = srcdoc;
+  frame.onload = function() {
+    try {
+      const doc = frame.contentWindow.document;
+      const h = doc.body.scrollHeight;
+      frame.style.height = h + 'px';
+      scalePreview();
+    } catch(e) {}
+  };
+}
+
+function scalePreview() {
+  const wrap = document.getElementById('previewWrap');
+  const box = document.getElementById('previewScaleBox');
+  const frame = document.getElementById('previewFrame');
+  if (!wrap || !frame || !box) return;
+  const wrapWidth = wrap.clientWidth - 28; // padding
+  const scale = Math.min(1, wrapWidth / 793);
+  frame.style.transform = `scale(${scale})`;
+  box.style.width = (793 * scale) + 'px';
+  box.style.height = (frame.offsetHeight * scale) + 'px';
+}
+window.addEventListener('resize', scalePreview);
+
+function togglePreview() {
+  previewVisible = !previewVisible;
+  const wrap = document.getElementById('previewWrap');
+  const btn = document.getElementById('previewToggleBtn');
+  if (previewVisible) {
+    wrap.style.display = 'flex';
+    btn.textContent = 'Sembunyikan';
+    renderLivePreview();
+  } else {
+    wrap.style.display = 'none';
+    btn.textContent = 'Tampilkan';
+  }
+}
+
+document.getElementById('fAnak').addEventListener('change', function() {
+  if (!document.getElementById('fWa').value.trim()) {
+    autofillFromRegistration(this.value, document.getElementById('fDari').value, 'fWa', null, false);
+  }
+});
+
+['fNo','fRef','fDate','fDari','fJumlah','fUntuk','fCatatan','fPenerima'].forEach(id => {
+  const el = document.getElementById(id);
+  el.addEventListener('input', renderLivePreview);
+  el.addEventListener('change', renderLivePreview);
+});
+
+// ══════════════════════════════════════
+// UI GENERAL — tab, menu, dark mode, toast
+// ══════════════════════════════════════
+const TAB_ORDER = ['buat', 'riwayat'];
+let _curTabIdx = 0;
+
+function switchTab(tab) {
+  const idx = TAB_ORDER.indexOf(tab);
+  if (idx < 0) return;
+  _curTabIdx = idx;
+  document.querySelectorAll('.nav-tab').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  const track = document.getElementById('tabSliderTrack');
+  if (track) {
+    track.classList.remove('no-transition');
+    track.style.transform = `translateX(-${idx * 50}%)`;
+  }
+  const pane = document.getElementById('tab-' + tab);
+  if (pane) pane.scrollTop = 0;
+  window.scrollTo(0, 0);
+}
+
+// Swipe drag real-time antar tab (pola sama seperti invoice-mb.html)
+(function initTabSwipe() {
+  let startX = 0, startY = 0, lastX = 0, startTime = 0, dragging = false, lockDir = null;
+  const MIN_DRAG_PX = 8;
+  const SNAP_PCT = 0.35;
+  const VEL_SNAP = 0.4;
+
+  const track = () => document.getElementById('tabSliderTrack');
+  const outer = () => document.getElementById('tabSliderOuter');
+  function baseOffset() { return _curTabIdx * 50; }
+
+  function hasHScrollParent(el) {
+    let node = el;
+    while (node && node !== document.body) {
+      const st = window.getComputedStyle(node);
+      const ox = st.overflowX;
+      if ((ox === 'auto' || ox === 'scroll') && node.scrollWidth > node.clientWidth + 2) return true;
+      node = node.parentElement;
+    }
+    return false;
+  }
+
+  document.addEventListener('touchstart', e => {
+    if (document.querySelector('.modal-overlay.open')) return;
+    startX = lastX = e.touches[0].clientX;
+    startY = e.touches[0].clientY;
+    startTime = Date.now();
+    dragging = true;
+    lockDir = null;
+    const t = track();
+    if (t) t.classList.add('no-transition');
+  }, { passive: true });
+
+  document.addEventListener('touchmove', e => {
+    if (!dragging) return;
+    const dx = e.touches[0].clientX - startX;
+    const dy = e.touches[0].clientY - startY;
+    lastX = e.touches[0].clientX;
+
+    if (!lockDir && (Math.abs(dx) > MIN_DRAG_PX || Math.abs(dy) > MIN_DRAG_PX)) {
+      if (Math.abs(dy) > Math.abs(dx) || hasHScrollParent(e.target)) {
+        lockDir = 'y';
+      } else {
+        lockDir = 'x';
+      }
+    }
+    if (lockDir !== 'x') return;
+
+    const totalW = outer()?.offsetWidth || window.innerWidth;
+    const dragPct = (dx / totalW) * 100;
+    let offset = baseOffset() - dragPct;
+    if (offset < 0) offset = offset * 0.15;
+    if (offset > 50) offset = 50 + (offset - 50) * 0.15;
+    const t = track();
+    if (t) t.style.transform = `translateX(-${offset}%)`;
+  }, { passive: true });
+
+  document.addEventListener('touchend', () => {
+    if (!dragging) { dragging = false; return; }
+    dragging = false;
+
+    const t = track();
+    if (lockDir !== 'x') {
+      lockDir = null;
+      if (t) { t.classList.remove('no-transition'); t.style.transform = `translateX(-${baseOffset()}%)`; }
+      return;
+    }
+    lockDir = null;
+    if (t) t.classList.remove('no-transition');
+
+    const dx = lastX - startX;
+    const dt = Date.now() - startTime;
+    const velocity = Math.abs(dx) / dt;
+    const totalW = outer()?.offsetWidth || window.innerWidth;
+    const pct = Math.abs(dx) / totalW;
+
+    let nextIdx = _curTabIdx;
+    const goRight = dx < 0;
+    const goLeft = dx > 0;
+
+    if (pct > SNAP_PCT || velocity > VEL_SNAP) {
+      if (goRight && _curTabIdx < TAB_ORDER.length - 1) nextIdx++;
+      if (goLeft && _curTabIdx > 0) nextIdx--;
+    }
+
+    switchTab(TAB_ORDER[nextIdx]);
+  }, { passive: true });
+})();
+
+function toggleMenu() { document.getElementById('menuPop').classList.toggle('open'); }
+function closeMenu() { document.getElementById('menuPop').classList.remove('open'); }
+document.addEventListener('click', e => {
+  const wrap = document.querySelector('.menu-wrap');
+  if (wrap && !wrap.contains(e.target)) closeMenu();
+});
+function toggleDark() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('mrkz_theme', isDark ? 'light' : 'dark');
+  document.getElementById('darkModeLabel').textContent = isDark ? 'Mode Gelap' : 'Mode Terang';
+}
+(function initTheme(){
+  const saved = localStorage.getItem('mrkz_theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme','dark');
+  }
+})();
+
+let toastTimer = null;
+function showToast(msg, ok) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.className = 'toast show ' + (ok ? 'success' : 'error');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
+}
+
+document.getElementById('detailModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDetailModal(); });
+document.getElementById('signatureModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeSignatureModal(); });
+document.getElementById('archiveModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeArchiveModal(); });
+document.getElementById('contactModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeContactModal(); });
+document.getElementById('confirmModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeConfirm(); });
+
+// ══════════════════════════════════════
+// VERIFIKASI KUITANSI (dipicu saat dibuka via ?verify=NO_KUITANSI dari scan QR)
+// ══════════════════════════════════════
+function escHtml(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+async function runVerification(no, sigInfo) {
+  const overlay = document.getElementById('verifyOverlay');
+  const card = document.getElementById('verifyCard');
+  overlay.classList.add('show');
+  try {
+    let found = null;
+    if (hasGasUrl()) {
+      const data = await fetchJsonSmart(`${GAS_URL}?action=verifyKuitansi&no=${encodeURIComponent(no)}&t=${Date.now()}`);
+      found = data && data.found ? data.kuitansi : null;
+    } else {
+      // fallback: cek localStorage (mode belum tersinkron ke sheets)
+      const local = loadLocal();
+      found = local.find(x => x.no_kuitansi === no) || null;
+    }
+
+    if (found) {
+      const archivedNote = String(found.status || '').toLowerCase() === 'archived'
+        ? `<div class="verify-warn">⚠️ Kuitansi ini sudah <b>diarsipkan</b> oleh Markaz Belajar dan tidak lagi berlaku sebagai kuitansi aktif.</div>` : '';
+      const sigBlock = (sigInfo && sigInfo.sig) ? `
+        <div class="verify-sig-block">
+          <div class="verify-sig-head">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Ditandatangani Digital
+          </div>
+          <div class="verify-row"><span>Ditandatangani Oleh</span><span>${escHtml(sigInfo.signedBy || found.penerima || '—')}${sigInfo.signedRole ? ' · '+escHtml(sigInfo.signedRole) : ''}</span></div>
+          <div class="verify-row"><span>Pada</span><span>${fmtTimestamp(sigInfo.signedAt)}</span></div>
+          <div class="verify-row"><span>ID Tanda Tangan</span><span>${escHtml(sigInfo.sigId || '—')}</span></div>
+        </div>
+      ` : '';
+      card.innerHTML = `
+        <div class="verify-icon ok">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        </div>
+        <div class="verify-title">Kuitansi Terverifikasi</div>
+        <div class="verify-sub">Data cocok dengan catatan resmi Markaz Belajar</div>
+        ${archivedNote}
+        <div class="verify-rows">
+          <div class="verify-row"><span>No. Kuitansi</span><span>${escHtml(found.no_kuitansi)}</span></div>
+          <div class="verify-row"><span>Tanggal</span><span>${fmtDateLong(found.date)}</span></div>
+          <div class="verify-row"><span>Diterima Dari</span><span>${escHtml(found.diterima_dari)}</span></div>
+          <div class="verify-row"><span>Jumlah</span><span>${rp(found.jumlah)}</span></div>
+          <div class="verify-row"><span>Untuk Pembayaran</span><span>${escHtml(found.untuk_pembayaran || '—')}</span></div>
+          <div class="verify-row"><span>Penerima</span><span>${escHtml(found.penerima || '—')}</span></div>
+        </div>
+        ${sigBlock}
+        <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>
+      `;
+    } else {
+      card.innerHTML = `
+        <div class="verify-icon fail">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </div>
+        <div class="verify-title">Tidak Ditemukan</div>
+        <div class="verify-sub">No. kuitansi <strong>${escHtml(no)}</strong> tidak cocok dengan catatan sistem. Kemungkinan kuitansi tidak sah/palsu.</div>
+        <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>
+      `;
+    }
+  } catch (e) {
+    card.innerHTML = `
+      <div class="verify-icon fail">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      </div>
+      <div class="verify-title">Gagal Memeriksa</div>
+      <div class="verify-sub">${escHtml(e.message)}</div>
+      <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>
+    `;
+  }
+}
+
+// ══════════════════════════════════════
+// INIT
+// ══════════════════════════════════════
+document.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('fDate').value = nowYMD();
+  if (localStorage.getItem('mrkz_theme') === 'dark') document.getElementById('darkModeLabel').textContent = 'Mode Terang';
+  loadAll();
+  renderLivePreview();
+  initDetailPopoverEvents();
+  loadInvoiceRefList();
+
+  const qs = new URLSearchParams(window.location.search);
+  const verifyNo = qs.get('verify');
+  if (verifyNo) {
+    runVerification(verifyNo, {
+      sig: qs.get('sig'),
+      sigId: qs.get('sigId'),
+      signedBy: qs.get('signedBy'),
+      signedRole: qs.get('signedRole'),
+      signedAt: qs.get('signedAt'),
+    });
+  }
+});
+</script>
+</body>
+</html>
