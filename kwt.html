@@ -225,6 +225,39 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .verify-sig-block{text-align:left;background:#EAF4FF;border-radius:14px;padding:14px 16px;font-size:13px;color:#1C2B3A;margin-top:10px;}
 .verify-sig-head{display:flex;align-items:center;gap:6px;color:#1B6CA8;font-size:11.5px;font-weight:700;margin-bottom:8px;letter-spacing:.02em;}
 .verify-sig-block .verify-row{border-bottom-color:rgba(27,108,168,0.15);}
+
+/* ===== v2: LOCK / ARSIP / STATUS / WHATSAPP ===== */
+.btn-warning{background:var(--warning);color:#fff;}
+.btn-warning:hover{opacity:.9;}
+.btn-wa{background:#25D366;color:#fff;}
+.btn-wa:hover{opacity:.9;}
+.btn-icon-wa:hover{background:rgba(37,211,102,.14);color:#1DA851;}
+.btn-icon-arch:hover{background:var(--warning-dim);color:#B87500;}
+.kw-row-arch{opacity:.62;}
+.kw-row-arch .kw-row-name{text-decoration:line-through;text-decoration-color:var(--text3);}
+.kw-arch-badge{display:inline-flex;align-items:center;gap:3px;background:var(--warning);color:#fff;font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:20px;margin-left:6px;letter-spacing:.02em;vertical-align:middle;}
+.kw-row-anak{font-size:12.5px;font-weight:600;color:var(--accent);margin-top:3px;display:flex;align-items:center;gap:5px;}
+.kw-row-anak svg{flex-shrink:0;}
+.kw-row-by{font-size:11px;color:var(--text3);margin-top:3px;line-height:1.4;}
+.kw-row-by b{color:var(--text2);font-weight:600;}
+.kw-chips{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.chip{display:inline-flex;align-items:center;gap:4px;font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;letter-spacing:.01em;line-height:1.3;}
+.chip svg{flex-shrink:0;}
+.chip-lock{background:var(--accent-dim);color:var(--accent);}
+.chip-arch{background:var(--warning-dim);color:#B87500;}
+.chip-ok{background:var(--success-dim);color:var(--success);}
+.chip-wa{background:rgba(37,211,102,.14);color:#1DA851;}
+.chip-muted{background:var(--surface2);color:var(--text3);}
+.sig-status{border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5;display:flex;flex-direction:column;gap:6px;}
+.sig-status.warn{background:var(--warning-dim);border:1.5px solid var(--warning);color:var(--text);}
+.sig-status.neutral{background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);}
+.sig-status.danger{background:var(--danger-dim);border:1.5px solid var(--danger);color:var(--text);}
+.sig-status-line{display:flex;gap:7px;align-items:flex-start;}
+.sig-status-line svg{flex-shrink:0;margin-top:2px;}
+.detail-actions-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:16px;}
+.detail-actions-grid .btn{justify-content:center;width:100%;}
+.detail-actions-grid .span2{grid-column:1 / -1;}
+.verify-warn{background:#FFF4E0;color:#9A6200;border-radius:10px;padding:9px 12px;font-size:12px;font-weight:600;margin:-6px 0 14px;line-height:1.45;}
 </style>
 </head>
 <body>
@@ -341,6 +374,17 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
       <label>Diterima Dari</label>
       <input id="fDari" type="text" placeholder="Nama orang tua / wali / pihak pembayar">
     </div>
+    <div class="g2" style="margin-bottom:12px;">
+      <div>
+        <label>Nama Ananda <span style="opacity:.6;">(opsional)</span></label>
+        <input id="fAnak" type="text" placeholder="Nama anak / siswa">
+      </div>
+      <div>
+        <label>No. WhatsApp Orang Tua <span style="opacity:.6;">(opsional)</span></label>
+        <input id="fWa" type="tel" inputmode="tel" placeholder="mis. 0812xxxxxxxx">
+        <div class="hint">Terisi otomatis dari data pendaftaran (Whatsapp Ibu). Dipakai untuk kirim kuitansi via WhatsApp.</div>
+      </div>
+    </div>
     <div style="margin-bottom:4px;">
       <label>Sejumlah Uang (Rp)</label>
       <input id="fJumlah" type="text" inputmode="numeric" placeholder="0" style="font-family:'Geist Mono',monospace;font-size:15px;font-weight:700;">
@@ -426,6 +470,11 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
   <div class="sec">
     <div class="filter-bar">
       <input id="searchInput" type="text" placeholder="Cari no. / nama / keterangan…" oninput="renderList()">
+      <select id="filterStatus" onchange="renderList()">
+        <option value="aktif">Aktif</option>
+        <option value="arsip">Arsip</option>
+        <option value="semua">Semua</option>
+      </select>
       <select id="filterBulan" onchange="renderList()">
         <option value="">Semua bulan</option>
       </select>
@@ -443,53 +492,55 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 </div><!-- /container -->
 </div><!-- /outer -->
 
-<!-- EDIT MODAL -->
-<div id="editModal" class="modal-overlay">
-  <div class="modal">
+<!-- ARSIP MODAL -->
+<div id="archiveModal" class="modal-overlay">
+  <div class="modal" style="max-width:420px;">
     <div class="modal-title">
-      <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-      Edit Kuitansi
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--warning)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+      Arsipkan Kuitansi
     </div>
-    <div class="modal-field"><label>No. Kuitansi</label><input id="eNo" type="text"></div>
-    <div class="modal-field">
-      <label>Ref Invoice</label>
-      <select class="fRefQuickSelect" onchange="document.getElementById('eRef').value=this.value;this.selectedIndex=0;" style="margin-bottom:7px;"></select>
-      <input id="eRef" type="text">
-    </div>
-    <div class="modal-field"><label>Tanggal</label><input id="eDate" type="date"></div>
-    <div class="modal-field"><label>Diterima Dari</label><input id="eDari" type="text"></div>
-    <div class="modal-field"><label>Sejumlah Uang (Rp)</label><input id="eJumlah" type="text" inputmode="numeric"></div>
-    <div class="modal-field"><label>Untuk Pembayaran</label><textarea id="eUntuk"></textarea></div>
-    <div class="modal-field"><label>Catatan</label><textarea id="eCatatan"></textarea></div>
-    <div class="modal-field">
-      <label>Penerima</label>
-      <select id="ePenerimaQuick" onchange="quickFill('ePenerimaQuick','ePenerima')" style="margin-bottom:7px;">
-        <option value="">— Pilih cepat dari daftar —</option>
-        <option value="Elis Rosmiati, S.Pd.">Elis Rosmiati, S.Pd.</option>
-        <option value="Nita Fuziati">Nita Fuziati</option>
-        <option value="Annisa Zahrotun J, S.Kom.">Annisa Zahrotun J, S.Kom.</option>
-      </select>
-      <input id="ePenerima" type="text">
+    <p style="font-size:13px;color:var(--text2);margin-bottom:6px;line-height:1.5;">Kuitansi dipindah ke <strong>Arsip</strong> dan tidak lagi dihitung sebagai kuitansi aktif. Data <strong>tidak dihapus</strong>, nomornya tidak dipakai ulang, dan bisa dipulihkan kapan saja.</p>
+    <p id="archiveModalDesc" style="font-size:13px;color:var(--text);font-weight:600;"></p>
+    <div class="modal-field" style="margin-top:12px;">
+      <label>Alasan <span style="opacity:.6;">(opsional)</span></label>
+      <textarea id="archiveReason" placeholder="mis. salah input nominal — dibuat ulang sebagai KWT/..." style="min-height:56px;"></textarea>
     </div>
     <div class="modal-actions">
-      <button class="btn btn-ghost btn-full" onclick="closeEditModal()">Batal</button>
-      <button class="btn btn-accent btn-full" id="btnSubmitEdit" onclick="submitEdit()">Simpan Perubahan</button>
+      <button class="btn btn-ghost btn-full" id="btnCancelArchive" onclick="closeArchiveModal()">Batal</button>
+      <button class="btn btn-warning btn-full" id="btnConfirmArchive" onclick="confirmArchive()">Arsipkan</button>
     </div>
   </div>
 </div>
 
-<!-- DELETE MODAL -->
-<div id="deleteModal" class="modal-overlay">
-  <div class="modal">
+<!-- KONTAK MODAL (nama anak + WhatsApp ortu) -->
+<div id="contactModal" class="modal-overlay">
+  <div class="modal" style="max-width:420px;">
     <div class="modal-title">
-      <svg viewBox="0 0 24 24" fill="none" stroke="var(--danger)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-      Hapus Kuitansi
+      <svg viewBox="0 0 24 24" fill="none" stroke="#1DA851" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      Kontak Orang Tua
     </div>
-    <p style="font-size:13px;color:var(--text2);margin-bottom:4px;">Yakin ingin menghapus kuitansi ini?</p>
-    <p id="deleteModalDesc" style="font-size:13px;color:var(--text);font-weight:600;"></p>
+    <p id="contactModalDesc" style="font-size:12.5px;color:var(--text2);margin-bottom:14px;line-height:1.5;"></p>
+    <div class="modal-field"><label>Nama Ananda</label><input id="cNama" type="text" placeholder="Nama anak / siswa"></div>
+    <div class="modal-field">
+      <label>No. WhatsApp Orang Tua</label>
+      <input id="cWa" type="tel" inputmode="tel" placeholder="mis. 0812xxxxxxxx">
+      <div class="hint">Boleh diawali 08…, 62…, atau +62…</div>
+    </div>
     <div class="modal-actions">
-      <button class="btn btn-ghost btn-full" id="btnCancelDelete" onclick="closeDeleteModal()">Batal</button>
-      <button class="btn btn-danger btn-full" id="btnConfirmDelete" onclick="confirmDelete()">Hapus</button>
+      <button class="btn btn-ghost btn-full" onclick="closeContactModal()">Batal</button>
+      <button class="btn btn-accent btn-full" id="btnContactSave" onclick="saveContact()">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- KONFIRMASI UMUM -->
+<div id="confirmModal" class="modal-overlay">
+  <div class="modal" style="max-width:420px;">
+    <div class="modal-title" id="confirmTitle"></div>
+    <div id="confirmBody" style="font-size:13px;color:var(--text2);line-height:1.55;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-full" id="btnConfirmCancel" onclick="closeConfirm()">Batal</button>
+      <button class="btn btn-accent btn-full" id="btnConfirmOk" onclick="runConfirm()">Lanjutkan</button>
     </div>
   </div>
 </div>
@@ -504,20 +555,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
       </button>
     </div>
     <div id="detailModalBody"></div>
-    <div class="modal-actions">
-      <button class="btn btn-ghost" onclick="detailModalPrint()" style="flex:1;justify-content:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-        Cetak
-      </button>
-      <button class="btn btn-accent" onclick="detailModalEdit()" style="flex:1;justify-content:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-        Edit
-      </button>
-      <button class="btn btn-danger" onclick="detailModalDelete()" style="flex:1;justify-content:center;">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-        Hapus
-      </button>
-    </div>
+    <div class="detail-actions-grid" id="detailModalActions"></div>
   </div>
 </div>
 
@@ -528,6 +566,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
       <svg viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>
       Jenis Tanda Tangan
     </div>
+    <div id="sigStatusInfo"></div>
     <p style="font-size:12.5px;color:var(--text2);margin-bottom:14px;">Pilih bagaimana kuitansi ini ditandatangani sebelum dicetak.</p>
 
     <button class="sig-option" onclick="confirmPrintWithSignature('manual')">
@@ -673,6 +712,83 @@ function buildInvoiceItemsDesc(inv) {
   return `Pembayaran untuk Program Pembelajaran: ${parts.join('; ')}${anandaLine}`;
 }
 
+// ══════════════════════════════════════
+// HELPER v2 — status kuitansi, nomor WhatsApp, nama anak
+// ══════════════════════════════════════
+const isArchived = k => String(k.status || '').toLowerCase() === 'archived';
+
+function getAnanda(k) {
+  return String(k.nama_anak || '').trim() || extractAnandaName(k.untuk_pembayaran);
+}
+function createdByText(k) {
+  const who = (k.penerima || '').trim();
+  const role = (k.created_by || '').trim();
+  if (!who && !role) return '—';
+  return who + (role ? (who ? ' (' + role + ')' : role) : '');
+}
+
+// Normalisasi nomor HP Indonesia → format internasional tanpa "+" (untuk wa.me)
+function normalizePhone(raw) {
+  let d = digitsOnly(raw);
+  if (!d) return '';
+  if (d.startsWith('00')) d = d.slice(2);
+  if (d.startsWith('0')) d = '62' + d.slice(1);
+  else if (d.startsWith('8')) d = '62' + d;
+  if (d.length < 10 || d.length > 15) return '';
+  return d;
+}
+
+// Ambil nomor orang tua dari data invoice. Nama field di database invoice bisa
+// berbeda-beda, jadi dicoba beberapa kandidat lalu fallback ke pola nama kolom.
+function pickPhone(inv) {
+  if (!inv) return '';
+  const prefer = ['parent_phone','parent_wa','parent_whatsapp','parent_hp','mother_phone','mother_wa',
+                  'student_parent_phone','student_parent_wa','wa_parent','phone_parent','whatsapp','wa',
+                  'no_wa','phone','no_hp','hp','telp','telepon','student_phone','contact'];
+  const ok = v => digitsOnly(v).length >= 8;
+  for (const key of prefer) {
+    if (inv[key] && ok(inv[key])) return String(inv[key]).trim();
+  }
+  for (const key of Object.keys(inv)) {
+    if (/(phone|whats|^wa$|_wa$|^wa_|(^|_)hp($|_)|telp|kontak|contact)/i.test(key) && inv[key] && ok(inv[key])) {
+      return String(inv[key]).trim();
+    }
+  }
+  return '';
+}
+
+// ── Lookup data pendaftaran (Google Sheet "(Responses) 2026") via backend kuitansi ──
+async function lookupStudent(name, parent) {
+  if (!hasGasUrl()) return [];
+  const n = String(name || '').trim(), p = String(parent || '').trim();
+  if (n.length < 3 && p.length < 3) return [];
+  try {
+    const d = await fetchJsonSmart(`${GAS_URL}?action=lookupStudent&name=${encodeURIComponent(n)}&parent=${encodeURIComponent(p)}&t=${Date.now()}`, { retries: 1 });
+    return d.matches || [];
+  } catch(e) { return []; }
+}
+function pickStudent(ms) {
+  if (!ms || !ms.length) return null;
+  const top = ms[0];
+  const same = ms.filter(m => m.score === top.score);
+  const uniq = new Set(same.map(m => m.nama_peserta)).size === 1;
+  return {
+    wa_ibu: normalizePhone(top.wa_ibu) ? top.wa_ibu : '',
+    nama_ibu: top.nama_ibu,
+    nama_peserta: (top.score >= 6 || uniq) ? top.nama_peserta : '',
+  };
+}
+// Isi kolom No. WA (dan nama anak bila kosong) dari data pendaftaran.
+async function autofillFromRegistration(nama, parent, waId, namaId, override) {
+  const st = pickStudent(await lookupStudent(nama, parent));
+  if (!st) return false;
+  const waEl = document.getElementById(waId), nmEl = namaId ? document.getElementById(namaId) : null;
+  let did = false;
+  if (st.wa_ibu && waEl && (override || !waEl.value.trim())) { waEl.value = st.wa_ibu; did = true; }
+  if (st.nama_peserta && nmEl && !nmEl.value.trim()) { nmEl.value = st.nama_peserta; did = true; }
+  return did;
+}
+
 function quickFillRefInvoice() {
   const sel = document.getElementById('fRefQuick');
   const opt = sel.selectedOptions[0];
@@ -681,12 +797,21 @@ function quickFillRefInvoice() {
     if (inv) {
       document.getElementById('fRef').value = inv.invoice_number || '';
       document.getElementById('fDari').value = inv.student_parent || inv.student_name || '';
+      document.getElementById('fAnak').value = inv.student_name || '';
+      document.getElementById('fWa').value = pickPhone(inv);
       document.getElementById('fJumlah').value = fmtThousand(inv.amount || 0);
       document.getElementById('fUntuk').value = buildInvoiceItemsDesc(inv);
       document.getElementById('fPenerima').value = 'Elis Rosmiati, S.Pd.';
       document.getElementById('fCreator').value = 'Admission';
       updateTerbilang();
       renderLivePreview();
+      const ex = kuitansiList.find(k => !isArchived(k) &&
+        String(k.ref_invoice || '').trim().toLowerCase() === String(inv.invoice_number || '').trim().toLowerCase());
+      if (ex) showToast('Perhatian: invoice ini sudah punya kuitansi aktif (' + ex.no_kuitansi + ')', false);
+      // WA Ibu dari data pendaftaran (sumber utama); kalau tidak ketemu, tetap pakai nomor dari invoice
+      autofillFromRegistration(inv.student_name, inv.student_parent, 'fWa', 'fAnak', true).then(ok => {
+        if (ok && !ex) showToast('No. WA Ibu terisi dari data pendaftaran ✓', true);
+      });
     }
   }
   sel.selectedIndex = 0;
@@ -744,8 +869,6 @@ async function gasPost(action, payload) {
 // ══════════════════════════════════════
 let kuitansiList = [];
 let lastCreatedId = null; // id kuitansi yang baru saja dibuat — ditandai di Riwayat
-let editingId = null;
-let deletingId = null;
 const LOCAL_KEY = 'mrkz_kuitansi';
 
 function loadLocal() { return JSON.parse(localStorage.getItem(LOCAL_KEY) || '[]'); }
@@ -875,13 +998,26 @@ async function updateKuitansiInSheets(id, updates) {
   }
   return await gasPost('updateKuitansi', { id, updates });
 }
-async function deleteKuitansiFromSheets(id) {
-  if (!hasGasUrl()) {
-    saveLocal(loadLocal().filter(x => x.__id !== id));
-    return { ok: true };
-  }
-  return await gasPost('deleteKuitansi', { id });
+function computeMarkFields(k, type, extra) {
+  const now = new Date().toISOString();
+  extra = extra || {};
+  if (type === 'print')   return { printed_count: (Number(k.printed_count) || 0) + 1, last_printed_at: now };
+  if (type === 'send')    return { sent_count: (Number(k.sent_count) || 0) + 1, last_sent_at: now };
+  if (type === 'archive') return { status: 'archived', archived_at: now, archive_reason: extra.reason || '' };
+  if (type === 'restore') return { status: 'aktif', archived_at: '', archive_reason: '' };
+  return {};
 }
+async function markKuitansiInSheets(id, type, extra) {
+  if (!hasGasUrl()) {
+    const local = loadLocal();
+    const idx = local.findIndex(x => x.__id === id);
+    const fields = computeMarkFields(idx >= 0 ? local[idx] : {}, type, extra);
+    if (idx >= 0) { local[idx] = { ...local[idx], ...fields }; saveLocal(local); }
+    return { ok: true, fields };
+  }
+  return await gasPost('markKuitansi', { id, type, extra: extra || {} });
+}
+function cacheList() { try { localStorage.setItem(CACHE_KEY, JSON.stringify(kuitansiList)); } catch(e) {} }
 
 async function loadAll() {
   setSync('syncing', 'Memuat...');
@@ -944,6 +1080,8 @@ function resetForm() {
   document.getElementById('fUntuk').value = '';
   document.getElementById('fCatatan').value = '';
   document.getElementById('fPenerima').value = '';
+  document.getElementById('fAnak').value = '';
+  document.getElementById('fWa').value = '';
   document.getElementById('fPenerimaQuick').selectedIndex = 0;
   document.getElementById('fCreatorQuick').selectedIndex = 0;
   updateTerbilang();
@@ -971,10 +1109,31 @@ function collectForm() {
     penerima: document.getElementById('fPenerima').value.trim(),
     created_by: document.getElementById('fCreator').value.trim(),
     created_at: new Date().toISOString(),
+    nama_anak: document.getElementById('fAnak').value.trim(),
+    no_wa: document.getElementById('fWa').value.trim(),
+    status: 'aktif',
+    printed_count: 0,
+    sent_count: 0,
   };
 }
 
 let _isSaving = false;
+
+// Kunci pembanding kuitansi identik (sama dengan logika server)
+function dupKey(k) {
+  const n = v => String(v == null ? '' : v).trim().toLowerCase().replace(/\s+/g, ' ');
+  return [n(k.ref_invoice), Number(k.jumlah) || 0, n(k.date), n(k.diterima_dari), n(k.untuk_pembayaran)].join('|');
+}
+function findExactDuplicate(data, ignoreId) {
+  const key = dupKey(data);
+  return kuitansiList.find(k => k.__id !== ignoreId && !isArchived(k) && dupKey(k) === key) || null;
+}
+function findSameRefActive(data) {
+  const ref = String(data.ref_invoice || '').trim().toLowerCase();
+  if (!ref) return null;
+  return kuitansiList.find(k => !isArchived(k) && String(k.ref_invoice || '').trim().toLowerCase() === ref) || null;
+}
+
 async function saveKuitansi(andPrint) {
   if (_isSaving) return; // cegah double-click / double-submit
 
@@ -983,17 +1142,51 @@ async function saveKuitansi(andPrint) {
     showToast('Lengkapi No, Tanggal, Diterima Dari, Jumlah, dan Untuk Pembayaran', false);
     return;
   }
+  if (data.no_wa && !normalizePhone(data.no_wa)) {
+    showToast('Nomor WhatsApp tidak valid — kosongkan atau perbaiki', false);
+    return;
+  }
 
+  // 1) Nomor kuitansi sudah dipakai
+  const sameNo = kuitansiList.find(k => String(k.no_kuitansi || '').trim() === data.no_kuitansi);
+  if (sameNo) {
+    showConfirm({ title: 'Nomor Sudah Dipakai', info: true, okText: 'Mengerti',
+      body: `Nomor <b>${esc(data.no_kuitansi)}</b> sudah ada di Riwayat. Muat ulang data lalu coba lagi.` });
+    return;
+  }
+  // 2) Kuitansi aktif yang identik → diblokir
+  const exact = findExactDuplicate(data, null);
+  if (exact) {
+    showConfirm({ title: 'Kuitansi Sama Sudah Ada', info: true, okText: 'Mengerti',
+      body: `Sudah ada kuitansi aktif yang identik: <b>${esc(exact.no_kuitansi)}</b> (${esc(exact.diterima_dari)} · ${rp(exact.jumlah)}).<br><br>Bila itu salah input, <b>arsipkan</b> dulu kuitansi lama dari tab Riwayat.` });
+    return;
+  }
+  // 3) Invoice yang sama sudah punya kuitansi aktif (mis. cicilan) → minta konfirmasi
+  const sameRef = findSameRefActive(data);
+  if (sameRef) {
+    showConfirm({ title: 'Invoice Sudah Punya Kuitansi', okText: 'Tetap Buat',
+      body: `Invoice <b>${esc(data.ref_invoice)}</b> sudah punya kuitansi aktif <b>${esc(sameRef.no_kuitansi)}</b> (${rp(sameRef.jumlah)}).<br><br>Lanjutkan hanya bila ini pembayaran berbeda (mis. cicilan berikutnya).`,
+      onOk: () => doSaveKuitansi(data, andPrint) });
+    return;
+  }
+  doSaveKuitansi(data, andPrint);
+}
+
+async function doSaveKuitansi(data, andPrint) {
+  if (_isSaving) return;
   _isSaving = true;
   setSavingUI(true, andPrint);
   try {
+    data.__id = data.__id || (window.crypto && crypto.randomUUID ? crypto.randomUUID() : ('k_' + Date.now() + Math.random().toString(16).slice(2)));
     const res = await saveKuitansiToSheets(data);
-    data.__id = res.id || res.__id;
+    data.__id = res.id || res.__id || data.__id;
     lastCreatedId = data.__id;
     kuitansiList.unshift(data);
+    cacheList();
     populateFilterBulan();
+    document.getElementById('filterStatus').value = 'aktif';
     renderList();
-    showToast('Kuitansi tersimpan! ✓', true);
+    showToast('Kuitansi tersimpan & terkunci ✓', true);
     if (andPrint) promptSignatureAndPrint(data);
     resetForm();
     switchTab('riwayat');
@@ -1054,13 +1247,47 @@ function extractAnandaName(text) {
   return m ? m[1].trim() : '';
 }
 
+const IC = {
+  lock:    '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>',
+  print:   '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  wa:      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+  archive: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+  child:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+};
+const IC_BTN = {
+  print:   '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
+  wa:      '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
+  archive: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+  restore: '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-4"/></svg>',
+};
+
+function buildChips(k) {
+  const pc = Number(k.printed_count) || 0;
+  const sc = Number(k.sent_count) || 0;
+  const c = [];
+  c.push(isArchived(k)
+    ? `<span class="chip chip-arch">${IC.archive} Diarsipkan</span>`
+    : `<span class="chip chip-lock">${IC.lock} Terkunci</span>`);
+  c.push(pc > 0
+    ? `<span class="chip chip-ok" title="Terakhir dicetak ${esc(fmtTimestamp(k.last_printed_at))}">${IC.print} Sudah dicetak ${pc}×</span>`
+    : `<span class="chip chip-muted">${IC.print} Belum dicetak</span>`);
+  c.push(sc > 0
+    ? `<span class="chip chip-wa" title="Terakhir dikirim ${esc(fmtTimestamp(k.last_sent_at))}">${IC.wa} Terkirim WA ${sc}×</span>`
+    : `<span class="chip chip-muted">${IC.wa} Belum dikirim WA</span>`);
+  return c.join('');
+}
+
 function renderList() {
   const q = document.getElementById('searchInput').value.trim().toLowerCase();
   const bulan = document.getElementById('filterBulan').value;
+  const st = document.getElementById('filterStatus').value || 'aktif';
   let list = kuitansiList.filter(k => {
+    const arch = isArchived(k);
+    if (st === 'aktif' && arch) return false;
+    if (st === 'arsip' && !arch) return false;
     if (bulan && (k.date||'').slice(0,7) !== bulan) return false;
     if (q) {
-      const hay = `${k.no_kuitansi} ${k.diterima_dari} ${k.untuk_pembayaran} ${k.ref_invoice}`.toLowerCase();
+      const hay = `${k.no_kuitansi} ${k.diterima_dari} ${getAnanda(k)} ${k.untuk_pembayaran} ${k.ref_invoice}`.toLowerCase();
       if (!hay.includes(q)) return false;
     }
     return true;
@@ -1070,35 +1297,36 @@ function renderList() {
   if (list.length === 0) {
     wrap.innerHTML = `<div class="empty-state">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
-      Belum ada kuitansi
+      ${st === 'arsip' ? 'Belum ada kuitansi di arsip' : 'Belum ada kuitansi'}
     </div>`;
     return;
   }
   wrap.innerHTML = list.map(k => {
-    const ananda = extractAnandaName(k.untuk_pembayaran);
-    const subText = ananda
-      ? `${fmtDateShort(k.date)} · Ananda: ${ananda}`
-      : `${fmtDateShort(k.date)} · ${(k.untuk_pembayaran||'').slice(0,44)}${(k.untuk_pembayaran||'').length>44?'…':''}`;
+    const arch = isArchived(k);
+    const ananda = getAnanda(k);
+    const untuk = k.untuk_pembayaran || '';
+    const subText = `${fmtDateShort(k.date)} · ${esc(untuk.replace(/\s*\n\s*/g,' ').slice(0,44))}${untuk.length>44?'…':''}`;
+    const isNew = k.__id === lastCreatedId;
+    const id = esc(k.__id);
     return `
-    <div class="kw-row${k.__id === lastCreatedId ? ' kw-row-new' : ''}" onclick="handleRowTap(event,'${k.__id}')">
+    <div class="kw-row${isNew ? ' kw-row-new' : ''}${arch ? ' kw-row-arch' : ''}" onclick="handleRowTap(event,'${id}')">
       <div class="kw-row-main">
-        <div class="kw-row-no">${k.no_kuitansi}${k.__id === lastCreatedId ? `<span class="kw-new-badge" title="Baru saja ditambahkan"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Baru</span>` : ''}</div>
+        <div class="kw-row-no">${esc(k.no_kuitansi)}${isNew ? `<span class="kw-new-badge" title="Baru saja ditambahkan"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Baru</span>` : ''}${arch ? `<span class="kw-arch-badge">ARSIP</span>` : ''}</div>
         <div class="kw-row-amt-m">${rp(k.jumlah)}</div>
-        <div class="kw-row-name">${k.diterima_dari}</div>
-        <div class="kw-row-sub" data-detail-id="${k.__id}">${subText}</div>
+        <div class="kw-row-name">${esc(k.diterima_dari)}</div>
+        ${ananda ? `<div class="kw-row-anak">${IC.child}<span>Ananda: ${esc(ananda)}</span></div>` : ''}
+        <div class="kw-row-sub" data-detail-id="${id}">${subText}</div>
+        <div class="kw-row-by">Dibuat oleh <b>${esc(createdByText(k))}</b> · ${esc(fmtTimestamp(k.created_at))}</div>
+        <div class="kw-chips">${buildChips(k)}</div>
       </div>
       <div class="kw-row-right">
         <div class="kw-row-amt">${rp(k.jumlah)}</div>
         <div class="kw-row-actions">
-          <button class="btn-icon" title="Cetak ulang" onclick='event.stopPropagation();promptSignatureAndPrint(${JSON.stringify(k).replace(/'/g,"&apos;")})'>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-          </button>
-          <button class="btn-icon" title="Edit" onclick="event.stopPropagation();openEdit('${k.__id}')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-          </button>
-          <button class="btn-icon" title="Hapus" onclick="event.stopPropagation();openDelete('${k.__id}')">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-          </button>
+          <button class="btn-icon" title="Cetak ulang" onclick="event.stopPropagation();printById('${id}')">${IC_BTN.print}</button>
+          <button class="btn-icon btn-icon-wa" title="Kirim ke WhatsApp orang tua" onclick="event.stopPropagation();sendWhatsApp('${id}')">${IC_BTN.wa}</button>
+          ${arch
+            ? `<button class="btn-icon btn-icon-arch" title="Pulihkan dari arsip" onclick="event.stopPropagation();restoreKuitansi('${id}')">${IC_BTN.restore}</button>`
+            : `<button class="btn-icon btn-icon-arch" title="Arsipkan" onclick="event.stopPropagation();openArchive('${id}')">${IC_BTN.archive}</button>`}
         </div>
       </div>
       <svg class="kw-row-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
@@ -1107,23 +1335,35 @@ function renderList() {
   }).join('');
 }
 
+function printById(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (k) promptSignatureAndPrint(k);
+}
+
 function handleRowTap(e, id) {
   if (e.target.closest('.kw-row-actions')) return;
-  if (window.matchMedia('(max-width:640px)').matches) openDetailSheet(id);
+  openDetailSheet(id);
 }
 
 // ══════════════════════════════════════
-// DETAIL SHEET (mobile) — tap baris riwayat untuk lihat detail + edit/hapus/cetak
+// DETAIL SHEET — tap baris riwayat: detail lengkap + riwayat cetak/kirim + aksi
 // ══════════════════════════════════════
 let detailModalId = null;
 function openDetailSheet(id) {
   const k = kuitansiList.find(x => x.__id === id);
   if (!k) return;
   detailModalId = id;
+  const arch = isArchived(k);
+  const ananda = getAnanda(k);
+  const pc = Number(k.printed_count) || 0;
+  const sc = Number(k.sent_count) || 0;
   document.getElementById('detailModalNo').textContent = k.no_kuitansi;
   document.getElementById('detailModalBody').innerHTML = `
+    <div class="kw-chips" style="margin:0 0 6px;">${buildChips(k)}</div>
     <div class="detail-row"><span>Tanggal</span><strong>${fmtDateLong(k.date)}</strong></div>
     <div class="detail-row"><span>Diterima Dari</span><strong>${esc(k.diterima_dari)}</strong></div>
+    <div class="detail-row"><span>Nama Ananda</span><strong>${esc(ananda) || '—'}</strong></div>
+    <div class="detail-row"><span>WhatsApp Ortu</span><strong>${esc(k.no_wa) || '<span style="color:var(--danger);">Belum ada</span>'}</strong></div>
     <div class="detail-row"><span>Jumlah</span><strong>${rp(k.jumlah)}</strong></div>
     ${k.ref_invoice ? `<div class="detail-row"><span>Ref Invoice</span><strong>${esc(k.ref_invoice)}</strong></div>` : ''}
     <div class="detail-block">
@@ -1131,7 +1371,20 @@ function openDetailSheet(id) {
       <div class="db-val">${nl2br(k.untuk_pembayaran) || '—'}</div>
     </div>
     ${k.catatan ? `<div class="detail-block"><span class="db-lbl">Catatan</span><div class="db-val">${nl2br(k.catatan)}</div></div>` : ''}
-    <div class="detail-row"><span>Penerima</span><strong>${esc(k.penerima) || '—'}${k.created_by ? ' · ' + esc(k.created_by) : ''}</strong></div>
+    <div class="detail-row"><span>Dibuat Oleh</span><strong>${esc(createdByText(k))}</strong></div>
+    <div class="detail-row"><span>Dibuat Pada</span><strong>${esc(fmtTimestamp(k.created_at))}</strong></div>
+    <div class="detail-row"><span>Riwayat Cetak</span><strong>${pc > 0 ? `${pc}× · terakhir ${esc(fmtTimestamp(k.last_printed_at))}` : 'Belum pernah dicetak'}</strong></div>
+    <div class="detail-row"><span>Riwayat Kirim WA</span><strong>${sc > 0 ? `${sc}× · terakhir ${esc(fmtTimestamp(k.last_sent_at))}` : 'Belum pernah dikirim'}</strong></div>
+    ${arch ? `<div class="detail-row"><span>Diarsipkan</span><strong>${esc(fmtTimestamp(k.archived_at))}</strong></div>
+      ${k.archive_reason ? `<div class="detail-block"><span class="db-lbl">Alasan Arsip</span><div class="db-val">${nl2br(k.archive_reason)}</div></div>` : ''}` : ''}
+  `;
+  document.getElementById('detailModalActions').innerHTML = `
+    <button class="btn btn-ghost" onclick="detailModalPrint()">${IC_BTN.print} ${pc > 0 ? 'Cetak Lagi' : 'Cetak'}</button>
+    <button class="btn btn-wa" onclick="detailModalWa()">${IC_BTN.wa} Kirim WA</button>
+    <button class="btn btn-ghost" onclick="detailModalContact()">Ubah Kontak</button>
+    ${arch
+      ? `<button class="btn btn-accent" onclick="detailModalRestore()">${IC_BTN.restore} Pulihkan</button>`
+      : `<button class="btn btn-warning" onclick="detailModalArchive()">${IC_BTN.archive} Arsipkan</button>`}
   `;
   document.getElementById('detailModal').classList.add('open');
 }
@@ -1139,20 +1392,11 @@ function closeDetailModal() {
   document.getElementById('detailModal').classList.remove('open');
   detailModalId = null;
 }
-function detailModalPrint() {
-  const k = kuitansiList.find(x => x.__id === detailModalId);
-  if (k) promptSignatureAndPrint(k);
-}
-function detailModalEdit() {
-  const id = detailModalId;
-  closeDetailModal();
-  openEdit(id);
-}
-function detailModalDelete() {
-  const id = detailModalId;
-  closeDetailModal();
-  openDelete(id);
-}
+function detailModalPrint() { printById(detailModalId); }
+function detailModalWa() { sendWhatsApp(detailModalId); }
+function detailModalContact() { const id = detailModalId; closeDetailModal(); openContactModal(id, false); }
+function detailModalArchive() { const id = detailModalId; closeDetailModal(); openArchive(id); }
+function detailModalRestore() { const id = detailModalId; closeDetailModal(); restoreKuitansi(id); }
 
 // ══════════════════════════════════════
 // DETAIL POPOVER — hover (desktop) / tekan-tahan (mobile) pada baris Riwayat
@@ -1162,7 +1406,9 @@ function showDetailPopover(x, y, k) {
   const pop = document.getElementById('detailPopover');
   let html = `<div class="dp-block"><div class="dp-label">Untuk Pembayaran</div>${nl2br(k.untuk_pembayaran) || '—'}</div>`;
   if (k.catatan) html += `<div class="dp-block"><div class="dp-label">Catatan</div>${nl2br(k.catatan)}</div>`;
-  html += `<div class="dp-block"><div class="dp-label">Dibuat Oleh</div>${esc(k.created_by) || '—'}</div>`;
+  const an = getAnanda(k);
+  if (an) html += `<div class="dp-block"><div class="dp-label">Nama Ananda</div>${esc(an)}</div>`;
+  html += `<div class="dp-block"><div class="dp-label">Dibuat Oleh</div>${esc(createdByText(k))}<br>${esc(fmtTimestamp(k.created_at))}</div>`;
   pop.innerHTML = html;
   pop.classList.add('show');
 
@@ -1207,92 +1453,190 @@ function initDetailPopoverEvents() {
 }
 
 // ══════════════════════════════════════
-// EDIT
+// KONFIRMASI UMUM
 // ══════════════════════════════════════
-function openEdit(id) {
+let _confirmCb = null;
+function showConfirm({ title, body, okText = 'Lanjutkan', okClass = 'btn-accent', onOk = null, info = false }) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmBody').innerHTML = body;
+  const ok = document.getElementById('btnConfirmOk');
+  ok.className = 'btn ' + okClass + ' btn-full';
+  ok.textContent = okText;
+  document.getElementById('btnConfirmCancel').style.display = info ? 'none' : '';
+  _confirmCb = onOk;
+  document.getElementById('confirmModal').classList.add('open');
+}
+function closeConfirm() { _confirmCb = null; document.getElementById('confirmModal').classList.remove('open'); }
+function runConfirm() {
+  const cb = _confirmCb;
+  closeConfirm();
+  if (cb) cb();
+}
+
+// ══════════════════════════════════════
+// APPLY MARK — kirim aksi ke backend lalu sinkronkan state lokal
+// ══════════════════════════════════════
+async function applyMark(id, type, extra) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) throw new Error('Data tidak ditemukan');
+  const res = await markKuitansiInSheets(id, type, extra || {});
+  Object.assign(k, res.fields || computeMarkFields(k, type, extra));
+  cacheList();
+  renderList();
+  if (detailModalId === id) openDetailSheet(id);
+  return k;
+}
+
+// ══════════════════════════════════════
+// ARSIP / PULIHKAN
+// ══════════════════════════════════════
+let archivingId = null;
+function openArchive(id) {
   const k = kuitansiList.find(x => x.__id === id);
   if (!k) return;
-  editingId = id;
-  document.getElementById('eNo').value = k.no_kuitansi || '';
-  document.getElementById('eRef').value = k.ref_invoice || '';
-  document.getElementById('eDate').value = k.date || '';
-  document.getElementById('eDari').value = k.diterima_dari || '';
-  document.getElementById('eJumlah').value = fmtThousand(k.jumlah || 0);
-  document.getElementById('eUntuk').value = k.untuk_pembayaran || '';
-  document.getElementById('eCatatan').value = k.catatan || '';
-  document.getElementById('ePenerima').value = k.penerima || '';
-  document.getElementById('editModal').classList.add('open');
+  archivingId = id;
+  document.getElementById('archiveModalDesc').textContent = `${k.no_kuitansi} — ${k.diterima_dari} — ${rp(k.jumlah)}`;
+  document.getElementById('archiveReason').value = '';
+  document.getElementById('archiveModal').classList.add('open');
 }
-function closeEditModal() { editingId = null; document.getElementById('editModal').classList.remove('open'); }
-document.getElementById('eJumlah').addEventListener('input', function(){ this.value = fmtThousand(this.value); });
-
-let _isSubmittingEdit = false;
-async function submitEdit() {
-  if (_isSubmittingEdit) return;
-  const updates = {
-    no_kuitansi: document.getElementById('eNo').value.trim(),
-    ref_invoice: document.getElementById('eRef').value.trim(),
-    date: document.getElementById('eDate').value,
-    diterima_dari: document.getElementById('eDari').value.trim(),
-    jumlah: Number(digitsOnly(document.getElementById('eJumlah').value)) || 0,
-    untuk_pembayaran: document.getElementById('eUntuk').value.trim(),
-    catatan: document.getElementById('eCatatan').value.trim(),
-    penerima: document.getElementById('ePenerima').value.trim(),
-  };
-  if (!updates.no_kuitansi || !updates.date || !updates.diterima_dari || !updates.jumlah) {
-    showToast('Lengkapi field wajib', false); return;
-  }
-  const btn = document.getElementById('btnSubmitEdit');
-  _isSubmittingEdit = true;
-  if (btn) { btn.disabled = true; btn.textContent = 'Menyimpan…'; }
+function closeArchiveModal() { archivingId = null; document.getElementById('archiveModal').classList.remove('open'); }
+let _isArchiving = false;
+async function confirmArchive() {
+  if (_isArchiving || !archivingId) return;
+  _isArchiving = true;
+  const btn = document.getElementById('btnConfirmArchive');
+  const btnCancel = document.getElementById('btnCancelArchive');
+  btn.disabled = true; btn.textContent = 'Mengarsipkan…'; btnCancel.disabled = true;
   try {
-    await updateKuitansiInSheets(editingId, updates);
-    const idx = kuitansiList.findIndex(x => x.__id === editingId);
-    if (idx >= 0) kuitansiList[idx] = {...kuitansiList[idx], ...updates};
-    renderList();
-    populateFilterBulan();
-    closeEditModal();
-    showToast('Kuitansi diperbarui ✓', true);
+    await applyMark(archivingId, 'archive', { reason: document.getElementById('archiveReason').value.trim() });
+    closeArchiveModal();
+    showToast('Kuitansi diarsipkan ✓', true);
   } catch(e) {
-    showToast('Gagal update: ' + e.message, false);
+    showToast('Gagal arsipkan: ' + e.message, false);
   } finally {
-    _isSubmittingEdit = false;
-    if (btn) { btn.disabled = false; btn.textContent = 'Simpan Perubahan'; }
+    _isArchiving = false;
+    btn.disabled = false; btn.textContent = 'Arsipkan'; btnCancel.disabled = false;
   }
 }
-
-// ══════════════════════════════════════
-// DELETE
-// ══════════════════════════════════════
-function openDelete(id) {
-  deletingId = id;
+function restoreKuitansi(id) {
   const k = kuitansiList.find(x => x.__id === id);
-  document.getElementById('deleteModalDesc').textContent = k ? `${k.no_kuitansi} — ${k.diterima_dari} — ${rp(k.jumlah)}` : '';
-  document.getElementById('deleteModal').classList.add('open');
-}
-function closeDeleteModal() { deletingId = null; document.getElementById('deleteModal').classList.remove('open'); }
-let _isDeleting = false;
-async function confirmDelete() {
-  if (_isDeleting) return; // cegah double-click / double-submit
-  _isDeleting = true;
-  const btn = document.getElementById('btnConfirmDelete');
-  const btnCancel = document.getElementById('btnCancelDelete');
-  if (btn) { btn.disabled = true; btn.textContent = 'Menghapus…'; }
-  if (btnCancel) btnCancel.disabled = true;
-  try {
-    await deleteKuitansiFromSheets(deletingId);
-    kuitansiList = kuitansiList.filter(x => x.__id !== deletingId);
-    renderList();
-    populateFilterBulan();
-    closeDeleteModal();
-    showToast('Kuitansi dihapus', true);
-  } catch(e) {
-    showToast('Gagal hapus: ' + e.message, false);
-  } finally {
-    _isDeleting = false;
-    if (btn) { btn.disabled = false; btn.textContent = 'Hapus'; }
-    if (btnCancel) btnCancel.disabled = false;
+  if (!k) return;
+  const dup = findExactDuplicate(k, k.__id);
+  if (dup) {
+    showConfirm({ title: 'Tidak Bisa Dipulihkan', info: true, okText: 'Mengerti',
+      body: `Sudah ada kuitansi aktif yang identik: <b>${esc(dup.no_kuitansi)}</b>. Arsipkan yang itu dulu bila ingin memulihkan ini.` });
+    return;
   }
+  showConfirm({ title: 'Pulihkan Kuitansi', okText: 'Pulihkan',
+    body: `Kembalikan <b>${esc(k.no_kuitansi)}</b> (${esc(k.diterima_dari)} · ${rp(k.jumlah)}) menjadi kuitansi aktif?`,
+    onOk: async () => {
+      try { await applyMark(id, 'restore', {}); showToast('Kuitansi dipulihkan ✓', true); }
+      catch(e) { showToast('Gagal pulihkan: ' + e.message, false); }
+    } });
+}
+
+// ══════════════════════════════════════
+// KONTAK (nama anak + WhatsApp ortu) — satu-satunya data yang boleh dilengkapi setelah terkunci
+// ══════════════════════════════════════
+let contactId = null, contactForSend = false;
+function openContactModal(id, forSend) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  contactId = id; contactForSend = !!forSend;
+  document.getElementById('contactModalDesc').innerHTML = forSend
+    ? `Nomor WhatsApp orang tua untuk <b>${esc(k.diterima_dari)}</b> belum tersimpan. Isi nomornya, lalu WhatsApp langsung terbuka.`
+    : `Lengkapi kontak untuk <b>${esc(k.no_kuitansi)}</b>. Data nominal & isi kuitansi tetap terkunci.`;
+  document.getElementById('cNama').value = getAnanda(k);
+  document.getElementById('cWa').value = k.no_wa || '';
+  document.getElementById('btnContactSave').textContent = forSend ? 'Simpan & Kirim WA' : 'Simpan';
+  document.getElementById('contactModal').classList.add('open');
+  setTimeout(() => document.getElementById(forSend ? 'cWa' : 'cNama').focus(), 60);
+  if (!k.no_wa) {
+    autofillFromRegistration(getAnanda(k), k.diterima_dari, 'cWa', 'cNama', false).then(ok => {
+      if (ok && contactId === id) showToast('Data terisi dari data pendaftaran — periksa lalu simpan', true);
+    });
+  }
+}
+function closeContactModal() { contactId = null; document.getElementById('contactModal').classList.remove('open'); }
+let _isSavingContact = false;
+async function saveContact() {
+  if (_isSavingContact) return;
+  const k = kuitansiList.find(x => x.__id === contactId);
+  if (!k) return;
+  const nama = document.getElementById('cNama').value.trim();
+  const wa = document.getElementById('cWa').value.trim();
+  if (contactForSend && !normalizePhone(wa)) { showToast('Isi nomor WhatsApp yang valid', false); return; }
+  if (!contactForSend && wa && !normalizePhone(wa)) { showToast('Nomor WhatsApp tidak valid', false); return; }
+
+  const btn = document.getElementById('btnContactSave');
+  const label = btn.textContent;
+  _isSavingContact = true;
+  btn.disabled = true; btn.textContent = 'Menyimpan…';
+  // buka tab WA lebih dulu (masih dalam aksi klik) supaya tidak diblokir popup-blocker
+  const preWin = contactForSend ? window.open('', '_blank') : null;
+  try {
+    await updateKuitansiInSheets(k.__id, { nama_anak: nama, no_wa: wa });
+    k.nama_anak = nama; k.no_wa = wa;
+    cacheList();
+    renderList();
+    if (detailModalId === k.__id) openDetailSheet(k.__id);
+    closeContactModal();
+    if (contactForSend) doOpenWhatsApp(k, normalizePhone(wa), preWin);
+    else showToast('Kontak disimpan ✓', true);
+  } catch(e) {
+    if (preWin) preWin.close();
+    showToast('Gagal simpan kontak: ' + e.message, false);
+  } finally {
+    _isSavingContact = false;
+    btn.disabled = false; btn.textContent = label;
+  }
+}
+
+// ══════════════════════════════════════
+// KIRIM KE WHATSAPP — langsung buka chat ke nomor orang tua dengan pesan terisi
+// (WhatsApp tidak mengizinkan lampiran file otomatis lewat link; pesan memuat
+//  tautan verifikasi resmi kuitansi. PDF bisa dilampirkan manual bila perlu.)
+// ══════════════════════════════════════
+function buildWaMessage(k) {
+  const anak = getAnanda(k);
+  const lines = [
+    `Yth. Bapak/Ibu ${k.diterima_dari},`,
+    '',
+    'Terima kasih, pembayaran Anda telah kami terima. Berikut rincian kuitansi dari *Markaz Belajar*:',
+    '',
+    `No. Kuitansi: ${k.no_kuitansi}`,
+    `Tanggal: ${fmtDateLong(k.date)}`,
+  ];
+  if (anak) lines.push(`Ananda: ${anak}`);
+  lines.push(`Jumlah: *${rp(k.jumlah)}*`, '', 'Cek keaslian kuitansi:', buildVerifyUrl(k), '', 'Terima kasih 🙏', 'Markaz Belajar');
+  return lines.join('\n');
+}
+
+function sendWhatsApp(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  const phone = normalizePhone(k.no_wa);
+  if (!phone) { openContactModal(id, true); return; }
+  const sc = Number(k.sent_count) || 0;
+  if (sc > 0) {
+    showConfirm({ title: 'Kirim Ulang ke WhatsApp?', okText: 'Kirim Lagi',
+      body: `Kuitansi ini sudah pernah dikirim <b>${sc}×</b> (terakhir ${esc(fmtTimestamp(k.last_sent_at))}) ke <b>${esc(k.no_wa)}</b>.`,
+      onOk: () => doOpenWhatsApp(k, phone, null) });
+    return;
+  }
+  doOpenWhatsApp(k, phone, null);
+}
+
+function doOpenWhatsApp(k, phone, preWin) {
+  const url = `https://wa.me/${phone}?text=${encodeURIComponent(buildWaMessage(k))}`;
+  if (preWin) {
+    preWin.location.href = url;
+  } else {
+    const w = window.open(url, '_blank');
+    if (!w) window.location.href = url;
+  }
+  showToast('WhatsApp dibuka — lampirkan PDF kuitansi bila perlu', true);
+  applyMark(k.__id, 'send', {}).catch(e => showToast('WA terbuka, tapi gagal mencatat status kirim: ' + e.message, false));
 }
 
 // ══════════════════════════════════════
@@ -1485,18 +1829,45 @@ let _pendingPrintData = null;
 
 function promptSignatureAndPrint(k) {
   _pendingPrintData = k;
+  renderSigStatus(k);
   document.getElementById('signatureModal').classList.add('open');
 }
+
+// Info status di modal "Jenis Tanda Tangan": sudah pernah dicetak / dikirim / diarsipkan
+function renderSigStatus(k) {
+  const pc = Number(k.printed_count) || 0;
+  const sc = Number(k.sent_count) || 0;
+  const chk = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+  const dot = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/></svg>';
+  const lines = [];
+  lines.push(pc > 0
+    ? `<div class="sig-status-line">${chk}<span><b>Sudah pernah dicetak ${pc}×</b> — terakhir ${esc(fmtTimestamp(k.last_printed_at))}. Tetap bisa dicetak lagi kapan pun.</span></div>`
+    : `<div class="sig-status-line">${dot}<span>Belum pernah dicetak.</span></div>`);
+  lines.push(sc > 0
+    ? `<div class="sig-status-line">${chk}<span><b>Sudah dikirim via WhatsApp ${sc}×</b> — terakhir ${esc(fmtTimestamp(k.last_sent_at))}.</span></div>`
+    : `<div class="sig-status-line">${dot}<span>Belum pernah dikirim via WhatsApp.</span></div>`);
+  let cls = (pc > 0 || sc > 0) ? 'warn' : 'neutral';
+  if (isArchived(k)) {
+    lines.unshift(`<div class="sig-status-line">${dot}<span><b>Kuitansi ini sudah diarsipkan</b> (tidak aktif).</span></div>`);
+    cls = 'danger';
+  }
+  document.getElementById('sigStatusInfo').innerHTML = `<div class="sig-status ${cls}">${lines.join('')}</div>`;
+}
+
 function closeSignatureModal() {
   _pendingPrintData = null;
   document.getElementById('signatureModal').classList.remove('open');
 }
 function confirmPrintWithSignature(mode) {
   if (!_pendingPrintData) return;
-  const data = { ..._pendingPrintData, signature_mode: mode };
+  const base = _pendingPrintData;
+  const data = { ...base, signature_mode: mode };
   document.getElementById('signatureModal').classList.remove('open');
   _pendingPrintData = null;
-  printKuitansi(data);
+  printKuitansi(data); // harus sinkron (dalam aksi klik) supaya popup tidak diblokir
+  if (base.__id) {
+    applyMark(base.__id, 'print', {}).catch(e => showToast('Tercetak, tapi gagal mencatat status cetak: ' + e.message, false));
+  }
 }
 
 function printKuitansi(k) {
@@ -1606,6 +1977,12 @@ function togglePreview() {
     btn.textContent = 'Tampilkan';
   }
 }
+
+document.getElementById('fAnak').addEventListener('change', function() {
+  if (!document.getElementById('fWa').value.trim()) {
+    autofillFromRegistration(this.value, document.getElementById('fDari').value, 'fWa', null, false);
+  }
+});
 
 ['fNo','fRef','fDate','fDari','fJumlah','fUntuk','fCatatan','fPenerima'].forEach(id => {
   const el = document.getElementById(id);
@@ -1751,10 +2128,11 @@ function showToast(msg, ok) {
   toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
 }
 
-document.getElementById('deleteModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDeleteModal(); });
-document.getElementById('editModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeEditModal(); });
 document.getElementById('detailModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeDetailModal(); });
 document.getElementById('signatureModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeSignatureModal(); });
+document.getElementById('archiveModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeArchiveModal(); });
+document.getElementById('contactModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeContactModal(); });
+document.getElementById('confirmModal').addEventListener('click', e => { if(e.target===e.currentTarget) closeConfirm(); });
 
 // ══════════════════════════════════════
 // VERIFIKASI KUITANSI (dipicu saat dibuka via ?verify=NO_KUITANSI dari scan QR)
@@ -1777,6 +2155,8 @@ async function runVerification(no, sigInfo) {
     }
 
     if (found) {
+      const archivedNote = String(found.status || '').toLowerCase() === 'archived'
+        ? `<div class="verify-warn">⚠️ Kuitansi ini sudah <b>diarsipkan</b> oleh Markaz Belajar dan tidak lagi berlaku sebagai kuitansi aktif.</div>` : '';
       const sigBlock = (sigInfo && sigInfo.sig) ? `
         <div class="verify-sig-block">
           <div class="verify-sig-head">
@@ -1794,6 +2174,7 @@ async function runVerification(no, sigInfo) {
         </div>
         <div class="verify-title">Kuitansi Terverifikasi</div>
         <div class="verify-sub">Data cocok dengan catatan resmi Markaz Belajar</div>
+        ${archivedNote}
         <div class="verify-rows">
           <div class="verify-row"><span>No. Kuitansi</span><span>${escHtml(found.no_kuitansi)}</span></div>
           <div class="verify-row"><span>Tanggal</span><span>${fmtDateLong(found.date)}</span></div>
