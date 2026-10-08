@@ -270,7 +270,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .sheet-sub{font-size:12.5px;color:var(--text2);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .sheet-close{width:38px;height:38px;border-radius:50%;border:none;background:var(--surface2);color:var(--text2);display:flex;align-items:center;justify-content:center;cursor:pointer;flex-shrink:0;}
 .sheet-close:hover{background:var(--border);}
-.sheet-body{overflow-y:auto;flex:1;padding:6px 20px max(22px, env(safe-area-inset-bottom));-webkit-overflow-scrolling:touch;}
+.sheet-body{overflow-y:auto;flex:1;min-height:0;padding:6px 20px 18px;-webkit-overflow-scrolling:touch;}
 .sheet-sec{font-size:10.5px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.08em;margin:20px 0 8px;}
 .sheet-body .detail-row{padding:11px 0;}
 .sheet-body .kw-chips{margin:10px 0 2px;}
@@ -283,7 +283,7 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .tile-wa{background:#25D366;color:#fff;}
 .tile-wide{flex-direction:row;min-height:50px;gap:9px;margin-top:10px;font-size:13.5px;}
 .tile-warn{background:var(--warning-dim);color:#B87500;border:1px solid rgba(245,159,0,.35);}
-.sheet-actions{padding:14px 20px 14px;border-bottom:1px solid var(--border);background:var(--surface);flex-shrink:0;display:flex;flex-direction:column;gap:10px;}
+.sheet-actions{padding:12px 20px max(14px, env(safe-area-inset-bottom));border-top:1px solid var(--border);box-shadow:0 -6px 16px rgba(28,43,58,.06);background:var(--surface);flex-shrink:0;display:flex;flex-direction:column;gap:10px;}
 .sheet-actions .tile{min-height:78px;}
 .sheet-actions .tile-sm{min-height:44px;flex-direction:row;gap:8px;font-size:12.5px;border-radius:12px;padding:8px 10px;}
 .sheet-actions .tile-grid{gap:10px;}
@@ -292,6 +292,25 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
   .modal.sheet{max-width:100%;border-radius:24px 24px 0 0;max-height:90vh;}
 }
 @media(min-width:641px){.sheet-handle{display:none;}.sheet-head{padding-top:18px;}}
+
+/* ===== RIWAYAT MINIMALIS ===== */
+.kw-row{padding:11px 12px;gap:10px;align-items:center;}
+.kw-l1{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+.kw-nm{font-size:14.5px;font-weight:700;color:var(--text);line-height:1.3;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.kw-amt{font-family:'Geist Mono',monospace;font-size:13.5px;font-weight:800;color:var(--text);white-space:nowrap;flex-shrink:0;}
+.kw-l2{display:flex;align-items:center;gap:6px;margin-top:3px;}
+.kw-l2 .kw-row-no{background:none;padding:0;border-radius:0;font-size:11px;color:var(--accent);}
+.kw-l3{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:2px;}
+.kw-meta{font-size:11px;color:var(--text3);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.kw-icons{display:flex;align-items:center;gap:9px;flex-shrink:0;}
+.kw-ic{display:inline-flex;color:var(--text3);opacity:.4;}
+.kw-ic.on{opacity:1;}
+.kw-ic.on.lock{color:var(--accent);}
+.kw-ic.on.prn{color:var(--success);}
+.kw-ic.on.wa{color:#1DA851;}
+.kw-ic.on.arc{color:#B87500;}
+.kw-l2 .kw-new-badge,.kw-l2 .kw-arch-badge{margin-left:0;}
+.kw-row-arch .kw-nm{text-decoration:line-through;text-decoration-color:var(--text3);}
 </style>
 </head>
 <body>
@@ -592,10 +611,10 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
       </button>
     </div>
-    <div class="sheet-actions" id="detailModalActions"></div>
     <div class="sheet-body">
       <div id="detailModalBody"></div>
     </div>
+    <div class="sheet-actions" id="detailModalActions"></div>
   </div>
 </div>
 
@@ -759,6 +778,10 @@ const isArchived = k => String(k.status || '').toLowerCase() === 'archived';
 
 function getAnanda(k) {
   return String(k.nama_anak || '').trim() || extractAnandaName(k.untuk_pembayaran);
+}
+function creatorName(k) {
+  const n = String(k.penerima || '').split(',')[0].trim();
+  return n || String(k.created_by || '').trim() || '—';
 }
 function createdByText(k) {
   const who = (k.penerima || '').trim();
@@ -1343,33 +1366,41 @@ function renderList() {
   }
   wrap.innerHTML = list.map(k => {
     const arch = isArchived(k);
-    const ananda = getAnanda(k);
-    const untuk = k.untuk_pembayaran || '';
-    const subText = `${fmtDateShort(k.date)} · ${esc(untuk.replace(/\s*\n\s*/g,' ').slice(0,44))}${untuk.length>44?'…':''}`;
+    const nm = getAnanda(k) || k.diterima_dari || '—';
     const isNew = k.__id === lastCreatedId;
     const id = esc(k.__id);
+    const pc = Number(k.printed_count) || 0;
+    const sc = Number(k.sent_count) || 0;
+    const tgl = String(fmtTimestamp(k.created_at) || '').split(',')[0] || fmtDateShort(k.date);
+    const lockIc = IC.lock.replace('width="10" height="10"', 'width="14" height="14"');
     return `
     <div class="kw-row${isNew ? ' kw-row-new' : ''}${arch ? ' kw-row-arch' : ''}" onclick="handleRowTap(event,'${id}')">
       <div class="kw-row-main">
-        <div class="kw-row-no">${esc(k.no_kuitansi)}${isNew ? `<span class="kw-new-badge" title="Baru saja ditambahkan"><svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg> Baru</span>` : ''}${arch ? `<span class="kw-arch-badge">ARSIP</span>` : ''}</div>
-        <div class="kw-row-amt-m">${rp(k.jumlah)}</div>
-        <div class="kw-row-name">${esc(k.diterima_dari)}</div>
-        ${ananda ? `<div class="kw-row-anak">${IC.child}<span>Ananda: ${esc(ananda)}</span></div>` : ''}
-        <div class="kw-row-sub" data-detail-id="${id}">${subText}</div>
-        <div class="kw-row-by">Dibuat oleh <b>${esc(createdByText(k))}</b> · ${esc(fmtTimestamp(k.created_at))}</div>
-        <div class="kw-chips">${buildChips(k)}</div>
+        <div class="kw-l1">
+          <div class="kw-nm" data-detail-id="${id}">${esc(nm)}</div>
+          <div class="kw-amt">${rp(k.jumlah)}</div>
+        </div>
+        <div class="kw-l2">
+          <span class="kw-row-no">${esc(k.no_kuitansi)}</span>${isNew ? `<span class="kw-new-badge">Baru</span>` : ''}${arch ? `<span class="kw-arch-badge">ARSIP</span>` : ''}
+        </div>
+        <div class="kw-l3">
+          <div class="kw-meta">${esc(tgl)} · ${esc(creatorName(k))}</div>
+          <div class="kw-icons">
+            <span class="kw-ic on ${arch ? 'arc' : 'lock'}" title="${arch ? 'Diarsipkan' : 'Terkunci'}">${arch ? IC_BTN.archive : lockIc}</span>
+            <span class="kw-ic prn${pc > 0 ? ' on' : ''}" title="${pc > 0 ? 'Sudah dicetak ' + pc + '×' : 'Belum dicetak'}">${IC_BTN.print}</span>
+            <span class="kw-ic wa${sc > 0 ? ' on' : ''}" title="${sc > 0 ? 'Terkirim WA ' + sc + '×' : 'Belum dikirim WA'}">${IC_BTN.wa}</span>
+          </div>
+        </div>
       </div>
       <div class="kw-row-right">
-        <div class="kw-row-amt">${rp(k.jumlah)}</div>
         <div class="kw-row-actions">
-          <button class="btn-icon" title="Cetak ulang" onclick="event.stopPropagation();printById('${id}')">${IC_BTN.print}</button>
+          <button class="btn-icon" title="Cetak" onclick="event.stopPropagation();printById('${id}')">${IC_BTN.print}</button>
           <button class="btn-icon btn-icon-wa" title="Kirim ke WhatsApp orang tua" onclick="event.stopPropagation();sendWhatsApp('${id}')">${IC_BTN.wa}</button>
           ${arch
             ? `<button class="btn-icon btn-icon-arch" title="Pulihkan dari arsip" onclick="event.stopPropagation();restoreKuitansi('${id}')">${IC_BTN.restore}</button>`
             : `<button class="btn-icon btn-icon-arch" title="Arsipkan" onclick="event.stopPropagation();openArchive('${id}')">${IC_BTN.archive}</button>`}
         </div>
       </div>
-      <svg class="kw-row-chevron" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
     </div>
   `;
   }).join('');
