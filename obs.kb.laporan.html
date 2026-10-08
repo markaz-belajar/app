@@ -4,7 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>Profil Kekuatan Belajar — Markz Belajar</title>
-<meta name="theme-color" content="#0b2a4a">
+<meta name="theme-color" content="#1B6CA8">
+<link rel="preload" as="image" href="Open_MB_Icon.png">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon_mb_app.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -405,14 +406,19 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
 .header { display: none !important; }
 body { padding-top: 12px; }
 .view-loading .result-parent { display: none; }
+.view-loading-overlay { display: none !important; }
+.splash { position: fixed; inset: 0; z-index: 1000; background: #1B6CA8; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity .55s ease, visibility .55s; }
+html:not(.view-loading) .splash { opacity: 0; visibility: hidden; pointer-events: none; }
+.splash-logo { width: min(46vw, 190px); height: auto; animation: splashIn .7s cubic-bezier(.2,.8,.3,1) both; }
+@keyframes splashIn { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: none; } }
+.splash-sub { margin-top: 22px; padding: 0 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,.75); min-height: 16px; }
 </style>
 </head>
 <body>
 
-<div class="view-loading-overlay">
-  <div class="view-loading-spinner"></div>
-  <div class="view-loading-text">Menyiapkan laporan…</div>
-  <div class="view-loading-sub">Mengambil data dari Markz Belajar, mohon tunggu sebentar</div>
+<div class="splash" id="splash">
+  <img src="Open_MB_Icon.png" alt="Markaz Belajar" class="splash-logo">
+  <div class="view-loading-sub splash-sub"></div>
 </div>
 
 <div class="body">
@@ -737,6 +743,15 @@ function renderIntro(anim) {
   document.getElementById("idk-dots").innerHTML = iCards.map((_, k) => `<i class="${k === iIdx ? 'on' : ''}"></i>`).join("");
 }
 
+const __splashStart = Date.now();
+function hideSplash() {
+  const wait = Math.max(0, 1500 - (Date.now() - __splashStart));
+  setTimeout(() => {
+    document.documentElement.classList.remove('view-loading');
+    const open = document.getElementById('intro-overlay').classList.contains('open');
+    setThemeColor(open ? '#0b2a4a' : '#0686c7');
+  }, wait);
+}
 function setThemeColor(c) { const m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", c); }
 function tryFullscreen() {
   // Coba sembunyikan bar browser (butuh sentuhan pengguna; tidak semua browser/in-app WhatsApp mengizinkan)
@@ -751,7 +766,7 @@ document.getElementById("intro-overlay").addEventListener("pointerup", function 
 });
 function openIntro() {
   window.__introSeen = true;
-  setThemeColor("#0b2a4a");
+  if(!document.documentElement.classList.contains("view-loading")) setThemeColor("#0b2a4a");
   iIdx = 0; renderIntro(false);
   document.getElementById("intro-overlay").classList.add("open");
   document.documentElement.classList.add("intro-open");
@@ -954,7 +969,7 @@ async function loadReport() {
       record.tahap1 = cache.record.tahap1 || null;
       record.tahap2 = cache.record.tahap2 || null;
     }
-    if(hasAnyFinalStage()) { showCombinedReport(); document.documentElement.classList.remove('view-loading'); }
+    if(hasAnyFinalStage()) { showCombinedReport(); hideSplash(); }
     const slowTimer = setTimeout(() => {
       const sub = document.querySelector('.view-loading-sub');
       if(sub) sub.textContent = 'Server sedang lambat, masih mencoba… mohon tunggu sebentar';
@@ -992,7 +1007,7 @@ async function loadReport() {
   showViewMessage('⚠️ <strong>Link laporan tidak valid.</strong> Mohon minta link baru kepada guru.');
   return false;
 }
-loadReport().finally(() => document.documentElement.classList.remove('view-loading'));
+loadReport().finally(() => hideSplash());
 </script>
 </body>
 </html>
