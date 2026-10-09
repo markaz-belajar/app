@@ -221,7 +221,6 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .verify-row:last-child{border-bottom:none;}
 .verify-row span:first-child{color:#8FA4B4;font-size:11.5px;}
 .verify-row span:last-child{font-weight:600;text-align:right;}
-.verify-close{margin-top:18px;width:100%;padding:11px;border-radius:10px;background:#1B6CA8;color:#fff;border:none;font-family:inherit;font-size:13px;font-weight:600;cursor:pointer;}
 .verify-sig-block{text-align:left;background:#EAF4FF;border-radius:14px;padding:14px 16px;font-size:13px;color:#1C2B3A;margin-top:10px;}
 .verify-sig-head{display:flex;align-items:center;gap:6px;color:#1B6CA8;font-size:11.5px;font-weight:700;margin-bottom:8px;letter-spacing:.02em;}
 .verify-sig-block .verify-row{border-bottom-color:rgba(27,108,168,0.15);}
@@ -2303,7 +2302,6 @@ async function runVerification(no, sigInfo) {
           <div class="verify-row"><span>Penerima</span><span>${escHtml(found.penerima || '—')}</span></div>
         </div>
         ${sigBlock}
-        <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>
       `;
     } else {
       card.innerHTML = `
@@ -2312,7 +2310,6 @@ async function runVerification(no, sigInfo) {
         </div>
         <div class="verify-title">Tidak Ditemukan</div>
         <div class="verify-sub">No. kuitansi <strong>${escHtml(no)}</strong> tidak cocok dengan catatan sistem. Kemungkinan kuitansi tidak sah/palsu.</div>
-        <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>
       `;
     }
   } catch (e) {
@@ -2322,7 +2319,6 @@ async function runVerification(no, sigInfo) {
       </div>
       <div class="verify-title">Gagal Memeriksa</div>
       <div class="verify-sub">${escHtml(e.message)}</div>
-      <button class="verify-close" onclick="window.location.href=window.location.pathname">Tutup</button>
     `;
   }
 }
@@ -2331,16 +2327,19 @@ async function runVerification(no, sigInfo) {
 // INIT
 // ══════════════════════════════════════
 document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('fDate').value = nowYMD();
-  if (localStorage.getItem('mrkz_theme') === 'dark') document.getElementById('darkModeLabel').textContent = 'Mode Terang';
-  loadAll();
-  renderLivePreview();
-  initDetailPopoverEvents();
-  loadInvoiceRefList();
-
   const qs = new URLSearchParams(window.location.search);
   const verifyNo = qs.get('verify');
+
+  // ── MODE VERIFIKASI PUBLIK (scan QR) ──
+  // Hanya hasil verifikasi yang ditampilkan. Seluruh isi aplikasi dibuang dari halaman,
+  // tidak ada data yang dimuat, dan tidak ada tombol untuk masuk ke aplikasi.
   if (verifyNo) {
+    document.title = 'Verifikasi Kuitansi — Markaz Belajar';
+    Array.from(document.body.children).forEach(el => {
+      if (el.id !== 'verifyOverlay' && el.tagName !== 'SCRIPT') el.remove();
+    });
+    window.removeEventListener('resize', scalePreview);
+    ['touchstart', 'touchmove', 'touchend'].forEach(t => window.addEventListener(t, e => e.stopPropagation(), true));
     runVerification(verifyNo, {
       sig: qs.get('sig'),
       sigId: qs.get('sigId'),
@@ -2348,7 +2347,16 @@ document.addEventListener('DOMContentLoaded', () => {
       signedRole: qs.get('signedRole'),
       signedAt: qs.get('signedAt'),
     });
+    return;
   }
+
+  // ── MODE APLIKASI ──
+  document.getElementById('fDate').value = nowYMD();
+  if (localStorage.getItem('mrkz_theme') === 'dark') document.getElementById('darkModeLabel').textContent = 'Mode Terang';
+  loadAll();
+  renderLivePreview();
+  initDetailPopoverEvents();
+  loadInvoiceRefList();
 });
 </script>
 </body>
