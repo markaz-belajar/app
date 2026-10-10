@@ -409,15 +409,15 @@ body { padding-top: 12px; }
 .view-loading-overlay { display: none !important; }
 .splash { position: fixed; inset: 0; z-index: 1000; background: #1B6CA8; display: flex; flex-direction: column; align-items: center; justify-content: center; transition: opacity .55s ease, visibility .55s; }
 html:not(.view-loading) .splash { opacity: 0; visibility: hidden; pointer-events: none; }
-.splash-logo { width: min(46vw, 190px); height: auto; animation: splashIn .7s cubic-bezier(.2,.8,.3,1) both; }
-@keyframes splashIn { from { opacity: 0; transform: scale(.82); } to { opacity: 1; transform: none; } }
+.splash-logo { width: 120px; height: auto; animation: levitate 1.8s ease-in-out infinite; }
+@keyframes levitate { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 .splash-sub { margin-top: 22px; padding: 0 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,.75); min-height: 16px; }
 </style>
 </head>
 <body>
 
 <div class="splash" id="splash">
-  <img src="Open_MB_Icon.png" alt="Markaz Belajar" class="splash-logo">
+  <img src="Open_MB_Icon.png" alt="Markaz Belajar" class="splash-logo" onerror="this.src='icon_mb.png'">
   <div class="view-loading-sub splash-sub"></div>
 </div>
 
@@ -745,7 +745,7 @@ function renderIntro(anim) {
 
 const __splashStart = Date.now();
 function hideSplash() {
-  const wait = Math.max(0, 1500 - (Date.now() - __splashStart));
+  const wait = Math.max(0, 2000 - (Date.now() - __splashStart));
   setTimeout(() => {
     document.documentElement.classList.remove('view-loading');
     const open = document.getElementById('intro-overlay').classList.contains('open');
