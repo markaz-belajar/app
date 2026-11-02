@@ -3477,6 +3477,10 @@ function calcRenewalDue(inv){
   if(!d || isNaN(d.getTime())) return null;
   const due = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   due.setMonth(due.getMonth() + durBulan);
+  // Hanya hari kerja (Sen–Jum): Sabtu/Minggu digeser ke Senin berikutnya
+  const dow = due.getDay();
+  if(dow === 6) due.setDate(due.getDate() + 2);
+  else if(dow === 0) due.setDate(due.getDate() + 1);
   return { date: due, durBulan };
 }
 
