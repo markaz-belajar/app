@@ -167,6 +167,14 @@
       width: 16px; height: 16px; flex-shrink: 0;
       /* icon selalu tampil penuh — tidak ada transition opacity di sini */
     }
+    .hero-weather {
+      margin-top: 10px;
+      display: flex; flex-direction: column; gap: 4px;
+      color: rgba(255,255,255,0.92);
+      font-size: 12px; font-weight: 500;
+    }
+    .hero-weather-row { display: flex; align-items: center; gap: 7px; line-height: 1.3; }
+    .hero-weather-row svg { width: 16px; height: 16px; flex-shrink: 0; opacity: .9; }
     .hero-status-cursor {
       display: inline-block;
       width: 2px;
@@ -438,6 +446,10 @@
           <div class="hero-status">
             <svg id="heroStatusIcon" class="hero-status-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"></svg>
             <span id="heroStatusText" class="hero-status-text"></span><span class="hero-status-cursor">▏</span>
+          </div>
+          <div class="hero-weather" id="heroWeather" style="display:none">
+            <div class="hero-weather-row"><svg id="wxIcon1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></svg><span id="wxTemp"></span></div>
+            <div class="hero-weather-row"><svg id="wxIcon2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></svg><span id="wxRain"></span></div>
           </div>
         </div>
         <div class="hero-mascot-wrap">
@@ -818,9 +830,10 @@
       const seasonIcon = SEASON_ICONS[season];
       const seasonPhrase = getSeasonPhrase(now, season);
 
-      /* hanya salam bahasa Inggris, lalu cuaca (disisipkan otomatis setelah data cuaca masuk) */
+      /* baris atas: salam Inggris <-> Indonesia saja. Cuaca ada di bawahnya (statis). */
       const slides = [
-        { text: greet.en, icon: greet.icon, long: false }
+        { text: greet.en, icon: greet.icon, long: false },
+        { text: greet.id, icon: greet.icon, long: false }
       ];
 
       const TYPE_SPEED  = 90;  // ms per huruf saat mengetik (lebih lambat)
@@ -841,19 +854,16 @@
         rain:  '<path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><path d="M8 19v2M12 19v2M16 19v2M8 14v2M12 14v2M16 14v2"/>',
         storm: '<path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><path d="M13 11l-4 6h6l-4 6"/>'
       };
-      let wxSlides = [];
       function wxIconFor(code) {
         if (code >= 95) return WX_ICONS.storm;
         if (code >= 51 && code <= 82) return WX_ICONS.rain;
         if (code >= 2) return WX_ICONS.cloud;
         return WX_ICONS.sun;
       }
-      function buildWxSlides(d) {
+      function renderWeather(d) {
         try {
           const cur = d.current, h = d.hourly;
           const temp = Math.round(cur.temperature_2m);
-          const slides = [{ text: WX.name + ' ' + temp + '°C', icon: wxIconFor(cur.weather_code), long: false }];
-          /* cari jam berjalan di data hourly, lalu lihat 1-2 jam berikutnya */
           const nowStr = cur.time.slice(0, 13);
           let i = h.time.findIndex(function (t) { return t.slice(0, 13) === nowStr; });
           if (i < 0) i = 0;
@@ -861,18 +871,21 @@
           const mm1 = h.precipitation[i + 1] || 0;
           const raining = (cur.precipitation || 0) > 0.1 || (cur.weather_code >= 51 && cur.weather_code <= 99);
           let msg, ic;
-          if (raining)                 { msg = 'Sedang hujan'; ic = WX_ICONS.rain; }
+          if (raining)                     { msg = 'Sedang hujan'; ic = WX_ICONS.rain; }
           else if (p1 >= 50 || mm1 >= 0.3) { msg = 'Hujan ±1 jam lagi (' + Math.round(p1) + '%)'; ic = WX_ICONS.rain; }
-          else if (p2 >= 60)           { msg = 'Hujan ±2 jam lagi (' + Math.round(p2) + '%)'; ic = WX_ICONS.rain; }
-          else                         { msg = 'Tidak hujan 1 jam ke depan'; ic = WX_ICONS.sun; }
-          slides.push({ text: msg, icon: ic, long: true });
-          return slides;
-        } catch (e) { return []; }
+          else if (p2 >= 60)               { msg = 'Hujan ±2 jam lagi (' + Math.round(p2) + '%)'; ic = WX_ICONS.rain; }
+          else                             { msg = 'Tidak hujan 1 jam ke depan'; ic = WX_ICONS.sun; }
+          document.getElementById('wxIcon1').innerHTML = wxIconFor(cur.weather_code);
+          document.getElementById('wxTemp').textContent = WX.name + ' · ' + temp + '°C';
+          document.getElementById('wxIcon2').innerHTML = ic;
+          document.getElementById('wxRain').textContent = msg;
+          document.getElementById('heroWeather').style.display = 'flex';
+        } catch (e) {}
       }
       function loadWeather() {
         try {
           const c = JSON.parse(localStorage.getItem(WX.key) || 'null');
-          if (c && Date.now() - c.t < WX.ttl) { wxSlides = buildWxSlides(c.d); return; }
+          if (c && Date.now() - c.t < WX.ttl) { renderWeather(c.d); return; }
         } catch (e) {}
         const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + WX.lat + '&longitude=' + WX.lon +
           '&current=temperature_2m,precipitation,weather_code&hourly=precipitation_probability,precipitation' +
@@ -881,7 +894,7 @@
         const to = setTimeout(function () { ctl.abort(); }, 8000);
         fetch(url, { signal: ctl.signal }).then(function (r) { return r.json(); }).then(function (d) {
           clearTimeout(to);
-          wxSlides = buildWxSlides(d);
+          renderWeather(d);
           try { localStorage.setItem(WX.key, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
         }).catch(function () { clearTimeout(to); });
       }
@@ -915,9 +928,9 @@
         });
       }
 
-      /* urutan: Good Morning/Afternoon/Evening -> suhu -> prakiraan hujan -> (ulang) */
+      /* baris atas bergantian: Good ... <-> Selamat ... */
       function currentSlides() {
-        return slides.concat(wxSlides);
+        return slides;
       }
       async function loop() {
         let i = 0;
