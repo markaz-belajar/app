@@ -199,46 +199,9 @@
       font-size: 16px;
       font-weight: 700;
       color: #0686C7;
-      padding: 16px 20px 12px;
+      padding: 16px 20px 22px;
       background: #F9F9F9;
     }
-
-    /* ── QUICK ROW — 1 baris, geser kiri-kanan, 4 ikon terlihat ── */
-    .quick {
-      position: relative;
-      margin: 0 -20px;
-      padding-bottom: 20px;
-    }
-    .quick-track {
-      display: flex;
-      flex-wrap: nowrap;
-      gap: 6px;
-      overflow-x: auto;
-      overflow-y: hidden;
-      padding: 6px 20px 8px;
-      scroll-snap-type: x mandatory;
-      scroll-padding: 0 20px;
-      -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
-    }
-    .quick-track::-webkit-scrollbar { display: none; }
-    .quick-track .feature-item {
-      flex: 0 0 calc((100% - 18px) / 4);
-      scroll-snap-align: start;
-      min-width: 0;
-    }
-    .quick-track .feature-item span { max-width: 100%; }
-    .quick::before, .quick::after {
-      content: '';
-      position: absolute; top: 0; bottom: 20px;
-      width: 28px; z-index: 2;
-      pointer-events: none;
-      opacity: 0; transition: opacity 0.2s;
-    }
-    .quick::before { left: 0;  background: linear-gradient(to right, #F9F9F9, rgba(249,249,249,0)); }
-    .quick::after  { right: 0; background: linear-gradient(to left,  #F9F9F9, rgba(249,249,249,0)); }
-    .quick.has-left::before  { opacity: 1; }
-    .quick.has-right::after  { opacity: 1; }
 
     /* WHITE CONTENT */
     .content {
@@ -443,11 +406,6 @@
 
       <div class="tagline">Ready for inspiring today?</div>
 
-      <!-- QUICK ROW: diisi otomatis dari semua fitur aktif di "See all" -->
-      <div class="quick" id="quick">
-        <div class="quick-track" id="quickTrack"></div>
-      </div>
-
     </div>
 
     <!-- MENU SECTION -->
@@ -622,12 +580,6 @@
               <svg viewBox="0 0 24 24" fill="none" stroke="#2E9E5B" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2h12v18l-3-2-3 2-3-2-3 2z"/><path d="M9 7h6M9 11h6"/></svg>
             </div>
             <span>Kuitansi</span>
-          </a>
-          <a class="feature-item" href="https://markaz-belajar.github.io/app/Income.html">
-            <div class="feature-icon-circle bg-blue">
-              <svg viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
-            </div>
-            <span>Income</span>
           </a>
           <div class="feature-item coming-soon">
             <span class="soon-badge">Soon</span>
@@ -888,28 +840,6 @@
         }, 550);
       }, 2000);
     });
-
-    /* ── QUICK ROW — salin semua fitur AKTIF dari "See all" (tanpa Coming Soon, tanpa duplikat) ── */
-    (function buildQuickRow() {
-      var track = document.getElementById('quickTrack');
-      var box   = document.getElementById('quick');
-      var seen  = {};
-      document.querySelectorAll('#seeAllPage a.feature-item').forEach(function (a) {
-        var href = a.getAttribute('href');
-        if (seen[href]) return;
-        seen[href] = true;
-        track.appendChild(a.cloneNode(true));
-      });
-      function updateFade() {
-        var max = track.scrollWidth - track.clientWidth;
-        box.classList.toggle('has-left',  track.scrollLeft > 4);
-        box.classList.toggle('has-right', track.scrollLeft < max - 4);
-      }
-      track.addEventListener('scroll', updateFade, { passive: true });
-      window.addEventListener('resize', updateFade);
-      window.addEventListener('load', updateFade);
-      updateFade();
-    })();
 
     /* ── SEE ALL — smooth slide transition ── */
     var seeAllBtn  = document.getElementById('seeAllBtn');
