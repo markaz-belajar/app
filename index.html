@@ -206,7 +206,8 @@
       position: absolute;
       bottom: 0;
       right: 0;
-      width: 190px;
+      width: 215px;
+      right: -6px;
       display: block;
       object-fit: contain;
     }
@@ -891,7 +892,9 @@
           else if (p1 >= 50 || mm1 >= 0.3) { bold = 'Hujan'; msg = bold + ' ±1 jam lagi (' + Math.round(p1) + '%)'; ic = ICONS.rain; }
           else if (p2 >= 60)               { bold = 'Hujan'; msg = bold + ' ±2 jam lagi (' + Math.round(p2) + '%)'; ic = ICONS.rain; }
           else                             { bold = 'Tidak hujan'; msg = bold + ' 1 jam ke depan'; ic = ICONS.sun; }
-          return { l1: place.name + ' · ' + Math.round(cur.temperature_2m) + '°C', b1: place.name.length, i1: iconFor(cur.weather_code), l2: msg, b2: bold.length, i2: ic };
+          const temp = Math.round(cur.temperature_2m) + '°C';
+          const l1 = place.name + ' · ' + temp;
+          return { l1: l1, s1: l1.length - temp.length, e1: l1.length, i1: iconFor(cur.weather_code), l2: msg, s2: 0, e2: bold.length, i2: ic };
         } catch (e) { return null; }
       }
       function apply(arr) {
@@ -921,29 +924,32 @@
       }
 
       function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-      function render(el, full, bl, n) {
-        const bEl = document.createElement('b');
-        bEl.textContent = full.slice(0, Math.min(n, bl));
+      function render(el, full, bs, be, n) {
         el.textContent = '';
-        el.appendChild(bEl);
-        if (n > bl) el.appendChild(document.createTextNode(full.slice(bl, n)));
+        if (n > 0) el.appendChild(document.createTextNode(full.slice(0, Math.min(n, bs))));
+        if (n > bs) {
+          const bEl = document.createElement('b');
+          bEl.textContent = full.slice(bs, Math.min(n, be));
+          el.appendChild(bEl);
+        }
+        if (n > be) el.appendChild(document.createTextNode(full.slice(be, n)));
         el.appendChild(cursor);
       }
-      function typeInto(el, full, bl) {
+      function typeInto(el, full, bs, be) {
         return new Promise(function (resolve) {
           let n = 0;
           (function step() {
             if (n > full.length) { resolve(); return; }
-            render(el, full, bl, n); n++; setTimeout(step, TYPE_SPEED);
+            render(el, full, bs, be, n); n++; setTimeout(step, TYPE_SPEED);
           })();
         });
       }
-      function eraseFrom(el, full, bl) {
+      function eraseFrom(el, full, bs, be) {
         return new Promise(function (resolve) {
           let n = full.length;
           (function step() {
             if (n < 0) { resolve(); return; }
-            render(el, full, bl, n); n--; setTimeout(step, ERASE_SPEED);
+            render(el, full, bs, be, n); n--; setTimeout(step, ERASE_SPEED);
           })();
         });
       }
@@ -953,13 +959,13 @@
           if (!items.length) { await sleep(500); continue; }
           const it = items[k % items.length];
           ic1.innerHTML = it.i1; ic2.innerHTML = '';
-          await typeInto(row1, it.l1, it.b1);
+          await typeInto(row1, it.l1, it.s1, it.e1);
           ic2.innerHTML = it.i2;
-          await typeInto(row2, it.l2, it.b2);
+          await typeInto(row2, it.l2, it.s2, it.e2);
           cursor.remove();
           await sleep(HOLD);
-          await eraseFrom(row2, it.l2, it.b2); ic2.innerHTML = '';
-          await eraseFrom(row1, it.l1, it.b1);
+          await eraseFrom(row2, it.l2, it.s2, it.e2); ic2.innerHTML = '';
+          await eraseFrom(row1, it.l1, it.s1, it.e1);
           cursor.remove();
           k++;
         }
