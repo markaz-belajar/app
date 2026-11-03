@@ -354,6 +354,13 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div><label>Jenjang</label><select id="selJ" onchange="setFv('j',this.value)"></select></div>
     <div><label>Tipe</label><select id="selT" onchange="setFv('t',this.value)"></select></div>
     <div><label>Program</label><select id="selP" onchange="setFv('p',this.value)"></select></div>
+    <div style="grid-column:1/-1;">
+      <label>Biaya pendaftaran</label>
+      <div class="subtab-pill" style="margin-bottom:0;">
+        <button class="subtab-btn" id="feeJoin" onclick="setFee(false)">Digabung</button>
+        <button class="subtab-btn" id="feeSep" onclick="setFee(true)">Dipisah</button>
+      </div>
+    </div>
     <button class="btn btn-ghost btn-small" style="grid-column:1/-1;justify-content:center;" onclick="resetFilter()">Reset filter</button>
   </div>
   <div class="fnote" id="basisLabel"></div>
@@ -471,6 +478,7 @@ let selYear=NOW.getFullYear(), selMonth=0;
 let basis=localStorage.getItem('mb_income_basis')||'created';
 let compMode='type';
 let fJ='', fT='', fP='';          // filter jenjang / tipe / program
+let sepFee=localStorage.getItem('mb_income_sepfee')==='1';   // false = biaya pendaftaran digabung ke total
 let OPTS={j:[],t:[],p:[]};
 let txSrc='', txLimit=100, txView=[];
 let detailRec=null, editingManualId=null, deletingId=null, syncTimer=null;
@@ -663,6 +671,11 @@ function setFv(kind,v){
   txLimit=100;renderAll();
 }
 function resetFilter(){fJ='';fT='';fP='';txLimit=100;renderAll();}
+function setFee(v){
+  sepFee=!!v;localStorage.setItem('mb_income_sepfee',sepFee?'1':'0');
+  if(!sepFee&&fP==='PENDAFTARAN')fP='';
+  renderAll();
+}
 function toggleFilter(){$('fPanel').classList.toggle('open');}
 function selOpts(kind,cur){return OPTS[kind].map(o=>'<option value="'+esc(o[0])+'"'+(cur===o[0]?' selected':'')+'>'+esc(o[1])+'</option>').join('');}
 
@@ -671,8 +684,10 @@ function syncFilters(){
   $('fYear').innerHTML=ys.map(y=>'<option value="'+y+'"'+(y===selYear?' selected':'')+'>'+y+'</option>').join('');
   $('fMonth').innerHTML='<option value="0">Semua Bulan</option>'+MON_L.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('');
   $('fMonth').value=String(selMonth);
-  const progs=PROG_BASE.slice();
-  recs.forEach(r=>{if(!progs.includes(r.m.prog))progs.push(r.m.prog);});
+  const progs=PROG_BASE.filter(p=>sepFee||p!=='PENDAFTARAN');
+  recs.forEach(r=>{if(!progs.includes(r.m.prog)&&(sepFee||r.m.prog!=='PENDAFTARAN'))progs.push(r.m.prog);});
+  $('feeJoin').classList.toggle('active',!sepFee);
+  $('feeSep').classList.toggle('active',sepFee);
   OPTS.j=[['','Semua'],['PRE','Preschool'],['ELE','Elementary'],['MID','Middle']];
   OPTS.t=[['','Semua'],['REGULER','Reguler'],['PRIVATE','Private']];
   OPTS.p=[['','Semua']].concat(progs.map(p=>[p,progLabel(p)]));
@@ -736,7 +751,9 @@ function renderSummary(){
   $('kpis').innerHTML=
     '<div class="sum-card success"><div class="sum-label">Total Pendapatan</div><div class="sum-value">'+rp(total)+'</div><div class="sum-sub">'+period+'</div>'+dHtml+'</div>'+
     '<div class="sum-card accent"><div class="sum-label">Jumlah Siswa</div><div class="sum-value">'+(stu.size||'—')+'</div><div class="sum-sub">'+(refs.size?refs.size+' invoice':'data invoice belum ada')+'</div></div>'+
-    '<div class="sum-card warning"><div class="sum-label">Biaya Pendaftaran</div><div class="sum-value">'+rp(fee)+'</div><div class="sum-sub">'+(dana?'+ dana non-operasional '+rp(dana):'siswa baru')+'</div></div>'+
+    (sepFee
+      ?'<div class="sum-card warning"><div class="sum-label">Biaya Pendaftaran</div><div class="sum-value">'+rp(fee)+'</div><div class="sum-sub">'+(dana?'+ dana non-operasional '+rp(dana):'siswa baru')+'</div></div>'
+      :'<div class="sum-card warning"><div class="sum-label">Termasuk Pendaftaran</div><div class="sum-value">'+rp(fee)+'</div><div class="sum-sub">sudah masuk total'+(dana?' · + dana non-op '+rp(dana):'')+'</div></div>')+
     '<div class="sum-card"><div class="sum-label">'+c4.l+'</div><div class="sum-value">'+c4.v+'</div><div class="sum-sub">'+esc(c4.s)+'</div></div>';
 
   $('barTitle').textContent='Pendapatan per Bulan · '+selYear;
@@ -757,6 +774,8 @@ function renderComp(pr,period){
   ['type','jen','prog','cat'].forEach(m=>$('cm-'+m).classList.toggle('active',compMode===m));
   $('compTitle').textContent='Komposisi · '+period;
   const agg=new Map();
+  const feeIn=sepFee?0:pr.filter(r=>r.m.grp==='FEE').reduce((s,r)=>s+r.amount,0);
+  if(!sepFee)pr=pr.filter(r=>r.m.grp!=='FEE');   // digabung: fee tidak jadi segmen sendiri, tetap ada di total
   pr.forEach(r=>{
     const s=segInfo(r,compMode);
     let o=agg.get(s.k);
@@ -796,7 +815,7 @@ function renderComp(pr,period){
       '<div class="seg-bar"><i style="width:'+Math.max(pct,1.5).toFixed(1)+'%;background:'+o.c+'"></i></div>'+
       '<div class="seg-meta"><span><b>'+(pct>=10?Math.round(pct):pct.toFixed(1).replace('.',','))+'%</b> dari total</span><span>'+stTxt+'</span></div>'+sub+'</div>';
   }).join('');
-  $('compNote').textContent='Jumlah siswa dihitung dari invoice (mulai '+fmtDate(INVOICE_START)+'). Data historis PDF tidak memuat nama siswa.';
+  $('compNote').textContent='Jumlah siswa dihitung dari invoice (mulai '+fmtDate(INVOICE_START)+'). Data historis PDF tidak memuat nama siswa.'+(feeIn?' Komposisi tidak menghitung biaya pendaftaran ('+rp(feeIn)+'), yang sudah termasuk di total.':'');
 }
 
 function niceStep(max){
