@@ -325,40 +325,58 @@
       font-size: 11px; color: var(--ink-faint);
     }
 
-    /* ══════════ SEE ALL — SLIDE PAGE ══════════ */
+    /* ══════════ SEE ALL — POP UP LEVITASI DI TENGAH ══════════ */
     #seeAllPage {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      max-width: 480px;
-      margin: 0 auto;
-      background: var(--bg);
+      position: fixed; inset: 0;
       z-index: 500;
       display: none;
-      transform: translateX(100%);
-      transition: transform 0.46s cubic-bezier(0.22, 1, 0.36, 1);
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
+      align-items: center; justify-content: center;
+      padding: 20px;
+      background: rgba(20, 34, 48, 0.45);
+      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      opacity: 0;
+      transition: opacity 0.28s ease;
     }
-    #seeAllPage.open { transform: translateX(0); }
+    #seeAllPage.open { opacity: 1; }
+
+    /* lapisan luar: animasi melayang terus-menerus; lapisan dalam: animasi muncul */
+    .sa-float { width: 100%; max-width: 440px; animation: saLevitate 4.2s ease-in-out infinite; }
+    @keyframes saLevitate {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-7px); }
+    }
+    .sa-card {
+      width: 100%;
+      max-height: min(82vh, 720px);
+      display: flex; flex-direction: column;
+      background: var(--bg);
+      border-radius: 26px;
+      box-shadow: 0 28px 70px rgba(18, 40, 70, 0.38), 0 6px 18px rgba(18, 40, 70, 0.14);
+      overflow: hidden;
+      transform: translateY(24px) scale(0.92);
+      opacity: 0;
+      transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease;
+    }
+    #seeAllPage.open .sa-card { transform: translateY(0) scale(1); opacity: 1; }
+    @media (prefers-reduced-motion: reduce) { .sa-float { animation: none; } }
 
     .sa-header {
-      position: sticky; top: 0; z-index: 5;
+      flex-shrink: 0;
       background: var(--white);
-      display: flex; align-items: center; gap: 14px;
-      padding: 18px 16px;
+      display: flex; align-items: center; justify-content: space-between; gap: 14px;
+      padding: 16px 18px;
       box-shadow: 0 2px 14px rgba(28,43,58,0.06);
     }
     .sa-back {
-      width: 36px; height: 36px; border-radius: 50%;
+      width: 34px; height: 34px; border-radius: 50%;
       background: var(--blue-light);
       display: flex; align-items: center; justify-content: center;
       flex-shrink: 0; border: none; cursor: pointer;
     }
-    .sa-back svg { width: 18px; height: 18px; color: var(--blue); }
-    .sa-header h1 { font-size: 18px; font-weight: 700; color: var(--ink); }
+    .sa-back svg { width: 16px; height: 16px; color: var(--blue); }
+    .sa-header h1 { font-size: 17px; font-weight: 700; color: var(--ink); }
 
-    .sa-body { padding: 22px 16px 40px; }
+    .sa-body { padding: 20px 16px 26px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
 
     .category-section { margin-bottom: 30px; }
     .category-section:last-child { margin-bottom: 6px; }
@@ -568,12 +586,14 @@
   </div>
 
   <!-- ══════════ SEE ALL PAGE ══════════ -->
-  <div id="seeAllPage">
+  <div id="seeAllPage" role="dialog" aria-modal="true" aria-label="Semua Fitur">
+   <div class="sa-float">
+    <div class="sa-card" id="saCard">
     <div class="sa-header">
-      <button class="sa-back" id="seeAllBack" aria-label="Kembali">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
-      </button>
       <h1>Semua Fitur</h1>
+      <button class="sa-back" id="seeAllBack" aria-label="Tutup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+      </button>
     </div>
 
     <div class="sa-body">
@@ -727,6 +747,8 @@
       </div>
 
     </div>
+    </div>
+   </div>
   </div>
 
   <script>
@@ -1017,20 +1039,24 @@
     var seeAllBack = document.getElementById('seeAllBack');
 
     function openSeeAll() {
-      seeAllPage.style.display = 'block';
-      seeAllPage.scrollTop = 0;
-      // force reflow so the transition actually plays
-      void seeAllPage.offsetHeight;
-      requestAnimationFrame(function () {
-        seeAllPage.classList.add('open');
-      });
+      seeAllPage.style.display = 'flex';
+      seeAllPage.querySelector('.sa-body').scrollTop = 0;
+      document.body.style.overflow = 'hidden';
+      void seeAllPage.offsetHeight;            // paksa reflow agar transisi jalan
+      requestAnimationFrame(function () { seeAllPage.classList.add('open'); });
     }
     function closeSeeAll() {
       seeAllPage.classList.remove('open');
-      setTimeout(function () {
-        seeAllPage.style.display = 'none';
-      }, 460);
+      document.body.style.overflow = '';
+      setTimeout(function () { seeAllPage.style.display = 'none'; }, 300);
     }
+    /* klik area gelap di luar kartu, atau tombol Esc, untuk menutup */
+    seeAllPage.addEventListener('click', function (e) {
+      if (!e.target.closest('.sa-card')) closeSeeAll();
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && seeAllPage.classList.contains('open')) closeSeeAll();
+    });
 
     seeAllBtn.addEventListener('click', function (e) {
       e.preventDefault();
