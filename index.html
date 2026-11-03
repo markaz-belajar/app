@@ -226,19 +226,6 @@
     .quick-track.dragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; }
     .quick-track.dragging .feature-item { pointer-events: none; }
     .quick-track .feature-item { -webkit-user-drag: none; user-select: none; -webkit-touch-callout: none; }
-    .quick-arrow {
-      position: absolute; top: 18px; z-index: 3;
-      width: 30px; height: 30px; border-radius: 50%;
-      background: #fff; color: var(--blue);
-      border: 1px solid var(--border);
-      box-shadow: 0 3px 10px rgba(28,43,58,0.16);
-      display: none; align-items: center; justify-content: center;
-      cursor: pointer; padding: 0;
-    }
-    .quick-arrow svg { width: 16px; height: 16px; }
-    .quick-prev { left: 24px; }
-    .quick-next { right: 24px; }
-    @media (hover: none) { .quick-arrow { display: none !important; } }
     .quick-track .feature-item {
       flex: 0 0 calc((100% - 18px) / 4);
       scroll-snap-align: start;
@@ -831,15 +818,9 @@
       const seasonIcon = SEASON_ICONS[season];
       const seasonPhrase = getSeasonPhrase(now, season);
 
+      /* hanya salam bahasa Inggris, lalu cuaca (disisipkan otomatis setelah data cuaca masuk) */
       const slides = [
-        { text: greet.en,         icon: greet.icon, long: false },
-        { text: seasonPhrase,     icon: seasonIcon, long: true  },
-        { text: greet.en,         icon: greet.icon, long: false },
-        { text: greet.id,         icon: greet.icon, long: false },
-        { text: greet.jpRomaji,   icon: greet.icon, long: false },
-        { text: greet.jpHiragana, icon: greet.icon, long: false },
-        { text: greet.jpKanji,    icon: greet.icon, long: false },
-        { text: seasonPhrase,     icon: seasonIcon, long: true  }
+        { text: greet.en, icon: greet.icon, long: false }
       ];
 
       const TYPE_SPEED  = 90;  // ms per huruf saat mengetik (lebih lambat)
@@ -934,10 +915,9 @@
         });
       }
 
-      /* urutan: salam -> musim -> [cuaca] -> salam -> ... (cuaca disisipkan setelah slide musim pertama) */
+      /* urutan: Good Morning/Afternoon/Evening -> suhu -> prakiraan hujan -> (ulang) */
       function currentSlides() {
-        if (!wxSlides.length) return slides;
-        return slides.slice(0, 2).concat(wxSlides, slides.slice(2));
+        return slides.concat(wxSlides);
       }
       async function loop() {
         let i = 0;
@@ -991,25 +971,11 @@
         track.appendChild(a.cloneNode(true));
       });
 
-      /* tombol panah (muncul di desktop) */
-      var prev = document.createElement('button');
-      var next = document.createElement('button');
-      prev.className = 'quick-arrow quick-prev'; prev.setAttribute('aria-label', 'Sebelumnya');
-      next.className = 'quick-arrow quick-next'; next.setAttribute('aria-label', 'Berikutnya');
-      prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
-      next.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
-      box.appendChild(prev); box.appendChild(next);
-      function step() { return track.clientWidth * 0.75; }
-      prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
-      next.addEventListener('click', function () { track.scrollBy({ left:  step(), behavior: 'smooth' }); });
-
       function updateFade() {
         var max = track.scrollWidth - track.clientWidth;
         var l = track.scrollLeft > 4, r = track.scrollLeft < max - 4;
         box.classList.toggle('has-left',  l);
         box.classList.toggle('has-right', r);
-        prev.style.display = l ? 'flex' : 'none';
-        next.style.display = r ? 'flex' : 'none';
       }
       track.addEventListener('scroll', updateFade, { passive: true });
       window.addEventListener('resize', updateFade);
