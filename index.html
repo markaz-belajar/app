@@ -325,58 +325,64 @@
       font-size: 11px; color: var(--ink-faint);
     }
 
-    /* ══════════ SEE ALL — POP UP LEVITASI DI TENGAH ══════════ */
+    /* ══════════ SEE ALL — POP UP FULL SCREEN, LATAR KACA BURAM ══════════ */
     #seeAllPage {
       position: fixed; inset: 0;
       z-index: 500;
       display: none;
       align-items: center; justify-content: center;
-      padding: 20px;
-      background: rgba(20, 34, 48, 0.45);
-      -webkit-backdrop-filter: blur(6px); backdrop-filter: blur(6px);
+      padding: 12px;
+      background: rgba(20, 34, 48, 0.38);
+      -webkit-backdrop-filter: blur(14px) saturate(1.1); backdrop-filter: blur(14px) saturate(1.1);
       opacity: 0;
       transition: opacity 0.28s ease;
     }
     #seeAllPage.open { opacity: 1; }
 
-    /* lapisan luar: animasi melayang terus-menerus; lapisan dalam: animasi muncul */
-    .sa-float { width: 100%; max-width: 440px; animation: saLevitate 4.2s ease-in-out infinite; }
+    .sa-float {
+      width: 100%; max-width: 720px;
+      height: calc(100vh - 24px); height: calc(100dvh - 24px);
+      animation: saLevitate 4.2s ease-in-out infinite;
+    }
     @keyframes saLevitate {
       0%, 100% { transform: translateY(0); }
-      50%      { transform: translateY(-7px); }
+      50%      { transform: translateY(-5px); }
     }
     .sa-card {
-      width: 100%;
-      max-height: min(82vh, 720px);
-      display: flex; flex-direction: column;
+      position: relative;
+      width: 100%; height: 100%;
       background: var(--bg);
-      border-radius: 26px;
-      box-shadow: 0 28px 70px rgba(18, 40, 70, 0.38), 0 6px 18px rgba(18, 40, 70, 0.14);
+      border-radius: 28px;
+      box-shadow: 0 30px 80px rgba(10, 28, 52, 0.45), 0 8px 24px rgba(10, 28, 52, 0.18);
       overflow: hidden;
-      transform: translateY(24px) scale(0.92);
+      transform: translateY(24px) scale(0.94);
       opacity: 0;
       transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.28s ease;
     }
     #seeAllPage.open .sa-card { transform: translateY(0) scale(1); opacity: 1; }
     @media (prefers-reduced-motion: reduce) { .sa-float { animation: none; } }
 
-    .sa-header {
-      flex-shrink: 0;
-      background: var(--white);
-      display: flex; align-items: center; justify-content: space-between; gap: 14px;
-      padding: 16px 18px;
-      box-shadow: 0 2px 14px rgba(28,43,58,0.06);
-    }
+    /* tombol X melayang di pojok, tanpa bar header */
     .sa-back {
-      width: 34px; height: 34px; border-radius: 50%;
-      background: var(--blue-light);
+      position: absolute; top: 14px; right: 14px; z-index: 5;
+      width: 38px; height: 38px; border-radius: 50%;
+      background: transparent;
       display: flex; align-items: center; justify-content: center;
-      flex-shrink: 0; border: none; cursor: pointer;
+      border: none; cursor: pointer; padding: 0;
+      color: var(--ink-faint);
+      transition: color 0.15s, background 0.15s;
     }
-    .sa-back svg { width: 16px; height: 16px; color: var(--blue); }
-    .sa-header h1 { font-size: 17px; font-weight: 700; color: var(--ink); }
+    .sa-back:hover, .sa-back:active { color: var(--ink); background: rgba(28,43,58,0.06); }
+    .sa-back svg { width: 20px; height: 20px; }
 
-    .sa-body { padding: 20px 16px 26px; overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+    /* isi bisa digulir tapi tanpa scrollbar */
+    .sa-body {
+      height: 100%;
+      padding: 56px 20px 32px;
+      overflow-y: auto; -webkit-overflow-scrolling: touch; overscroll-behavior: contain;
+      scrollbar-width: none; -ms-overflow-style: none;
+    }
+    .sa-body::-webkit-scrollbar { display: none; width: 0; height: 0; }
 
     .category-section { margin-bottom: 30px; }
     .category-section:last-child { margin-bottom: 6px; }
@@ -589,12 +595,9 @@
   <div id="seeAllPage" role="dialog" aria-modal="true" aria-label="Semua Fitur">
    <div class="sa-float">
     <div class="sa-card" id="saCard">
-    <div class="sa-header">
-      <h1>Semua Fitur</h1>
-      <button class="sa-back" id="seeAllBack" aria-label="Tutup">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
-      </button>
-    </div>
+    <button class="sa-back" id="seeAllBack" aria-label="Tutup">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+    </button>
 
     <div class="sa-body">
 
