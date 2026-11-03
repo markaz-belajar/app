@@ -168,12 +168,14 @@
       /* icon selalu tampil penuh — tidak ada transition opacity di sini */
     }
     .hero-weather {
-      margin-top: 10px;
+      margin-top: 14px; min-height: 44px;
       display: flex; flex-direction: column; gap: 4px;
       color: rgba(255,255,255,0.92);
-      font-size: 12px; font-weight: 500;
+      font-size: 13px; font-weight: 500;
     }
-    .hero-weather-row { display: flex; align-items: center; gap: 7px; line-height: 1.3; }
+    .hero-weather-row { display: flex; align-items: center; gap: 7px; line-height: 1.3; min-height: 20px; }
+    .hero-weather-row svg { transition: none; }
+    .hero-weather .hero-status-cursor { color: rgba(255,255,255,0.9); }
     .hero-weather-row svg { width: 16px; height: 16px; flex-shrink: 0; opacity: .9; }
     .hero-status-cursor {
       display: inline-block;
@@ -443,11 +445,7 @@
       <div class="hero-card">
         <div class="hero-text">
           <h2>Hello<br>Teacher!</h2>
-          <div class="hero-status">
-            <svg id="heroStatusIcon" class="hero-status-icon" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" xmlns="http://www.w3.org/2000/svg"></svg>
-            <span id="heroStatusText" class="hero-status-text"></span><span class="hero-status-cursor">▏</span>
-          </div>
-          <div class="hero-weather" id="heroWeather" style="display:none">
+          <div class="hero-weather" id="heroWeather">
             <div class="hero-weather-row"><svg id="wxIcon1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></svg><span id="wxTemp"></span></div>
             <div class="hero-weather-row"><svg id="wxIcon2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></svg><span id="wxRain"></span></div>
           </div>
@@ -818,52 +816,38 @@
         `Day ${getDayNumber(now)} · Year ${getYearNumber(now)}`;
     })();
 
-    /* ── HERO STATUS CYCLE — efek ketik (typewriter) ──
-       Urutan: Good Morning → Musim → Good Morning → Selamat Pagi →
-                Ohayou Gozaimasu (romaji) → おはようございます (hiragana) → お早うございます (kanji) →
-                Musim → (ulang)
-       Hanya HURUF yang diketik/dihapus. Icon TIDAK pernah fade/hilang, hanya diganti instan. */
-    (function runHeroStatusCycle() {
-      const now = new Date();
-      const greet = getTimeGreetings(now);
-      const season = getSeason(now);
-      const seasonIcon = SEASON_ICONS[season];
-      const seasonPhrase = getSeasonPhrase(now, season);
-
-      /* baris atas: salam Inggris <-> Indonesia saja. Cuaca ada di bawahnya (statis). */
-      const slides = [
-        { text: greet.en, icon: greet.icon, long: false },
-        { text: greet.id, icon: greet.icon, long: false }
+    /* ── CUACA HERO — 3 lokasi bergantian dengan efek ketik (Open-Meteo, tanpa API key) ──
+       Tiap lokasi: baris 1 = nama + suhu, baris 2 = prakiraan hujan ±1 jam.
+       Gagal/offline -> baris kosong (kartu tidak berubah tinggi). */
+    (function runHeroWeather() {
+      const PLACES = [
+        { name: 'Cinangka',     lat: -6.10, lon: 105.96 },
+        { name: 'Anyer',        lat: -6.05, lon: 105.94 },
+        { name: 'Bojong Nangka', lat: -6.23, lon: 106.63 }
       ];
-
-      const TYPE_SPEED  = 90;  // ms per huruf saat mengetik (lebih lambat)
-      const ERASE_SPEED = 45;  // ms per huruf saat menghapus (lebih lambat)
-      const SHORT_HOLD  = 2200; // jeda baca untuk salam (lebih lama)
-      const LONG_HOLD   = 4500; // jeda baca musim, mis. "Today is Summer" (lebih lama lagi)
-
-      const textEl = document.getElementById('heroStatusText');
-      const iconEl = document.getElementById('heroStatusIcon');
-
-      /* ── CUACA — Cinangka, Banten (Open-Meteo, tanpa API key) ──
-         Muncul di rotasi teks: suhu sekarang + prakiraan hujan ±1 jam ke depan.
-         Gagal/offline -> slide cuaca dilewati, salam tetap jalan seperti biasa. */
-      const WX = { lat: -6.03, lon: 105.96, name: 'Cinangka', ttl: 15 * 60 * 1000, key: 'mb_wx_cinangka' };
-      const WX_ICONS = {
+      const TTL = 15 * 60 * 1000, KEY = 'mb_wx_multi_v1';
+      const TYPE_SPEED = 55, ERASE_SPEED = 25, HOLD = 3200;
+      const ICONS = {
         sun:   '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
         cloud: '<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>',
         rain:  '<path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><path d="M8 19v2M12 19v2M16 19v2M8 14v2M12 14v2M16 14v2"/>',
         storm: '<path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><path d="M13 11l-4 6h6l-4 6"/>'
       };
-      function wxIconFor(code) {
-        if (code >= 95) return WX_ICONS.storm;
-        if (code >= 51 && code <= 82) return WX_ICONS.rain;
-        if (code >= 2) return WX_ICONS.cloud;
-        return WX_ICONS.sun;
+      const row1 = document.getElementById('wxTemp'), row2 = document.getElementById('wxRain');
+      const ic1  = document.getElementById('wxIcon1'), ic2 = document.getElementById('wxIcon2');
+      const cursor = document.createElement('span');
+      cursor.className = 'hero-status-cursor'; cursor.textContent = '▏';
+      let items = [];   // [{l1, i1, l2, i2}]
+
+      function iconFor(code) {
+        if (code >= 95) return ICONS.storm;
+        if (code >= 51 && code <= 82) return ICONS.rain;
+        if (code >= 2) return ICONS.cloud;
+        return ICONS.sun;
       }
-      function renderWeather(d) {
+      function build(d, place) {
         try {
           const cur = d.current, h = d.hourly;
-          const temp = Math.round(cur.temperature_2m);
           const nowStr = cur.time.slice(0, 13);
           let i = h.time.findIndex(function (t) { return t.slice(0, 13) === nowStr; });
           if (i < 0) i = 0;
@@ -871,82 +855,83 @@
           const mm1 = h.precipitation[i + 1] || 0;
           const raining = (cur.precipitation || 0) > 0.1 || (cur.weather_code >= 51 && cur.weather_code <= 99);
           let msg, ic;
-          if (raining)                     { msg = 'Sedang hujan'; ic = WX_ICONS.rain; }
-          else if (p1 >= 50 || mm1 >= 0.3) { msg = 'Hujan ±1 jam lagi (' + Math.round(p1) + '%)'; ic = WX_ICONS.rain; }
-          else if (p2 >= 60)               { msg = 'Hujan ±2 jam lagi (' + Math.round(p2) + '%)'; ic = WX_ICONS.rain; }
-          else                             { msg = 'Tidak hujan 1 jam ke depan'; ic = WX_ICONS.sun; }
-          document.getElementById('wxIcon1').innerHTML = wxIconFor(cur.weather_code);
-          document.getElementById('wxTemp').textContent = WX.name + ' · ' + temp + '°C';
-          document.getElementById('wxIcon2').innerHTML = ic;
-          document.getElementById('wxRain').textContent = msg;
-          document.getElementById('heroWeather').style.display = 'flex';
-        } catch (e) {}
+          if (raining)                     { msg = 'Sedang hujan'; ic = ICONS.rain; }
+          else if (p1 >= 50 || mm1 >= 0.3) { msg = 'Hujan ±1 jam lagi (' + Math.round(p1) + '%)'; ic = ICONS.rain; }
+          else if (p2 >= 60)               { msg = 'Hujan ±2 jam lagi (' + Math.round(p2) + '%)'; ic = ICONS.rain; }
+          else                             { msg = 'Tidak hujan 1 jam ke depan'; ic = ICONS.sun; }
+          return { l1: place.name + ' · ' + Math.round(cur.temperature_2m) + '°C', i1: iconFor(cur.weather_code), l2: msg, i2: ic };
+        } catch (e) { return null; }
       }
-      function loadWeather() {
+      function apply(arr) {
+        const out = [];
+        (Array.isArray(arr) ? arr : [arr]).forEach(function (d, k) {
+          const it = d && PLACES[k] ? build(d, PLACES[k]) : null;
+          if (it) out.push(it);
+        });
+        if (out.length) items = out;
+      }
+      function load() {
         try {
-          const c = JSON.parse(localStorage.getItem(WX.key) || 'null');
-          if (c && Date.now() - c.t < WX.ttl) { renderWeather(c.d); return; }
+          const c = JSON.parse(localStorage.getItem(KEY) || 'null');
+          if (c && Date.now() - c.t < TTL) { apply(c.d); return; }
         } catch (e) {}
-        const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + WX.lat + '&longitude=' + WX.lon +
+        const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + PLACES.map(function (p) { return p.lat; }).join(',') +
+          '&longitude=' + PLACES.map(function (p) { return p.lon; }).join(',') +
           '&current=temperature_2m,precipitation,weather_code&hourly=precipitation_probability,precipitation' +
           '&forecast_hours=4&timezone=Asia%2FJakarta';
         const ctl = new AbortController();
         const to = setTimeout(function () { ctl.abort(); }, 8000);
         fetch(url, { signal: ctl.signal }).then(function (r) { return r.json(); }).then(function (d) {
           clearTimeout(to);
-          renderWeather(d);
-          try { localStorage.setItem(WX.key, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
+          apply(d);
+          try { localStorage.setItem(KEY, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
         }).catch(function () { clearTimeout(to); });
       }
-      loadWeather();
-      setInterval(loadWeather, WX.ttl);
 
       function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-
-      function eraseText() {
+      function typeInto(el, text) {
+        el.appendChild(cursor);
+        return new Promise(function (resolve) {
+          let i = 0;
+          function step() {
+            if (i > text.length) { resolve(); return; }
+            el.firstChild && el.firstChild.nodeType === 3 ? (el.firstChild.nodeValue = text.slice(0, i)) : el.insertBefore(document.createTextNode(text.slice(0, i)), el.firstChild);
+            i++; setTimeout(step, TYPE_SPEED);
+          }
+          step();
+        });
+      }
+      function eraseFrom(el) {
+        el.appendChild(cursor);
         return new Promise(function (resolve) {
           function step() {
-            const current = textEl.textContent;
-            if (current.length === 0) { resolve(); return; }
-            textEl.textContent = current.slice(0, -1);
+            const n = el.firstChild;
+            if (!n || n.nodeType !== 3 || n.nodeValue.length === 0) { resolve(); return; }
+            n.nodeValue = n.nodeValue.slice(0, -1);
             setTimeout(step, ERASE_SPEED);
           }
           step();
         });
       }
-
-      function typeText(text) {
-        return new Promise(function (resolve) {
-          let i = 0;
-          function step() {
-            if (i > text.length) { resolve(); return; }
-            textEl.textContent = text.slice(0, i);
-            i++;
-            setTimeout(step, TYPE_SPEED);
-          }
-          step();
-        });
-      }
-
-      /* baris atas bergantian: Good ... <-> Selamat ... */
-      function currentSlides() {
-        return slides;
-      }
       async function loop() {
-        let i = 0;
+        let k = 0;
         while (true) {
-          const list = currentSlides();
-          const slide = list[i % list.length];
-          iconEl.innerHTML = slide.icon; // icon diganti instan, tidak pernah kosong/fade
-          await eraseText();
-          await typeText(slide.text);
-          await sleep(slide.long ? LONG_HOLD : SHORT_HOLD);
-          i++;
+          if (!items.length) { await sleep(500); continue; }
+          const it = items[k % items.length];
+          ic1.innerHTML = it.i1; ic2.innerHTML = '';
+          await typeInto(row1, it.l1);
+          ic2.innerHTML = it.i2;
+          await typeInto(row2, it.l2);
+          cursor.remove();
+          await sleep(HOLD);
+          await eraseFrom(row2); ic2.innerHTML = '';
+          await eraseFrom(row1);
+          cursor.remove();
+          k++;
         }
       }
-
-      // Set icon pertama langsung supaya tidak pernah kosong dari awal
-      iconEl.innerHTML = slides[0].icon;
+      load();
+      setInterval(load, TTL);
       loop();
     })();
 
