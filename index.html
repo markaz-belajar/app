@@ -623,11 +623,11 @@
             </div>
             <span>Kuitansi</span>
           </a>
-          <a class="feature-item" href="Income.html">
+          <a class="feature-item" href="https://markaz-belajar.github.io/app/Income.html">
             <div class="feature-icon-circle bg-blue">
               <svg viewBox="0 0 24 24" fill="none" stroke="#1B6CA8" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
             </div>
-            <span>Pendapatan</span>
+            <span>Income</span>
           </a>
           <div class="feature-item coming-soon">
             <span class="soon-badge">Soon</span>
@@ -889,12 +889,23 @@
       }, 2000);
     });
 
-    /* ── QUICK ROW — salin semua fitur AKTIF dari "See all" (tanpa Coming Soon, tanpa duplikat) ── */
+    /* ── QUICK ROW — default: fitur AKTIF kategori Finance saja (tanpa Coming Soon) ──
+       Ganti QUICK_CATEGORY ke 'Operasional' / 'Evaluasi' untuk kategori lain,
+       atau '' untuk menampilkan semua fitur aktif dari "See all". */
+    var QUICK_CATEGORY = 'Finance';
     (function buildQuickRow() {
       var track = document.getElementById('quickTrack');
       var box   = document.getElementById('quick');
       var seen  = {};
-      document.querySelectorAll('#seeAllPage a.feature-item').forEach(function (a) {
+      var scope = '#seeAllPage a.feature-item';
+      if (QUICK_CATEGORY) {
+        document.querySelectorAll('#seeAllPage .category-section').forEach(function (sec, i) {
+          var t = sec.querySelector('.category-title');
+          if (t && t.textContent.trim() === QUICK_CATEGORY) sec.setAttribute('data-quick', '1');
+        });
+        scope = '#seeAllPage .category-section[data-quick] a.feature-item';
+      }
+      document.querySelectorAll(scope).forEach(function (a) {
         var href = a.getAttribute('href');
         if (seen[href]) return;
         seen[href] = true;
