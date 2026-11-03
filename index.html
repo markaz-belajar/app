@@ -171,10 +171,17 @@
       margin-top: 14px; min-height: 44px;
       display: flex; flex-direction: column; gap: 4px;
       color: rgba(255,255,255,0.92);
-      font-size: 13px; font-weight: 500;
+      font-size: 13px; font-weight: 400;
     }
     .hero-weather-row { display: flex; align-items: center; gap: 7px; line-height: 1.3; min-height: 20px; }
     .hero-weather-row svg { transition: none; }
+    .hero-weather b { font-weight: 700; }
+    .hero-weather-row span { white-space: nowrap; }
+    @media (max-width: 480px) {
+      .hero-weather { font-size: 11px; gap: 3px; }
+      .hero-weather-row { gap: 6px; }
+      .hero-weather-row svg { width: 14px; height: 14px; }
+    }
     .hero-weather .hero-status-cursor { color: rgba(255,255,255,0.9); }
     .hero-weather-row svg { width: 16px; height: 16px; flex-shrink: 0; opacity: .9; }
     .hero-status-cursor {
@@ -879,12 +886,12 @@
           const p1 = h.precipitation_probability[i + 1], p2 = h.precipitation_probability[i + 2];
           const mm1 = h.precipitation[i + 1] || 0;
           const raining = (cur.precipitation || 0) > 0.1 || (cur.weather_code >= 51 && cur.weather_code <= 99);
-          let msg, ic;
-          if (raining)                     { msg = 'Sedang hujan'; ic = ICONS.rain; }
-          else if (p1 >= 50 || mm1 >= 0.3) { msg = 'Hujan ±1 jam lagi (' + Math.round(p1) + '%)'; ic = ICONS.rain; }
-          else if (p2 >= 60)               { msg = 'Hujan ±2 jam lagi (' + Math.round(p2) + '%)'; ic = ICONS.rain; }
-          else                             { msg = 'Tidak hujan 1 jam ke depan'; ic = ICONS.sun; }
-          return { l1: place.name + ' · ' + Math.round(cur.temperature_2m) + '°C', i1: iconFor(cur.weather_code), l2: msg, i2: ic };
+          let msg, bold, ic;
+          if (raining)                     { bold = 'Sedang hujan'; msg = bold; ic = ICONS.rain; }
+          else if (p1 >= 50 || mm1 >= 0.3) { bold = 'Hujan'; msg = bold + ' ±1 jam lagi (' + Math.round(p1) + '%)'; ic = ICONS.rain; }
+          else if (p2 >= 60)               { bold = 'Hujan'; msg = bold + ' ±2 jam lagi (' + Math.round(p2) + '%)'; ic = ICONS.rain; }
+          else                             { bold = 'Tidak hujan'; msg = bold + ' 1 jam ke depan'; ic = ICONS.sun; }
+          return { l1: place.name + ' · ' + Math.round(cur.temperature_2m) + '°C', b1: place.name.length, i1: iconFor(cur.weather_code), l2: msg, b2: bold.length, i2: ic };
         } catch (e) { return null; }
       }
       function apply(arr) {
@@ -914,28 +921,30 @@
       }
 
       function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
-      function typeInto(el, text) {
+      function render(el, full, bl, n) {
+        const bEl = document.createElement('b');
+        bEl.textContent = full.slice(0, Math.min(n, bl));
+        el.textContent = '';
+        el.appendChild(bEl);
+        if (n > bl) el.appendChild(document.createTextNode(full.slice(bl, n)));
         el.appendChild(cursor);
+      }
+      function typeInto(el, full, bl) {
         return new Promise(function (resolve) {
-          let i = 0;
-          function step() {
-            if (i > text.length) { resolve(); return; }
-            el.firstChild && el.firstChild.nodeType === 3 ? (el.firstChild.nodeValue = text.slice(0, i)) : el.insertBefore(document.createTextNode(text.slice(0, i)), el.firstChild);
-            i++; setTimeout(step, TYPE_SPEED);
-          }
-          step();
+          let n = 0;
+          (function step() {
+            if (n > full.length) { resolve(); return; }
+            render(el, full, bl, n); n++; setTimeout(step, TYPE_SPEED);
+          })();
         });
       }
-      function eraseFrom(el) {
-        el.appendChild(cursor);
+      function eraseFrom(el, full, bl) {
         return new Promise(function (resolve) {
-          function step() {
-            const n = el.firstChild;
-            if (!n || n.nodeType !== 3 || n.nodeValue.length === 0) { resolve(); return; }
-            n.nodeValue = n.nodeValue.slice(0, -1);
-            setTimeout(step, ERASE_SPEED);
-          }
-          step();
+          let n = full.length;
+          (function step() {
+            if (n < 0) { resolve(); return; }
+            render(el, full, bl, n); n--; setTimeout(step, ERASE_SPEED);
+          })();
         });
       }
       async function loop() {
@@ -944,13 +953,13 @@
           if (!items.length) { await sleep(500); continue; }
           const it = items[k % items.length];
           ic1.innerHTML = it.i1; ic2.innerHTML = '';
-          await typeInto(row1, it.l1);
+          await typeInto(row1, it.l1, it.b1);
           ic2.innerHTML = it.i2;
-          await typeInto(row2, it.l2);
+          await typeInto(row2, it.l2, it.b2);
           cursor.remove();
           await sleep(HOLD);
-          await eraseFrom(row2); ic2.innerHTML = '';
-          await eraseFrom(row1);
+          await eraseFrom(row2, it.l2, it.b2); ic2.innerHTML = '';
+          await eraseFrom(row1, it.l1, it.b1);
           cursor.remove();
           k++;
         }
