@@ -1018,13 +1018,12 @@
       var down = false, startX = 0, startLeft = 0, moved = false;
       track.addEventListener('mousedown', function (e) {
         down = true; moved = false; startX = e.pageX; startLeft = track.scrollLeft;
-        track.classList.add('dragging');
       });
       window.addEventListener('mousemove', function (e) {
         if (!down) return;
         var dx = e.pageX - startX;
-        if (Math.abs(dx) > 5) moved = true;
-        track.scrollLeft = startLeft - dx;
+        if (!moved && Math.abs(dx) > 5) { moved = true; track.classList.add('dragging'); }  // mode tarik baru aktif setelah benar-benar bergeser
+        if (moved) track.scrollLeft = startLeft - dx;
       });
       window.addEventListener('mouseup', function () {
         if (!down) return;
