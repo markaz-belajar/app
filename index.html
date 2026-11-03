@@ -222,6 +222,23 @@
       scrollbar-width: none;
     }
     .quick-track::-webkit-scrollbar { display: none; }
+    .quick-track { touch-action: pan-x pan-y; overscroll-behavior-x: contain; cursor: grab; }
+    .quick-track.dragging { cursor: grabbing; scroll-snap-type: none; scroll-behavior: auto; }
+    .quick-track.dragging .feature-item { pointer-events: none; }
+    .quick-track .feature-item { -webkit-user-drag: none; user-select: none; -webkit-touch-callout: none; }
+    .quick-arrow {
+      position: absolute; top: 18px; z-index: 3;
+      width: 30px; height: 30px; border-radius: 50%;
+      background: #fff; color: var(--blue);
+      border: 1px solid var(--border);
+      box-shadow: 0 3px 10px rgba(28,43,58,0.16);
+      display: none; align-items: center; justify-content: center;
+      cursor: pointer; padding: 0;
+    }
+    .quick-arrow svg { width: 16px; height: 16px; }
+    .quick-prev { left: 24px; }
+    .quick-next { right: 24px; }
+    @media (hover: none) { .quick-arrow { display: none !important; } }
     .quick-track .feature-item {
       flex: 0 0 calc((100% - 18px) / 4);
       scroll-snap-align: start;
@@ -833,6 +850,63 @@
       const textEl = document.getElementById('heroStatusText');
       const iconEl = document.getElementById('heroStatusIcon');
 
+      /* ── CUACA — Cinangka, Banten (Open-Meteo, tanpa API key) ──
+         Muncul di rotasi teks: suhu sekarang + prakiraan hujan ±1 jam ke depan.
+         Gagal/offline -> slide cuaca dilewati, salam tetap jalan seperti biasa. */
+      const WX = { lat: -6.03, lon: 105.96, name: 'Cinangka', ttl: 15 * 60 * 1000, key: 'mb_wx_cinangka' };
+      const WX_ICONS = {
+        sun:   '<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M2 12h2M20 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>',
+        cloud: '<path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/>',
+        rain:  '<path d="M20 16.58A5 5 0 0 0 18 7h-1.26A8 8 0 1 0 4 15.25"/><path d="M8 19v2M12 19v2M16 19v2M8 14v2M12 14v2M16 14v2"/>',
+        storm: '<path d="M19 16.9A5 5 0 0 0 18 7h-1.26a8 8 0 1 0-11.62 9"/><path d="M13 11l-4 6h6l-4 6"/>'
+      };
+      let wxSlides = [];
+      function wxIconFor(code) {
+        if (code >= 95) return WX_ICONS.storm;
+        if (code >= 51 && code <= 82) return WX_ICONS.rain;
+        if (code >= 2) return WX_ICONS.cloud;
+        return WX_ICONS.sun;
+      }
+      function buildWxSlides(d) {
+        try {
+          const cur = d.current, h = d.hourly;
+          const temp = Math.round(cur.temperature_2m);
+          const slides = [{ text: WX.name + ' ' + temp + '°C', icon: wxIconFor(cur.weather_code), long: false }];
+          /* cari jam berjalan di data hourly, lalu lihat 1-2 jam berikutnya */
+          const nowStr = cur.time.slice(0, 13);
+          let i = h.time.findIndex(function (t) { return t.slice(0, 13) === nowStr; });
+          if (i < 0) i = 0;
+          const p1 = h.precipitation_probability[i + 1], p2 = h.precipitation_probability[i + 2];
+          const mm1 = h.precipitation[i + 1] || 0;
+          const raining = (cur.precipitation || 0) > 0.1 || (cur.weather_code >= 51 && cur.weather_code <= 99);
+          let msg, ic;
+          if (raining)                 { msg = 'Sedang hujan'; ic = WX_ICONS.rain; }
+          else if (p1 >= 50 || mm1 >= 0.3) { msg = 'Hujan ±1 jam lagi (' + Math.round(p1) + '%)'; ic = WX_ICONS.rain; }
+          else if (p2 >= 60)           { msg = 'Hujan ±2 jam lagi (' + Math.round(p2) + '%)'; ic = WX_ICONS.rain; }
+          else                         { msg = 'Tidak hujan 1 jam ke depan'; ic = WX_ICONS.sun; }
+          slides.push({ text: msg, icon: ic, long: true });
+          return slides;
+        } catch (e) { return []; }
+      }
+      function loadWeather() {
+        try {
+          const c = JSON.parse(localStorage.getItem(WX.key) || 'null');
+          if (c && Date.now() - c.t < WX.ttl) { wxSlides = buildWxSlides(c.d); return; }
+        } catch (e) {}
+        const url = 'https://api.open-meteo.com/v1/forecast?latitude=' + WX.lat + '&longitude=' + WX.lon +
+          '&current=temperature_2m,precipitation,weather_code&hourly=precipitation_probability,precipitation' +
+          '&forecast_hours=4&timezone=Asia%2FJakarta';
+        const ctl = new AbortController();
+        const to = setTimeout(function () { ctl.abort(); }, 8000);
+        fetch(url, { signal: ctl.signal }).then(function (r) { return r.json(); }).then(function (d) {
+          clearTimeout(to);
+          wxSlides = buildWxSlides(d);
+          try { localStorage.setItem(WX.key, JSON.stringify({ t: Date.now(), d: d })); } catch (e) {}
+        }).catch(function () { clearTimeout(to); });
+      }
+      loadWeather();
+      setInterval(loadWeather, WX.ttl);
+
       function sleep(ms) { return new Promise(function (r) { setTimeout(r, ms); }); }
 
       function eraseText() {
@@ -860,10 +934,16 @@
         });
       }
 
+      /* urutan: salam -> musim -> [cuaca] -> salam -> ... (cuaca disisipkan setelah slide musim pertama) */
+      function currentSlides() {
+        if (!wxSlides.length) return slides;
+        return slides.slice(0, 2).concat(wxSlides, slides.slice(2));
+      }
       async function loop() {
         let i = 0;
         while (true) {
-          const slide = slides[i % slides.length];
+          const list = currentSlides();
+          const slide = list[i % list.length];
           iconEl.innerHTML = slide.icon; // icon diganti instan, tidak pernah kosong/fade
           await eraseText();
           await typeText(slide.text);
@@ -889,37 +969,82 @@
       }, 2000);
     });
 
-    /* ── QUICK ROW — default: fitur AKTIF kategori Finance saja (tanpa Coming Soon) ──
-       Ganti QUICK_CATEGORY ke 'Operasional' / 'Evaluasi' untuk kategori lain,
-       atau '' untuk menampilkan semua fitur aktif dari "See all". */
-    var QUICK_CATEGORY = 'Finance';
+    /* ── QUICK ROW — Finance di urutan pertama, lalu fitur aktif lainnya (tanpa Coming Soon) ──
+       Ganti QUICK_FIRST ke 'Operasional' / 'Evaluasi' untuk mengubah kategori yang tampil duluan. */
+    var QUICK_FIRST = 'Finance';
     (function buildQuickRow() {
       var track = document.getElementById('quickTrack');
       var box   = document.getElementById('quick');
       var seen  = {};
-      var scope = '#seeAllPage a.feature-item';
-      if (QUICK_CATEGORY) {
-        document.querySelectorAll('#seeAllPage .category-section').forEach(function (sec, i) {
-          var t = sec.querySelector('.category-title');
-          if (t && t.textContent.trim() === QUICK_CATEGORY) sec.setAttribute('data-quick', '1');
+      var first = [], rest = [];
+      document.querySelectorAll('#seeAllPage .category-section').forEach(function (sec) {
+        var t = sec.querySelector('.category-title');
+        var isFirst = t && t.textContent.trim() === QUICK_FIRST;
+        sec.querySelectorAll('a.feature-item').forEach(function (a) {
+          (isFirst ? first : rest).push(a);
         });
-        scope = '#seeAllPage .category-section[data-quick] a.feature-item';
-      }
-      document.querySelectorAll(scope).forEach(function (a) {
+      });
+      first.concat(rest).forEach(function (a) {
         var href = a.getAttribute('href');
         if (seen[href]) return;
         seen[href] = true;
         track.appendChild(a.cloneNode(true));
       });
+
+      /* tombol panah (muncul di desktop) */
+      var prev = document.createElement('button');
+      var next = document.createElement('button');
+      prev.className = 'quick-arrow quick-prev'; prev.setAttribute('aria-label', 'Sebelumnya');
+      next.className = 'quick-arrow quick-next'; next.setAttribute('aria-label', 'Berikutnya');
+      prev.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>';
+      next.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>';
+      box.appendChild(prev); box.appendChild(next);
+      function step() { return track.clientWidth * 0.75; }
+      prev.addEventListener('click', function () { track.scrollBy({ left: -step(), behavior: 'smooth' }); });
+      next.addEventListener('click', function () { track.scrollBy({ left:  step(), behavior: 'smooth' }); });
+
       function updateFade() {
         var max = track.scrollWidth - track.clientWidth;
-        box.classList.toggle('has-left',  track.scrollLeft > 4);
-        box.classList.toggle('has-right', track.scrollLeft < max - 4);
+        var l = track.scrollLeft > 4, r = track.scrollLeft < max - 4;
+        box.classList.toggle('has-left',  l);
+        box.classList.toggle('has-right', r);
+        prev.style.display = l ? 'flex' : 'none';
+        next.style.display = r ? 'flex' : 'none';
       }
       track.addEventListener('scroll', updateFade, { passive: true });
       window.addEventListener('resize', updateFade);
       window.addEventListener('load', updateFade);
       updateFade();
+
+      /* geser dengan mouse (klik-tahan lalu tarik) — di layar sentuh sudah otomatis */
+      var down = false, startX = 0, startLeft = 0, moved = false;
+      track.addEventListener('mousedown', function (e) {
+        down = true; moved = false; startX = e.pageX; startLeft = track.scrollLeft;
+        track.classList.add('dragging');
+      });
+      window.addEventListener('mousemove', function (e) {
+        if (!down) return;
+        var dx = e.pageX - startX;
+        if (Math.abs(dx) > 5) moved = true;
+        track.scrollLeft = startLeft - dx;
+      });
+      window.addEventListener('mouseup', function () {
+        if (!down) return;
+        down = false; track.classList.remove('dragging');
+      });
+      /* cegah klik ikon kalau barusan menarik */
+      track.addEventListener('click', function (e) {
+        if (moved) { e.preventDefault(); e.stopPropagation(); moved = false; }
+      }, true);
+      track.addEventListener('dragstart', function (e) { e.preventDefault(); });
+      /* roda mouse vertikal -> geser horizontal saat kursor di atas baris */
+      track.addEventListener('wheel', function (e) {
+        if (Math.abs(e.deltaX) > Math.abs(e.deltaY)) return;
+        var max = track.scrollWidth - track.clientWidth;
+        if ((e.deltaY > 0 && track.scrollLeft >= max) || (e.deltaY < 0 && track.scrollLeft <= 0)) return;
+        e.preventDefault();
+        track.scrollLeft += e.deltaY;
+      }, { passive: false });
     })();
 
     /* ── SEE ALL — smooth slide transition ── */
