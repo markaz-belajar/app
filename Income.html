@@ -600,8 +600,9 @@ function matchF(r){
   return true;
 }
 function computeView(){view=recs.filter(matchF);}
-function monthlyTotals(y){const t=Array(12).fill(0);view.forEach(r=>{if(+r.date.slice(0,4)===y)t[+r.date.slice(5,7)-1]+=r.amount;});return t;}
-function periodRecs(){return view.filter(r=>+r.date.slice(0,4)===selYear&&(!selMonth||+r.date.slice(5,7)===selMonth));}
+function monthlyTotals(y){const t=Array(12).fill(0);view.forEach(r=>{if(!y||+r.date.slice(0,4)===y)t[+r.date.slice(5,7)-1]+=r.amount;});return t;}   // y=0 → semua tahun digabung
+function yearlyTotals(){const m=new Map();availableYears().slice().reverse().forEach(y=>m.set(y,0));view.forEach(r=>{if(selMonth&&+r.date.slice(5,7)!==selMonth)return;const y=+r.date.slice(0,4);m.set(y,(m.get(y)||0)+r.amount);});return [...m.entries()].sort((a,b)=>a[0]-b[0]);}
+function periodRecs(){return view.filter(r=>(!selYear||+r.date.slice(0,4)===selYear)&&(!selMonth||+r.date.slice(5,7)===selMonth));}
 function availableYears(){
   const ys=new Set([2025,NOW.getFullYear()]);recs.forEach(r=>ys.add(+r.date.slice(0,4)));
   return [...ys].filter(y=>y>=2025).sort((a,b)=>b-a);
@@ -662,6 +663,7 @@ function toggleMenu(){$('menu').classList.toggle('open');}
 document.addEventListener('click',e=>{if(!e.target.closest('#menu')&&!e.target.closest('#menuBtn'))$('menu').classList.remove('open');});
 function setBasis(b){basis=b;localStorage.setItem('mb_income_basis',b);$('menu').classList.remove('open');rebuild();renderAll();showToast(b==='paid'?'Dasar: pembayaran diterima':'Dasar: invoice dibuat',true);}
 function setYear(v){selYear=+v;renderAll();}
+function pickYear(y){selYear=y;renderAll();}
 function setMonth(v){selMonth=+v;renderAll();}
 function setComp(m){compMode=m;renderSummary();}
 function pickMonth(i){selMonth=selMonth===i+1?0:i+1;renderAll();}
@@ -680,8 +682,8 @@ function toggleFilter(){$('fPanel').classList.toggle('open');}
 function selOpts(kind,cur){return OPTS[kind].map(o=>'<option value="'+esc(o[0])+'"'+(cur===o[0]?' selected':'')+'>'+esc(o[1])+'</option>').join('');}
 
 function syncFilters(){
-  const ys=availableYears();if(!ys.includes(selYear))selYear=ys[0];
-  $('fYear').innerHTML=ys.map(y=>'<option value="'+y+'"'+(y===selYear?' selected':'')+'>'+y+'</option>').join('');
+  const ys=availableYears();if(selYear!==0&&!ys.includes(selYear))selYear=ys[0];
+  $('fYear').innerHTML='<option value="0"'+(selYear===0?' selected':'')+'>Semua Tahun</option>'+ys.map(y=>'<option value="'+y+'"'+(y===selYear?' selected':'')+'>'+y+'</option>').join('');
   $('fMonth').innerHTML='<option value="0">Semua Bulan</option>'+MON_L.map((m,i)=>'<option value="'+(i+1)+'">'+m+'</option>').join('');
   $('fMonth').value=String(selMonth);
   const progs=PROG_BASE.filter(p=>sepFee||p!=='PENDAFTARAN');
@@ -696,7 +698,7 @@ function syncFilters(){
   $('fBtn').classList.toggle('on',nf>0);
   $('fBtnTxt').textContent=nf?'Filter ('+nf+')':'Filter';
   $('txSrc').value=txSrc;
-  $('yearBadge').textContent='● '+selYear;
+  $('yearBadge').textContent='● '+(selYear||'Semua Tahun');
   $('basisCreated').classList.toggle('on',basis==='created');
   $('basisPaid').classList.toggle('on',basis==='paid');
   $('basisLabel').textContent='Dasar pengakuan: '+(basis==='paid'?'pembayaran diterima':'invoice dibuat')+(fJ||fT||fP?' · filter aktif':'');
@@ -724,7 +726,7 @@ function segInfo(r,mode){
   return{k:r.cat,l:catLabel(r.cat),c:null};
 }
 function renderSummary(){
-  const mt=monthlyTotals(selYear),pmt=monthlyTotals(selYear-1);
+  const mt=monthlyTotals(selYear),pmt=selYear?monthlyTotals(selYear-1):Array(12).fill(0);
   const pr=periodRecs();
   const total=pr.reduce((s,r)=>s+r.amount,0);
   const fee=pr.filter(r=>r.m.grp==='FEE').reduce((s,r)=>s+r.amount,0);
@@ -732,10 +734,11 @@ function renderSummary(){
   const stu=studentSet(pr);
   const refs=new Set(pr.filter(r=>r.src==='invoice').map(r=>r.ref));
   const isCur=selYear===NOW.getFullYear();
-  const period=selMonth?MON_L[selMonth-1]+' '+selYear:'Tahun '+selYear;
+  const period=selYear?(selMonth?MON_L[selMonth-1]+' '+selYear:'Tahun '+selYear):(selMonth?MON_L[selMonth-1]+' · semua tahun':'Semua tahun');
 
   let dHtml='';
-  if(selMonth){dHtml=delta(total,selMonth>1?mt[selMonth-2]:pmt[11],'dari bulan lalu');}
+  if(!selYear){dHtml='';}
+  else if(selMonth){dHtml=delta(total,selMonth>1?mt[selMonth-2]:pmt[11],'dari bulan lalu');}
   else if(isCur){const n=NOW.getMonth()+1;dHtml=delta(mt.slice(0,n).reduce((a,b)=>a+b,0),pmt.slice(0,n).reduce((a,b)=>a+b,0),'vs tahun lalu');}
   else dHtml=delta(total,pmt.reduce((a,b)=>a+b,0),'dari tahun lalu');
 
@@ -756,8 +759,8 @@ function renderSummary(){
       :'<div class="sum-card warning"><div class="sum-label">Termasuk Pendaftaran</div><div class="sum-value">'+rp(fee)+'</div><div class="sum-sub">sudah masuk total'+(dana?' · + dana non-op '+rp(dana):'')+'</div></div>')+
     '<div class="sum-card"><div class="sum-label">'+c4.l+'</div><div class="sum-value">'+c4.v+'</div><div class="sum-sub">'+esc(c4.s)+'</div></div>';
 
-  $('barTitle').textContent='Pendapatan per Bulan · '+selYear;
-  renderBars(mt,pmt);
+  if(selYear){$('barTitle').textContent='Pendapatan per Bulan · '+selYear;renderBars(mt,pmt);}
+  else{$('barTitle').textContent='Pendapatan per Tahun'+(selMonth?' · '+MON_L[selMonth-1]:'');renderYearBars();}
   renderComp(pr,period);
 
   const active=mt.filter(v=>v>0);const mxv=Math.max(...active,0),mnv=Math.min(...active);
@@ -822,30 +825,95 @@ function niceStep(max){
   const raw=max/4,pw=Math.pow(10,Math.floor(Math.log10(raw))),m=raw/pw;
   return (m<=1?1:m<=2?2:m<=2.5?2.5:m<=5?5:10)*pw;
 }
-function renderBars(cur,prev){
-  const svg=$('barSvg'),wrap=svg.parentElement;
-  const W=Math.max(wrap.clientWidth||340,280),H=190,pL=46,pR=6,pT=10,pB=24;
-  const hasPrev=prev.some(v=>v>0);
-  const mx=Math.max(...cur,...(hasPrev?prev:[0]),1);
-  const step=niceStep(mx),top=step*4,ph=H-pT-pB,cw=(W-pL-pR)/12;
-  const bw=Math.min(hasPrev?14:22,cw*(hasPrev?0.34:0.55));
+function barLbl(n){
+  const a=Math.abs(n),s=n<0?'-':'';
+  if(a>=1e6)return s+(Math.round(a/1e4)/100).toString().replace('.',',')+' jt';
+  if(a>=1e3)return s+Math.round(a/1e3)+' rb';
+  return s+Math.round(a);
+}
+function drawGrid(W,H,pL,pR,pT,ph,step){
   let s='';
   for(let i=0;i<=4;i++){
     const y=pT+ph-ph*i/4;
     s+='<line x1="'+pL+'" x2="'+(W-pR)+'" y1="'+y+'" y2="'+y+'" stroke="var(--border)" stroke-width="1"/>';
     s+='<text x="'+(pL-6)+'" y="'+(y+3)+'" font-size="9" fill="var(--text3)" text-anchor="end">'+fmtK(step*i)+'</text>';
   }
+  return s;
+}
+// label nominal horizontal di atas batang (dipakai mode Semua Tahun)
+function valLabel(cx,yTop,v){
+  if(!(v>0))return '';
+  return '<text x="'+cx+'" y="'+(yTop-6)+'" font-size="11.5" font-weight="700" fill="var(--text)" text-anchor="middle" style="font-family:\'Geist Mono\',monospace;">'+barLbl(v)+'</text>';
+}
+// gelembung nominal saat bulan disentuh: horizontal, 2 baris (tahun ini & tahun lalu)
+function bubble(W,cx,yTop,lines){
+  const fs=11.5,lh=16,padX=10,padY=7;
+  const cw=Math.max(...lines.map(l=>(l[0]+l[1]).length))*6.9+padX*2+14;
+  const h=lines.length*lh+padY*2;
+  const x=Math.min(Math.max(cx-cw/2,3),W-cw-3),y=Math.max(2,yTop-h-8);
+  let s='<g pointer-events="none">';
+  s+='<rect x="'+x+'" y="'+y+'" width="'+cw+'" height="'+h+'" rx="8" fill="var(--text)" opacity="0.95"/>';
+  s+='<path d="M'+(cx-5)+' '+(y+h)+' L'+cx+' '+(y+h+6)+' L'+(cx+5)+' '+(y+h)+'Z" fill="var(--text)" opacity="0.95"/>';
+  lines.forEach((l,i)=>{
+    const ty=y+padY+lh*i+fs;
+    s+='<text x="'+(x+padX)+'" y="'+ty+'" font-size="'+fs+'" fill="var(--bg)" opacity="'+(i?0.75:1)+'" style="font-family:\'Geist Mono\',monospace;">'+l[0]+'</text>';
+    s+='<text x="'+(x+cw-padX)+'" y="'+ty+'" font-size="'+fs+'" font-weight="700" fill="var(--bg)" opacity="'+(i?0.85:1)+'" text-anchor="end" style="font-family:\'Geist Mono\',monospace;">'+l[1]+'</text>';
+  });
+  return s+'</g>';
+}
+function renderBars(cur,prev){
+  const svg=$('barSvg'),wrap=svg.parentElement;
+  const W=Math.max(wrap.clientWidth||340,280),pL=46,pR=6,pB=24;
+  const hasPrev=prev.some(v=>v>0);
+  const mx=Math.max(...cur,...(hasPrev?prev:[0]),1);
+  const cw=(W-pL-pR)/12;
+  const bw=Math.min(hasPrev?14:22,cw*(hasPrev?0.34:0.55));
+  const pT=48,H=222;
+  const step=niceStep(mx),top=step*4,ph=H-pT-pB;
+  let s=drawGrid(W,H,pL,pR,pT,ph,step);
   for(let i=0;i<12;i++){
     const cx=pL+cw*i+cw/2,sel=selMonth===i+1;
     const hc=Math.max(cur[i]/top*ph,cur[i]>0?2:0),hp=Math.max(prev[i],0)/top*ph;
     const xc=hasPrev?cx+1:cx-bw/2,xp=cx-bw-1;
-    if(hasPrev&&prev[i]>0)s+='<rect x="'+xp+'" y="'+(pT+ph-hp)+'" width="'+bw+'" height="'+hp+'" rx="3" fill="var(--border2)"/>';
-    if(cur[i]>0)s+='<rect x="'+xc+'" y="'+(pT+ph-hc)+'" width="'+bw+'" height="'+hc+'" rx="3" fill="'+(sel?'var(--success)':'var(--accent)')+'" opacity="'+(selMonth&&!sel?0.45:1)+'"><title>'+MON_L[i]+': '+rp(cur[i])+'</title></rect>';
+    if(hasPrev&&prev[i]>0){
+      s+='<rect x="'+xp+'" y="'+(pT+ph-hp)+'" width="'+bw+'" height="'+hp+'" rx="3" fill="var(--border2)"><title>'+MON_L[i]+' '+(selYear-1)+': '+rp(prev[i])+'</title></rect>';
+    }
+    if(cur[i]>0){
+      s+='<rect x="'+xc+'" y="'+(pT+ph-hc)+'" width="'+bw+'" height="'+hc+'" rx="3" fill="'+(sel?'var(--success)':'var(--accent)')+'" opacity="'+(selMonth&&!sel?0.45:1)+'"><title>'+MON_L[i]+' '+selYear+': '+rp(cur[i])+'</title></rect>';
+    }
     s+='<text x="'+cx+'" y="'+(H-8)+'" font-size="9" fill="'+(sel?'var(--text)':'var(--text3)')+'" font-weight="'+(sel?700:400)+'" text-anchor="middle">'+MON_S[i]+'</text>';
-    s+='<rect x="'+(pL+cw*i)+'" y="'+pT+'" width="'+cw+'" height="'+(H-pT)+'" fill="transparent" style="cursor:pointer" onclick="pickMonth('+i+')"/>';
+    s+='<rect x="'+(pL+cw*i)+'" y="0" width="'+cw+'" height="'+H+'" fill="transparent" style="cursor:pointer" onclick="pickMonth('+i+')"/>';
+  }
+  if(selMonth){
+    const i=selMonth-1,cxm=pL+cw*i+cw/2;
+    const lines=[[MON_S[i]+' '+selYear,rp(cur[i])]];
+    if(hasPrev)lines.push([MON_S[i]+' '+(selYear-1),rp(prev[i])]);
+    const topV=Math.max(cur[i],hasPrev?prev[i]:0);
+    s+=bubble(W,cxm,pT+ph-Math.max(topV/top*ph,0),lines);
   }
   svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.innerHTML=s;
   $('barLegend').innerHTML='<span><i style="background:var(--accent)"></i>'+selYear+'</span>'+(hasPrev?'<span><i style="background:var(--border2)"></i>'+(selYear-1)+'</span>':'');
+}
+// mode "Semua Tahun": satu batang per tahun (mengikuti filter bulan & kategori)
+function renderYearBars(){
+  const svg=$('barSvg'),wrap=svg.parentElement;
+  const data=yearlyTotals();
+  const W=Math.max(wrap.clientWidth||340,280),pL=46,pR=6,pB=24,pT=26,H=210;
+  const mx=Math.max(...data.map(d=>d[1]),1);
+  const step=niceStep(mx),top=step*4,ph=H-pT-pB,cw=(W-pL-pR)/data.length;
+  const bw=Math.min(56,cw*0.55);
+  let s=drawGrid(W,H,pL,pR,pT,ph,step);
+  data.forEach(([y,v],i)=>{
+    const cx=pL+cw*i+cw/2,h=Math.max(v/top*ph,v>0?2:0);
+    if(v>0){
+      s+='<rect x="'+(cx-bw/2)+'" y="'+(pT+ph-h)+'" width="'+bw+'" height="'+h+'" rx="4" fill="var(--accent)"><title>'+y+': '+rp(v)+'</title></rect>';
+      s+=valLabel(cx,pT+ph-h,v);
+    }
+    s+='<text x="'+cx+'" y="'+(H-8)+'" font-size="10" fill="var(--text2)" font-weight="600" text-anchor="middle">'+y+'</text>';
+    s+='<rect x="'+(pL+cw*i)+'" y="0" width="'+cw+'" height="'+H+'" fill="transparent" style="cursor:pointer" onclick="pickYear('+y+')"/>';
+  });
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);svg.innerHTML=s;
+  $('barLegend').innerHTML='<span><i style="background:var(--accent)"></i>Total per tahun'+(selMonth?' ('+MON_L[selMonth-1]+')':'')+' · ketuk batang untuk membuka tahun</span>';
 }
 let rzT;window.addEventListener('resize',()=>{clearTimeout(rzT);rzT=setTimeout(()=>{if($('tab-ringkasan').classList.contains('active'))renderSummary();},200);});
 
@@ -869,7 +937,7 @@ function renderTx(){
   txView=periodRecs().filter(r=>!txSrc||r.src===txSrc);
   const total=txView.reduce((s,r)=>s+r.amount,0);
   $('txTotal').textContent=rp(total);$('txCount').textContent=txView.length;
-  $('txPeriod').textContent=(selMonth?MON_L[selMonth-1]+' ':'')+selYear;
+  $('txPeriod').textContent=(selMonth?MON_L[selMonth-1]+' ':'')+(selYear||'Semua Tahun');
   $('txList').innerHTML=txView.length?txView.slice(0,txLimit).map(txRow).join(''):'<div class="empty-state" style="margin:16px;">Tidak ada pemasukan untuk filter ini</div>';
   $('txMoreWrap').innerHTML=txView.length>txLimit?'<button class="btn btn-ghost" onclick="txLimit+=200;renderTx()">Tampilkan lebih banyak ('+(txView.length-txLimit)+')</button>':'';
 }
@@ -878,7 +946,7 @@ function exportCSV(){
   const lines=[['Tanggal','Kategori','Sumber','Deskripsi','No. Invoice','Jumlah'].map(q).join(',')];
   txView.forEach(r=>lines.push([q(r.date),q(catLabel(r.cat)),q(SRC_LABEL[r.src]),q(r.desc),q(r.ref),r.amount].join(',')));
   const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pendapatan-'+selYear+(selMonth?'-'+pad(selMonth):'')+'.csv';a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='pendapatan-'+(selYear||'semua-tahun')+(selMonth?'-'+pad(selMonth):'')+'.csv';a.click();
   setTimeout(()=>URL.revokeObjectURL(a.href),1000);
 }
 function openDetail(i){
@@ -955,7 +1023,7 @@ async function saveManual(){
     if(ix>=0)manual[ix]={...manual[ix],...entry};else manual.push(entry);
     if(!hasIncomeApi())saveLocalManual();
     rebuild();
-    if(+date.slice(0,4)!==selYear)selYear=+date.slice(0,4);
+    if(selYear&&+date.slice(0,4)!==selYear)selYear=+date.slice(0,4);
     renderAll();closeManual();
     showToast(hasIncomeApi()?'Pemasukan tersimpan ✓':'Tersimpan di perangkat ini (backend belum diisi)',true);
   }catch(e){showToast('Gagal simpan: '+e.message,false);}
