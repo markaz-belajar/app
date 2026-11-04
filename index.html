@@ -112,6 +112,15 @@
       flex-shrink: 0;
     }
 
+    .today-info {
+      flex: 1; min-width: 0; margin-left: 10px;
+      font-size: 11px; font-weight: 500; white-space: nowrap;
+      overflow: hidden; text-overflow: ellipsis;
+      transition: opacity .35s; color: var(--blue); cursor: pointer;
+    }
+    .today-info.b { color: #B86E00; }
+    .today-info.o { color: #D92D20; }
+    .today-info.f { opacity: 0; }
     /* HERO CARD */
     .hero-card {
       background: linear-gradient(135deg, #2484CE 0%, #1457A8 100%);
@@ -471,6 +480,7 @@
           </svg>
           <span id="dayYearText">Day 614 · Year 1</span>
         </div>
+        <div class="today-info" id="todayInfo"></div>
       </div>
 
       <!-- HERO CARD -->
@@ -848,6 +858,86 @@
       document.getElementById('dayYearText').textContent =
         `Day ${getDayNumber(now)} · Year ${getYearNumber(now)}`;
     })();
+
+/* ══ TAGIHAN — dihitung dari backend invoice (invoice terakhir per siswa + durasi bulan, Sab/Min digeser ke Senin) ══ */
+const MB_INV_URL='https://script.google.com/macros/s/AKfycbxbyZtQyblDlDZgRyRLy_grf-W66O7nWwsL9vn1iI46GENgWtjAkcg5u7-LeBERXbiX7A/exec';
+function mbDate(s){const m=String(s||'').match(/^(\d{4})-(\d{2})-(\d{2})/);return m?new Date(+m[1],+m[2]-1,+m[3]):null;}
+function mbBills(invs){
+  const today=new Date();today.setHours(0,0,0,0);let inact={};
+  try{inact=JSON.parse(localStorage.getItem('mrkz_inactive_students')||'{}');}catch(e){}
+  const latest={};
+  (invs||[]).forEach(v=>{const k=(v.student_name||'').trim().toLowerCase();if(!k)return;const c=latest[k];
+    if(!c||((v.created_date||'')+'|'+(v.invoice_number||''))>((c.created_date||'')+'|'+(c.invoice_number||'')))latest[k]=v;});
+  const out=[];
+  Object.keys(latest).forEach(k=>{
+    const v=latest[k];let dur=1;
+    (Array.isArray(v.invoice_items)?v.invoice_items:[]).forEach(it=>{const d=parseInt(it.dur)||0;if(d>dur)dur=d;});
+    const b=mbDate(v.created_date||v.payment_date);if(!b)return;
+    const d=new Date(b.getFullYear(),b.getMonth(),b.getDate());d.setMonth(d.getMonth()+dur);
+    const w=d.getDay();if(w===6)d.setDate(d.getDate()+2);else if(w===0)d.setDate(d.getDate()+1);
+    const f=inact[k];if(f&&f.invId===v.__backendId)return;
+    out.push({name:v.student_name,date:d,diff:Math.round((d-today)/86400000),unpaid:v.payment_status!=='paid'});
+  });
+  return out.sort((a,b)=>a.diff-b.diff);
+}
+async function mbLoadBills(key){
+  try{const r=await fetch(MB_INV_URL+'?action=getInvoices&t='+Date.now(),{cache:'no-store'});const j=await r.json();
+    if(j.invoices){const slim=j.invoices.map(v=>({student_name:v.student_name,created_date:v.created_date,payment_date:v.payment_date,invoice_number:v.invoice_number,invoice_items:v.invoice_items,payment_status:v.payment_status,__backendId:v.__backendId}));
+      try{localStorage.setItem(key,JSON.stringify(slim));}catch(e){}return slim;}}catch(e){}
+  try{return JSON.parse(localStorage.getItem(key)||'[]');}catch(e){return [];}
+}
+const MB_SCH_URL='https://script.google.com/macros/s/AKfycbzW73XhHZCke1-qsAmKtxuZrHNFSihIoqzQGXo0BC-v_PgR_SBuRI7w73NLwF9fCNLf/exec';
+const MBD=['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+function mbJsonp(params){
+  return new Promise((res,rej)=>{
+    const cb='cbh_'+Date.now(),el=document.createElement('script');let done=false;
+    window[cb]=d=>{done=true;delete window[cb];el.remove();res(d);};
+    el.onerror=()=>{if(!done){done=true;delete window[cb];el.remove();rej();}};
+    setTimeout(()=>{if(!done){done=true;delete window[cb];el.remove();rej();}},15000);
+    el.src=MB_SCH_URL+'?'+new URLSearchParams({...params,callback:cb});document.head.appendChild(el);
+  });
+}
+async function mbLoadSched(){
+  try{const r=await mbJsonp({action:'load'});
+    if(r&&r.success&&r.data){const seen={},g=[];(r.data.schedules||[]).forEach(s=>{const k=[s.day,s.zone,s.teacher,s.start,s.end].join('|');if(seen[k])return;seen[k]=1;g.push({day:s.day,zone:s.zone,teacher:s.teacher,start:s.start,end:s.end});});
+      try{localStorage.setItem('mb_home_sched',JSON.stringify(g));}catch(e){}return g;}}catch(e){}
+  try{return JSON.parse(localStorage.getItem('mb_home_sched')||'[]');}catch(e){return [];}
+}
+function mbMsgs(sch,bills){
+  const m=[],n=new Date(),dn=MBD[(n.getDay()+6)%7],nm=n.getHours()*60+n.getMinutes();
+  const tm=t=>{const p=String(t).split(':');return +p[0]*60+(+p[1]||0);};
+  const fn=s=>(s.teacher||'').split(' ')[0];
+  if(sch&&sch.length){
+    const g=sch.filter(s=>s.day===dn).sort((a,b)=>tm(a.start)-tm(b.start));
+    const cur=g.filter(s=>tm(s.start)<=nm&&nm<tm(s.end)),nxt=g.filter(s=>tm(s.start)>nm);
+    if(cur[0])m.push({c:'t',t:`Sedang mengajar · ${cur[0].zone} (${fn(cur[0])}) sampai ${cur[0].end}`});
+    if(nxt[0])m.push({c:'t',t:`Nanti jam ${nxt[0].start} mengajar · ${nxt[0].zone} (${fn(nxt[0])})`+(nxt.length>1?` +${nxt.length-1} kelas lagi`:'')});
+    else if(g.length&&!cur[0])m.push({c:'t',t:'Semua kelas hari ini sudah selesai'});
+    else if(!g.length)m.push({c:'t',t:'Hari ini tidak ada jadwal mengajar'});
+  }
+  const by={};(bills||[]).filter(b=>b.diff<=2&&b.diff>=-14).forEach(b=>{(by[b.diff]=by[b.diff]||[]).push(b);});
+  Object.keys(by).map(Number).sort((a,b)=>a-b).forEach(d=>{
+    const a=by[d],nm2=a.slice(0,2).map(b=>b.name.split(' ').slice(0,2).join(' ')).join(', ')+(a.length>2?` +${a.length-2}`:'');
+    if(d<0)m.push({c:'o',t:`Lewat ${-d} hari: invoice ${nm2} belum dibuat`});
+    else if(d===0)m.push({c:'b',t:`Hari ini: buat invoice ${nm2}`});
+    else m.push({c:'b',t:`${d} hari lagi: invoice ${nm2} perlu dibuat`});
+  });
+  return m;
+}
+(function runTodayInfo(){
+  const el=document.getElementById('todayInfo');if(!el)return;
+  let sch=[],bills=[],msgs=[],i=0;
+  try{sch=JSON.parse(localStorage.getItem('mb_home_sched')||'[]');bills=mbBills(JSON.parse(localStorage.getItem('mb_home_bill')||'[]'));}catch(e){}
+  const show=()=>{if(!msgs.length){el.textContent='';return;}const x=msgs[i%msgs.length];el.className='today-info f';
+    setTimeout(()=>{el.textContent=x.t;el.className='today-info '+x.c;},300);};
+  const rebuild=()=>{msgs=mbMsgs(sch,bills);i=0;show();};
+  el.addEventListener('click',()=>{i++;show();});
+  setInterval(()=>{if(msgs.length>1){i++;show();}},4500);
+  setInterval(rebuild,60000);
+  rebuild();
+  mbLoadSched().then(x=>{sch=x;rebuild();});
+  mbLoadBills('mb_home_bill').then(x=>{bills=mbBills(x);rebuild();});
+})();
 
     /* ── CUACA HERO — 3 lokasi bergantian dengan efek ketik (Open-Meteo, tanpa API key) ──
        Tiap lokasi: baris 1 = nama + suhu, baris 2 = prakiraan hujan ±1 jam.
