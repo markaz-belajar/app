@@ -159,6 +159,20 @@
       letter-spacing: -0.3px;
     }
 
+    .hero-text h2 {
+      font-size: 28px;
+      height: 66px;
+      overflow: hidden;
+      transition: opacity .3s;
+      cursor: pointer;
+    }
+    .hero-text h2.f { opacity: 0; }
+    .hero-text h2.notice {
+      font-size: 13px; font-weight: 500; line-height: 1.28; letter-spacing: 0;
+      display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical;
+    }
+    .hero-text h2.notice.b { color: #FFE9A8; }
+    .hero-text h2.notice.o { color: #FFC9C9; }
     /* HERO STATUS — typewriter effect: huruf diketik/dihapus, icon TIDAK pernah fade/hilang */
     .hero-status {
       font-size: 12px;
@@ -480,7 +494,6 @@
           </svg>
           <span id="dayYearText">Day 614 · Year 1</span>
         </div>
-        <div class="today-info" id="todayInfo"></div>
       </div>
 
       <!-- HERO CARD -->
@@ -924,19 +937,22 @@ function mbMsgs(sch,bills){
   });
   return m;
 }
-(function runTodayInfo(){
-  const el=document.getElementById('todayInfo');if(!el)return;
-  let sch=[],bills=[],msgs=[],i=0;
+(function runHelloNotice(){
+  const h=document.querySelector('.hero-text h2');if(!h)return;
+  const HELLO=h.innerHTML,wait=ms=>new Promise(r=>setTimeout(r,ms));
+  let sch=[],bills=[],msgs=[],playing=false,started=false;
   try{sch=JSON.parse(localStorage.getItem('mb_home_sched')||'[]');bills=mbBills(JSON.parse(localStorage.getItem('mb_home_bill')||'[]'));}catch(e){}
-  const show=()=>{if(!msgs.length){el.textContent='';return;}const x=msgs[i%msgs.length];el.className='today-info f';
-    setTimeout(()=>{el.textContent=x.t;el.className='today-info '+x.c;},300);};
-  const rebuild=()=>{msgs=mbMsgs(sch,bills);i=0;show();};
-  el.addEventListener('click',()=>{i++;show();});
-  setInterval(()=>{if(msgs.length>1){i++;show();}},4500);
-  setInterval(rebuild,60000);
+  const set=async(html,cls)=>{h.classList.add('f');await wait(300);h.innerHTML=html;h.className=cls||'';await wait(30);h.classList.remove('f');};
+  async function play(){
+    if(playing||!msgs.length)return;playing=true;
+    for(const x of msgs){await set(x.t,'notice '+x.c);await wait(4200);}
+    await set(HELLO,'');playing=false;
+  }
+  const rebuild=()=>{msgs=mbMsgs(sch,bills);if(!started&&msgs.length){started=true;setTimeout(play,900);}};
+  h.addEventListener('click',()=>{msgs=mbMsgs(sch,bills);play();});
   rebuild();
-  mbLoadSched().then(x=>{sch=x;rebuild();});
-  mbLoadBills('mb_home_bill').then(x=>{bills=mbBills(x);rebuild();});
+  mbLoadSched().then(x=>{sch=x;msgs=mbMsgs(sch,bills);if(!started&&msgs.length){started=true;setTimeout(play,900);}});
+  mbLoadBills('mb_home_bill').then(x=>{bills=mbBills(x);msgs=mbMsgs(sch,bills);if(!started&&msgs.length){started=true;setTimeout(play,900);}});
 })();
 
     /* ── CUACA HERO — 3 lokasi bergantian dengan efek ketik (Open-Meteo, tanpa API key) ──
