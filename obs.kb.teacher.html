@@ -407,6 +407,33 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
   .domain { break-inside: avoid; }
   .body { padding: 8px; }
 }
+
+/* ═══ Data siswa terkunci, pilihan pertemuan, daftar semua soal ═══ */
+.info-field.locked input, .info-field.locked select { background: transparent; border-color: transparent; padding-left: 0; font-weight: 600; color: var(--text); opacity: 1; -webkit-text-fill-color: var(--text); box-shadow: none; }
+.info-field.locked label::after { content: " · tetap"; font-size: 10px; color: var(--text-3); font-weight: 500; }
+.qmeet { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; flex: 0 0 auto; padding: 0 4px 8px; }
+.qmeet-l { font-size: 11.5px; font-weight: 700; color: var(--text-2); }
+.qmeet-chips { display: flex; gap: 5px; }
+.qmc { width: 28px; height: 28px; border-radius: 50%; border: 1.5px solid var(--text-3); background: #fff; color: var(--text-2); font-size: 12px; font-weight: 700; cursor: pointer; padding: 0; display: flex; align-items: center; justify-content: center; font-family: inherit; transition: all .15s; }
+.qmc.on { background: var(--blue); border-color: var(--blue); color: #fff; }
+.qall-btn { margin-left: auto; font-size: 11.5px; font-weight: 700; color: var(--blue); background: #fff; border: 1px solid var(--blue-mid); border-radius: 999px; padding: 5px 10px; cursor: pointer; display: inline-flex; align-items: center; gap: 5px; font-family: inherit; }
+.qall-ov { position: fixed; inset: 0; z-index: 400; background: rgba(10,30,45,.45); display: none; align-items: flex-end; justify-content: center; }
+.qall-ov.open { display: flex; }
+.qall-sheet { background: #fff; width: 100%; max-width: 560px; max-height: 82vh; border-radius: 24px 24px 0 0; padding: 16px 14px 20px; display: flex; flex-direction: column; }
+.qall-h { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; font-size: 15px; color: var(--text); }
+.qall-h b { flex: 1; }
+.qall-x { width: 28px; height: 28px; border-radius: 50%; border: none; background: #e5e7eb; color: #4b5563; font-size: 13px; cursor: pointer; }
+#qall-list { overflow-y: auto; display: flex; flex-direction: column; gap: 6px; }
+.qall-item { display: flex; align-items: center; gap: 10px; text-align: left; background: var(--gray-light); border: 1.5px solid transparent; border-radius: 14px; padding: 10px; cursor: pointer; width: 100%; font-family: inherit; }
+.qall-item.cur { border-color: var(--blue); }
+.qall-n { flex: 0 0 26px; height: 26px; border-radius: 50%; color: #fff; font-size: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; }
+.qall-t { flex: 1; font-size: 13px; color: var(--text); line-height: 1.35; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.qall-s { flex: 0 0 auto; font-size: 11px; font-weight: 700; padding: 3px 8px; border-radius: 999px; background: #fff; color: var(--text-3); }
+.qall-item.done .qall-s { background: var(--blue-light); color: var(--blue); }
+
+.info-sum { grid-column: 1 / -1; padding: 2px 0 6px; }
+.info-sum-name { font-size: 18px; font-weight: 700; color: var(--text); line-height: 1.3; }
+.info-sum-meta { font-size: 13px; color: var(--text-2); margin-top: 2px; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -445,11 +472,17 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
       Data siswa
     </div>
     <div class="info-grid">
-      <div class="info-field full"><label>Nama siswa</label><input type="text" id="f-nama" placeholder="Nama panggilan siswa"></div>
-      <div class="info-field"><label>Usia</label><input type="text" id="f-usia" placeholder="Contoh: 8 tahun"></div>
-      <div class="info-field"><label>Jenis kelamin</label><select id="f-jk"><option value="">Pilih</option><option>Laki-laki</option><option>Perempuan</option></select></div>
-      <div class="info-field"><label>Nama guru pengisi</label><input type="text" id="f-guru" placeholder="Nama Anda"></div>
-      <div class="info-field"><label>Jumlah pertemuan diamati</label><input type="number" id="f-pertemuan" placeholder="Contoh: 4" min="1"></div>
+      <div class="info-sum">
+        <div class="info-sum-name" id="info-nama">Memuat data siswa…</div>
+        <div class="info-sum-meta" id="info-meta"></div>
+      </div>
+      <div style="display:none;">
+        <input type="text" id="f-nama" readonly>
+        <input type="text" id="f-usia" readonly>
+        <select id="f-jk" disabled><option value=""></option><option>Laki-laki</option><option>Perempuan</option></select>
+      </div>
+      <div class="info-field full"><label>Nama guru pengisi</label><select id="f-guru"><option selected>Elis Rosmiati</option><option>Nita Fuziati</option></select></div>
+      <input type="hidden" id="f-pertemuan">
     </div>
   </div>
 
@@ -504,8 +537,13 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
       <span>2 Sering<small>≈3 dari 4 pertemuan</small></span>
       <span>3 Selalu<small>4 dari 4 / lebih</small></span>
     </div>
+    <div class="qmeet" id="qmeet">
+      <span class="qmeet-l">Pertemuan</span>
+      <div class="qmeet-chips" id="qmeet-chips"></div>
+      <button type="button" class="qall-btn" onclick="openAllQ()"><svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><circle cx="3.5" cy="6" r="1"/><circle cx="3.5" cy="12" r="1"/><circle cx="3.5" cy="18" r="1"/></svg>Semua soal</button>
+    </div>
     <div id="checklist"></div>
-    <div class="qswipe-hint">‹ geser kanan: kembali &nbsp;·&nbsp; geser kiri: lanjut ›</div>
+    <div class="qswipe-hint">‹ geser kanan: kembali &nbsp;·&nbsp; geser kiri: lanjut › &nbsp;·&nbsp; soal boleh dilewati</div>
   </div>
 
   <div class="actions" id="form-actions" style="display:none;"></div>
@@ -764,8 +802,86 @@ function fmtDateShort(iso) {
 }
 
 let flatQuestionsKB = [];
+let meetSet = new Set();   // pertemuan (1–6) yang sudah diobservasi pada tahap yang sedang dibuka
 let qIndex = 0;
 let qAutoAdvanceTimer = null;
+
+// ── Pertemuan diobservasi (1–6 per tahap). Disimpan sebagai teks "P1,2,4" (awalan huruf agar tidak dibaca angka oleh Sheets);
+//    data lama berupa angka (jumlah) tetap terbaca sebagai pertemuan 1..n.
+function parseMeet(str) {
+  if(!str) return [];
+  str = String(str).trim();
+  if(str[0] === "P") return str.slice(1).split(",").map(Number).filter(n => n >= 1 && n <= 6);
+  const n = parseInt(str, 10);
+  return n > 0 ? Array.from({ length: Math.min(n, 6) }, (_, i) => i + 1) : [];
+}
+function meetValue() {
+  const a = [...meetSet].sort((x, y) => x - y);
+  return a.length ? "P" + a.join(",") : "";
+}
+function renderMeet() {
+  const w = document.getElementById("qmeet-chips");
+  if(w) w.innerHTML = [1,2,3,4,5,6].map(n => `<button type="button" class="qmc${meetSet.has(n) ? " on" : ""}" onclick="toggleMeet(${n})" title="Pertemuan ke-${n}">${n}</button>`).join("");
+  const h = document.getElementById("f-pertemuan");
+  if(h) h.value = meetValue();
+}
+function toggleMeet(n) {
+  if(isReadOnly || !currentStage) return;
+  if(meetSet.has(n)) meetSet.delete(n); else meetSet.add(n);
+  renderMeet();
+  scheduleAutosave();
+}
+
+// ── Daftar semua soal (ketuk soal → langsung ke soal itu) ──
+function openAllQ() {
+  const list = document.getElementById("qall-list");
+  const labels = ["Jarang", "Kadang", "Sering", "Selalu"];
+  const done = flatQuestionsKB.filter(q => answers[q.key] !== undefined).length;
+  document.getElementById("qall-count").textContent = `${done}/${flatQuestionsKB.length} terisi`;
+  list.innerHTML = flatQuestionsKB.map((q, i) => {
+    const a = answers[q.key];
+    return `<button type="button" class="qall-item${a !== undefined ? " done" : ""}${i === qIndex ? " cur" : ""}" onclick="pickFromAll(${i})"><span class="qall-n" style="background:${q.color}">${i + 1}</span><span class="qall-t">${q.item.text}</span><span class="qall-s">${a !== undefined ? a + " · " + labels[a] : "Belum"}</span></button>`;
+  }).join("");
+  const missing = flatQuestionsKB.length - done;
+  document.getElementById("qall-foot").innerHTML = missing === 0
+    ? `<button type="button" class="btn btn-primary" style="background:var(--green);width:100%;" onclick="closeAllQ();handleSubmit()">Simpan Tahap Ini</button>`
+    : `<button type="button" class="btn btn-gray" style="width:100%;" onclick="pickFromAll(flatQuestionsKB.findIndex(q => answers[q.key] === undefined))">Ke soal yang belum diisi (${missing})</button>`;
+  document.getElementById("qall-ov").classList.add("open");
+  const cur = list.querySelector(".cur");
+  if(cur) cur.scrollIntoView({ block: "center" });
+}
+function closeAllQ() { document.getElementById("qall-ov").classList.remove("open"); }
+function pickFromAll(i) {
+  closeAllQ();
+  clearTimeout(qAutoAdvanceTimer);
+  qBusy = false;
+  jumpQuestion(i);
+}
+
+// ── Kunci data siswa yang sudah terisi (nama, usia, jenis kelamin) — hanya guru pengisi yang bisa dipilih ──
+function refreshInfoSummary() {
+  const g = id => String((document.getElementById(id) || {}).value || "").trim();
+  const n = document.getElementById("info-nama"), m = document.getElementById("info-meta");
+  if(n) n.textContent = g("f-nama") || "Data siswa belum terbaca";
+  if(m) m.textContent = [g("f-usia"), g("f-jk")].filter(Boolean).join(" · ");
+}
+function lockStudentFields() {
+  refreshInfoSummary();
+  ["f-nama", "f-usia", "f-jk"].forEach(id => {
+    const el = document.getElementById(id);
+    if(!el || !String(el.value || "").trim()) return;
+    if(el.tagName === "SELECT") el.disabled = true; else el.readOnly = true;
+    const w = el.closest(".info-field"); if(w) w.classList.add("locked");
+  });
+}
+function setSelectValue(id, val) {
+  const el = document.getElementById(id);
+  if(!el || !val) return;
+  if(el.tagName === "SELECT" && ![...el.options].some(o => o.value === val)) {
+    const o = document.createElement("option"); o.value = val; o.textContent = val; el.appendChild(o);
+  }
+  el.value = val;
+}
 
 function build(stage) {
   const range = idxRange(stage);
@@ -806,9 +922,24 @@ function setFocus(on) {
   if(on && h) requestAnimationFrame(() => document.documentElement.style.setProperty("--hh", h.offsetHeight + "px"));
 }
 
+// Navigasi bebas: soal boleh dilewati walau belum diisi (observasi berlangsung berhari-hari).
 function qCanForward(i) {
-  const q = flatQuestionsKB[i];
-  return !!q && answers[q.key] !== undefined;
+  return !!flatQuestionsKB[i];
+}
+
+// Toast kecil di atas kartu
+function qToast(msg) {
+  let el = document.getElementById("q-toast");
+  if(!el) {
+    el = document.createElement("div");
+    el.id = "q-toast";
+    el.style.cssText = "position:fixed;left:50%;bottom:84px;transform:translateX(-50%) translateY(10px);background:rgba(13,43,62,.92);color:#fff;font-size:12.5px;font-weight:600;padding:8px 14px;border-radius:999px;z-index:300;opacity:0;transition:opacity .25s,transform .25s;pointer-events:none;max-width:86%;text-align:center;";
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  requestAnimationFrame(() => { el.style.opacity = "1"; el.style.transform = "translateX(-50%) translateY(0)"; });
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = "0"; el.style.transform = "translateX(-50%) translateY(10px)"; }, 2200);
 }
 
 function renderQuestionCard(i, animate) {
@@ -823,7 +954,7 @@ function renderQuestionCard(i, animate) {
       <div class="qcard qfinish${animate?' enter':''}">
         <div class="qfinish-ico ${ok?'':'warn'}"><svg viewBox="0 0 24 24">${ok?'<polyline points="20 6 9 17 4 12"/>':'<circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>'}</svg></div>
         <h3>${ok ? 'Semua soal sudah terisi' : 'Masih ada soal yang kosong'}</h3>
-        <p>${ok ? 'Periksa lagi kalau perlu (geser kanan untuk kembali), lalu simpan tahap ini.' : `${missing.length} soal belum dijawab. Lengkapi dulu sebelum menyimpan.`}</p>
+        <p>${ok ? 'Periksa lagi kalau perlu (geser kanan untuk kembali), lalu simpan tahap ini.' : `${missing.length} soal belum dijawab. Observasi bisa dilanjutkan di pertemuan berikutnya — jawaban tersimpan otomatis sebagai draft.`}</p>
         <button type="button" class="btn ${ok?'btn-primary':'btn-gray'}" style="${ok?'background:var(--green);':''}" onclick="${ok?'handleSubmit()':'jumpQuestion('+flatQuestionsKB.indexOf(missing[0])+')'}">${ok ? 'Simpan Tahap Ini' : 'Ke soal yang belum diisi'}</button>
       </div></div>`;
     return;
@@ -875,6 +1006,13 @@ function qGo(dir) {
   if(next < 0 || next > flatQuestionsKB.length) return;
   if(dir === 1 && qIndex < flatQuestionsKB.length && !qCanForward(qIndex)) { qShake(); return; }
   if(qIndex >= flatQuestionsKB.length && dir === 1) return;
+  // Sudah di soal paling ujung → putar balik ke soal pertama yang belum diisi (kalau semua terisi → kartu simpan)
+  let wrapped = false;
+  let target = next;
+  if(dir === 1 && next === flatQuestionsKB.length) {
+    const firstEmpty = flatQuestionsKB.findIndex(q => answers[q.key] === undefined);
+    if(firstEmpty !== -1) { target = firstEmpty; wrapped = true; }
+  }
   qBusy = true;
   const card = qCurrentCard();
   if(card) {
@@ -884,10 +1022,14 @@ function qGo(dir) {
     card.style.opacity = "0";
   }
   setTimeout(() => {
-    qIndex = next;
+    qIndex = target;
     renderDots();
     renderQuestionCard(qIndex, true);
     qBusy = false;
+    if(wrapped) {
+      const left = flatQuestionsKB.filter(q => answers[q.key] === undefined).length;
+      qToast(`Kembali ke soal yang belum diisi (${left} tersisa)`);
+    }
   }, card ? 250 : 0);
 }
 
@@ -930,6 +1072,7 @@ function updateNavButtons() { /* tombol lanjut/kembali dihapus — navigasi via 
     qDrag.card.style.transform = `translateX(${eff}px) rotate(${eff / 18}deg)`;
     const p = Math.min(Math.abs(dx) / 110, 1);
     const sNext = qDrag.card.querySelector(".qstamp.next"), sPrev = qDrag.card.querySelector(".qstamp.prev"), sBlock = qDrag.card.querySelector(".qstamp.block");
+    if(sNext && qIndex === total - 1) sNext.textContent = flatQuestionsKB.some(q => answers[q.key] === undefined) ? "Ke soal kosong ›" : "Selesai ›";
     if(sNext) sNext.style.opacity = (dx < 0 && !blockedFwd) ? p : 0;
     if(sPrev) sPrev.style.opacity = (dx > 0 && !blockedBack) ? p : 0;
     if(sBlock) sBlock.style.opacity = (dx < 0 && blockedFwd && qIndex < total) ? p : 0;
@@ -1001,14 +1144,14 @@ function saveDraftNow() {
     const k = `${d.domain}_${idx}`;
     if(answers[k] !== undefined) { partialAnswers[k] = answers[k]; partialDates[k] = answerDates[k]; anyFilled = true; }
   }));
-  if(!anyFilled) { setAutosaveIndicator("idle"); return; }
+  if(!anyFilled && !meetSet.size) { setAutosaveIndicator("idle"); return; }
 
   const nama = document.getElementById("f-nama").value.trim();
   record.nama = nama || record.nama;
   record.usia = document.getElementById("f-usia").value || record.usia;
   record.jk = document.getElementById("f-jk").value || record.jk;
   record.guru = document.getElementById("f-guru").value || record.guru;
-  const pertemuanVal = document.getElementById("f-pertemuan").value || "";
+  const pertemuanVal = meetValue();
 
   const _curRec = record['tahap'+currentStage]; const isAlreadyFinal = !!(_curRec && _curRec.status==='selesai');
   const stageData = { status: isAlreadyFinal ? 'selesai' : 'draft', answers: partialAnswers, dates: partialDates, pertemuan: pertemuanVal, timestamp: new Date().toISOString() };
@@ -1062,7 +1205,8 @@ function pickStage(stage, fromUrl) {
   if(isReadOnly) return;
   if(!fromUrl && !document.getElementById("f-nama").value.trim()) {
     const n = document.getElementById("f-nama");
-    n.classList.add("field-error"); n.focus(); window.scrollTo({top:0, behavior:"smooth"});
+    alert("Data siswa belum terbaca. Buka form ini lewat tombol Isi Form di dashboard.");
+    window.scrollTo({top:0, behavior:"smooth"});
     setTimeout(() => n.classList.remove("field-error"), 1500);
     return;
   }
@@ -1089,8 +1233,9 @@ function pickStage(stage, fromUrl) {
   const existing = record['tahap'+stage];
   if(existing && existing.answers) Object.assign(answers, existing.answers);
   if(existing && existing.dates) Object.assign(answerDates, existing.dates);
-  const pEl = document.getElementById("f-pertemuan");
-  if(existing && existing.pertemuan && pEl && !pEl.value) pEl.value = existing.pertemuan;
+  meetSet = new Set(parseMeet(existing && existing.pertemuan));
+  renderMeet();
+  lockStudentFields();
 
   document.getElementById("stage-picker-section").style.display = "none";
   document.getElementById("fill-notice").style.display = "block";
@@ -1196,7 +1341,7 @@ function handleSubmit() {
   record.usia = document.getElementById("f-usia").value;
   record.jk = document.getElementById("f-jk").value;
   record.guru = document.getElementById("f-guru").value;
-  const pertemuanVal = document.getElementById("f-pertemuan").value || "";
+  const pertemuanVal = meetValue();
   const stageData = { status:'selesai', answers: stageAnswers, dates: stageDates, pertemuan: pertemuanVal, timestamp: new Date().toISOString() };
   record['tahap'+currentStage] = stageData;
   saveLocal(record);
@@ -1610,7 +1755,7 @@ function copyLink() {
 function closeModal() { document.getElementById("share-modal").classList.remove("open"); }
 
 // ── LOAD DARI URL PARAMS (mode online, dibuka dari dashboard dengan ?gen=...) ──
-function fillFieldIfEmpty(id, val) { const el = document.getElementById(id); if(el && !el.value && val) el.value = val; }
+function fillFieldIfEmpty(id, val) { if(id === 'f-guru') { if(val) setSelectValue(id, val); return; } const el = document.getElementById(id); if(el && !el.value && val) { setSelectValue(id, val); if(el.tagName !== 'SELECT') el.value = val; lockStudentFields(); } }
 function syncRecordFromFields() {
   record.nama = document.getElementById('f-nama').value.trim();
   record.usia = document.getElementById('f-usia').value;
@@ -1761,7 +1906,8 @@ function loadFromHash() {
     document.getElementById("f-nama").value = record.nama || "";
     document.getElementById("f-usia").value = record.usia || "";
     document.getElementById("f-jk").value = record.jk || "";
-    document.getElementById("f-guru").value = record.guru || "";
+    setSelectValue("f-guru", record.guru);
+    lockStudentFields();
     if(record.tahap1) { Object.assign(answers, record.tahap1.answers || {}); Object.assign(answerDates, record.tahap1.dates || {}); }
     if(record.tahap2) { Object.assign(answers, record.tahap2.answers || {}); Object.assign(answerDates, record.tahap2.dates || {}); }
     if(record.tahap3) { Object.assign(answers, record.tahap3.answers || {}); Object.assign(answerDates, record.tahap3.dates || {}); }
@@ -1787,5 +1933,12 @@ function loadFromHash() {
 refreshStageBadges();
 loadFromURLParams().then(loaded => { if(!loaded) loadFromHash(); }).finally(()=>{ document.documentElement.classList.remove('view-loading'); });
 </script>
+<div class="qall-ov" id="qall-ov" onclick="if(event.target===this)closeAllQ()">
+  <div class="qall-sheet">
+    <div class="qall-h"><b>Semua soal</b><span id="qall-count" style="font-size:12px;color:var(--text-3);font-weight:700;"></span><button type="button" class="qall-x" onclick="closeAllQ()" aria-label="Tutup">✕</button></div>
+    <div id="qall-list"></div>
+    <div id="qall-foot" style="margin-top:12px;"></div>
+  </div>
+</div>
 </body>
 </html>
