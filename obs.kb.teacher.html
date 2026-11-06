@@ -436,7 +436,7 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
 <div class="body">
 
   <div class="readonly-banner" id="readonly-banner">
-    📋 <strong>Mode baca:</strong> Ini adalah hasil laporan gabungan yang sudah lengkap (Tahap 1 + Tahap 2). Tidak dapat diubah.
+    📋 <strong>Mode baca:</strong> Ini adalah hasil laporan gabungan yang sudah lengkap (semua tahap yang sudah selesai). Tidak dapat diubah.
   </div>
 
   <div class="info-card" id="info-card">
@@ -456,7 +456,7 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
   <!-- STAGE PICKER -->
   <div id="stage-picker-section">
     <div class="notice">
-      <strong>Cara kerja:</strong> Profil ini diisi dalam <strong>2 tahap</strong> — Tahap 1 setelah ±4 pertemuan pertama, Tahap 2 setelah ±4 pertemuan berikutnya. Setelah keduanya lengkap, sistem otomatis membuat <strong>laporan evaluasi perbandingan</strong> untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.
+      <strong>Cara kerja:</strong> Profil ini diisi dalam <strong>4 tahap</strong> — Tahap 1 setelah ±4 pertemuan pertama, lalu Tahap 2, 3, dan 4 masing-masing setelah ±4 pertemuan berikutnya. Setelah dua tahap atau lebih lengkap, sistem otomatis membuat <strong>laporan evaluasi perbandingan</strong> untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.
     </div>
     <div class="stage-grid">
       <button class="stage-card" id="stage-card-1" onclick="pickStage(1)">
@@ -470,6 +470,18 @@ html.intro-open, html.intro-open body { overflow: hidden; height: 100%; }
         <div class="stage-card-title">Screening Lanjutan</div>
         <div class="stage-card-sub">15 soal · setelah ±4 pertemuan berikutnya</div>
         <div class="stage-card-badge pending" id="stage-badge-2">Belum diisi</div>
+      </button>
+      <button class="stage-card" id="stage-card-3" onclick="pickStage(3)">
+        <div class="stage-card-num">Tahap 3</div>
+        <div class="stage-card-title">Screening Pendalaman</div>
+        <div class="stage-card-sub">15 soal · setelah ±4 pertemuan berikutnya</div>
+        <div class="stage-card-badge pending" id="stage-badge-3">Belum diisi</div>
+      </button>
+      <button class="stage-card" id="stage-card-4" onclick="pickStage(4)">
+        <div class="stage-card-num">Tahap 4</div>
+        <div class="stage-card-title">Screening Akhir</div>
+        <div class="stage-card-sub">15 soal · setelah ±4 pertemuan berikutnya</div>
+        <div class="stage-card-badge pending" id="stage-badge-4">Belum diisi</div>
       </button>
     </div>
   </div>
@@ -620,7 +632,7 @@ const ICONS = {
   absorb:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>`
 };
 
-// ── 30 item, tapi tiap domain dipecah: index 0-2 = Tahap 1, index 3-5 = Tahap 2 ──
+// ── 60 item, tiap domain dipecah: index 0-2 = Tahap 1, 3-5 = Tahap 2, 6-8 = Tahap 3, 9-11 = Tahap 4 ──
 const ITEMS = [
   { domain:"A", label:"Fokus & Konsentrasi", metaLabel:"Fokus & Konsentrasi", icon:"focus", color:"#0686c7", items:[
     { text:"Bisa fokus mengerjakan tugas tanpa mudah terganggu hal di sekitarnya", note:"Misalnya ada teman lain ribut atau suara notifikasi HP — apakah ia tetap lanjut mengerjakan soal, atau langsung menoleh dan kehilangan konsentrasi?" },
@@ -628,7 +640,13 @@ const ITEMS = [
     { text:"Menyelesaikan tugas dalam waktu yang wajar tanpa banyak jeda", note:"Misalnya diberi 10 soal dalam 15 menit — apakah ia mengerjakan mengalir dari soal ke soal, atau sering berhenti lama di tengah tanpa alasan jelas (melamun, main alat tulis)?" },
     { text:"Bisa duduk tenang mengikuti sesi sampai selesai tanpa sering berpindah tempat", note:"Misalnya dalam sesi 1 jam, apakah ia tetap di kursinya, atau berkali-kali berdiri/pindah tempat duduk tanpa alasan yang perlu?" },
     { text:"Tetap memperhatikan meski instruksi yang diberikan agak panjang", note:"Misalnya guru menjelaskan cara mengerjakan soal cerita dalam 3-4 kalimat berturut-turut — apakah ia masih menyimak sampai akhir, atau perhatiannya sudah kabur di tengah?" },
-    { text:"Tidak mudah teralihkan saat mengerjakan tugas dengan beberapa langkah berurutan", note:"Misalnya soal yang butuh 'hitung dulu, lalu bulatkan, lalu tulis jawabannya' — apakah ia ingat menyelesaikan semua langkah, atau berhenti di tengah dan lupa lanjut?" }
+    { text:"Tidak mudah teralihkan saat mengerjakan tugas dengan beberapa langkah berurutan", note:"Misalnya soal yang butuh 'hitung dulu, lalu bulatkan, lalu tulis jawabannya' — apakah ia ingat menyelesaikan semua langkah, atau berhenti di tengah dan lupa lanjut?" },
+    { text:"Mampu mempertahankan fokus pada tugas yang monoton atau berulang", note:"Misalnya mengerjakan belasan soal hitungan sejenis berturut-turut — apakah ia tetap konsisten sampai selesai, atau mulai melamun dan melambat di tengah?" },
+    { text:"Tidak perlu diingatkan untuk kembali ke tugas saat suasana kelas ramai", note:"Misalnya ada kegiatan lain di ruangan — apakah ia lanjut mengerjakan sendiri, atau perlu dipanggil/ditegur agar kembali ke tugasnya?" },
+    { text:"Menuntaskan satu tugas sampai selesai sebelum berpindah ke hal lain", note:"Misalnya baru mengerjakan separuh halaman lalu tertarik pada hal lain — apakah ia menuntaskan dulu, atau meninggalkan tugas setengah jadi?" },
+    { text:"Menjaga kualitas fokus di akhir sesi sama baiknya dengan di awal sesi", note:"Misalnya pada 10 menit terakhir sesi — apakah perhatiannya masih seperti di awal, atau jelas menurun dan mulai gelisah?" },
+    { text:"Tetap fokus saat diminta membaca atau menyimak dalam waktu cukup lama", note:"Misalnya membaca satu teks pendek atau menyimak penjelasan beberapa menit — apakah ia bertahan sampai selesai, atau mudah lepas di tengah?" },
+    { text:"Mampu mengabaikan benda atau gawai yang menggoda saat belajar", note:"Misalnya ada benda menarik di meja atau HP di dekatnya — apakah ia tetap mengerjakan tugas, atau sibuk bermain dengan benda itu?" }
   ]},
   { domain:"B", label:"Ketekunan Menghadapi Tantangan", metaLabel:"Ketekunan & Daya Juang", icon:"grit", items:[
     { text:"Tetap mencoba saat soal terasa sulit, tidak langsung menyerah", note:"Misalnya diberi soal yang levelnya sedikit di atas kemampuannya — apakah ia mencoba beberapa pendekatan dulu, atau langsung bilang 'nggak bisa' dan berhenti tanpa mencoba?" },
@@ -636,7 +654,13 @@ const ITEMS = [
     { text:"Tidak mudah frustrasi atau menyerah saat membuat kesalahan", note:"Misalnya jawabannya dikoreksi salah oleh guru — apakah ia menerima dan lanjut mencoba lagi, atau langsung kesal, menyalahkan soalnya, atau menolak melanjutkan?" },
     { text:"Mau mengulang latihan yang sama meski sudah beberapa kali salah", note:"Misalnya latihan yang sama diberikan 3x karena masih salah — apakah ia tetap mau mencoba lagi tanpa mengeluh berlebihan, atau menolak setelah gagal 1-2 kali?" },
     { text:"Tidak langsung minta bantuan sebelum benar-benar mencoba sendiri dulu", note:"Misalnya diberi soal baru — apakah ia membaca dan mencoba dulu sebelum bertanya, atau langsung mengangkat tangan sebelum sempat membaca soalnya sendiri?" },
-    { text:"Tetap tenang saat diberi tahu jawabannya salah, tidak ngambek atau menolak lanjut", note:"Misalnya dikoreksi 'ini belum tepat, coba lagi' — apakah responnya tenang dan mencoba ulang, atau merajuk, menangis, atau menutup buku menolak lanjut?" }
+    { text:"Tetap tenang saat diberi tahu jawabannya salah, tidak ngambek atau menolak lanjut", note:"Misalnya dikoreksi 'ini belum tepat, coba lagi' — apakah responnya tenang dan mencoba ulang, atau merajuk, menangis, atau menutup buku menolak lanjut?" },
+    { text:"Bertahan mengerjakan tugas yang butuh waktu lama tanpa minta berhenti", note:"Misalnya tugas yang butuh 20–30 menit — apakah ia terus mengerjakan sampai selesai, atau sering bilang 'capek' dan minta berhenti di tengah?" },
+    { text:"Mau melanjutkan tugas yang tertunda dari pertemuan sebelumnya", note:"Misalnya tugas minggu lalu belum rampung — apakah ia mau melanjutkannya dengan semangat, atau enggan dan minta diganti tugas baru?" },
+    { text:"Tetap berusaha meski hasil pekerjaannya belum sebaik teman lain", note:"Misalnya melihat teman lebih cepat selesai — apakah ia tetap mengerjakan dengan caranya sendiri, atau jadi minder dan berhenti mencoba?" },
+    { text:"Menunjukkan usaha lebih sungguh-sungguh setelah diberi semangat atau umpan balik", note:"Misalnya setelah guru berkata 'coba sekali lagi, kamu hampir benar' — apakah ia mencoba lagi dengan lebih serius?" },
+    { text:"Mau mengerjakan soal yang paling sulit, bukan melewatinya", note:"Misalnya ada satu soal paling menantang di halaman — apakah ia mencoba mengerjakannya, atau langsung melompati dan membiarkannya kosong?" },
+    { text:"Cepat bangkit kembali setelah salah berulang kali", note:"Misalnya setelah beberapa kali salah di soal yang sama — apakah suasana hatinya cepat pulih dan mau mencoba lagi, atau butuh waktu lama untuk kembali tenang?" }
   ]},
   { domain:"C", label:"Kemandirian", metaLabel:"Kemandirian Belajar", icon:"indep", items:[
     { text:"Memulai tugas tanpa harus diarahkan berulang kali", note:"Misalnya instruksi 'ayo kerjakan halaman ini' diberikan sekali — apakah ia langsung mulai, atau perlu diingatkan 2-3 kali sebelum benar-benar mulai mengerjakan?" },
@@ -644,7 +668,13 @@ const ITEMS = [
     { text:"Merapikan alat belajarnya sendiri setelah sesi selesai", note:"Misalnya sesi sudah selesai — apakah ia memasukkan sendiri buku dan alat tulis ke tasnya, atau meninggalkannya berantakan sampai diingatkan orang lain?" },
     { text:"Bisa mengikuti instruksi dengan beberapa langkah tanpa harus diulang-ulang", note:"Misalnya diminta 'buka halaman 5, kerjakan nomor 1-3, lalu panggil saya' — apakah ia mengikuti ketiga langkah itu, atau lupa salah satu dan perlu diingatkan ulang?" },
     { text:"Mengelola waktu pengerjaan tugasnya sendiri tanpa terus diingatkan", note:"Misalnya diberi waktu 10 menit untuk satu bagian — apakah ia sadar sendiri harus mempercepat saat waktu menipis, atau baru sadar setelah diingatkan berkali-kali?" },
-    { text:"Berani mencoba menyelesaikan sendiri dulu sebelum bertanya ke guru", note:"Misalnya di awal mengerjakan soal baru — apakah ia mencoba membaca dan memahami sendiri dulu, atau langsung bertanya 'ini gimana?' sebelum sempat mencoba?" }
+    { text:"Berani mencoba menyelesaikan sendiri dulu sebelum bertanya ke guru", note:"Misalnya di awal mengerjakan soal baru — apakah ia mencoba membaca dan memahami sendiri dulu, atau langsung bertanya 'ini gimana?' sebelum sempat mencoba?" },
+    { text:"Menyiapkan sendiri buku dan alat tulis sebelum sesi dimulai", note:"Misalnya saat tiba di kelas — apakah ia langsung mengeluarkan perlengkapannya sendiri, atau menunggu disuruh/dibantu?" },
+    { text:"Membaca instruksi soal sendiri sebelum bertanya artinya", note:"Misalnya diberi lembar kerja baru — apakah ia membaca petunjuknya dulu, atau langsung bertanya 'disuruh apa ini?' tanpa membaca?" },
+    { text:"Menyebutkan bagian yang tidak dipahami saat meminta bantuan", note:"Misalnya saat buntu — apakah ia bisa menunjukkan bagian mana yang sulit, atau hanya bilang 'nggak ngerti' tanpa bisa menjelaskan?" },
+    { text:"Mengerjakan tugas rutin yang sudah familiar tanpa pendampingan langsung", note:"Misalnya latihan jenis yang sudah sering dikerjakan — apakah ia bisa mengerjakannya sendiri saat guru sedang membantu anak lain?" },
+    { text:"Memperbaiki sendiri kesalahan yang ia temukan tanpa disuruh", note:"Misalnya menyadari jawabannya keliru saat mengecek — apakah ia langsung membetulkan sendiri, atau membiarkannya sampai ditunjukkan guru?" },
+    { text:"Bertanggung jawab atas tugas dan barang miliknya tanpa diingatkan", note:"Misalnya PR, buku, atau botol minum — apakah ia ingat membawa dan menyimpannya sendiri, atau sering tertinggal dan perlu diingatkan?" }
   ]},
   { domain:"D", label:"Minat & Motivasi", metaLabel:"Sumber Motivasi", icon:"motiv", items:[
     { text:"Lebih semangat saat ada unsur permainan atau tantangan (skor, lomba kecil)", note:"Misalnya diajak 'siapa cepat selesai dapat bintang' — apakah semangatnya langsung naik dan lebih cepat mengerjakan dibanding kalau tanpa tantangan seperti itu?" },
@@ -652,7 +682,13 @@ const ITEMS = [
     { text:"Senang dan makin semangat saat mendapat pujian verbal langsung", note:"Misalnya diberi kalimat 'bagus sekali, kamu pintar!' setelah menjawab benar — apakah ekspresinya senang dan makin bersemangat mengerjakan soal berikutnya?" },
     { text:"Termotivasi oleh pencapaian yang terlihat konkret (bintang, stiker, progress bar)", note:"Misalnya ada sistem stiker/bintang untuk tiap tugas selesai — apakah ia jadi lebih semangat mengejar mengumpulkan stiker dibanding tanpa sistem itu?" },
     { text:"Lebih semangat saat diberi pilihan cara mengerjakan, bukan hanya satu cara baku", note:"Misalnya ditawari 'mau jawab lisan atau ditulis dulu?' — apakah ia tampak lebih antusias saat punya pilihan dibanding saat caranya sudah ditentukan sepenuhnya?" },
-    { text:"Bertahan lebih lama mengerjakan tugas yang berkaitan dengan minat pribadinya", note:"Misalnya soal cerita bertema dinosaurus/mobil yang ia sukai dibanding tema netral — apakah ia bertahan fokus lebih lama dan lebih antusias mengerjakannya?" }
+    { text:"Bertahan lebih lama mengerjakan tugas yang berkaitan dengan minat pribadinya", note:"Misalnya soal cerita bertema dinosaurus/mobil yang ia sukai dibanding tema netral — apakah ia bertahan fokus lebih lama dan lebih antusias mengerjakannya?" },
+    { text:"Lebih semangat saat tugas diberi tujuan atau alasan yang jelas", note:"Misalnya dijelaskan 'soal ini berguna untuk menghitung uang jajan' — apakah semangatnya naik dibanding tugas tanpa penjelasan manfaat?" },
+    { text:"Lebih semangat saat diberi peran memimpin atau membantu teman", note:"Misalnya diberi peran 'asisten guru' atau menjelaskan ke teman — apakah ia tampak bangga dan lebih antusias dibanding saat hanya menerima materi?" },
+    { text:"Lebih semangat saat tugas disajikan dengan variasi (warna, alat peraga, cara baru)", note:"Misalnya soal yang sama disajikan dengan kartu bergambar atau spidol warna — apakah ia lebih tertarik dibanding lembar kerja biasa?" },
+    { text:"Termotivasi oleh target pribadi yang ia tetapkan atau sepakati sendiri", note:"Misalnya ditanya 'hari ini kamu mau selesai berapa soal?' — apakah ia bersemangat mengejar targetnya sendiri?" },
+    { text:"Lebih semangat saat hasil kerjanya ditunjukkan atau diapresiasi di depan orang lain", note:"Misalnya hasil kerjanya diperlihatkan ke teman atau dikabarkan ke orang tua — apakah ia tampak senang dan makin termotivasi?" },
+    { text:"Tetap bersemangat belajar meski tanpa hadiah atau imbalan apa pun", note:"Misalnya tanpa stiker atau pujian — apakah ia tetap mau mengerjakan dengan senang, atau semangatnya turun saat tidak ada imbalan?" }
   ]},
   { domain:"E", label:"Cara Menyerap Informasi", metaLabel:"Cara Menyerap Informasi", icon:"absorb", items:[
     { text:"Paling cepat paham saat materi disertai gambar, diagram, atau video", note:"Misalnya menjelaskan konsep pecahan — apakah ia lebih cepat 'ngeh' saat ditunjukkan gambar potongan kue dibanding hanya dijelaskan dengan kata-kata?" },
@@ -660,7 +696,13 @@ const ITEMS = [
     { text:"Paling cepat paham saat langsung praktik atau memegang benda konkret", note:"Misalnya diberi benda nyata (kelereng, kertas lipat) untuk mempraktikkan sendiri — apakah pemahamannya lebih cepat muncul dibanding hanya melihat/mendengar penjelasan?" },
     { text:"Lebih mudah mengingat informasi lewat lagu, ritme, atau pengulangan berirama", note:"Misalnya menghafal urutan abjad atau perkalian — apakah ia lebih cepat hafal kalau dibuat lagu/irama dibanding dibacakan atau ditulis biasa?" },
     { text:"Lebih cepat paham saat materi dikaitkan dengan pengalaman nyata sehari-hari", note:"Misalnya konsep 'setengah' dijelaskan lewat cerita berbagi kue dengan adik/kakak — apakah ia lebih cepat paham dibanding dijelaskan lewat rumus atau angka langsung?" },
-    { text:"Lebih mudah paham saat materi dipecah jadi langkah-langkah kecil bertahap", note:"Misalnya soal yang rumit dipecah jadi beberapa langkah kecil satu per satu — apakah pemahamannya jadi lebih jelas dibanding diberi penjelasan sekaligus secara utuh?" }
+    { text:"Lebih mudah paham saat materi dipecah jadi langkah-langkah kecil bertahap", note:"Misalnya soal yang rumit dipecah jadi beberapa langkah kecil satu per satu — apakah pemahamannya jadi lebih jelas dibanding diberi penjelasan sekaligus secara utuh?" },
+    { text:"Lebih mudah paham saat menggambar atau membuat peta pikiran dari materinya", note:"Misalnya setelah belajar siklus air — apakah ia lebih paham saat menggambar sendiri alurnya dibanding hanya menyalin catatan?" },
+    { text:"Lebih mudah mengingat saat menjelaskan ulang materi dengan kata-katanya sendiri", note:"Misalnya diminta 'coba ceritakan lagi ke Bu Guru' — apakah penjelasannya runtut dan ia jadi lebih ingat setelahnya?" },
+    { text:"Lebih mudah paham lewat gerakan, peragaan, atau permainan peran", note:"Misalnya konsep jual-beli diperagakan lewat main toko-tokoan — apakah ia lebih cepat paham dibanding hanya membaca atau mendengar?" },
+    { text:"Lebih mudah mengingat materi yang disajikan dalam bentuk cerita", note:"Misalnya fakta sains atau sejarah dibungkus sebagai cerita — apakah ia lebih ingat detailnya dibanding saat disajikan sebagai daftar fakta?" },
+    { text:"Lebih mudah paham saat ada contoh nyata sebelum aturannya dijelaskan", note:"Misalnya diberi tiga contoh soal dulu baru rumusnya — apakah ia lebih cepat menangkap pola dibanding saat rumus diberikan lebih dulu?" },
+    { text:"Lebih mudah mengingat saat materi diulang berkala dengan cara yang berbeda-beda", note:"Misalnya materi minggu lalu diulang lewat kuis, gambar, lalu cerita — apakah ingatannya lebih kuat dibanding diulang dengan cara yang sama?" }
   ]}
 ];
 
@@ -702,13 +744,13 @@ const answerDates = {};
 let currentStage = null;
 let isReadOnly = false;
 // record menyimpan status kedua tahap untuk siswa yang sedang dikerjakan
-let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null };
+let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null, tahap3:null, tahap4:null };
 let genId = "";
 let onlineMode = false;
 let serverLoadFailed = false;
 let autosaveTimer = null;
 
-function idxRange(stage){ return stage===1 ? [0,1,2] : [3,4,5]; }
+function idxRange(stage){ const b=(stage-1)*3; return [b,b+1,b+2]; }
 
 function fmtDateShort(iso) {
   if(!iso) return "";
@@ -968,9 +1010,9 @@ function saveDraftNow() {
   record.guru = document.getElementById("f-guru").value || record.guru;
   const pertemuanVal = document.getElementById("f-pertemuan").value || "";
 
-  const isAlreadyFinal = currentStage===1 ? (record.tahap1 && record.tahap1.status==='selesai') : (record.tahap2 && record.tahap2.status==='selesai');
+  const _curRec = record['tahap'+currentStage]; const isAlreadyFinal = !!(_curRec && _curRec.status==='selesai');
   const stageData = { status: isAlreadyFinal ? 'selesai' : 'draft', answers: partialAnswers, dates: partialDates, pertemuan: pertemuanVal, timestamp: new Date().toISOString() };
-  if(currentStage === 1) record.tahap1 = stageData; else record.tahap2 = stageData;
+  record['tahap'+currentStage] = stageData;
   saveLocal(record);
   writeKBCache();
 
@@ -1008,10 +1050,7 @@ function setAutosaveIndicator(state) {
 
 // ── STAGE PICKER ──
 function refreshStageBadges() {
-  const b1 = document.getElementById("stage-badge-1");
-  const b2 = document.getElementById("stage-badge-2");
-  setBadgeState(b1, record.tahap1);
-  setBadgeState(b2, record.tahap2);
+  for(let n=1; n<=4; n++) setBadgeState(document.getElementById("stage-badge-"+n), record["tahap"+n]);
 }
 function setBadgeState(el, stageData) {
   if(stageData && stageData.status === 'selesai') { el.textContent = "✓ Selesai"; el.className = "stage-card-badge done"; }
@@ -1027,24 +1066,27 @@ function pickStage(stage, fromUrl) {
     setTimeout(() => n.classList.remove("field-error"), 1500);
     return;
   }
-  const tahap1Done = record.tahap1 && record.tahap1.status === 'selesai';
-  if(stage === 2 && !tahap1Done && !serverLoadFailed) {
+  const prevN = stage - 1;
+  const prevRec = prevN >= 1 ? record['tahap'+prevN] : null;
+  const prevDone = prevN < 1 || (prevRec && prevRec.status === 'selesai');
+  if(stage >= 2 && !prevDone && !serverLoadFailed) {
     const nama = document.getElementById("f-nama").value.trim();
     if(nama && !onlineMode) {
       const saved = loadLocal(nama);
-      if(saved && saved.tahap1) {
+      if(saved && saved['tahap'+prevN]) {
         record = Object.assign(record, saved);
         refreshStageBadges();
       }
     }
-    if(!(record.tahap1 && record.tahap1.status === 'selesai')) {
-      const proceed = confirm("Tahap 1 untuk siswa ini belum ditandai selesai.\n\nKamu tetap bisa isi Tahap 2, tapi laporan belum bisa membandingkan dengan Tahap 1. Lanjutkan?");
+    const _p = record['tahap'+prevN];
+    if(!(_p && _p.status === 'selesai')) {
+      const proceed = confirm("Tahap " + prevN + " untuk siswa ini belum ditandai selesai.\n\nKamu tetap bisa isi Tahap " + stage + ", tapi laporan belum bisa membandingkan dengan Tahap " + prevN + ". Lanjutkan?");
       if(!proceed) return;
     }
   }
   currentStage = stage;
   // Muat kembali jawaban & tanggal yang sudah ada untuk tahap ini (draft ATAU final) supaya bisa lanjut/revisi
-  const existing = stage === 1 ? record.tahap1 : record.tahap2;
+  const existing = record['tahap'+stage];
   if(existing && existing.answers) Object.assign(answers, existing.answers);
   if(existing && existing.dates) Object.assign(answerDates, existing.dates);
   const pEl = document.getElementById("f-pertemuan");
@@ -1104,7 +1146,7 @@ function showSyncBanner(html, kind) {
 function hideSyncBanner() { const el = document.getElementById("sync-banner"); if(el) el.classList.remove("show"); }
 
 function buildStagePayload(stage, isFinal) {
-  const st = stage === 1 ? record.tahap1 : record.tahap2;
+  const st = record['tahap'+stage];
   return {
     genId, stage, final: isFinal ? 1 : 0,
     namaAnak: record.nama, usia: record.usia, jk: record.jk, namaGuru: record.guru,
@@ -1115,7 +1157,7 @@ function buildStagePayload(stage, isFinal) {
 
 // Kirim 1 tahap ke server (dengan 1x ulang otomatis) + beri tahu hasilnya dengan jelas
 async function syncStage(stage) {
-  const st = stage === 1 ? record.tahap1 : record.tahap2;
+  const st = record['tahap'+stage];
   if(!st || !(onlineMode && genId)) return true;
   const isFinal = st.status === 'selesai';
   showSyncBanner("💾 Mengirim Tahap " + stage + " ke server…", "info");
@@ -1156,7 +1198,7 @@ function handleSubmit() {
   record.guru = document.getElementById("f-guru").value;
   const pertemuanVal = document.getElementById("f-pertemuan").value || "";
   const stageData = { status:'selesai', answers: stageAnswers, dates: stageDates, pertemuan: pertemuanVal, timestamp: new Date().toISOString() };
-  if(currentStage === 1) record.tahap1 = stageData; else record.tahap2 = stageData;
+  record['tahap'+currentStage] = stageData;
   saveLocal(record);
   if(onlineMode && genId) {
     writeKBCache({ [currentStage]: true });   // ditandai "belum terkirim" sampai server mengonfirmasi
@@ -1181,7 +1223,7 @@ function showStage1Done() {
 function copyContinueLink() {
   const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(record))));
   const url = window.location.origin + window.location.pathname + "#d=" + encoded;
-  navigator.clipboard.writeText(url).then(()=>alert("Link lanjutan disalin! Simpan/kirim ke diri sendiri supaya bisa lanjut isi Tahap 2 nanti.")).catch(()=>prompt("Salin link berikut:", url));
+  navigator.clipboard.writeText(url).then(()=>alert("Link lanjutan disalin! Simpan/kirim ke diri sendiri supaya bisa lanjut isi tahap berikutnya nanti.")).catch(()=>prompt("Salin link berikut:", url));
 }
 
 // ── LAPORAN GABUNGAN (atau tahap-1-only kalau tahap 2 belum ada) ──
@@ -1191,28 +1233,31 @@ function domainPct(stageData, domain, range) {
   return Math.round((sum/(range.length*3))*100);
 }
 
+function stageJoin(list){ const l = list.map(n=>"Tahap "+n); return l.length<=1 ? (l[0]||"") : l.slice(0,-1).join(", ")+" & "+l[l.length-1]; }
+const NUM_WORD = {2:"dua",3:"tiga",4:"empat"};
+
 function buildCombinedProfile() {
   const areas = document.getElementById("profile-areas");
   areas.innerHTML = "";
   let best = { domain:null, pct:-1 };
   const hasT1 = !!(record.tahap1 && record.tahap1.status === 'selesai');
   const hasT2 = !!(record.tahap2 && record.tahap2.status === 'selesai');
+  const doneStages = [1,2,3,4].filter(n => record['tahap'+n] && record['tahap'+n].status === 'selesai');
+  const multi = doneStages.length >= 2;
   const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Info" };
   const radarData = [];
 
   ITEMS.forEach(d => {
-    const pct1 = hasT1 ? domainPct(record.tahap1, d.domain, [0,1,2]) : null;
-    const pct2 = hasT2 ? domainPct(record.tahap2, d.domain, [3,4,5]) : null;
-    // pct gabungan: rata-rata dari tahap yang tersedia (kalau 2 tahap ada, dari 6 item asli)
+    const stagePcts = {};
+    doneStages.forEach(n => { stagePcts[n] = domainPct(record['tahap'+n], d.domain, idxRange(n)); });
+    // pct gabungan: dari semua item tahap yang sudah selesai (tiap tahap = 3 item per area)
     let combinedPct;
-    if(hasT1 && hasT2) {
-      const sum = [0,1,2,3,4,5].reduce((s,idx)=>{
-        const src = idx<3 ? record.tahap1 : record.tahap2;
-        return s + (src.answers[`${d.domain}_${idx}`]||0);
-      },0);
-      combinedPct = Math.round((sum/18)*100);
+    if(multi) {
+      let sum = 0;
+      doneStages.forEach(n => idxRange(n).forEach(idx => { sum += (record['tahap'+n].answers[`${d.domain}_${idx}`]||0); }));
+      combinedPct = Math.round((sum/(doneStages.length*9))*100);
     } else {
-      combinedPct = pct1 !== null ? pct1 : pct2;
+      combinedPct = doneStages.length ? stagePcts[doneStages[0]] : null;
     }
     if(combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
     radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, color: DOMAIN_META[d.domain].color, icon: d.icon });
@@ -1222,8 +1267,8 @@ function buildCombinedProfile() {
     const info = meta[level];
 
     let trendHtml = "";
-    if(hasT1 && hasT2) {
-      const delta = pct2 - pct1;
+    if(multi) {
+      const delta = stagePcts[doneStages[doneStages.length-1]] - stagePcts[doneStages[0]];
       let trendLabel, trendColor;
       if(delta >= 12){ trendLabel="▲ Meningkat"; trendColor="#16a34a"; }
       else if(delta <= -12){ trendLabel="▼ Menurun"; trendColor="#dc2626"; }
@@ -1231,13 +1276,10 @@ function buildCombinedProfile() {
       trendHtml = `<span class="parea-trend" style="background:${trendColor}22;color:${trendColor}">${trendLabel}</span>`;
     }
 
-    const barsHtml = (hasT1 && hasT2) ? `
+    const barRow = (lbl, p) => `<div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${lbl}</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${p}%;background:${levelColor(p)}"></div></div><span class="parea-bar-compare-val">${p}%</span></div>`;
+    const barsHtml = `
       <div class="parea-bar-compare">
-        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">Tahap 1</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct1}%;background:${levelColor(pct1)}"></div></div><span class="parea-bar-compare-val">${pct1}%</span></div>
-        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">Tahap 2</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct2}%;background:${levelColor(pct2)}"></div></div><span class="parea-bar-compare-val">${pct2}%</span></div>
-      </div>` : `
-      <div class="parea-bar-compare">
-        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${hasT1?"Tahap 1":"Tahap 2"}</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${combinedPct}%;background:${levelColor(combinedPct)}"></div></div><span class="parea-bar-compare-val">${combinedPct}%</span></div>
+        ${multi ? doneStages.map(n => barRow("Tahap "+n, stagePcts[n])).join("") : barRow("Tahap "+(doneStages[0]||1), combinedPct)}
       </div>`;
 
     const card = document.createElement("div");
@@ -1284,18 +1326,18 @@ function buildCombinedProfile() {
   document.getElementById("report-title").textContent = `Profil Kekuatan Belajar ${nama}`;
 
 
-  buildIntroDeck(record.nama || "Ananda", hasT1, hasT2);
+  buildIntroDeck(record.nama || "Ananda", doneStages);
   const singleNote = document.getElementById("single-stage-note");
   const caption = document.getElementById("areas-caption");
   const sub = document.getElementById("report-sub");
   const parentNote = document.getElementById("parent-note-box");
-  if(hasT1 && hasT2) {
+  if(multi) {
     singleNote.style.display = "none";
     document.getElementById("teacher-continue-box").style.display = "none";
     document.getElementById("btn-copy-continue").style.display = "none";
-    caption.textContent = "Berikut perbandingan Tahap 1 vs Tahap 2 di tiap area, untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.";
-    sub.textContent = "Evaluasi gabungan Tahap 1 & Tahap 2 — observasi guru di Markz Belajar";
-    parentNote.innerHTML = `💬 Laporan ini membandingkan dua titik observasi guru dari waktu ke waktu, dan akan menjadi bahan diskusi bersama Ayah/Bunda agar pendampingan belajar si kecil makin sesuai dengan caranya sendiri.`;
+    caption.textContent = "Berikut perbandingan " + doneStages.map(n=>"Tahap "+n).join(" vs ") + " di tiap area, untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.";
+    sub.textContent = "Evaluasi gabungan " + stageJoin(doneStages) + " — observasi guru di Markz Belajar";
+    parentNote.innerHTML = `💬 Laporan ini membandingkan ${NUM_WORD[doneStages.length]} titik observasi guru dari waktu ke waktu, dan akan menjadi bahan diskusi bersama Ayah/Bunda agar pendampingan belajar si kecil makin sesuai dengan caranya sendiri.`;
   } else {
     singleNote.style.display = "none";   // sudah dijelaskan di kartu pengantar
     singleNote.innerHTML = "ℹ️ Ini <strong>hasil awal (Tahap 1)</strong>. Observasi akan <strong>dilanjutkan ke Tahap 2</strong> setelah ±4 pertemuan berikutnya, untuk melihat konsistensi dan perkembangan si kecil dari waktu ke waktu.";
@@ -1322,9 +1364,9 @@ let iCards = [], iIdx = 0, iBusy = false, iDrag = null, iSuppress = false;
 
 function escHtml(t) { return String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
-function buildIntroDeck(nama, hasT1, hasT2) {
-  const both = hasT1 && hasT2;
-  const stageLabel = both ? "Tahap 1 &amp; Tahap 2" : (hasT2 ? "Tahap 2" : "Tahap 1");
+function buildIntroDeck(nama, doneStages) {
+  const both = doneStages.length >= 2;
+  const stageLabel = stageJoin(doneStages).replace(/&/g, "&amp;") || "Tahap 1";
   const dom = (c, t, d) => `<div class="idomain" style="--c:${c}"><b>${t}</b> — ${d}</div>`;
   const dot = (c, t) => `<span style="--c:${c}">${t}</span>`;
   iCards = [
@@ -1334,7 +1376,7 @@ function buildIntroDeck(nama, hasT1, hasT2) {
        <div class="iname">${escHtml(nama)}</div>
        <div class="isub">Hasil observasi guru · ${stageLabel}</div>` },
     { icon: "calendar", title: both ? "Evaluasi gabungan" : "Laporan pertama", body: both
-      ? `<div>Membandingkan <strong>dua observasi guru</strong> dari waktu ke waktu.</div>
+      ? `<div>Membandingkan <strong>${NUM_WORD[doneStages.length]} observasi guru</strong> dari waktu ke waktu.</div>
          <div class="iplain">Menjadi bahan diskusi kita untuk pendampingan yang lebih pas.</div>`
       : `<div>Kami akan observasi lagi setelah <strong>±4 pertemuan</strong> berikutnya, untuk melihat perkembangan ananda.</div>
          <div class="iplain">Hasilnya jadi bahan diskusi bersama Ayah/Bunda.</div>` },
@@ -1542,9 +1584,11 @@ function previewParent() { window.open(parentReportUrl(), "_blank"); }
 function shareWhatsApp() {
   const url = parentReportUrl();
   const nama = record.nama || "siswa";
-  const hasBoth = record.tahap1 && record.tahap2;
+  const _ex = [1,2,3,4].filter(n => record['tahap'+n]);
+  const _exLbl = _ex.length > 2 ? _ex.slice(0,-1).join(", ") + " & " + _ex[_ex.length-1] : _ex.join(" & ");
+  const hasBoth = _ex.length >= 2;
   const msg = hasBoth
-    ? `Halo Ayah/Bunda 👋\n\nBerikut Profil Kekuatan Belajar *${nama}* dari Markz Belajar (evaluasi gabungan Tahap 1 & 2):\n${url}\n\nSemoga bisa jadi gambaran untuk mendampingi ${nama} belajar dengan cara yang paling sesuai. Terima kasih! 😊`
+    ? `Halo Ayah/Bunda 👋\n\nBerikut Profil Kekuatan Belajar *${nama}* dari Markz Belajar (evaluasi gabungan Tahap ${_exLbl}):\n${url}\n\nSemoga bisa jadi gambaran untuk mendampingi ${nama} belajar dengan cara yang paling sesuai. Terima kasih! 😊`
     : `Halo Ayah/Bunda 👋\n\nBerikut Profil Kekuatan Belajar *${nama}* dari Markz Belajar (screening tahap awal):\n${url}\n\nKami akan melengkapi dengan tahap observasi berikutnya. Terima kasih! 😊`;
   window._shareUrl = url;
   window._shareMsg = msg;
@@ -1569,10 +1613,10 @@ function syncRecordFromFields() {
 function rebuildAnswersFromRecord() {
   Object.keys(answers).forEach(k => delete answers[k]);
   Object.keys(answerDates).forEach(k => delete answerDates[k]);
-  [record.tahap1, record.tahap2].forEach(st => { if(st) { Object.assign(answers, st.answers || {}); Object.assign(answerDates, st.dates || {}); } });
+  [record.tahap1, record.tahap2, record.tahap3, record.tahap4].forEach(st => { if(st) { Object.assign(answers, st.answers || {}); Object.assign(answerDates, st.dates || {}); } });
 }
 function hasAnyFinalStage() {
-  return !!((record.tahap1 && record.tahap1.status === 'selesai') || (record.tahap2 && record.tahap2.status === 'selesai'));
+  return [1,2,3,4].some(n => record['tahap'+n] && record['tahap'+n].status === 'selesai');
 }
 function enterViewLayout() {
   isReadOnly = true;
@@ -1615,6 +1659,8 @@ async function loadFromURLParams() {
   if(cache && cache.record) {
     record.tahap1 = cache.record.tahap1 || null;
     record.tahap2 = cache.record.tahap2 || null;
+    record.tahap3 = cache.record.tahap3 || null;
+    record.tahap4 = cache.record.tahap4 || null;
     fillFieldIfEmpty('f-nama', cache.record.nama);
     fillFieldIfEmpty('f-usia', cache.record.usia);
     fillFieldIfEmpty('f-jk', cache.record.jk);
@@ -1640,20 +1686,22 @@ async function loadFromURLParams() {
 
   let failed = false, errMsg = '';
   if(r && r.ok) {
-    const localStage = { 1: record.tahap1, 2: record.tahap2 };
+    const localStage = { 1: record.tahap1, 2: record.tahap2, 3: record.tahap3, 4: record.tahap4 };
     if(r.data) {
       const d = r.data;
       record.tahap1 = d.tahap1 || null;
       record.tahap2 = d.tahap2 || null;
+      record.tahap3 = d.tahap3 || null;
+      record.tahap4 = d.tahap4 || null;
       fillFieldIfEmpty('f-nama', d.namaAnak);
       fillFieldIfEmpty('f-usia', d.usia);
       fillFieldIfEmpty('f-jk', d.jk);
       fillFieldIfEmpty('f-guru', d.namaGuru);
     } else {
-      record.tahap1 = null; record.tahap2 = null;   // server memang tidak punya data (mis. sudah di-reset)
+      record.tahap1 = null; record.tahap2 = null; record.tahap3 = null; record.tahap4 = null;   // server memang tidak punya data (mis. sudah di-reset)
     }
     // Perubahan lokal yang belum terkirim TIDAK boleh tertimpa data server
-    [1, 2].forEach(st => { if(unsynced[st] && localStage[st]) record['tahap' + st] = localStage[st]; });
+    [1, 2, 3, 4].forEach(st => { if(unsynced[st] && localStage[st]) record['tahap' + st] = localStage[st]; });
     syncRecordFromFields();
     rebuildAnswersFromRecord();
     writeKBCache();
@@ -1674,7 +1722,7 @@ async function loadFromURLParams() {
       } else {
         showViewMessage('⏳ <strong>Laporan belum tersedia.</strong> Observasi guru untuk siswa ini belum diselesaikan.');
       }
-    } else if(stageParam === 1 || stageParam === 2) {
+    } else if(stageParam >= 1 && stageParam <= 4) {
       if(failed && !(cache && cache.record)) {
         showSyncBanner('⚠️ Data tersimpan <b>belum bisa dimuat</b> (' + errMsg + '). Form di bawah bisa tampak kosong padahal sudah pernah diisi — <b>jangan simpan dulu</b>. <button onclick="location.reload()">Muat ulang</button>', 'err');
       } else if(failed) {
@@ -1683,7 +1731,7 @@ async function loadFromURLParams() {
       pickStage(stageParam, true);
     }
 
-    const pending = [1, 2].filter(st => unsynced[st] && record['tahap' + st]);
+    const pending = [1, 2, 3, 4].filter(st => unsynced[st] && record['tahap' + st]);
     if(pending.length && !failed && !viewMode) {
       showSyncBanner('⚠️ Ada data Tahap ' + pending.join(' & ') + ' yang belum terkirim ke server. <button onclick="syncStage(' + pending[0] + ')">Kirim sekarang</button>', 'warn');
     }
@@ -1702,17 +1750,17 @@ function loadFromHash() {
   if(!hash || !hash.startsWith("#d=")) return false;
   try {
     const data = JSON.parse(decodeURIComponent(escape(atob(hash.slice(3)))));
-    record = Object.assign({ nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null }, data);
+    record = Object.assign({ nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null, tahap3:null, tahap4:null }, data);
     document.getElementById("f-nama").value = record.nama || "";
     document.getElementById("f-usia").value = record.usia || "";
     document.getElementById("f-jk").value = record.jk || "";
     document.getElementById("f-guru").value = record.guru || "";
     if(record.tahap1) { Object.assign(answers, record.tahap1.answers || {}); Object.assign(answerDates, record.tahap1.dates || {}); }
     if(record.tahap2) { Object.assign(answers, record.tahap2.answers || {}); Object.assign(answerDates, record.tahap2.dates || {}); }
+    if(record.tahap3) { Object.assign(answers, record.tahap3.answers || {}); Object.assign(answerDates, record.tahap3.dates || {}); }
+    if(record.tahap4) { Object.assign(answers, record.tahap4.answers || {}); Object.assign(answerDates, record.tahap4.dates || {}); }
 
-    const t1Done = record.tahap1 && record.tahap1.status === 'selesai';
-    const t2Done = record.tahap2 && record.tahap2.status === 'selesai';
-    if(t1Done || t2Done) {
+    if(hasAnyFinalStage()) {
       // Link laporan final untuk ortu — read-only
       isReadOnly = true;
       ["f-nama","f-usia","f-jk","f-guru","f-pertemuan"].forEach(id=>{ const el=document.getElementById(id); if(el){el.disabled=true; el.style.opacity="0.7";} });
@@ -1722,9 +1770,8 @@ function loadFromHash() {
     } else {
       // Link lanjutan guru — tetap bisa lanjut isi tahap yang belum ada (termasuk draft)
       refreshStageBadges();
-      const s1 = record.tahap1 ? (record.tahap1.status==='draft'?'sedang diisi':'sudah') : 'belum';
-      const s2 = record.tahap2 ? (record.tahap2.status==='draft'?'sedang diisi':'sudah') : 'belum';
-      alert(`Data untuk ${record.nama || "siswa ini"} dimuat. Tahap 1: ${s1}. Tahap 2: ${s2}. Silakan lanjutkan.`);
+      const stTxt = n => { const r = record['tahap'+n]; return r ? (r.status==='draft'?'sedang diisi':'sudah') : 'belum'; };
+      alert(`Data untuk ${record.nama || "siswa ini"} dimuat. Tahap 1: ${stTxt(1)}. Tahap 2: ${stTxt(2)}. Tahap 3: ${stTxt(3)}. Tahap 4: ${stTxt(4)}. Silakan lanjutkan.`);
     }
     return true;
   } catch(e) { console.error(e); return false; }
