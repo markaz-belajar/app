@@ -538,11 +538,10 @@ body { background: #fed554 !important; }
 .otl-rev { display: inline-block; margin-top: 6px; font-size: 11.5px; font-weight: 700; color: #b45309; background: #fff1c2; border-radius: 999px; padding: 3px 10px; }
 .pd-stage-r { font-size: 12.5px; font-weight: 500; color: #b45309; margin-top: 4px; background: #fff8e6; border-radius: 8px; padding: 5px 8px; }
 .radar-chart-container svg { overflow: visible; }
-.rd-halo { transform-box: fill-box; transform-origin: center; opacity: 0; animation: rdBreath 2.8s ease-out infinite; }
+.rd-halo { transform-box: fill-box; transform-origin: center; opacity: .25; animation: rdBreath 3.2s ease-in-out infinite; pointer-events: none; }
 @keyframes rdBreath {
-  0%   { transform: scale(.92); opacity: .42; }
-  70%  { opacity: 0; }
-  100% { transform: scale(2); opacity: 0; }
+  0%, 100% { transform: scale(.85); opacity: .25; }
+  50%      { transform: scale(1.35); opacity: .7; }
 }
 @media (prefers-reduced-motion: reduce) {
   .otl-item.next .otl-dot, .rd-halo { animation: none; }
@@ -983,17 +982,6 @@ function hideSplash() {
   }, wait);
 }
 function setThemeColor(c) { const m = document.querySelector('meta[name="theme-color"]'); if(m) m.setAttribute("content", c); }
-function tryFullscreen() {
-  // Coba sembunyikan bar browser (butuh sentuhan pengguna; tidak semua browser/in-app WhatsApp mengizinkan)
-  try {
-    const el = document.documentElement;
-    if(!document.fullscreenElement && el.requestFullscreen) el.requestFullscreen({ navigationUI: "hide" }).catch(() => {});
-  } catch(e) {}
-}
-document.getElementById("intro-overlay").addEventListener("pointerup", function once() {
-  tryFullscreen();
-  document.getElementById("intro-overlay").removeEventListener("pointerup", once);
-});
 function openIntro() {
   window.__introSeen = true;
   if(!document.documentElement.classList.contains("view-loading")) setThemeColor("#0b2a4a");
@@ -1003,7 +991,6 @@ function openIntro() {
 }
 function closeIntro() {
   setThemeColor("#0686c7");
-  try { if(document.fullscreenElement) document.exitFullscreen(); } catch(e) {}
   document.getElementById("intro-overlay").classList.remove("open");
   document.documentElement.classList.remove("intro-open");
   window.scrollTo({ top: 0 });
@@ -1141,6 +1128,7 @@ function buildRadarSVG(items) {
     </radialGradient>
     <filter id="txtShadow" x="-30%" y="-30%" width="160%" height="160%"><feDropShadow dx="0" dy="1.5" stdDeviation="2.2" flood-color="#055a96" flood-opacity=".55"/></filter>
     <filter id="starGlow" x="-40%" y="-40%" width="180%" height="180%"><feGaussianBlur stdDeviation="9"/></filter>
+    <filter id="haloBlur" x="-150%" y="-150%" width="400%" height="400%"><feGaussianBlur stdDeviation="8"/></filter>
   </defs>`;
   let rings = "";
   levels.forEach((f, k) => {
@@ -1163,7 +1151,7 @@ function buildRadarSVG(items) {
     const iconY = p.y - 18;
     const two = String(it.short).length > 12 && String(it.short).indexOf(" ") > 0;
     const w = String(it.short).split(" ");
-    labelHtml += `<circle class="rd-halo" cx="${p.x.toFixed(1)}" cy="${iconY.toFixed(1)}" r="18" fill="${it.color}" style="animation-delay:${(i * 0.45).toFixed(2)}s"/><circle class="rd-halo b" cx="${p.x.toFixed(1)}" cy="${iconY.toFixed(1)}" r="18" fill="${it.color}" style="animation-delay:${(i * 0.45 + 1.4).toFixed(2)}s"/>`;
+    if(it.pct >= 90) labelHtml += `<circle class="rd-halo" cx="${p.x.toFixed(1)}" cy="${iconY.toFixed(1)}" r="22" fill="${it.color}" filter="url(#haloBlur)" style="animation-delay:${(i * 0.4).toFixed(2)}s"/>`;
     labelHtml += `<image href="${it.img}" x="${(p.x-19).toFixed(1)}" y="${(iconY-19).toFixed(1)}" width="38" height="38"/>`;
     if(two) {
       labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563" font-family="Segoe UI, sans-serif">${w[0]}</text>`;
