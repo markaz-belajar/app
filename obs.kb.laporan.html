@@ -550,6 +550,10 @@ body { background: #fed554 !important; }
 .rp-warn-ic { flex:0 0 auto; width:18px; height:18px; display:flex; align-items:center; justify-content:center; }
 .rp-warn-ic svg { width:18px; height:18px; }
 .rp-warn-tx { font-size:13.5px; font-weight:700; line-height:1.2; color:#fff; text-align:center; }
+
+/* ═══ Tanpa indikator scroll di sisi kanan (lebih seamless) — halaman tetap bisa digulir ═══ */
+html, body, * { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { display: none; width: 0; height: 0; background: transparent; }
 </style>
 </head>
 <body>
