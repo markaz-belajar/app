@@ -425,10 +425,11 @@ body { font-family: var(--kb-font); padding-top: 0;
   background-attachment: fixed; }
 button, input, select, textarea { font-family: inherit; }
 .body { max-width: 480px; margin: 0 auto; padding: 0 0 24px; }
-.result-parent { background: linear-gradient(180deg, rgba(246,196,60,.86), rgba(252,226,130,.74) 45%, rgba(255,240,190,.62)); -webkit-backdrop-filter: blur(22px) saturate(1.25); backdrop-filter: blur(22px) saturate(1.25); border: 1px solid rgba(255,255,255,.7); border-radius: 40px; box-shadow: 0 24px 60px -18px rgba(170,110,0,.35); overflow: visible; margin: 0 0 12px; padding-bottom: 14px; }
-.result-parent-banner { position: sticky; top: 0; z-index: 0; height: 300px; padding: 0; text-align: left; background: #e6b93a; border-radius: 40px 40px 0 0; overflow: hidden; }
-.rp-tiger { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; will-change: filter, transform; transform-origin: 50% 30%; }
-.rp-sheet { position: relative; z-index: 2; margin: -112px 12px 0; padding: 62px 16px 12px; background: linear-gradient(#fffdf8,#fffdf8) 0 99px / 100% calc(100% - 99px) no-repeat; }
+.result-parent { background: linear-gradient(180deg, rgba(246,196,60,.86), rgba(252,226,130,.74) 45%, rgba(255,240,190,.62)); -webkit-backdrop-filter: blur(22px) saturate(1.25); backdrop-filter: blur(22px) saturate(1.25); border: 1px solid rgba(255,255,255,.7); border-top: none; border-radius: 0 0 40px 40px; box-shadow: 0 24px 60px -18px rgba(170,110,0,.35); overflow: visible; margin: 0 0 12px; padding-bottom: 14px; }
+.result-parent-banner { position: sticky; top: 0; z-index: 0; height: 310px; padding: 0; text-align: left; background: #e9bd3a; border-radius: 0; overflow: hidden; }
+.rp-tiger { position: absolute; right: 2%; top: 6px; width: 88%; max-width: none; height: auto; display: block; will-change: filter, transform; transform-origin: 60% 35%; }
+.rp-logo { position: absolute; left: 14px; top: 14px; width: 46px; height: 46px; border-radius: 13px; object-fit: contain; z-index: 3; box-shadow: 0 4px 12px rgba(120,80,0,.25); }
+.rp-sheet { position: relative; z-index: 2; margin: -102px 12px 0; padding: 62px 16px 12px; background: linear-gradient(#fffdf8,#fffdf8) 0 99px / 100% calc(100% - 99px) no-repeat; }
 .rp-sheet::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 100px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cpath fill='%23fffdf8' d='M0 100V52C0 26 20 8 48 8C150 8 250 40 322 54C376 64 400 72 400 100Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; filter: drop-shadow(0 -6px 10px rgba(160,100,0,.14)); pointer-events: none; }
 .rp-play { position: absolute; top: 14px; right: 22px; width: 68px; height: 68px; border-radius: 50%; background: #fff; box-shadow: 0 8px 20px rgba(160,100,0,.28); display: flex; align-items: center; justify-content: center; }
 .rp-play img { width: 58px; height: 58px; object-fit: contain; }
@@ -480,6 +481,7 @@ button, input, select, textarea { font-family: inherit; }
 
   <div class="result-parent" id="result-parent">
     <div class="result-parent-banner" id="report-start">
+      <img class="rp-logo" src="icon_mb_app.png" alt="Markaz Belajar" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='icon_mb.png';}else{this.style.display='none';}">
       <img class="rp-tiger" src="icon_mb_obs_kb.png" alt="" onerror="this.style.display='none'">
       <p id="report-sub" style="display:none"></p>
     </div>
