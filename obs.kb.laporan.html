@@ -413,6 +413,43 @@ html:not(.view-loading) .splash { opacity: 0; visibility: hidden; pointer-events
 @keyframes levitate { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-12px); } }
 .splash-sub { margin-top: 22px; padding: 0 30px; text-align: center; font-size: 12px; color: rgba(255,255,255,.75); min-height: 16px; }
 </style>
+
+<style>
+/* ═══ Layout laporan baru (maskot macan) ═══ */
+body { background: linear-gradient(180deg, #f4c542 0, #fbe08a 380px, #fff6dc 900px, #fff9e8 100%); background-attachment: scroll; padding-top: 0; font-family: 'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif; }
+.body { max-width: 480px; margin: 0 auto; padding: 0 0 28px; }
+.result-parent { background: transparent; border: none; border-radius: 0; overflow: visible; margin-bottom: 0; }
+.result-parent-banner { background: #e6b93a; padding: 0; text-align: left; position: relative; overflow: hidden; height: 350px; }
+.rp-tiger { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; }
+.rp-sheet { position: relative; background: #fffdf8; border-radius: 34px 34px 0 0; margin-top: -46px; padding: 22px 16px 12px; box-shadow: 0 -10px 28px rgba(160,100,0,.18); }
+.rp-play { position: absolute; top: -26px; right: 18px; width: 56px; height: 56px; border-radius: 50%; border: none; background: #fff; box-shadow: 0 6px 16px rgba(160,100,0,.25); display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.rp-play svg { width: 24px; height: 24px; fill: #f97316; }
+.rp-kicker { font-size: 17px; font-weight: 600; color: #1e3a5f; }
+.rp-name { font-size: 23px; font-weight: 800; color: #0f2b46; line-height: 1.25; margin: 2px 52px 10px 0; }
+.hero-specialty { border: none !important; background: none !important; text-align: left; padding: 4px 0 0; margin: 0 0 4px; }
+.hero-icon-badge { display: none; }
+.hero-specialty-label { background: #fff1c2 !important; color: #e65100 !important; text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 800; padding: 5px 14px; border-radius: 999px; margin-bottom: 8px; }
+.hero-specialty-title { font-size: 30px; color: #0f2b46 !important; margin-bottom: 4px; }
+.hero-specialty-sub { color: #6b6f8d; font-size: 14px; max-width: none; margin: 0; }
+.radar-chart-container { margin: 8px auto 4px; }
+.profile-areas { display: flex; flex-direction: column; gap: 12px; }
+.parea-card { border: none; border-radius: 20px; background: #fff; box-shadow: 0 4px 16px rgba(160,100,0,.12); }
+.parea-head { background: transparent; padding: 12px 14px 4px; }
+.parea-dot { width: 14px; height: 14px; }
+.parea-label { font-size: 15px; font-weight: 800; color: #0f2b46; }
+.parea-bar-wrap { padding: 6px 14px 4px; }
+.parea-bar-compare-lbl { width: 48px; font-size: 11px; color: #6b6f8d; }
+.parea-bar-track { height: 8px; background: #eef0f5; }
+.parea-bar-fill { background-image: linear-gradient(90deg, #38bdf8, #22c55e) !important; }
+.parea-bar-compare-val { font-size: 11px; width: 34px; }
+.parea-body { border-top: none; padding: 4px 14px 14px; }
+.parea-desc { font-size: 13px; color: #374151; margin-bottom: 0; }
+.parea-tips { display: none; }
+.parea-desc::before { content: "💡"; margin-right: 8px; }
+.parent-note { background: #fff0c2; color: #7a5200; border-radius: 18px; padding: 14px 16px; font-size: 13px; margin-top: 14px; }
+.share-section { background: #fffdf8; border-top: none; padding: 4px 16px 22px; border-radius: 0 0 34px 34px; }
+.disclaimer { background: transparent; padding: 4px 0 0; font-size: 11px; }
+</style>
 </head>
 <body>
 
@@ -426,16 +463,18 @@ html:not(.view-loading) .splash { opacity: 0; visibility: hidden; pointer-events
 
   <div class="result-parent" id="result-parent">
     <div class="result-parent-banner" id="report-start">
-      <svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-      <h2 id="report-title">Profil Kekuatan Belajar</h2>
-      <p id="report-sub">Berdasarkan observasi guru selama sesi bimbel di Markz Belajar</p>
+      <img class="rp-tiger" src="icon_mb_obs_kb.png" alt="" onerror="this.style.display='none'">
+      <p id="report-sub" style="display:none"></p>
     </div>
-    <div class="result-parent-body">
+    <div class="result-parent-body rp-sheet">
+      <button type="button" class="rp-play" onclick="openIntro()" aria-label="Putar pengantar"><svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></button>
+      <div class="rp-kicker">Profil Kekuatan Belajar</div>
+      <h2 class="rp-name" id="report-title"></h2>
       <div class="single-stage-note" id="single-stage-note" style="display:none;">⚠️ Laporan ini baru berdasarkan <strong>Tahap 1 saja</strong> — belum ada data Tahap 2 untuk perbandingan. Hasil masih bersifat awal.</div>
 
       <div class="hero-specialty" id="hero-specialty">
         <div class="hero-icon-badge" id="hero-icon-badge"></div>
-        <div class="hero-specialty-label" id="hero-label">✨ Kekuatan Utama</div>
+        <div class="hero-specialty-label" id="hero-label">★ Kekuatan Utama</div>
         <div class="hero-specialty-title" id="hero-title">—</div>
         <div class="hero-specialty-sub" id="hero-sub">—</div>
       </div>
@@ -478,6 +517,13 @@ function apiKB(action, params={}, timeoutMs=20000) {
     .finally(()=>clearTimeout(timeoutId));
 }
 
+// ⭐ Lokasi gambar ikon & maskot. Kosongkan ("") kalau satu folder dengan file ini; isi mis. "img/" kalau di subfolder.
+const ICON_BASE = "";
+const TIGER_IMG = "icon_mb_obs_kb.png";
+const DOMAIN_IMG = { A:"icon_mb_obs_kb1.png", B:"icon_mb_obs_kb2.png", C:"icon_mb_obs_kb3.png", D:"icon_mb_obs_kb4.png", E:"icon_mb_obs_kb5.png" };
+const RADAR_IMG  = { A:"icon_mb_obs_kb1.png", B:"icon_mb_obs_kb2.png", C:"icon_mb_obs_kb3.png", D:"icon_mb_obs_kb4.png", E:"icon_mb_obs_kb6.png" };
+const RADAR_COLOR = { A:"#0686c7", B:"#d97706", C:"#16a34a", D:"#ec4899", E:"#14b8a6" };
+
 const ICONS = {
   focus:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>`,
   grit:`<svg viewBox="0 0 24 24" width="16" height="16" stroke="#fff" fill="none" stroke-width="2" stroke-linecap="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>`,
@@ -512,7 +558,7 @@ const ITEMS = [
     { text:"Mengelola waktu pengerjaan tugasnya sendiri tanpa terus diingatkan", note:"Misalnya diberi waktu 10 menit untuk satu bagian — apakah ia sadar sendiri harus mempercepat saat waktu menipis, atau baru sadar setelah diingatkan berkali-kali?" },
     { text:"Berani mencoba menyelesaikan sendiri dulu sebelum bertanya ke guru", note:"Misalnya di awal mengerjakan soal baru — apakah ia mencoba membaca dan memahami sendiri dulu, atau langsung bertanya 'ini gimana?' sebelum sempat mencoba?" }
   ]},
-  { domain:"D", label:"Minat & Motivasi", metaLabel:"Sumber Motivasi", icon:"motiv", items:[
+  { domain:"D", label:"Motivasi Belajar", metaLabel:"Motivasi Belajar", icon:"motiv", items:[
     { text:"Lebih semangat saat ada unsur permainan atau tantangan (skor, lomba kecil)", note:"Misalnya diajak 'siapa cepat selesai dapat bintang' — apakah semangatnya langsung naik dan lebih cepat mengerjakan dibanding kalau tanpa tantangan seperti itu?" },
     { text:"Lebih semangat saat belajar bersama teman dibanding sendirian", note:"Misalnya dalam kelompok kecil 2-3 anak dibanding belajar satu-satu dengan guru — apakah ia tampak lebih hidup dan aktif saat ada teman belajar bareng?" },
     { text:"Senang dan makin semangat saat mendapat pujian verbal langsung", note:"Misalnya diberi kalimat 'bagus sekali, kamu pintar!' setelah menjawab benar — apakah ekspresinya senang dan makin bersemangat mengerjakan soal berikutnya?" },
@@ -520,7 +566,7 @@ const ITEMS = [
     { text:"Lebih semangat saat diberi pilihan cara mengerjakan, bukan hanya satu cara baku", note:"Misalnya ditawari 'mau jawab lisan atau ditulis dulu?' — apakah ia tampak lebih antusias saat punya pilihan dibanding saat caranya sudah ditentukan sepenuhnya?" },
     { text:"Bertahan lebih lama mengerjakan tugas yang berkaitan dengan minat pribadinya", note:"Misalnya soal cerita bertema dinosaurus/mobil yang ia sukai dibanding tema netral — apakah ia bertahan fokus lebih lama dan lebih antusias mengerjakannya?" }
   ]},
-  { domain:"E", label:"Cara Menyerap Informasi", metaLabel:"Cara Menyerap Informasi", icon:"absorb", items:[
+  { domain:"E", label:"Pemahaman Materi", metaLabel:"Pemahaman Materi", icon:"absorb", items:[
     { text:"Paling cepat paham saat materi disertai gambar, diagram, atau video", note:"Misalnya menjelaskan konsep pecahan — apakah ia lebih cepat 'ngeh' saat ditunjukkan gambar potongan kue dibanding hanya dijelaskan dengan kata-kata?" },
     { text:"Paling cepat paham saat dijelaskan secara lisan atau lewat cerita", note:"Misalnya konsep yang sama dijelaskan lewat cerita atau analogi lisan tanpa gambar — apakah ia cukup paham hanya dari mendengarkan penjelasan guru?" },
     { text:"Paling cepat paham saat langsung praktik atau memegang benda konkret", note:"Misalnya diberi benda nyata (kelereng, kertas lipat) untuk mempraktikkan sendiri — apakah pemahamannya lebih cepat muncul dibanding hanya melihat/mendengar penjelasan?" },
@@ -541,17 +587,17 @@ const DOMAIN_META = {
     mid:{desc:"Si kecil cukup gigih, meski kadang butuh dorongan tambahan saat kesulitan meningkat.", tips:["Ajak ia menyusun 'rencana B' saat cara pertama tidak berhasil","Ingatkan bahwa membuat kesalahan adalah bagian normal dari belajar"]},
     high:{desc:"Ketekunan dan daya juang adalah kekuatan besar si kecil.", tips:["Beri soal dengan tingkat kesulitan bertahap untuk terus mengasah daya juangnya","Jadikan sikap pantang menyerahnya sebagai contoh yang diapresiasi terbuka"]}
   },
-  C: { label:"Kemandirian Belajar", color:"#7c3aed",
+  C: { label:"Kemandirian Belajar", color:"#16a34a",
     low:{desc:"Si kecil masih membutuhkan banyak arahan — ini normal dan akan berkembang seiring waktu.", tips:["Beri instruksi satu per satu, bukan sekaligus banyak","Latih rutinitas kecil yang sama setiap sesi agar familiar","Kurangi bantuan secara bertahap, bukan langsung dilepas"]},
     mid:{desc:"Si kecil cukup mandiri, dengan sesekali masih perlu diingatkan.", tips:["Beri checklist visual sederhana untuk tugas rutin","Biarkan ia mencoba dulu sebelum menawarkan bantuan"]},
     high:{desc:"Kemandirian adalah salah satu kekuatan si kecil.", tips:["Beri tanggung jawab kecil tambahan yang sesuai usianya","Manfaatkan kemandiriannya untuk melatih kepemimpinan dalam kelompok kecil"]}
   },
-  D: { label:"Sumber Motivasi", color:"#16a34a",
+  D: { label:"Motivasi Belajar", color:"#ec4899",
     low:{desc:"Belum terlihat pola motivasi yang menonjol dari observasi — dapat diamati lebih lanjut di sesi berikutnya.", tips:["Coba variasikan pendekatan (permainan, kelompok, pujian, progress visual) dan amati responnya","Tanyakan langsung ke si kecil apa yang membuatnya paling semangat belajar"]},
     mid:{desc:"Si kecil merespons cukup baik terhadap beberapa bentuk motivasi.", tips:["Kombinasikan pendekatan yang paling direspons positif secara konsisten"]},
     high:{desc:"Si kecil punya sumber motivasi yang jelas dan bisa dimanfaatkan secara konsisten.", tips:["Gunakan pendekatan yang paling ia respons sebagai 'pemicu semangat' rutin","Di rumah, coba terapkan pendekatan serupa saat mengerjakan PR"]}
   },
-  E: { label:"Cara Menyerap Informasi", color:"#dc2626",
+  E: { label:"Pemahaman Materi", color:"#7c3aed",
     low:{desc:"Belum terlihat kecenderungan yang menonjol dari observasi — wajar, karena anak-anak umumnya menyerap informasi lewat kombinasi berbagai cara.", tips:["Coba variasikan cara penyampaian materi dan amati mana yang paling cepat 'nyambung'"]},
     mid:{desc:"Si kecil cukup fleksibel menyerap informasi lewat beberapa cara.", tips:["Kombinasikan penjelasan lisan dengan gambar/diagram saat membantu belajar di rumah"]},
     high:{desc:"Ada kecenderungan yang cukup jelas dalam cara si kecil paling cepat memahami materi baru.", tips:["Perkenalkan topik baru lewat cara ini terlebih dulu, baru diperkuat dengan cara lain","Ini bukan berarti cara lain tidak perlu — kombinasi tetap penting, ini hanya titik awal yang paling efektif"]}
@@ -563,7 +609,10 @@ function levelLabel(pct){ return pct<=33?"Sedang berkembang":pct<=66?"Cukup meno
 function levelColor(pct){ return pct<=33?"#6b7280":pct<=66?"#0686c7":"#16a34a"; }
 function slug(s){ return (s||"").trim().toLowerCase().replace(/[^a-z0-9]+/g,"-"); }
 
-let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null };
+let record = { nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null, tahap3:null, tahap4:null };
+function idxRange(stage){ const b=(stage-1)*3; return [b,b+1,b+2]; }
+function stageJoin(list){ const l = list.map(n=>"Tahap "+n); return l.length<=1 ? (l[0]||"") : l.slice(0,-1).join(", ")+" & "+l[l.length-1]; }
+const NUM_WORD = {2:"dua",3:"tiga",4:"empat"};
 let genId = "";
 function domainPct(stageData, domain, range) {
   if(!stageData) return null;
@@ -577,33 +626,32 @@ function buildCombinedProfile() {
   let best = { domain:null, pct:-1 };
   const hasT1 = !!(record.tahap1 && record.tahap1.status === 'selesai');
   const hasT2 = !!(record.tahap2 && record.tahap2.status === 'selesai');
-  const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Info" };
+  const doneStages = [1,2,3,4].filter(n => record['tahap'+n] && record['tahap'+n].status === 'selesai');
+  const multi = doneStages.length >= 2;
+  const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Pemahaman Informasi" };
   const radarData = [];
 
   ITEMS.forEach(d => {
-    const pct1 = hasT1 ? domainPct(record.tahap1, d.domain, [0,1,2]) : null;
-    const pct2 = hasT2 ? domainPct(record.tahap2, d.domain, [3,4,5]) : null;
-    // pct gabungan: rata-rata dari tahap yang tersedia (kalau 2 tahap ada, dari 6 item asli)
+    const stagePcts = {};
+    doneStages.forEach(n => { stagePcts[n] = domainPct(record['tahap'+n], d.domain, idxRange(n)); });
     let combinedPct;
-    if(hasT1 && hasT2) {
-      const sum = [0,1,2,3,4,5].reduce((s,idx)=>{
-        const src = idx<3 ? record.tahap1 : record.tahap2;
-        return s + (src.answers[`${d.domain}_${idx}`]||0);
-      },0);
-      combinedPct = Math.round((sum/18)*100);
+    if(multi) {
+      let sum = 0;
+      doneStages.forEach(n => idxRange(n).forEach(idx => { sum += (record['tahap'+n].answers[`${d.domain}_${idx}`]||0); }));
+      combinedPct = Math.round((sum/(doneStages.length*9))*100);
     } else {
-      combinedPct = pct1 !== null ? pct1 : pct2;
+      combinedPct = doneStages.length ? stagePcts[doneStages[0]] : null;
     }
     if(combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
-    radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, color: DOMAIN_META[d.domain].color, icon: d.icon });
+    radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, color: RADAR_COLOR[d.domain], icon: d.icon, img: ICON_BASE + RADAR_IMG[d.domain] });
 
     const meta = DOMAIN_META[d.domain];
     const level = levelOf(combinedPct);
     const info = meta[level];
 
     let trendHtml = "";
-    if(hasT1 && hasT2) {
-      const delta = pct2 - pct1;
+    if(multi) {
+      const delta = stagePcts[doneStages[doneStages.length-1]] - stagePcts[doneStages[0]];
       let trendLabel, trendColor;
       if(delta >= 12){ trendLabel="▲ Meningkat"; trendColor="#16a34a"; }
       else if(delta <= -12){ trendLabel="▼ Menurun"; trendColor="#dc2626"; }
@@ -611,13 +659,10 @@ function buildCombinedProfile() {
       trendHtml = `<span class="parea-trend" style="background:${trendColor}22;color:${trendColor}">${trendLabel}</span>`;
     }
 
-    const barsHtml = (hasT1 && hasT2) ? `
+    const barRow = (lbl, p) => `<div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${lbl}</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${p}%;background:${levelColor(p)}"></div></div><span class="parea-bar-compare-val">${p}%</span></div>`;
+    const barsHtml = `
       <div class="parea-bar-compare">
-        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">Tahap 1</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct1}%;background:${levelColor(pct1)}"></div></div><span class="parea-bar-compare-val">${pct1}%</span></div>
-        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">Tahap 2</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${pct2}%;background:${levelColor(pct2)}"></div></div><span class="parea-bar-compare-val">${pct2}%</span></div>
-      </div>` : `
-      <div class="parea-bar-compare">
-        <div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${hasT1?"Tahap 1":"Tahap 2"}</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${combinedPct}%;background:${levelColor(combinedPct)}"></div></div><span class="parea-bar-compare-val">${combinedPct}%</span></div>
+        ${multi ? doneStages.map(n => barRow("Tahap "+n, stagePcts[n])).join("") : barRow("Tahap "+(doneStages[0]||1), combinedPct)}
       </div>`;
 
     const card = document.createElement("div");
@@ -652,28 +697,21 @@ function buildCombinedProfile() {
       extra = ` — terutama lewat ${subLabels[subIdx]}`;
     }
   }
-  const heroCard = document.getElementById("hero-specialty");
-  heroCard.style.borderColor = bestMeta.color + "35";
-  heroCard.style.background = `linear-gradient(180deg, ${bestMeta.color}14, #ffffff 65%)`;
-  document.getElementById("hero-icon-badge").style.background = bestMeta.color;
-  document.getElementById("hero-icon-badge").innerHTML = ICONS[bestItemDef.icon];
-  document.getElementById("hero-label").style.background = bestMeta.color;
-  document.getElementById("hero-title").textContent = bestMeta.label;
-  document.getElementById("hero-title").style.color = bestMeta.color;
+    document.getElementById("hero-title").textContent = bestMeta.label;
   document.getElementById("hero-sub").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area ini${extra}.`;
-  document.getElementById("report-title").textContent = `Profil Kekuatan Belajar ${nama}`;
+  document.getElementById("report-title").textContent = nama;
 
 
-  buildIntroDeck(record.nama || "Ananda", hasT1, hasT2);
+  buildIntroDeck(record.nama || "Ananda", doneStages);
   const singleNote = document.getElementById("single-stage-note");
   const caption = document.getElementById("areas-caption");
   const sub = document.getElementById("report-sub");
   const parentNote = document.getElementById("parent-note-box");
-  if(hasT1 && hasT2) {
+  if(multi) {
     singleNote.style.display = "none";
-    caption.textContent = "Berikut perbandingan Tahap 1 vs Tahap 2 di tiap area, untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.";
-    sub.textContent = "Evaluasi gabungan Tahap 1 & Tahap 2 — observasi guru di Markz Belajar";
-    parentNote.innerHTML = `💬 Laporan ini membandingkan dua titik observasi guru dari waktu ke waktu, dan akan menjadi bahan diskusi bersama Ayah/Bunda agar pendampingan belajar si kecil makin sesuai dengan caranya sendiri.`;
+    caption.textContent = "Berikut perbandingan " + doneStages.map(n=>"Tahap "+n).join(" vs ") + " di tiap area, untuk melihat konsistensi & perkembangan si kecil dari waktu ke waktu.";
+    sub.textContent = "Evaluasi gabungan " + stageJoin(doneStages) + " — observasi guru di Markz Belajar";
+    parentNote.innerHTML = `💬 Laporan ini membandingkan ${NUM_WORD[doneStages.length]} titik observasi guru dari waktu ke waktu, dan akan menjadi bahan diskusi bersama Ayah/Bunda agar pendampingan belajar si kecil makin sesuai dengan caranya sendiri.`;
   } else {
     singleNote.style.display = "none";   // sudah dijelaskan di kartu pengantar
     singleNote.innerHTML = "ℹ️ Ini <strong>hasil awal (Tahap 1)</strong>. Observasi akan <strong>dilanjutkan ke Tahap 2</strong> setelah ±4 pertemuan berikutnya, untuk melihat konsistensi dan perkembangan si kecil dari waktu ke waktu.";
@@ -696,9 +734,9 @@ let iCards = [], iIdx = 0, iBusy = false, iDrag = null, iSuppress = false;
 
 function escHtml(t) { return String(t).replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
 
-function buildIntroDeck(nama, hasT1, hasT2) {
-  const both = hasT1 && hasT2;
-  const stageLabel = both ? "Tahap 1 &amp; Tahap 2" : (hasT2 ? "Tahap 2" : "Tahap 1");
+function buildIntroDeck(nama, doneStages) {
+  const both = doneStages.length >= 2;
+  const stageLabel = stageJoin(doneStages).replace(/&/g, "&amp;") || "Tahap 1";
   const dom = (c, t, d) => `<div class="idomain" style="--c:${c}"><b>${t}</b> — ${d}</div>`;
   const dot = (c, t) => `<span style="--c:${c}">${t}</span>`;
   iCards = [
@@ -708,14 +746,14 @@ function buildIntroDeck(nama, hasT1, hasT2) {
        <div class="iname">${escHtml(nama)}</div>
        <div class="isub">Hasil observasi guru · ${stageLabel}</div>` },
     { icon: "calendar", title: both ? "Evaluasi gabungan" : "Laporan pertama", body: both
-      ? `<div>Membandingkan <strong>dua observasi guru</strong> dari waktu ke waktu.</div>
+      ? `<div>Membandingkan <strong>${NUM_WORD[doneStages.length]} observasi guru</strong> dari waktu ke waktu.</div>
          <div class="iplain">Menjadi bahan diskusi kita untuk pendampingan yang lebih pas.</div>`
       : `<div>Kami akan observasi lagi setelah <strong>±4 pertemuan</strong> berikutnya, untuk melihat perkembangan ananda.</div>
          <div class="iplain">Hasilnya jadi bahan diskusi bersama Ayah/Bunda.</div>` },
     { icon: "eye", title: "Metode", body:
       `<div>Observasi guru saat ananda belajar.<br><strong>Bukan tes.</strong></div>
        <div class="ilist">
-         ${dot("#0686c7","Fokus")}${dot("#d97706","Ketekunan")}${dot("#7c3aed","Kemandirian")}${dot("#16a34a","Motivasi")}${dot("#dc2626","Cara menyerap informasi")}
+         ${dot("#0686c7","Fokus")}${dot("#d97706","Ketekunan")}${dot("#16a34a","Kemandirian")}${dot("#ec4899","Motivasi")}${dot("#7c3aed","Pemahaman materi")}
        </div>
        <div class="isub">Berbasis konsep perhatian, grit, <i>self-regulated learning</i> &amp; motivasi</div>` },
     { icon: "chart", title: "Cara menilai", body:
@@ -914,11 +952,16 @@ function buildRadarSVG(items) {
   items.forEach((it, i) => {
     const p = pol(labelR, i * step);
     const iconY = p.y - 18;
-    const iconSvg = it.icon ? ICONS[it.icon] : "";
-    labelHtml += `<circle cx="${p.x.toFixed(1)}" cy="${iconY.toFixed(1)}" r="13" fill="${it.color}"/>`;
-    labelHtml += `<g transform="translate(${(p.x-8).toFixed(1)}, ${(iconY-8).toFixed(1)})">${iconSvg}</g>`;
-    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563" font-family="Segoe UI, sans-serif">${it.short}</text>`;
-    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+23).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
+    const two = String(it.short).length > 12 && String(it.short).indexOf(" ") > 0;
+    const w = String(it.short).split(" ");
+    labelHtml += `<image href="${it.img}" x="${(p.x-19).toFixed(1)}" y="${(iconY-19).toFixed(1)}" width="38" height="38"/>`;
+    if(two) {
+      labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563" font-family="Segoe UI, sans-serif">${w[0]}</text>`;
+      labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+20).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563" font-family="Segoe UI, sans-serif">${w.slice(1).join(" ")}</text>`;
+    } else {
+      labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563" font-family="Segoe UI, sans-serif">${it.short}</text>`;
+    }
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+(two?36:23)).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
   });
   return `<svg viewBox="0 0 380 350" style="width:100%;max-width:360px;overflow:visible;">${defs}${rings}${star}${dots}${center}${labelHtml}</svg>`;
 }
@@ -942,7 +985,7 @@ function showViewMessage(html) {
   el.innerHTML = html; el.classList.add("show");
 }
 function hasAnyFinalStage() {
-  return !!((record.tahap1 && record.tahap1.status === 'selesai') || (record.tahap2 && record.tahap2.status === 'selesai'));
+  return [1,2,3,4].some(n => record['tahap'+n] && record['tahap'+n].status === 'selesai');
 }
 function kbCacheKey(g){ return "mb_kb_cache_" + g; }
 function readKBCache(g){ try { const raw = localStorage.getItem(kbCacheKey(g)); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
@@ -968,6 +1011,8 @@ async function loadReport() {
       record.nama = cache.record.nama || record.nama;
       record.tahap1 = cache.record.tahap1 || null;
       record.tahap2 = cache.record.tahap2 || null;
+      record.tahap3 = cache.record.tahap3 || null;
+      record.tahap4 = cache.record.tahap4 || null;
     }
     if(hasAnyFinalStage()) { showCombinedReport(); hideSplash(); }
     const slowTimer = setTimeout(() => {
@@ -981,10 +1026,12 @@ async function loadReport() {
       const d = r.data;
       record.tahap1 = d.tahap1 || null;
       record.tahap2 = d.tahap2 || null;
+      record.tahap3 = d.tahap3 || null;
+      record.tahap4 = d.tahap4 || null;
       record.nama = d.namaAnak || record.nama;
       record.usia = d.usia || ""; record.jk = d.jk || ""; record.guru = d.namaGuru || "";
     } else if(r && r.ok) {
-      record.tahap1 = null; record.tahap2 = null;
+      record.tahap1 = null; record.tahap2 = null; record.tahap3 = null; record.tahap4 = null;
     } else { failed = true; errMsg = (r && r.error) || 'Server tidak merespons'; }
     // tampilkan ulang hanya jika data berubah / belum tampil
     if(!document.getElementById("result-parent").classList.contains("show") || (r && r.ok)) {
@@ -999,7 +1046,7 @@ async function loadReport() {
   if(hash && hash.startsWith("#d=")) {
     try {
       const data = JSON.parse(decodeURIComponent(escape(atob(hash.slice(3)))));
-      record = Object.assign({ nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null }, data);
+      record = Object.assign({ nama:"", usia:"", jk:"", guru:"", tahap1:null, tahap2:null, tahap3:null, tahap4:null }, data);
       reportOrMessage(false, '');
       return true;
     } catch(e) { console.error(e); }
