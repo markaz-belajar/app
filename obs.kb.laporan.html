@@ -427,8 +427,8 @@ button, input, select, textarea { font-family: inherit; }
 .result-parent-banner { position: sticky; top: 0; z-index: 0; height: 310px; padding: 0; text-align: left; background: #e9bd3a; border-radius: 0; overflow: hidden; }
 .rp-tiger { position: absolute; right: 2%; top: 6px; width: 88%; max-width: none; height: auto; display: block; will-change: filter, transform; transform-origin: 60% 35%; }
 .rp-logo { position: absolute; left: 14px; top: 14px; width: 46px; height: 46px; border-radius: 13px; object-fit: contain; z-index: 3; box-shadow: 0 4px 12px rgba(120,80,0,.25); }
-.rp-sheet { position: relative; z-index: 2; margin: -102px 12px 0; padding: 62px 16px 12px; background: linear-gradient(#fffdf8,#fffdf8) 0 90px / 100% calc(100% - 90px) no-repeat; }
-.rp-sheet::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 100px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cpath fill='%23fffdf8' d='M0 100V52C0 26 20 8 48 8C150 8 250 40 322 54C376 64 400 72 400 90V100Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; pointer-events: none; }
+.rp-sheet { position: relative; z-index: 2; margin: -102px 16px 0; padding: 62px 16px 12px; background: linear-gradient(#fffdf8,#fffdf8) 0 90px / 100% calc(100% - 90px) no-repeat; }
+.rp-sheet::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 100px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cpath fill='%23fffdf8' d='M0 100V62C0 30 26 9 62 9C150 9 252 34 320 52C370 65 400 68 400 94V100Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; pointer-events: none; }
 .rp-play { position: absolute; top: 14px; right: 22px; width: 68px; height: 68px; border-radius: 50%; background: #fff; box-shadow: 0 8px 20px rgba(160,100,0,.28); display: flex; align-items: center; justify-content: center; }
 .rp-play img { width: 58px; height: 58px; object-fit: contain; }
 .rp-kicker { font-size: 17px; font-weight: 600; color: #1a3550; position: relative; }
@@ -463,7 +463,7 @@ button, input, select, textarea { font-family: inherit; }
 .parea-tips { display: none; }
 .parea-desc::before { content: "💡"; margin-right: 8px; }
 .parent-note { background: #fff0c2; color: #7a5200; border-radius: 18px; padding: 14px 16px; font-size: 13.5px; font-weight: 500; margin-top: 14px; }
-.share-section { position: relative; z-index: 2; margin: 0 12px; background: #fffdf8; border-top: none; padding: 4px 16px 22px; border-radius: 0 0 30px 30px; }
+.share-section { position: relative; z-index: 2; margin: 0 16px; background: #fffdf8; border-top: none; padding: 4px 16px 22px; border-radius: 0 0 30px 30px; }
 .disclaimer { background: transparent; padding: 4px 0 0; font-size: 11px; font-weight: 500; }
 </style>
 <style>
@@ -471,7 +471,7 @@ button, input, select, textarea { font-family: inherit; }
 body { background: #fed554 !important; }
 .result-parent { background: transparent !important; border: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 0 !important; padding-bottom: 14px; }
 .result-parent-banner { height: auto !important; aspect-ratio: 1 / 1.06; background: #fed554 !important; border-radius: 0 !important; -webkit-mask-image: linear-gradient(#000 calc(100% - 90px), transparent); mask-image: linear-gradient(#000 calc(100% - 90px), transparent); }
-.rp-tiger { left: 4% !important; right: auto !important; top: 12% !important; width: 94% !important; }
+.rp-tiger { left: 12% !important; right: auto !important; top: 14% !important; width: 80% !important; }
 .rp-logo { left: 50% !important; top: 3.2% !important; width: 36% !important; max-width: 190px; height: auto !important; transform: translateX(-50%); border-radius: 0 !important; box-shadow: none !important; background: none; object-fit: contain; }
 .rp-sheet { margin-top: -20% !important; }
 .icard, .icard * { touch-action: none !important; }
@@ -546,7 +546,7 @@ body { background: #fed554 !important; }
 }
 
 /* ═══ Blok peringatan merah ═══ */
-.rp-warn { display:flex; width:fit-content; max-width:100%; align-items:center; justify-content:center; gap:7px; margin:10px auto 14px; padding:6px 13px 6px 9px; background:linear-gradient(135deg,#ef2d3f,#c8102e); color:#fff; border-radius:999px; box-shadow:0 3px 8px rgba(200,16,46,.28); }
+.rp-warn { display:flex; width:fit-content; max-width:100%; align-items:center; justify-content:center; gap:7px; margin:14px auto 0; padding:6px 13px 6px 9px; background:linear-gradient(135deg,#ef2d3f,#c8102e); color:#fff; border-radius:999px; box-shadow:0 3px 8px rgba(200,16,46,.28); }
 .rp-warn-ic { flex:0 0 auto; width:18px; height:18px; display:flex; align-items:center; justify-content:center; }
 .rp-warn-ic svg { width:18px; height:18px; }
 .rp-warn-tx { font-size:13.5px; font-weight:700; line-height:1.2; color:#fff; text-align:center; }
@@ -583,10 +583,6 @@ body { background: #fed554 !important; }
 
       <div class="radar-chart-container" id="radar-chart-container"></div>
 
-      <div class="rp-warn" role="note">
-        <div class="rp-warn-ic"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13.5"/><line x1="12" y1="17.2" x2="12.01" y2="17.2"/></svg></div>
-        <div class="rp-warn-tx">Bukan tes bakat, IQ, atau diagnosis</div>
-      </div>
       <p style="font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:10px;" id="areas-caption">Berikut profil lengkap si kecil di tiap area. Semakin tinggi bar, semakin menonjol kecenderungan tersebut — bukan penilaian "baik/buruk".</p>
       <div class="profile-areas" id="profile-areas"></div>
 
@@ -594,7 +590,11 @@ body { background: #fed554 !important; }
       <div class="parent-note" id="parent-note-box">💬 Jadi bahan diskusi guru dengan Ayah/Bunda agar pendampingan belajar si kecil makin sesuai.</div>
     </div>
     <div class="share-section">
-      <div class="disclaimer">Alat bantu pendampingan internal Markz Belajar — bukan tes bakat, IQ, atau diagnosis. Kecenderungan anak bisa berubah seiring waktu.</div>
+      <div class="disclaimer">Alat bantu pendampingan internal Markz Belajar. Kecenderungan anak bisa berubah seiring waktu.</div>
+    <div class="rp-warn" role="note">
+        <div class="rp-warn-ic"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13.5"/><line x1="12" y1="17.2" x2="12.01" y2="17.2"/></svg></div>
+        <div class="rp-warn-tx">Bukan tes bakat, IQ, atau diagnosis</div>
+      </div>
     </div>
   </div>
 
@@ -1282,9 +1282,9 @@ async function loadReport() {
       }
       if(maxX < 0) return;
       const bx = minX / c.width, by = minY / c.height, bw = (maxX - minX + 1) / c.width;
-      const k = 0.88 / bw;                          // lebar gambar (satuan lebar banner) agar maskot selebar 88%
-      const leftW = 6 - bx * k * 100;               // sisi kiri maskot di 6% lebar
-      const topW  = 16.5 - by * (h / w) * k * 100;  // puncak maskot di 16.5% lebar (tepat di bawah logo)
+      const k = 0.76 / bw;                          // lebar gambar (satuan lebar banner) agar maskot selebar 76%
+      const leftW = 50 - (bx + bw / 2) * k * 100;  // maskot di tengah horizontal
+      const topW  = 18 - by * (h / w) * k * 100;  // puncak maskot di 16.5% lebar (tepat di bawah logo)
       img.style.setProperty('width', (k * 100).toFixed(2) + '%', 'important');
       img.style.setProperty('left', leftW.toFixed(2) + '%', 'important');
       img.style.setProperty('top', (topW / 1.06).toFixed(2) + '%', 'important');   // top % mengikuti tinggi banner (1.06 x lebar)
