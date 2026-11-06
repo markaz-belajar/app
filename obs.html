@@ -407,7 +407,7 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
     <div class="wa-handle"></div>
     <div class="wa-title">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="#25D366" stroke="none"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.127.558 4.122 1.532 5.852L.057 23.57a.75.75 0 0 0 .918.919l5.739-1.479A11.953 11.953 0 0 0 12 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22a9.953 9.953 0 0 1-5.127-1.417l-.368-.218-3.807.981.999-3.683-.24-.381A9.953 9.953 0 0 1 2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
-      Kirim Form ke Orang Tua
+      <span id="waTitleTxt">Kirim Form ke Orang Tua</span>
     </div>
     <div class="wa-preview" id="waPreview">—</div>
     <button class="btn btn-wa btn-full" onclick="doSendWA()">
@@ -881,6 +881,10 @@ function renderKBView(s, rec) {
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
         Lihat Laporan${([t1Done,t2Done,t3Done,t4Done].filter(Boolean).length>=2)?' Gabungan':' (Sementara)'}
       </button>
+      <button class="btn btn-wa btn-full" style="margin-top:8px;" onclick="kirimLaporanKB()">
+        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
+        Kirim Laporan ke Orang Tua
+      </button>
     </div>`;
   }
 
@@ -903,8 +907,28 @@ function openFormKB(stage) {
 function lihatLaporanKB() {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const url = `${FORM_KB_LAPORAN}?gen=${encodeURIComponent(genId)}&nama=${encodeURIComponent(s.nama)}&v=${Date.now()}`;
+  const url = `${FORM_KB_LAPORAN}?gen=${encodeURIComponent(genId)}&v=${Date.now()}`;
   window.open(url, '_blank');
+}
+
+// ⭐ Kirim laporan Kekuatan Belajar ke orang tua (WhatsApp).
+// Link HANYA membawa "gen" (kode singkat) — nama anak TIDAK ada di URL;
+// halaman laporan mengambil namanya sendiri dari server.
+function kirimLaporanKB() {
+  const s = currentSiswa;
+  const genId = s.nomorInduk || ('ID-' + s.id);
+  const namaIbu = s.namaIbu || '';
+  const waNum = normalizeWA(s.waIbu || '');
+  if (!waNum) { showToast('Nomor WhatsApp orang tua belum tersedia di data siswa.', false); return; }
+  const laporanUrl = `${FORM_KB_LAPORAN}?gen=${encodeURIComponent(genId)}`;
+  const namaDepan = (s.nama || '').split(' ')[0];
+  const ibuDepan = namaIbu ? namaIbu.split(' ')[0] : '';
+  const sapa = ibuDepan ? `Bunda ${ibuDepan}` : 'Ayah/Bunda';
+  const waMsg = `Assalamualaikum, ${sapa}! 👋\n\nTim Markaz Belajar telah menyiapkan *Profil Kekuatan Belajar* untuk *${namaDepan}*, berdasarkan observasi guru saat belajar. 🌟\n\n📊 Silakan lihat laporannya di sini:\n${laporanUrl}\n\n⚠️ Ini alat bantu pendampingan — *bukan tes bakat, IQ, atau diagnosis*. Hasil bisa berubah seiring waktu.\n\nJika ada pertanyaan, silakan balas pesan ini. Terima kasih, ${sapa}! 💛\n_Tim Markaz Belajar_`;
+  pendingWA = { kind:'kb', waNum, waMsg, genId, namaAnak: s.nama, namaIbu, waIbu: s.waIbu };
+  document.getElementById('waTitleTxt').textContent = 'Kirim Laporan ke Orang Tua';
+  document.getElementById('waPreview').textContent = waMsg;
+  document.getElementById('waOverlay').classList.add('open');
 }
 
 function resetKBTesting() {
@@ -1081,6 +1105,7 @@ function renderASDView(s, rec) {
   }
 
   pendingWA = { waNum, waMsg, genId, namaAnak: s.nama, namaIbu, waIbu };
+  document.getElementById('waTitleTxt').textContent = 'Kirim Form ke Orang Tua';
   document.getElementById('waPreview').textContent = waMsg;
 }
 
@@ -1139,6 +1164,13 @@ function doSendWA() {
 
   // Buka WhatsApp LANGSUNG saat tombol diklik (sebelum ada await apapun)
   window.open(`https://wa.me/${waNum}?text=${encodeURIComponent(waMsg)}`, '_blank');
+
+  if (pendingWA.kind === 'kb') {   // laporan KB: cukup buka WhatsApp, tidak menyentuh status screening ASD
+    pendingWA = null;
+    closeWA();
+    showToast('WhatsApp dibuka — tinggal tekan kirim.', true);
+    return;
+  }
 
   // Catat status kirim ke spreadsheet di belakang layar
   apiGet(API_SCREENING, { action:'markScreeningKirim', genId, namaAnak, namaIbu, waIbu })
