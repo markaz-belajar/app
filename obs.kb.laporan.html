@@ -6,6 +6,9 @@
 <title>Profil Kekuatan Belajar — Markz Belajar</title>
 <meta name="theme-color" content="#1B6CA8">
 <link rel="preload" as="image" href="Open_MB_Icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon_mb_app.png">
 <meta name="mobile-web-app-capable" content="yes">
@@ -415,40 +418,54 @@ html:not(.view-loading) .splash { opacity: 0; visibility: hidden; pointer-events
 </style>
 
 <style>
-/* ═══ Layout laporan baru (maskot macan) ═══ */
-body { background: linear-gradient(180deg, #f4c542 0, #fbe08a 380px, #fff6dc 900px, #fff9e8 100%); background-attachment: scroll; padding-top: 0; font-family: 'Plus Jakarta Sans','Segoe UI',system-ui,sans-serif; }
-.body { max-width: 480px; margin: 0 auto; padding: 0 0 28px; }
-.result-parent { background: transparent; border: none; border-radius: 0; overflow: visible; margin-bottom: 0; }
-.result-parent-banner { background: #e6b93a; padding: 0; text-align: left; position: relative; overflow: hidden; height: 350px; }
-.rp-tiger { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; }
-.rp-sheet { position: relative; background: #fffdf8; border-radius: 34px 34px 0 0; margin-top: -46px; padding: 22px 16px 12px; box-shadow: 0 -10px 28px rgba(160,100,0,.18); }
-.rp-play { position: absolute; top: -26px; right: 18px; width: 56px; height: 56px; border-radius: 50%; border: none; background: #fff; box-shadow: 0 6px 16px rgba(160,100,0,.25); display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.rp-play svg { width: 24px; height: 24px; fill: #f97316; }
-.rp-kicker { font-size: 17px; font-weight: 600; color: #1e3a5f; }
-.rp-name { font-size: 23px; font-weight: 800; color: #0f2b46; line-height: 1.25; margin: 2px 52px 10px 0; }
-.hero-specialty { border: none !important; background: none !important; text-align: left; padding: 4px 0 0; margin: 0 0 4px; }
+/* ═══ Layout laporan baru (maskot macan, frame kaca) ═══ */
+:root { --kb-font: 'Quicksand','Nunito','Segoe UI',system-ui,sans-serif; }
+body { font-family: var(--kb-font); padding-top: 0;
+  background: radial-gradient(60% 38% at 12% 8%, rgba(250,204,21,.5), transparent 70%), radial-gradient(55% 36% at 95% 38%, rgba(251,146,60,.28), transparent 70%), radial-gradient(60% 40% at 10% 85%, rgba(250,204,21,.3), transparent 70%), #fdf3dc;
+  background-attachment: fixed; }
+button, input, select, textarea { font-family: inherit; }
+.body { max-width: 480px; margin: 0 auto; padding: 0 0 24px; }
+.result-parent { background: linear-gradient(180deg, rgba(246,196,60,.86), rgba(252,226,130,.74) 45%, rgba(255,240,190,.62)); -webkit-backdrop-filter: blur(22px) saturate(1.25); backdrop-filter: blur(22px) saturate(1.25); border: 1px solid rgba(255,255,255,.7); border-radius: 40px; box-shadow: 0 24px 60px -18px rgba(170,110,0,.35); overflow: visible; margin: 0 0 12px; padding-bottom: 14px; }
+.result-parent-banner { position: sticky; top: 0; z-index: 0; height: 300px; padding: 0; text-align: left; background: #e6b93a; border-radius: 40px 40px 0 0; overflow: hidden; }
+.rp-tiger { width: 100%; height: 100%; object-fit: cover; object-position: 50% 0; display: block; will-change: filter, transform; transform-origin: 50% 30%; }
+.rp-sheet { position: relative; z-index: 2; margin: -112px 12px 0; padding: 62px 16px 12px; background: linear-gradient(#fffdf8,#fffdf8) 0 99px / 100% calc(100% - 99px) no-repeat; }
+.rp-sheet::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 100px; background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 100' preserveAspectRatio='none'%3E%3Cpath fill='%23fffdf8' d='M0 100V52C0 26 20 8 48 8C150 8 250 40 322 54C376 64 400 72 400 100Z'/%3E%3C/svg%3E") no-repeat 0 0 / 100% 100%; filter: drop-shadow(0 -6px 10px rgba(160,100,0,.14)); pointer-events: none; }
+.rp-play { position: absolute; top: 14px; right: 22px; width: 68px; height: 68px; border-radius: 50%; background: #fff; box-shadow: 0 8px 20px rgba(160,100,0,.28); display: flex; align-items: center; justify-content: center; }
+.rp-play img { width: 58px; height: 58px; object-fit: contain; }
+.rp-kicker { font-size: 17px; font-weight: 600; color: #1a3550; position: relative; }
+.rp-name { font-size: 22px; font-weight: 700; color: #0d2b3e; line-height: 1.25; margin: 2px 84px 12px 0; position: relative; }
+.hero-specialty { border: none !important; background: none !important; text-align: left; padding: 0; margin: 0 0 6px; position: relative; }
 .hero-icon-badge { display: none; }
-.hero-specialty-label { background: #fff1c2 !important; color: #e65100 !important; text-transform: none; letter-spacing: 0; font-size: 13px; font-weight: 800; padding: 5px 14px; border-radius: 999px; margin-bottom: 8px; }
-.hero-specialty-title { font-size: 30px; color: #0f2b46 !important; margin-bottom: 4px; }
-.hero-specialty-sub { color: #6b6f8d; font-size: 14px; max-width: none; margin: 0; }
-.radar-chart-container { margin: 8px auto 4px; }
+.hero-specialty-label { background: linear-gradient(90deg,#fde7a3,#fff1c2) !important; color: #e8590c !important; text-transform: none; letter-spacing: 0; font-size: 14px; font-weight: 700; padding: 6px 16px 6px 12px; border-radius: 999px; margin-bottom: 10px; }
+.rp-star { color: #f59e0b; margin-right: 4px; }
+.hero-specialty-title { font-size: 30px; font-weight: 700; color: #0d2b3e !important; margin-bottom: 6px; letter-spacing: 0; }
+.hero-specialty-sub { color: #6b6d99; font-size: 15px; font-weight: 500; max-width: none; margin: 0; line-height: 1.5; }
+.hero-specialty-sub strong { font-weight: 600; color: #6b6d99; }
+.radar-chart-container { margin: 6px auto 2px; }
+.radar-chart-container text { font-family: var(--kb-font); }
+.radar-chart-container text[font-size="12"] { font-size: 13.5px; font-weight: 700; fill: #0d2b3e; }
+.radar-chart-container text[font-size="13"] { font-size: 16px; font-weight: 700; }
+#areas-caption { font-size: 12.5px !important; color: #6b6d99 !important; font-weight: 500; }
 .profile-areas { display: flex; flex-direction: column; gap: 12px; }
-.parea-card { border: none; border-radius: 20px; background: #fff; box-shadow: 0 4px 16px rgba(160,100,0,.12); }
-.parea-head { background: transparent; padding: 12px 14px 4px; }
-.parea-dot { width: 14px; height: 14px; }
-.parea-label { font-size: 15px; font-weight: 800; color: #0f2b46; }
+.parea-card { border: none; border-radius: 22px; background: #fff; box-shadow: 0 6px 18px rgba(160,100,0,.13); }
+.parea-head { background: transparent; padding: 14px 14px 4px; gap: 8px; }
+.parea-dot { width: 16px; height: 16px; }
+.parea-label { font-size: 14.5px; font-weight: 700; color: #0d2b3e; white-space: nowrap; flex: 1 1 auto; }
+.parea-head { flex-wrap: wrap; row-gap: 6px; }
+.parea-pill, .parea-trend { font-weight: 700; font-size: 10.5px; padding: 3px 8px; }
+.parea-trend { margin-left: 4px; }
 .parea-bar-wrap { padding: 6px 14px 4px; }
-.parea-bar-compare-lbl { width: 48px; font-size: 11px; color: #6b6f8d; }
+.parea-bar-compare-lbl { width: 50px; font-size: 12.5px; color: #6b6d99; font-weight: 500; }
 .parea-bar-track { height: 8px; background: #eef0f5; }
 .parea-bar-fill { background-image: linear-gradient(90deg, #38bdf8, #22c55e) !important; }
-.parea-bar-compare-val { font-size: 11px; width: 34px; }
+.parea-bar-compare-val { font-size: 12.5px; width: 38px; font-weight: 700; }
 .parea-body { border-top: none; padding: 4px 14px 14px; }
-.parea-desc { font-size: 13px; color: #374151; margin-bottom: 0; }
+.parea-desc { font-size: 14px; font-weight: 500; color: #3d4160; margin-bottom: 0; }
 .parea-tips { display: none; }
 .parea-desc::before { content: "💡"; margin-right: 8px; }
-.parent-note { background: #fff0c2; color: #7a5200; border-radius: 18px; padding: 14px 16px; font-size: 13px; margin-top: 14px; }
-.share-section { background: #fffdf8; border-top: none; padding: 4px 16px 22px; border-radius: 0 0 34px 34px; }
-.disclaimer { background: transparent; padding: 4px 0 0; font-size: 11px; }
+.parent-note { background: #fff0c2; color: #7a5200; border-radius: 18px; padding: 14px 16px; font-size: 13.5px; font-weight: 500; margin-top: 14px; }
+.share-section { position: relative; z-index: 2; margin: 0 12px; background: #fffdf8; border-top: none; padding: 4px 16px 22px; border-radius: 0 0 30px 30px; }
+.disclaimer { background: transparent; padding: 4px 0 0; font-size: 11px; font-weight: 500; }
 </style>
 </head>
 <body>
@@ -467,14 +484,14 @@ body { background: linear-gradient(180deg, #f4c542 0, #fbe08a 380px, #fff6dc 900
       <p id="report-sub" style="display:none"></p>
     </div>
     <div class="result-parent-body rp-sheet">
-      <button type="button" class="rp-play" onclick="openIntro()" aria-label="Putar pengantar"><svg viewBox="0 0 24 24"><path d="M8 5.5v13a1 1 0 0 0 1.5.86l10.6-6.5a1 1 0 0 0 0-1.72L9.5 4.64A1 1 0 0 0 8 5.5z"/></svg></button>
+      <div class="rp-play"><img id="rp-badge-img" src="" alt=""></div>
       <div class="rp-kicker">Profil Kekuatan Belajar</div>
       <h2 class="rp-name" id="report-title"></h2>
       <div class="single-stage-note" id="single-stage-note" style="display:none;">⚠️ Laporan ini baru berdasarkan <strong>Tahap 1 saja</strong> — belum ada data Tahap 2 untuk perbandingan. Hasil masih bersifat awal.</div>
 
       <div class="hero-specialty" id="hero-specialty">
         <div class="hero-icon-badge" id="hero-icon-badge"></div>
-        <div class="hero-specialty-label" id="hero-label">★ Kekuatan Utama</div>
+        <div class="hero-specialty-label" id="hero-label"><span class="rp-star">★</span> Kekuatan Utama</div>
         <div class="hero-specialty-title" id="hero-title">—</div>
         <div class="hero-specialty-sub" id="hero-sub">—</div>
       </div>
@@ -698,6 +715,7 @@ function buildCombinedProfile() {
     }
   }
     document.getElementById("hero-title").textContent = bestMeta.label;
+  document.getElementById("rp-badge-img").src = ICON_BASE + DOMAIN_IMG[best.domain];
   document.getElementById("hero-sub").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area ini${extra}.`;
   document.getElementById("report-title").textContent = nama;
 
@@ -1054,6 +1072,20 @@ async function loadReport() {
   showViewMessage('⚠️ <strong>Link laporan tidak valid.</strong> Mohon minta link baru kepada guru.');
   return false;
 }
+// Maskot tetap di tempat; lembar putih naik menimpa, maskot makin blur perlahan
+(function(){
+  let tick = false;
+  function apply(){
+    tick = false;
+    const img = document.querySelector('.rp-tiger');
+    if(!img) return;
+    const t = Math.min(1, Math.max(0, window.scrollY / 280));
+    img.style.filter = t > 0.01 ? 'blur(' + (t * 14).toFixed(1) + 'px)' : 'none';
+    img.style.transform = 'scale(' + (1 + t * 0.06).toFixed(3) + ')';
+    img.style.opacity = (1 - t * 0.35).toFixed(2);
+  }
+  window.addEventListener('scroll', function(){ if(!tick){ tick = true; requestAnimationFrame(apply); } }, { passive:true });
+})();
 loadReport().finally(() => hideSplash());
 </script>
 </body>
