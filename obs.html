@@ -427,7 +427,7 @@ const FORM_ORTU     = 'https://markaz-belajar.github.io/app/obs.autism.anak.html
 const FORM_GURU     = 'https://markaz-belajar.github.io/app/obs.autism.teach.html';
 const FORM_REPORT   = 'https://markaz-belajar.github.io/app/obs.autism.report.html';
 
-// ⭐ BARU — Kekuatan Belajar (2 tahap). Ganti API_KB setelah deploy Code_KekuatanBelajar.gs
+// ⭐ BARU — Kekuatan Belajar (4 tahap). Ganti API_KB setelah deploy Code_KekuatanBelajar.gs
 const API_KB      = 'https://script.google.com/macros/s/AKfycbyMCQqWa5hpH9dsqK1CTLSt0zXfpLGPeFw6fYmHJeaTP0IVNp6cK4sySwqF4QlFUzaB/exec';
 const FORM_KB     = 'https://markaz-belajar.github.io/app/obs.kb.teacher.html';
 const FORM_KB_LAPORAN = 'https://markaz-belajar.github.io/app/obs.kb.laporan.html';   // halaman laporan khusus orang tua
@@ -473,17 +473,20 @@ const STATUS_META = {
 let kbMap = {};
 try { kbMap = JSON.parse(sessionStorage.getItem('mb_kb_map') || '{}'); } catch(e) { kbMap = {}; }
 function genIdOf(s) { return s.nomorInduk || ('ID-' + s.id); }
-function kbOf(s) { const k = kbMap[genIdOf(s)]; return (k && k.loaded) ? k : { loaded:false, t1:null, t2:null }; }
+function kbOf(s) { const k = kbMap[genIdOf(s)]; return (k && k.loaded) ? k : { loaded:false, t1:null, t2:null, t3:null, t4:null }; }
 function setKB(g, rec) {
-  kbMap[g] = { loaded:true, t1: rec?.tahap1?.status || null, t2: rec?.tahap2?.status || null };
+  kbMap[g] = { loaded:true, t1: rec?.tahap1?.status || null, t2: rec?.tahap2?.status || null, t3: rec?.tahap3?.status || null, t4: rec?.tahap4?.status || null };
   try { sessionStorage.setItem('mb_kb_map', JSON.stringify(kbMap)); } catch(e) {}
 }
+function kbAnyDraft(k) { return k.t1 === 'draft' || k.t2 === 'draft' || k.t3 === 'draft' || k.t4 === 'draft'; }
+function kbAnyDone(k) { return k.t1 === 'selesai' || k.t2 === 'selesai' || k.t3 === 'selesai' || k.t4 === 'selesai'; }
 function kbBadge(k) {
   if (!k.loaded) return null;
-  if (k.t1 === 'selesai' && k.t2 === 'selesai') return { label:'Tahap 1 & 2', cls:'st-selesai' };
-  if (k.t1 === 'selesai') return { label:'Tahap 1 selesai', cls:'st-ortu' };
-  if (k.t2 === 'selesai') return { label:'Tahap 2 selesai', cls:'st-ortu' };
-  if (k.t1 === 'draft' || k.t2 === 'draft') return { label:'Sedang diisi', cls:'st-menunggu' };
+  const done = [1,2,3,4].filter(n => k['t'+n] === 'selesai');
+  if (done.length === 4) return { label:'Tahap 1–4', cls:'st-selesai' };
+  if (done.length >= 2) return { label:'Tahap ' + (done.length > 2 ? done.slice(0,-1).join(', ') + ' & ' + done[done.length-1] : done.join(' & ')), cls:'st-selesai' };
+  if (done.length === 1) return { label:'Tahap ' + done[0] + ' selesai', cls:'st-ortu' };
+  if (kbAnyDraft(k)) return { label:'Sedang diisi', cls:'st-menunggu' };
   return null;
 }
 let renderTimer = null;
@@ -512,17 +515,19 @@ async function loadAllKB() {
 const FILTERS = [
   { sec:'Umum', items:[ ['semua','Semua siswa'], ['kosong','Belum dikirim apa pun'] ] },
   { sec:'Screening ASD', items:[ ['asd:belum_kirim','Belum dikirim'], ['asd:menunggu','Menunggu orang tua'], ['asd:ortu_selesai','Ortu selesai'], ['asd:selesai','Selesai'], ['asd:perlu_lanjut','Perlu lanjut'] ] },
-  { sec:'Profil Kekuatan Belajar', items:[ ['kb:belum','Belum diisi'], ['kb:draft','Sedang diisi'], ['kb:t1','Tahap 1 selesai'], ['kb:lengkap','Tahap 1 & 2 selesai'] ] }
+  { sec:'Profil Kekuatan Belajar', items:[ ['kb:belum','Belum diisi'], ['kb:draft','Sedang diisi'], ['kb:t1','Tahap 1 selesai'], ['kb:lengkap','Tahap 1 & 2 selesai'], ['kb:t3','Tahap 1–3 selesai'], ['kb:t4','Semua tahap (1–4) selesai'] ] }
 ];
 function matchFilter(s, key) {
   if (key === 'semua') return true;
   const a = getStatus(s), k = kbOf(s);
-  if (key === 'kosong')    return a === 'belum_kirim' && k.loaded && !k.t1 && !k.t2;
+  if (key === 'kosong')    return a === 'belum_kirim' && k.loaded && !k.t1 && !k.t2 && !k.t3 && !k.t4;
   if (key.startsWith('asd:')) return a === key.slice(4);
-  if (key === 'kb:belum')  return k.loaded && !k.t1 && !k.t2;
-  if (key === 'kb:draft')  return k.t1 === 'draft' || k.t2 === 'draft';
+  if (key === 'kb:belum')  return k.loaded && !k.t1 && !k.t2 && !k.t3 && !k.t4;
+  if (key === 'kb:draft')  return kbAnyDraft(k);
   if (key === 'kb:t1')     return k.t1 === 'selesai' && k.t2 !== 'selesai';
-  if (key === 'kb:lengkap')return k.t1 === 'selesai' && k.t2 === 'selesai';
+  if (key === 'kb:lengkap')return k.t1 === 'selesai' && k.t2 === 'selesai' && k.t3 !== 'selesai';
+  if (key === 'kb:t3')     return k.t1 === 'selesai' && k.t2 === 'selesai' && k.t3 === 'selesai' && k.t4 !== 'selesai';
+  if (key === 'kb:t4')     return k.t1 === 'selesai' && k.t2 === 'selesai' && k.t3 === 'selesai' && k.t4 === 'selesai';
   return true;
 }
 function filterLabel(key) {
@@ -588,8 +593,8 @@ function rankOf(s) {
   // makin kecil = makin atas. Hanya screening yang sudah berjalan yang dihitung.
   const a = getStatus(s), k = kbOf(s), r = [];
   if (a !== 'belum_kirim') r.push({ perlu_lanjut:0, ortu_selesai:1, menunggu:2, selesai:4 }[a] ?? 3);
-  if (k.t1 === 'draft' || k.t2 === 'draft') r.push(2);
-  else if (k.t1 === 'selesai' || k.t2 === 'selesai') r.push(4);
+  if (kbAnyDraft(k)) r.push(2);
+  else if (kbAnyDone(k)) r.push(4);
   return r.length ? Math.min(...r) : 3;
 }
 function dotCls(st) { return st === 'selesai' ? 'g' : st === 'draft' ? 'y' : 'n'; }
@@ -599,8 +604,8 @@ function tileBadges(s) {
     const c = { menunggu:'y', ortu_selesai:'b', selesai:'g', perlu_lanjut:'r' }[a] || 'n';
     out.push(`<span class="tbadge" title="Screening ASD">ASD<span class="dots"><span class="dot ${c}"></span></span></span>`);
   }
-  if (k.t1 || k.t2) {
-    out.push(`<span class="tbadge" title="Tahap 1 · Tahap 2">Kekuatan<span class="dots"><span class="dot ${dotCls(k.t1)}" title="Tahap 1"></span><span class="dot ${dotCls(k.t2)}" title="Tahap 2"></span></span></span>`);
+  if (k.t1 || k.t2 || k.t3 || k.t4) {
+    out.push(`<span class="tbadge" title="Tahap 1 · Tahap 2 · Tahap 3 · Tahap 4">Kekuatan<span class="dots"><span class="dot ${dotCls(k.t1)}" title="Tahap 1"></span><span class="dot ${dotCls(k.t2)}" title="Tahap 2"></span><span class="dot ${dotCls(k.t3)}" title="Tahap 3"></span><span class="dot ${dotCls(k.t4)}" title="Tahap 4"></span></span></span>`);
   }
   return out.join('');
 }
@@ -646,8 +651,8 @@ function updateStats() {
   let selesai=0, proses=0, lanjut=0;
   allSiswa.forEach(s => {
     const a = getStatus(s), k = kbOf(s);
-    const done = a === 'selesai' || a === 'perlu_lanjut' || k.t1 === 'selesai' || k.t2 === 'selesai';
-    const prog = a === 'menunggu' || a === 'ortu_selesai' || k.t1 === 'draft' || k.t2 === 'draft';
+    const done = a === 'selesai' || a === 'perlu_lanjut' || kbAnyDone(k);
+    const prog = a === 'menunggu' || a === 'ortu_selesai' || kbAnyDraft(k);
     if (done) selesai++; else if (prog) proses++;
     if (a === 'perlu_lanjut') lanjut++;
   });
@@ -712,7 +717,7 @@ function renderTypeMenu() {
       <div class="type-icon" style="background:#F0FDF4;">📚</div>
       <div class="type-info">
         <div class="type-name">Profil Kekuatan Belajar</div>
-        <div class="type-desc">Fokus, ketekunan, kemandirian, motivasi & cara menyerap informasi (2 tahap)</div>
+        <div class="type-desc">Fokus, ketekunan, kemandirian, motivasi & cara menyerap informasi (4 tahap)</div>
       </div>
       ${kbBadgeHtml}
     </div>
@@ -774,8 +779,12 @@ function renderKBView(s, rec) {
   const genId = s.nomorInduk || ('ID-' + s.id);
   const st1 = rec?.tahap1?.status || null; // 'selesai' | 'draft' | null
   const st2 = rec?.tahap2?.status || null;
+  const st3 = rec?.tahap3?.status || null;
+  const st4 = rec?.tahap4?.status || null;
   const t1Done = st1 === 'selesai', t1Draft = st1 === 'draft';
   const t2Done = st2 === 'selesai', t2Draft = st2 === 'draft';
+  const t3Done = st3 === 'selesai', t3Draft = st3 === 'draft';
+  const t4Done = st4 === 'selesai', t4Draft = st4 === 'draft';
 
   let html = `
     <button class="back-btn-small" onclick="sheetView='menu';renderTypeMenu()">
@@ -804,12 +813,36 @@ function renderKBView(s, rec) {
       <div class="tl-item">
         <div class="tl-left">
           <div class="tl-dot ${t2Done?'done':''}">${t2Done?'✓':(t2Draft?'◐':'•')}</div>
+          <div class="tl-line"></div>
         </div>
         <div class="tl-right">
           <div class="tl-title">Tahap 2 — Screening Lanjutan</div>
           ${t2Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap2.timestamp)}</div>`
             : t2Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap2.timestamp)}</div>`
             : `<div class="tl-sub">${t1Done ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 1 dulu (boleh dilewati kalau perlu)'}</div>`}
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot ${t3Done?'done':''}">${t3Done?'✓':(t3Draft?'◐':'•')}</div>
+          <div class="tl-line"></div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-title">Tahap 3 — Screening Pendalaman</div>
+          ${t3Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap3.timestamp)}</div>`
+            : t3Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap3.timestamp)}</div>`
+            : `<div class="tl-sub">${t2Done ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 2 dulu (boleh dilewati kalau perlu)'}</div>`}
+        </div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-left">
+          <div class="tl-dot ${t4Done?'done':''}">${t4Done?'✓':(t4Draft?'◐':'•')}</div>
+        </div>
+        <div class="tl-right">
+          <div class="tl-title">Tahap 4 — Screening Akhir</div>
+          ${t4Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap4.timestamp)}</div>`
+            : t4Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap4.timestamp)}</div>`
+            : `<div class="tl-sub">${t3Done ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 3 dulu (boleh dilewati kalau perlu)'}</div>`}
         </div>
       </div>
     </div>
@@ -829,14 +862,24 @@ function renderKBView(s, rec) {
         ${t2Done ? 'Revisi Tahap 2' : t2Draft ? 'Lanjutkan Tahap 2' : 'Isi Tahap 2'}
       </button>
     </div>
+    <div class="btn-row" style="margin-top:8px;">
+      <button class="btn ${t3Done?'btn-ghost':'btn-accent'}" onclick="openFormKB(3)">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        ${t3Done ? 'Revisi Tahap 3' : t3Draft ? 'Lanjutkan Tahap 3' : 'Isi Tahap 3'}
+      </button>
+      <button class="btn ${t4Done?'btn-ghost':'btn-accent'}" onclick="openFormKB(4)">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        ${t4Done ? 'Revisi Tahap 4' : t4Draft ? 'Lanjutkan Tahap 4' : 'Isi Tahap 4'}
+      </button>
+    </div>
   </div>`;
 
-  if (t1Done || t2Done) {
+  if (t1Done || t2Done || t3Done || t4Done) {
     html += `<div class="action-group">
       <div class="sec-lbl">Laporan & Berbagi</div>
       <button class="btn btn-accent btn-full" onclick="lihatLaporanKB()">
         <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Lihat Laporan${(t1Done&&t2Done)?' Gabungan':' (Sementara)'}
+        Lihat Laporan${([t1Done,t2Done,t3Done,t4Done].filter(Boolean).length>=2)?' Gabungan':' (Sementara)'}
       </button>
     </div>`;
   }
@@ -867,7 +910,7 @@ function lihatLaporanKB() {
 function resetKBTesting() {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
-  if (!confirm(`Yakin hapus SEMUA data Kekuatan Belajar untuk ${s.nama}?\n\nIni akan menghapus Tahap 1 & Tahap 2. Tindakan ini tidak bisa dibatalkan.`)) return;
+  if (!confirm(`Yakin hapus SEMUA data Kekuatan Belajar untuk ${s.nama}?\n\nIni akan menghapus Tahap 1, 2, 3 & 4. Tindakan ini tidak bisa dibatalkan.`)) return;
 
   apiGet(API_KB, { action:'resetKBRecord', genId })
     .then(r => {
