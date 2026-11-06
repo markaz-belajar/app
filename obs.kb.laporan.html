@@ -471,7 +471,7 @@ button, input, select, textarea { font-family: inherit; }
 body { background: #fed554 !important; }
 .result-parent { background: transparent !important; border: none !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; border-radius: 0 !important; padding-bottom: 14px; }
 .result-parent-banner { height: auto !important; aspect-ratio: 1 / 1.06; background: #fed554 !important; border-radius: 0 !important; -webkit-mask-image: linear-gradient(#000 calc(100% - 90px), transparent); mask-image: linear-gradient(#000 calc(100% - 90px), transparent); }
-.rp-tiger { left: 12% !important; right: auto !important; top: 14% !important; width: 80% !important; }
+.rp-tiger { left: auto !important; right: 0 !important; top: 14% !important; width: 80% !important; }
 .rp-logo { left: 50% !important; top: 3.2% !important; width: 36% !important; max-width: 190px; height: auto !important; transform: translateX(-50%); border-radius: 0 !important; box-shadow: none !important; background: none; object-fit: contain; }
 .rp-sheet { margin-top: -20% !important; }
 .icard, .icard * { touch-action: none !important; }
@@ -1283,7 +1283,7 @@ async function loadReport() {
       if(maxX < 0) return;
       const bx = minX / c.width, by = minY / c.height, bw = (maxX - minX + 1) / c.width;
       const k = 0.76 / bw;                          // lebar gambar (satuan lebar banner) agar maskot selebar 76%
-      const leftW = 50 - (bx + bw / 2) * k * 100;  // maskot di tengah horizontal
+      const leftW = 100 - (bx + bw) * k * 100;      // sisi kanan maskot menempel tepat di tepi kanan layar (tanpa celah/crop)
       const topW  = 18 - by * (h / w) * k * 100;  // puncak maskot di 16.5% lebar (tepat di bawah logo)
       img.style.setProperty('width', (k * 100).toFixed(2) + '%', 'important');
       img.style.setProperty('left', leftW.toFixed(2) + '%', 'important');
