@@ -11,8 +11,6 @@
 <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon_mb_app.png">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 
 <script>document.documentElement.classList.add('view-loading', 'view-mode');</script>
@@ -546,6 +544,11 @@ body { background: #fed554 !important; }
 @media (prefers-reduced-motion: reduce) {
   .otl-item.next .otl-dot, .rd-halo { animation: none; }
 }
+
+/* ═══ Blok peringatan merah ═══ */
+.rp-warn { display:flex; align-items:center; gap:12px; margin:16px 0 18px; padding:14px 16px; background:linear-gradient(135deg,#ef2d3f,#c8102e); color:#fff; border-radius:16px; box-shadow:0 6px 16px rgba(200,16,46,.32); }
+.rp-warn-ic { flex:0 0 42px; width:42px; height:42px; border-radius:50%; background:rgba(255,255,255,.22); display:flex; align-items:center; justify-content:center; }
+.rp-warn-tx { font-size:15.5px; font-weight:800; line-height:1.35; color:#fff; letter-spacing:.1px; }
 </style>
 </head>
 <body>
@@ -579,6 +582,10 @@ body { background: #fed554 !important; }
 
       <div class="radar-chart-container" id="radar-chart-container"></div>
 
+      <div class="rp-warn" role="note">
+        <div class="rp-warn-ic"><svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M10.3 3.9 1.8 18a2 2 0 0 0 1.7 3h17a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/><line x1="12" y1="9" x2="12" y2="13.5"/><line x1="12" y1="17.2" x2="12.01" y2="17.2"/></svg></div>
+        <div class="rp-warn-tx">Bukan tes bakat, IQ, atau diagnosis</div>
+      </div>
       <p style="font-size:12px;color:var(--text-3);line-height:1.6;margin-bottom:10px;" id="areas-caption">Berikut profil lengkap si kecil di tiap area. Semakin tinggi bar, semakin menonjol kecenderungan tersebut — bukan penilaian "baik/buruk".</p>
       <div class="profile-areas" id="profile-areas"></div>
 
@@ -901,8 +908,8 @@ function renderObsTimeline() {
     const isDone = done(n), isNext = n === nextN;
     const cls = isDone ? "done" : (isNext ? "next" : "later");
     const sd = isDone ? stageDates(n) : null;
-    const tgl = isDone ? (fmtTgl(sd.awal) || "Selesai") : (isNext ? "Segera dikerjakan" : "Menyusul");
-    const desc = isDone ? "Observasi guru selesai" : (n === 1 ? "Observasi guru setelah ±4 pertemuan pertama" : "Observasi guru setelah ±4 pertemuan berikutnya");
+    const tgl = isDone ? (fmtTgl(sd.awal) || "Selesai") : (isNext ? "Proses observasi" : "Menyusul");
+    const desc = isDone ? "Observasi guru selesai" : (n === 1 ? "Guru mengamati selama ±4 pertemuan pertama" : "Guru mengamati lagi ±4 pertemuan setelah Tahap " + (n-1));
     const line = i < 3 ? `<div class="otl-line ${isDone ? "on" : ""}"></div>` : "";
     return `<div class="otl-item ${cls}">
       <div class="otl-left"><div class="otl-dot">${isDone ? CHECK : CLOCK}</div>${line}</div>
@@ -1203,7 +1210,8 @@ async function loadReport() {
   const g = p.get('gen');
   if(g) {
     genId = g;
-    record.nama = p.get('nama') || "";
+    record.nama = "";   // nama TIDAK ikut di link — diambil dari server berdasarkan kode (gen)
+    try { if(p.has('nama')) { p.delete('nama'); history.replaceState(null, '', location.pathname + '?' + p.toString() + location.hash); } } catch(e) {}
     const cache = readKBCache(g);
     if(cache && cache.record) {
       record.nama = cache.record.nama || record.nama;
