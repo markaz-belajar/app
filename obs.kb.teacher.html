@@ -150,6 +150,29 @@ select{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radi
 .prow .pb.draft{background:var(--amber-light);border-color:#fcd34d;color:var(--amber);}
 .prow .pb.next{background:var(--blue-light);border-color:var(--blue);color:var(--blue);box-shadow:0 0 0 3px rgba(6,134,199,.15);}
 @media(min-width:700px){.prow{padding:9px 14px;} .prow .pb{width:58px;height:58px;font-size:20px;}}
+
+/* ── halo abu-abu tiap bulatan saling menyatu (seperti referensi) ── */
+.prows{gap:16px;margin-top:20px;}
+.prow{background:none;border-radius:0;padding:10px 12px;gap:clamp(8px,2.4vw,14px);justify-content:center;isolation:isolate;}
+.prow .pb{position:relative;border:1.5px solid #e2e8f0;box-shadow:none;width:clamp(46px,13vw,58px);height:clamp(46px,13vw,58px);}
+.prow .pb::before{content:"";position:absolute;inset:-10px;border-radius:50%;background:#eef1f5;z-index:-1;}
+.prow .pb.done{background:var(--green-light);border-color:#86efac;}
+.prow .pb.draft{background:var(--amber-light);border-color:#fcd34d;}
+.prow .pb.next{background:var(--blue-light);border:2px solid var(--blue);box-shadow:none;}
+@media(min-width:700px){.prow{padding:10px 14px;gap:18px;} .prow .pb{width:62px;height:62px;font-size:21px;}}
+
+/* ── cincin abu-abu menyatu (metaball) seperti referensi ── */
+.prows{gap:14px;margin-top:22px;--pbs:clamp(44px,12.5vw,54px);--pg:clamp(12px,4.2vw,19px);}
+@media(min-width:700px){.prows{--pbs:62px;--pg:22px;}}
+.prow{position:relative;display:block;padding:13px 12px;background:none;border-radius:0;isolation:isolate;}
+.pr-halo{position:absolute;left:12px;right:12px;top:13px;bottom:13px;display:flex;justify-content:center;gap:var(--pg);filter:url(#goo);z-index:0;}
+.pr-halo i{flex:0 0 auto;width:var(--pbs);height:var(--pbs);border-radius:50%;background:#eef2f6;transform:scale(1.34);}
+.pr-btns{position:relative;z-index:1;display:flex;justify-content:center;gap:var(--pg);}
+.prow .pb{width:var(--pbs);height:var(--pbs);border:0;box-shadow:inset 0 0 0 1px #f1f5f9;background:#fff;}
+.prow .pb::before{content:none;}
+.prow .pb.done{background:var(--green-light);box-shadow:inset 0 0 0 1.5px #86efac;}
+.prow .pb.draft{background:var(--amber-light);box-shadow:inset 0 0 0 1.5px #fcd34d;}
+.prow .pb.next{background:var(--blue-light);box-shadow:inset 0 0 0 2px var(--blue);}
 </style>
 </head>
 <body>
@@ -222,6 +245,7 @@ select{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radi
     </div>
   </div>
 </div>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><filter id="goo" x="-20%" y="-40%" width="140%" height="180%"><feGaussianBlur in="SourceGraphic" stdDeviation="5" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 22 -10"/></filter></defs></svg>
 <div id="toast"></div>
 
 <script>
@@ -388,7 +412,7 @@ function openPicker(stage) {
   const firstOpen = (() => { for (let k = 1; k <= PER_TAHAP; k++) { const o = arr.find(x => x.n === k); if (!o || o.status !== 'selesai') return k; } return 0; })();
   $('pk-chip').textContent = 'TAHAP ' + stage + ' · ' + NAMA_TAHAP[stage].toUpperCase();
   $('pk-sub').textContent = (siswa.nama || '') + ' — pilih nomor observasi untuk hari ini. Nomor yang sudah selesai bisa dibuka lagi untuk dikoreksi.';
-  const perRow = window.innerWidth >= 700 ? 6 : 4;
+  const perRow = 4;
   const bubbles = Array.from({ length: PER_TAHAP }, (_, i) => {
     const k = i + 1, o = arr.find(x => x.n === k);
     const loc = localStorage.getItem(draftKey(stage, k));
@@ -397,7 +421,7 @@ function openPicker(stage) {
     return `<button class="pb ${cls}"${ttl} onclick="startObs(${stage},${k})">${k}</button>`;
   });
   let rows = '';
-  for (let i = 0; i < bubbles.length; i += perRow) rows += `<div class="prow">${bubbles.slice(i, i + perRow).join('')}</div>`;
+  for (let i = 0; i < bubbles.length; i += perRow) { const sl = bubbles.slice(i, i + perRow); rows += `<div class="prow"><div class="pr-halo">${sl.map(() => '<i></i>').join('')}</div><div class="pr-btns">${sl.join('')}</div></div>`; }
   $('pk-grid').innerHTML = rows;
   $('picker').classList.add('open');
 }
