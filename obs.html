@@ -484,8 +484,20 @@ let kbMap = {};
 try { kbMap = JSON.parse(sessionStorage.getItem('mb_kb_map') || '{}'); } catch(e) { kbMap = {}; }
 function genIdOf(s) { return s.nomorInduk || ('ID-' + s.id); }
 function kbOf(s) { const k = kbMap[genIdOf(s)]; return (k && k.loaded) ? k : { loaded:false, t1:null, t2:null, t3:null, t4:null }; }
+const KB_PER_TAHAP = 12, KB_MIN_LAPORAN = 4;
+// Hitung status satu tahap: metode lama (status tersimpan) atau metode baru (jumlah observasi selesai)
+function kbStageOf(rec, n) {
+  const lama = rec?.['tahap' + n];
+  if (lama) return { method:'lama', status: lama.status, done: lama.status === 'selesai' ? KB_PER_TAHAP : 0, ts: lama.timestamp };
+  const arr = (rec?.baru && rec.baru[n]) || [];
+  const done = arr.filter(x => x.status === 'selesai').length;
+  const last = arr.length ? arr[arr.length - 1].tanggal : '';
+  return { method: arr.length ? 'baru' : '', status: done >= KB_PER_TAHAP ? 'selesai' : (arr.length ? 'draft' : null), done, arr, last };
+}
 function setKB(g, rec) {
-  kbMap[g] = { loaded:true, t1: rec?.tahap1?.status || null, t2: rec?.tahap2?.status || null, t3: rec?.tahap3?.status || null, t4: rec?.tahap4?.status || null };
+  const o = { loaded:true };
+  for (let n = 1; n <= 4; n++) { const st = kbStageOf(rec, n); o['t' + n] = st.status; o['o' + n] = st.done; o['m' + n] = st.method; }
+  kbMap[g] = o;
   try { sessionStorage.setItem('mb_kb_map', JSON.stringify(kbMap)); } catch(e) {}
 }
 function kbAnyDraft(k) { return k.t1 === 'draft' || k.t2 === 'draft' || k.t3 === 'draft' || k.t4 === 'draft'; }
@@ -496,6 +508,8 @@ function kbBadge(k) {
   if (done.length === 4) return { label:'Tahap 1–4', cls:'st-selesai' };
   if (done.length >= 2) return { label:'Tahap ' + (done.length > 2 ? done.slice(0,-1).join(', ') + ' & ' + done[done.length-1] : done.join(' & ')), cls:'st-selesai' };
   if (done.length === 1) return { label:'Tahap ' + done[0] + ' selesai', cls:'st-ortu' };
+  const prog = [1,2,3,4].find(n => k['m' + n] === 'baru' && k['o' + n] > 0 && k['o' + n] < KB_PER_TAHAP);
+  if (prog) return { label:'Tahap ' + prog + ' · ' + k['o' + prog] + '/' + KB_PER_TAHAP, cls:'st-menunggu' };
   if (kbAnyDraft(k)) return { label:'Sedang diisi', cls:'st-menunggu' };
   return null;
 }
@@ -881,14 +895,9 @@ async function selectType(type) {
 // ── KB (Kekuatan Belajar) view ──
 function renderKBView(s, rec) {
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const st1 = rec?.tahap1?.status || null; // 'selesai' | 'draft' | null
-  const st2 = rec?.tahap2?.status || null;
-  const st3 = rec?.tahap3?.status || null;
-  const st4 = rec?.tahap4?.status || null;
-  const t1Done = st1 === 'selesai', t1Draft = st1 === 'draft';
-  const t2Done = st2 === 'selesai', t2Draft = st2 === 'draft';
-  const t3Done = st3 === 'selesai', t3Draft = st3 === 'draft';
-  const t4Done = st4 === 'selesai', t4Draft = st4 === 'draft';
+  const NAMA = { 1:'Screening Awal', 2:'Screening Lanjutan', 3:'Screening Pendalaman', 4:'Screening Akhir' };
+  const info = [1,2,3,4].map(n => kbStageOf(rec, n));
+  const hasResult = info.some(i => (i.method === 'lama' && i.status === 'selesai') || (i.method !== 'lama' && i.done >= KB_MIN_LAPORAN));
 
   let html = `
     <button class="back-btn-small" onclick="sheetView='menu';renderTypeMenu()">
@@ -900,92 +909,50 @@ function renderKBView(s, rec) {
       <span class="tag tag-blue">${s.program || s.kelas || '—'}</span>
       <span class="tag tag-blue tag-mono">${genId}</span>
     </div>
-    <div class="sec-lbl">Status Observasi Guru</div>
-    <div class="tl">
-      <div class="tl-item">
-        <div class="tl-left">
-          <div class="tl-dot ${t1Done?'done':''}">${t1Done?'✓':(t1Draft?'◐':'•')}</div>
-          <div class="tl-line"></div>
-        </div>
-        <div class="tl-right">
-          <div class="tl-title">Tahap 1 — Screening Awal</div>
-          ${t1Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap1.timestamp)}</div>`
-            : t1Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap1.timestamp)}</div>`
-            : `<div class="tl-sub">Belum diisi — setelah ±4 pertemuan pertama</div>`}
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-left">
-          <div class="tl-dot ${t2Done?'done':''}">${t2Done?'✓':(t2Draft?'◐':'•')}</div>
-          <div class="tl-line"></div>
-        </div>
-        <div class="tl-right">
-          <div class="tl-title">Tahap 2 — Screening Lanjutan</div>
-          ${t2Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap2.timestamp)}</div>`
-            : t2Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap2.timestamp)}</div>`
-            : `<div class="tl-sub">${t1Done ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 1 dulu (boleh dilewati kalau perlu)'}</div>`}
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-left">
-          <div class="tl-dot ${t3Done?'done':''}">${t3Done?'✓':(t3Draft?'◐':'•')}</div>
-          <div class="tl-line"></div>
-        </div>
-        <div class="tl-right">
-          <div class="tl-title">Tahap 3 — Screening Pendalaman</div>
-          ${t3Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap3.timestamp)}</div>`
-            : t3Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap3.timestamp)}</div>`
-            : `<div class="tl-sub">${t2Done ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 2 dulu (boleh dilewati kalau perlu)'}</div>`}
-        </div>
-      </div>
-      <div class="tl-item">
-        <div class="tl-left">
-          <div class="tl-dot ${t4Done?'done':''}">${t4Done?'✓':(t4Draft?'◐':'•')}</div>
-        </div>
-        <div class="tl-right">
-          <div class="tl-title">Tahap 4 — Screening Akhir</div>
-          ${t4Done ? `<div class="tl-date">✓ Selesai — ${fmtDate(rec.tahap4.timestamp)}</div>`
-            : t4Draft ? `<div class="tl-sub" style="color:#d97706;">◐ Sedang diisi — terakhir ${fmtDate(rec.tahap4.timestamp)}</div>`
-            : `<div class="tl-sub">${t3Done ? 'Belum diisi — setelah ±4 pertemuan berikutnya' : 'Isi Tahap 3 dulu (boleh dilewati kalau perlu)'}</div>`}
-        </div>
-      </div>
-    </div>
-  `;
+    <div class="sec-lbl">Progres Observasi Guru <span style="font-weight:500;color:var(--text3);">· 12 observasi per tahap</span></div>
+    <div class="tl">`;
 
-  html += `<div class="action-group">
-    <div class="action-group-hdr">
-      <div class="sec-lbl" style="margin-bottom:0;">Isi Observasi</div>
-    </div>
-    <div class="btn-row">
-      <button class="btn ${t1Done?'btn-ghost':'btn-accent'}" onclick="openFormKB(1)">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ${t1Done ? 'Revisi Tahap 1' : t1Draft ? 'Lanjutkan Tahap 1' : 'Isi Tahap 1'}
-      </button>
-      <button class="btn ${t2Done?'btn-ghost':'btn-accent'}" onclick="openFormKB(2)">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ${t2Done ? 'Revisi Tahap 2' : t2Draft ? 'Lanjutkan Tahap 2' : 'Isi Tahap 2'}
-      </button>
-    </div>
-    <div class="btn-row" style="margin-top:8px;">
-      <button class="btn ${t3Done?'btn-ghost':'btn-accent'}" onclick="openFormKB(3)">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ${t3Done ? 'Revisi Tahap 3' : t3Draft ? 'Lanjutkan Tahap 3' : 'Isi Tahap 3'}
-      </button>
-      <button class="btn ${t4Done?'btn-ghost':'btn-accent'}" onclick="openFormKB(4)">
-        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-        ${t4Done ? 'Revisi Tahap 4' : t4Draft ? 'Lanjutkan Tahap 4' : 'Isi Tahap 4'}
-      </button>
-    </div>
-  </div>`;
+  info.forEach((i, idx) => {
+    const n = idx + 1, last = n === 4;
+    const full = i.status === 'selesai', prog = i.method === 'baru' && !full;
+    let sub;
+    if (i.method === 'lama') sub = `<div class="tl-date">${full ? '✓ Selesai' : '◐ Sedang diisi'} (metode lama) — ${fmtDate(i.ts)}</div>`;
+    else if (i.method === '') sub = `<div class="tl-sub">Belum dimulai</div>`;
+    else if (full) sub = `<div class="tl-date">✓ Lengkap — 12/12 observasi${i.last ? ' · terakhir ' + fmtDate(i.last) : ''}</div>`;
+    else {
+      const hint = i.done < KB_MIN_LAPORAN ? 'data belum cukup untuk laporan' : 'hasil sementara siap';
+      sub = `<div class="tl-sub" style="color:#d97706;">◐ ${i.done}/${KB_PER_TAHAP} observasi${i.last ? ' · terakhir ' + fmtDate(i.last) : ''} — ${hint}</div>`
+        + `<div style="height:6px;background:var(--surface2);border-radius:6px;margin-top:6px;overflow:hidden;"><div style="height:100%;width:${i.done / KB_PER_TAHAP * 100}%;background:#d97706;border-radius:6px;"></div></div>`;
+    }
+    html += `<div class="tl-item"><div class="tl-left"><div class="tl-dot ${full ? 'done' : ''}">${full ? '✓' : (prog ? '◐' : '•')}</div>${last ? '' : '<div class="tl-line"></div>'}</div>
+      <div class="tl-right"><div class="tl-title">Tahap ${n} — ${NAMA[n]}</div>${sub}</div></div>`;
+  });
+  html += `</div>`;
 
-  if (t1Done || t2Done || t3Done || t4Done) {
+  html += `<div class="action-group"><div class="action-group-hdr"><div class="sec-lbl" style="margin-bottom:0;">Isi Observasi</div></div>`;
+  [[1,2],[3,4]].forEach((pair, r) => {
+    html += `<div class="btn-row"${r ? ' style="margin-top:8px;"' : ''}>` + pair.map(n => {
+      const i = info[n - 1];
+      if (i.method === 'lama') return `<button class="btn btn-ghost" disabled style="opacity:.6;">Tahap ${n} · metode lama</button>`;
+      const txt = i.done >= KB_PER_TAHAP ? `Tahap ${n} · lengkap` : i.done > 0 ? `Lanjut Tahap ${n} (${i.done}/${KB_PER_TAHAP})` : `Mulai Tahap ${n}`;
+      return `<button class="btn ${i.done >= KB_PER_TAHAP ? 'btn-ghost' : 'btn-accent'}" onclick="openFormKB(${n})">
+        <svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+        ${txt}</button>`;
+    }).join('') + `</div>`;
+  });
+  html += `</div>`;
+
+  if (hasResult) {
+    const resBtns = info.map((i, idx) => {
+      const n = idx + 1;
+      if (i.method === 'lama' && i.status === 'selesai') return `<button class="btn btn-ghost btn-full" style="margin-top:6px;" onclick="lihatLaporanKB(${n})">Lihat hasil Tahap ${n}</button>`;
+      if (i.method !== 'lama' && i.done >= KB_MIN_LAPORAN) return `<button class="btn ${i.done >= KB_PER_TAHAP ? 'btn-accent' : 'btn-ghost'} btn-full" style="margin-top:6px;" onclick="lihatLaporanKB(${n})">${i.done >= KB_PER_TAHAP ? 'Lihat hasil final' : 'Lihat hasil sementara'} Tahap ${n}${i.done >= KB_PER_TAHAP ? '' : ' (' + i.done + '/' + KB_PER_TAHAP + ')'}</button>`;
+      return '';
+    }).join('');
     html += `<div class="action-group">
       <div class="sec-lbl">Laporan & Berbagi</div>
-      <button class="btn btn-accent btn-full" onclick="lihatLaporanKB()">
-        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg>
-        Lihat Laporan${([t1Done,t2Done,t3Done,t4Done].filter(Boolean).length>=2)?' Gabungan':' (Sementara)'}
-      </button>
-      <button class="btn btn-wa btn-full" style="margin-top:8px;" onclick="kirimLaporanKB()">
+      ${resBtns}
+      <button class="btn btn-wa btn-full" style="margin-top:10px;" onclick="kirimLaporanKB()">
         <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
         Kirim Laporan ke Orang Tua
       </button>
@@ -1008,10 +975,10 @@ function openFormKB(stage) {
   window.open(url, '_blank');
 }
 
-function lihatLaporanKB() {
+function lihatLaporanKB(tahap) {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const url = `${FORM_KB_LAPORAN}?gen=${encodeURIComponent(genId)}&v=${Date.now()}`;
+  const url = `${FORM_KB_LAPORAN}?gen=${encodeURIComponent(genId)}${tahap ? '&tahap=' + tahap : ''}&v=${Date.now()}`;
   window.open(url, '_blank');
 }
 
