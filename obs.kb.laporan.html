@@ -725,6 +725,45 @@ function idxRange(stage){ const b=(stage-1)*3; return [b,b+1,b+2]; }
 function stageJoin(list){ const l = list.map(n=>"Tahap "+n); return l.length<=1 ? (l[0]||"") : l.slice(0,-1).join(", ")+" & "+l[l.length-1]; }
 const NUM_WORD = {2:"dua",3:"tiga",4:"empat"};
 let genId = "";
+const KB_PER = 12, KB_MIN = 4;
+const ONLY = parseInt(new URLSearchParams(location.search).get('tahap'), 10) || 0;   // ?tahap=N → hanya tampilkan satu tahap
+function inc(n) { const r = record['tahap' + n]; return !!(r && r.status === 'selesai' && (!ONLY || n === ONLY)); }
+
+// Metode baru (pengamatan per pertemuan) diubah ke bentuk yang sama dengan metode lama,
+// supaya seluruh tampilan laporan tetap bisa dipakai. Skor = muncul ÷ (muncul + tidak muncul);
+// pertemuan "tidak ada kesempatan" TIDAK dihitung.
+function adaptBaru(d, n) {
+  const arr = ((d.baru && d.baru[n]) || []).filter(x => x.status === 'selesai');
+  const done = arr.length;
+  if (done < KB_MIN) return null;
+  const thr = Math.max(2, Math.ceil(done / 3));        // perilaku dihitung bila punya cukup kesempatan
+  const answers = {}, insuf = {}, stat = {};
+  ITEMS.forEach(dm => {
+    const items = idxRange(n).map(i => {
+      const key = dm.domain + '_' + i; let y = 0, nn = 0, x = 0;
+      arr.forEach(o => { const v = (o.jawaban || {})[key]; if (v === 'y') y++; else if (v === 'n') nn++; else if (v === 'x') x++; });
+      return { key, y, n: nn, x, opp: y + nn };
+    });
+    stat[dm.domain] = { y: items.reduce((a, b) => a + b.y, 0), n: items.reduce((a, b) => a + b.n, 0), x: items.reduce((a, b) => a + b.x, 0) };
+    let pool = items.filter(it => it.opp >= thr);
+    if (!pool.length) pool = items.filter(it => it.opp >= 1);
+    if (!pool.length) { insuf[dm.domain] = true; items.forEach(it => { answers[it.key] = 0; }); return; }
+    const m = pool.reduce((a, it) => a + it.y / it.opp, 0) / pool.length;
+    items.forEach(it => { answers[it.key] = (pool.indexOf(it) >= 0 ? it.y / it.opp : m) * 3; });
+  });
+  const dates = arr.map(o => o.tanggal).filter(Boolean).sort();
+  return { status:'selesai', answers, dates:{}, pertemuan:'', timestamp: dates[dates.length - 1] || '', awal: dates[0] || '', revisi:[], _metode:'baru', _done:done, _final: done >= KB_PER, _insuf:insuf, _stat:stat };
+}
+function applyDetail(d) {
+  record._prog = {};
+  for (let n = 1; n <= 4; n++) {
+    if (d['tahap' + n]) { record['tahap' + n] = d['tahap' + n]; record['tahap' + n]._metode = 'lama'; }
+    else {
+      record['tahap' + n] = adaptBaru(d, n);
+      if (!record['tahap' + n]) record._prog[n] = ((d.baru && d.baru[n]) || []).filter(x => x.status === 'selesai').length;
+    }
+  }
+}
 function domainPct(stageData, domain, range) {
   if(!stageData) return null;
   const sum = range.reduce((s,idx)=>s+(stageData.answers[`${domain}_${idx}`]||0),0);
@@ -759,9 +798,9 @@ function buildCombinedProfile() {
   const areas = document.getElementById("profile-areas");
   areas.innerHTML = "";
   let best = { domain:null, pct:-1 };
-  const hasT1 = !!(record.tahap1 && record.tahap1.status === 'selesai');
-  const hasT2 = !!(record.tahap2 && record.tahap2.status === 'selesai');
-  const doneStages = [1,2,3,4].filter(n => record['tahap'+n] && record['tahap'+n].status === 'selesai');
+  const hasT1 = inc(1);
+  const hasT2 = inc(2);
+  const doneStages = [1,2,3,4].filter(n => inc(n));
   const multi = doneStages.length >= 2;
   const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Pemahaman Informasi" };
   const radarData = [];
@@ -769,24 +808,29 @@ function buildCombinedProfile() {
   ITEMS.forEach(d => {
     const stagePcts = {};
     doneStages.forEach(n => { stagePcts[n] = domainPct(record['tahap'+n], d.domain, idxRange(n)); });
-    let combinedPct;
-    if(multi) {
+    doneStages.forEach(n => { if (record['tahap'+n]._insuf && record['tahap'+n]._insuf[d.domain]) stagePcts[n] = null; });
+    const valid = doneStages.filter(n => stagePcts[n] !== null);
+    const insufAll = valid.length === 0;
+    let combinedPct = 0;
+    if(!insufAll) {
       let sum = 0;
-      doneStages.forEach(n => idxRange(n).forEach(idx => { sum += (record['tahap'+n].answers[`${d.domain}_${idx}`]||0); }));
-      combinedPct = Math.round((sum/(doneStages.length*9))*100);
-    } else {
-      combinedPct = doneStages.length ? stagePcts[doneStages[0]] : null;
+      valid.forEach(n => idxRange(n).forEach(idx => { sum += (record['tahap'+n].answers[`${d.domain}_${idx}`]||0); }));
+      combinedPct = Math.round((sum/(valid.length*9))*100);
     }
-    if(combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
-    radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, color: RADAR_COLOR[d.domain], icon: d.icon, img: ICON_BASE + RADAR_IMG[d.domain] });
+    if(!insufAll && combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
+    radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, insuf: insufAll, color: RADAR_COLOR[d.domain], icon: d.icon, img: ICON_BASE + RADAR_IMG[d.domain] });
 
     const meta = DOMAIN_META[d.domain];
     const level = levelOf(combinedPct);
-    const info = meta[level];
+    const info = insufAll ? { desc:"Belum ada cukup kesempatan untuk mengamati area ini. Gambarannya akan terisi seiring observasi berikutnya.", tips:["Tidak perlu melakukan apa-apa secara khusus — cukup lanjutkan observasi."] } : meta[level];
+    const vF = valid[0], vL = valid[valid.length-1];
+    const mixedMethod = valid.length >= 2 && record['tahap'+vF]._metode !== record['tahap'+vL]._metode;
 
     let trendHtml = "";
-    if(multi) {
-      const delta = stagePcts[doneStages[doneStages.length-1]] - stagePcts[doneStages[0]];
+    if(multi && valid.length >= 2 && mixedMethod) {
+      trendHtml = `<span class="parea-trend" style="background:#6b728022;color:#6b7280">Metode berbeda</span>`;
+    } else if(multi && valid.length >= 2) {
+      const delta = stagePcts[vL] - stagePcts[vF];
       let trendLabel, trendColor;
       if(delta >= 12){ trendLabel="▲ Meningkat"; trendColor="#16a34a"; }
       else if(delta <= -12){ trendLabel="▼ Menurun"; trendColor="#dc2626"; }
@@ -794,10 +838,10 @@ function buildCombinedProfile() {
       trendHtml = `<span class="parea-trend" style="background:${trendColor}22;color:${trendColor}">${trendLabel}</span>`;
     }
 
-    const barRow = (lbl, p) => `<div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${lbl}</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${p}%;background:${levelColor(p)}"></div></div><span class="parea-bar-compare-val">${p}%</span></div>`;
+    const barRow = (lbl, p) => p === null ? `<div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${lbl}</span><div class="parea-bar-track"></div><span class="parea-bar-compare-val">–</span></div>` : `<div class="parea-bar-compare-row"><span class="parea-bar-compare-lbl">${lbl}</span><div class="parea-bar-track"><div class="parea-bar-fill" style="width:${p}%;background:${levelColor(p)}"></div></div><span class="parea-bar-compare-val">${p}%</span></div>`;
     const barsHtml = `
       <div class="parea-bar-compare">
-        ${multi ? doneStages.map(n => barRow("Tahap "+n, stagePcts[n])).join("") : barRow("Tahap "+(doneStages[0]||1), combinedPct)}
+        ${multi ? doneStages.map(n => barRow("Tahap "+n, stagePcts[n])).join("") : barRow("Tahap "+(doneStages[0]||1), insufAll ? null : combinedPct)}
       </div>`;
 
     const card = document.createElement("div");
@@ -814,25 +858,31 @@ function buildCombinedProfile() {
         const ptsAwal = idxRange(n).reduce((sum, idx) => sum + ((sd.firstAnswers || {})[`${d.domain}_${idx}`] || 0), 0);
         revHtml = `<div class="pd-stage-r">Direvisi guru${sd.count > 1 ? " (" + sd.count + "×)" : ""}: <b>${fmtTgl(sd.last) || "—"}</b> · skor awal <b>${ptsAwal}</b> → setelah revisi <b>${pts}</b> dari 9</div>`;
       }
+      const isB = rec._metode === 'baru', st = stagePcts[n];
+      const chip = st === null ? "Data belum cukup" : `${st}% · ${levelLabel(st)}`, chipC = st === null ? "#6b7280" : levelColor(st);
+      const sx = isB && rec._stat ? rec._stat[d.domain] : null;
+      const sT = isB ? (sx ? `Terlihat ${sx.y} dari ${sx.y + sx.n} kesempatan${sx.x ? " · " + sx.x + " tanpa kesempatan" : ""}` : "") : `Skor ${pts} dari 9 poin`;
+      const dT = isB ? `Diamati: <b>${fmtTgl(sd.awal)} – ${fmtTgl(sd.last)}</b> (${rec._done}/12 observasi${rec._final ? ", final" : ", sementara"})` : `Observasi selesai: <b>${tgl || "tanggal tidak tercatat"}</b>`;
       return `<div class="pd-stage">
-        <div class="pd-stage-h"><b>Tahap ${n}</b><span class="pd-chip" style="background:${levelColor(stagePcts[n])}22;color:${levelColor(stagePcts[n])}">${stagePcts[n]}% · ${levelLabel(stagePcts[n])}</span></div>
-        <div class="pd-stage-t">Skor ${pts} dari 9 poin</div>
-        <div class="pd-stage-d">Observasi selesai: <b>${tgl || "tanggal tidak tercatat"}</b></div>
+        <div class="pd-stage-h"><b>Tahap ${n}</b><span class="pd-chip" style="background:${chipC}22;color:${chipC}">${chip}</span></div>
+        <div class="pd-stage-t">${sT}</div>
+        <div class="pd-stage-d">${dT}</div>
         ${revHtml}
       </div>`;
     }).join("");
     let trendExplain = "";
-    if(multi) {
-      const first = doneStages[0], last = doneStages[doneStages.length-1];
+    if(multi && valid.length >= 2) {
+      const first = vF, last = vL;
       const dl = stagePcts[last] - stagePcts[first];
       const arah = dl >= 12 ? "naik" : (dl <= -12 ? "turun" : "relatif sama");
       trendExplain = `<p>Tren dihitung dengan membandingkan Tahap ${first} dan Tahap ${last}: selisihnya <b>${dl > 0 ? "+" : ""}${dl} poin persen</b>, jadi tergolong <b>${arah}</b>. Selisih kurang dari 12 poin dianggap konsisten, karena perilaku anak wajar naik-turun dari hari ke hari.</p>`;
+      if(mixedMethod) trendExplain = `<p>Tahap ${first} dan Tahap ${last} memakai metode penilaian yang berbeda, jadi selisih angkanya tidak otomatis berarti perkembangan atau penurunan.</p>`;
     }
     card.innerHTML = `
       <div class="parea-head">
         <div class="parea-dot" style="background:${meta.color}"></div>
         <div class="parea-label">${meta.label}</div>
-        <div class="parea-pill" style="background:${levelColor(combinedPct)}22;color:${levelColor(combinedPct)}">${levelLabel(combinedPct)}</div>
+        <div class="parea-pill" style="background:${insufAll ? "#6b7280" : levelColor(combinedPct)}22;color:${insufAll ? "#6b7280" : levelColor(combinedPct)}">${insufAll ? "Data belum cukup" : levelLabel(combinedPct)}</div>
         ${trendHtml}
       </div>
       <div class="parea-bar-wrap">${barsHtml}</div>
@@ -843,8 +893,8 @@ function buildCombinedProfile() {
       <div class="pd"><div class="pd-in">
         <div class="pd-sec"><div class="pd-h">Apa maksudnya?</div><p>${DOMAIN_EXPLAIN[d.domain]}</p></div>
         <div class="pd-sec"><div class="pd-h">Yang terlihat pada si kecil</div><p>${info.desc}</p>${trendExplain}</div>
-        <div class="pd-sec"><div class="pd-h">Arti angka ${combinedPct}%</div>
-          <p>Di setiap tahap, guru mengamati <b>3 perilaku</b> di area ini selama ±4 pertemuan dan memberi skor 0–3 (makin sering muncul, makin tinggi). Skor maksimal 9 poin, lalu diubah jadi persen.${multi ? " Angka di atas adalah rata-rata dari semua tahap yang sudah selesai." : ""}</p>
+        <div class="pd-sec"><div class="pd-h">Arti angka ${insufAll ? "—" : combinedPct + "%"}</div>
+          <p>${doneStages.some(n => record['tahap'+n]._metode !== 'baru') ? "Pada tahap metode lama, guru mengamati <b>3 perilaku</b> di area ini selama ±4 pertemuan dan memberi skor 0–3, lalu diubah jadi persen. " : ""}${doneStages.some(n => record['tahap'+n]._metode === 'baru') ? "Pada metode baru, guru menandai <b>setiap pertemuan</b> apakah perilaku muncul. Angka = persentase kesempatan yang membuat perilaku itu muncul; pertemuan tanpa kesempatan (misalnya tidak ada tugas sulit hari itu) tidak dihitung, supaya nilai tidak turun tanpa alasan." : ""}${multi ? " Angka di atas adalah rata-rata dari tahap-tahap yang sudah masuk laporan." : ""}</p>
           <div class="pd-scale"><span><b>0–33%</b> Sedang berkembang</span><span><b>34–66%</b> Cukup menonjol</span><span><b>67–100%</b> Kekuatan utama</span></div>
           <p class="pd-note">Angka ini menggambarkan kecenderungan belajar si kecil, bukan nilai baik/buruk dan bukan perbandingan dengan anak lain.</p>
         </div>
@@ -897,6 +947,15 @@ function buildCombinedProfile() {
     sub.textContent = "Hasil awal (Tahap 1) — observasi guru di Markz Belajar";
     parentNote.innerHTML = "💬 Ini gambaran awal. Observasi lanjutan (Tahap 2) akan menunjukkan perkembangan si kecil.";
   }
+  {
+    const baruSt = doneStages.filter(n => record['tahap'+n]._metode === 'baru');
+    const sem = baruSt.filter(n => !record['tahap'+n]._final);
+    const notes = [];
+    if(sem.length) notes.push("🕒 " + sem.map(n => "Tahap " + n + " (" + record['tahap'+n]._done + "/12 observasi)").join(", ") + " masih <strong>hasil sementara</strong> — data lebih lengkap = gambaran lebih akurat.");
+    if(baruSt.length && doneStages.some(n => record['tahap'+n]._metode !== 'baru')) notes.push("ℹ️ Tahap awal memakai metode penilaian lama (skor 0–3), tahap terbaru memakai metode baru (pengamatan tiap pertemuan). Karena skalanya berbeda, selisih angka antar-metode tidak otomatis berarti perkembangan.");
+    if(!(doneStages.length === 4 && !sem.length)) notes.push("📈 Lanjutkan observasi hingga Tahap 4 — data lebih lengkap = gambaran lebih akurat.");
+    if(notes.length) parentNote.innerHTML += "<br><br>" + notes.join("<br><br>");
+  }
   renderObsTimeline();
 }
 
@@ -905,7 +964,7 @@ const STAGE_NAMES = ["Screening Awal", "Screening Lanjutan", "Screening Pendalam
 function renderObsTimeline() {
   const box = document.getElementById("obs-timeline");
   if(!box) return;
-  const done = n => !!(record['tahap'+n] && record['tahap'+n].status === 'selesai');
+  const done = n => { const r = record['tahap'+n]; return !!(r && r.status === 'selesai' && (r._metode !== 'baru' || r._final)); };
   const nextN = [1,2,3,4].find(n => !done(n));
   const CHECK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 12.5 10 17.5 19 7.5"/></svg>';
   const CLOCK = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><polyline points="12 7 12 12 15.5 14"/></svg>';
@@ -913,8 +972,9 @@ function renderObsTimeline() {
     const isDone = done(n), isNext = n === nextN;
     const cls = isDone ? "done" : (isNext ? "next" : "later");
     const sd = isDone ? stageDates(n) : null;
-    const tgl = isDone ? (fmtTgl(sd.awal) || "Selesai") : (isNext ? "Proses observasi" : "Menyusul");
-    const desc = isDone ? "Observasi guru selesai" : (n === 1 ? "Guru mengamati selama ±4 pertemuan pertama" : "Guru mengamati lagi ±4 pertemuan setelah Tahap " + (n-1));
+    const rr = record['tahap'+n], semNow = !!(rr && rr._metode === 'baru' && !rr._final), pg = (record._prog || {})[n];
+    const tgl = isDone ? (fmtTgl(rr && rr._metode === 'baru' ? sd.last : sd.awal) || "Selesai") : (semNow ? "Sementara · " + rr._done + "/12" : (isNext ? (pg ? "Proses observasi · " + pg + "/12" : "Proses observasi") : "Menyusul"));
+    const desc = isDone ? (rr && rr._metode === 'baru' ? "12 observasi guru selesai" : "Observasi guru selesai") : ((semNow || pg) ? "Guru mengamati tiap pertemuan — makin lengkap, makin akurat" : (n === 1 ? "Guru mengamati selama 12 pertemuan observasi" : "Guru mengamati 12 pertemuan observasi setelah Tahap " + (n-1)));
     const line = i < 3 ? `<div class="otl-line ${isDone ? "on" : ""}"></div>` : "";
     return `<div class="otl-item ${cls}">
       <div class="otl-left"><div class="otl-dot">${isDone ? CHECK : CLOCK}</div>${line}</div>
@@ -1133,7 +1193,7 @@ function buildRadarSVG(items) {
   }
   const levels = [1, 0.75, 0.5, 0.25];   // 100%, 75%, 50%, 25%
 
-  const avg = Math.round(items.reduce((s, it) => s + it.pct, 0) / n);
+  const _v = items.filter(it => !it.insuf); const avg = _v.length ? Math.round(_v.reduce((s, it) => s + it.pct, 0) / _v.length) : 0;
   const defs = `<defs>
     <radialGradient id="starGrad" cx="50%" cy="50%" r="55%">
       <stop offset="0%" stop-color="#34d399"/><stop offset="45%" stop-color="#0ea5e9"/><stop offset="100%" stop-color="#6366f1"/>
@@ -1171,7 +1231,7 @@ function buildRadarSVG(items) {
     } else {
       labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+7).toFixed(1)}" text-anchor="middle" font-size="12" font-weight="600" fill="#4b5563" font-family="Segoe UI, sans-serif">${it.short}</text>`;
     }
-    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+(two?36:23)).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.pct}%</text>`;
+    labelHtml += `<text x="${p.x.toFixed(1)}" y="${(p.y+(two?36:23)).toFixed(1)}" text-anchor="middle" font-size="13" font-weight="800" fill="${it.color}" font-family="Segoe UI, sans-serif">${it.insuf ? "–" : it.pct + "%"}</text>`;
   });
   return `<svg viewBox="0 0 380 350" style="width:100%;max-width:360px;overflow:visible;">${defs}${rings}${star}${dots}${center}${labelHtml}</svg>`;
 }
@@ -1195,7 +1255,7 @@ function showViewMessage(html) {
   el.innerHTML = html; el.classList.add("show");
 }
 function hasAnyFinalStage() {
-  return [1,2,3,4].some(n => record['tahap'+n] && record['tahap'+n].status === 'selesai');
+  return [1,2,3,4].some(n => inc(n));
 }
 function kbCacheKey(g){ return "mb_kb_cache_" + g; }
 function readKBCache(g){ try { const raw = localStorage.getItem(kbCacheKey(g)); return raw ? JSON.parse(raw) : null; } catch(e){ return null; } }
@@ -1207,7 +1267,7 @@ async function fetchDetailWithRetry(g) {
 function reportOrMessage(failed, errMsg) {
   if(hasAnyFinalStage()) { showCombinedReport(); return; }
   if(failed) showViewMessage('⚠️ <strong>Gagal memuat laporan.</strong> (' + errMsg + ') <button onclick="location.reload()" style="margin-left:6px;background:#0686c7;color:#fff;border:none;padding:5px 12px;border-radius:6px;font-size:12px;cursor:pointer;">Muat ulang</button>');
-  else showViewMessage('⏳ <strong>Laporan belum tersedia.</strong> Observasi guru untuk ananda belum diselesaikan.');
+  else showViewMessage('⏳ <strong>Laporan belum tersedia.</strong> Hasil sementara muncul setelah guru menyelesaikan minimal 4 observasi.');
 }
 
 async function loadReport() {
@@ -1235,10 +1295,7 @@ async function loadReport() {
     let failed = false, errMsg = '';
     if(r && r.ok && r.data) {
       const d = r.data;
-      record.tahap1 = d.tahap1 || null;
-      record.tahap2 = d.tahap2 || null;
-      record.tahap3 = d.tahap3 || null;
-      record.tahap4 = d.tahap4 || null;
+      applyDetail(d);
       record.nama = d.namaAnak || record.nama;
       record.usia = d.usia || ""; record.jk = d.jk || ""; record.guru = d.namaGuru || "";
     } else if(r && r.ok) {
