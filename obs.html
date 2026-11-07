@@ -275,6 +275,15 @@ body{font-family:'Plus Jakarta Sans',system-ui,sans-serif;background:var(--outer
 @media print{
   .ham-btn,.sheet-overlay,.wa-overlay{display:none!important;}
 }
+
+/* ── Grup "Hari ini" (berdasarkan jadwal) ── */
+.tile-time{display:inline-flex;align-items:center;gap:6px;font-size:11px;font-weight:700;padding:3px 10px;border-radius:50px;width:fit-content;max-width:100%;}
+.tile-time.live{background:#E3F6EA;color:#17803A;}
+.tile-time.done{background:var(--surface2);color:var(--text2);}
+.tile-time.soon{background:#FFF1D1;color:#A65F00;}
+.tile-time .ld{width:7px;height:7px;border-radius:50%;background:#22C55E;flex-shrink:0;animation:tlPulse 1.6s ease-in-out infinite;}
+@keyframes tlPulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+.tile.today-tile{border-color:#86D3A0;}
 </style>
 </head>
 <body>
@@ -430,6 +439,7 @@ const FORM_REPORT   = 'https://markaz-belajar.github.io/app/obs.autism.report.ht
 // ⭐ BARU — Kekuatan Belajar (4 tahap). Ganti API_KB setelah deploy Code_KekuatanBelajar.gs
 const API_KB      = 'https://script.google.com/macros/s/AKfycbyMCQqWa5hpH9dsqK1CTLSt0zXfpLGPeFw6fYmHJeaTP0IVNp6cK4sySwqF4QlFUzaB/exec';
 const FORM_KB     = 'https://markaz-belajar.github.io/app/obs.kb.teacher.html';
+const API_JADWAL  = 'https://script.google.com/macros/s/AKfycbzW73XhHZCke1-qsAmKtxuZrHNFSihIoqzQGXo0BC-v_PgR_SBuRI7w73NLwF9fCNLf/exec';   // aplikasi Jadwal Markaz Belajar
 const FORM_KB_LAPORAN = 'https://markaz-belajar.github.io/app/obs.kb.laporan.html';   // halaman laporan khusus orang tua
 
 let allSiswa = [], screeningMap = {}, currentFilter = 'semua', currentSiswa = null;
@@ -575,6 +585,7 @@ function levelOfSiswa(s) {
   return 'lain';
 }
 const LEVELS = {
+  now:  { label:'Hari ini',   color:'#16A34A', cls:'lvl-pre'  },
   pre:  { label:'Preschool',  color:'#F59F00', cls:'lvl-pre'  },
   elem: { label:'Elementary', color:'#1B6CA8', cls:'lvl-elem' },
   lain: { label:'Lainnya',    color:'#8FA4B4', cls:'lvl-lain' }
@@ -621,29 +632,122 @@ function renderList() {
     return;
   }
 
-  const groups = { pre:[], elem:[], lain:[] };
-  data.forEach(s => groups[levelOfSiswa(s)].push(s));
+  // Anak yang punya kelas HARI INI (dari aplikasi Jadwal) naik ke grup paling atas:
+  // sedang berlangsung → baru selesai (guru biasanya mengisi setelah kelas) → belum mulai
+  const groups = { now:[], pre:[], elem:[], lain:[] };
+  const infoOf = {};
+  data.forEach(s => {
+    const ti = todayInfo(s);
+    if (ti) { infoOf[s.id] = ti; groups.now.push(s); }
+    else groups[levelOfSiswa(s)].push(s);
+  });
+  groups.now.sort((x, y) => {
+    const a = infoOf[x.id], b = infoOf[y.id];
+    return (a.rank - b.rank) || (a.rank === 1 ? b.endMin - a.endMin : a.rank === 0 ? a.endMin - b.endMin : a.startMin - b.startMin) || x.nama.localeCompare(y.nama, 'id');
+  });
 
-  wrap.innerHTML = ['pre','elem','lain'].filter(k => groups[k].length).map(k => {
-    const L = LEVELS[k];
-    const tiles = groups[k].map(s => {
-      const urgent = getStatus(s) === 'perlu_lanjut' ? ' urgent' : '';
-      const nm = splitName(s.nama), meta = metaOf(s);
-      return `<div class="tile${urgent}" onclick="openSheet('${s.id}')">
-        <div class="tile-top"><span class="lvl-badge ${L.cls}">${L.label}</span><span class="tile-age">${s.usia || ''}</span></div>
+  function tileHtml(s, L) {
+    const urgent = getStatus(s) === 'perlu_lanjut' ? ' urgent' : '';
+    const nm = splitName(s.nama), meta = metaOf(s), ti = infoOf[s.id];
+    const lv = LEVELS[levelOfSiswa(s)];
+    const chip = ti ? `<div class="tile-time ${ti.state}">${ti.state === 'live' ? '<span class="ld"></span>' : ''}${ti.label}</div>` : '';
+    return `<div class="tile${urgent}${ti ? ' today-tile' : ''}" onclick="openSheet('${s.id}')">
+        <div class="tile-top"><span class="lvl-badge ${lv.cls}">${lv.label}</span><span class="tile-age">${s.usia || ''}</span></div>
         <div class="tile-main">
           <div class="student-avatar">${s.inisial || s.nama.charAt(0)}</div>
           <div class="tile-names"><div class="tn1"><span>${nm.first}</span></div>${nm.rest ? `<div class="tn2"><span>${nm.rest}</span></div>` : ''}</div>
         </div>
+        ${chip}
         ${meta ? `<div class="tile-meta">${meta}</div>` : ''}
         ${tileBadges(s) ? `<div class="tile-badges">${tileBadges(s)}</div>` : ''}
       </div>`;
-    }).join('');
+  }
+
+  wrap.innerHTML = ['now','pre','elem','lain'].filter(k => groups[k].length).map(k => {
+    const L = LEVELS[k];
+    const tiles = groups[k].map(s => tileHtml(s, L)).join('');
     return `<div class="grp">
       <div class="grp-hdr"><span class="grp-dot" style="background:${L.color}"></span>${L.label}<span class="grp-cnt">${groups[k].length}</span></div>
       <div class="tile-grid">${tiles}</div>
     </div>`;
   }).join('');
+}
+
+// ════════════════════════════════════════════════════════════════
+// JADWAL — baca jadwal dari aplikasi Jadwal Markaz Belajar (sumber yang sama)
+// ════════════════════════════════════════════════════════════════
+const HARI_ID = ['Senin','Selasa','Rabu','Kamis','Jumat','Sabtu','Minggu'];
+let jadwalData = null;      // { students, schedules, teachers, zones }
+let jadwalIdx = {};         // siswa.id (obs) → daftar baris jadwal anak itu
+
+function jadwalJsonp(timeoutMs = 12000) {
+  return new Promise(res => {
+    const cb = 'cbj_' + Date.now();
+    const el = document.createElement('script');
+    let done = false;
+    const fin = v => { if (done) return; done = true; delete window[cb]; el.remove(); res(v); };
+    window[cb] = d => fin(d);
+    el.onerror = () => fin(null);
+    setTimeout(() => fin(null), timeoutMs);
+    el.src = API_JADWAL + '?' + new URLSearchParams({ action:'load', callback: cb });
+    document.head.appendChild(el);
+  });
+}
+async function loadJadwal() {
+  let r = await jadwalJsonp();
+  if (r && r.success && r.data) {
+    jadwalData = r.data;
+    try { localStorage.setItem('mb_jadwal_cache', JSON.stringify(r.data)); } catch(e) {}
+  } else {
+    try { jadwalData = JSON.parse(localStorage.getItem('mb_jadwal_cache') || 'null'); } catch(e) { jadwalData = null; }
+  }
+  buildJadwalIdx();
+}
+
+// Cocokkan nama di aplikasi Jadwal dengan nama di data siswa (nama bisa lebih pendek di salah satunya)
+function normNama(n) { return String(n || '').toLowerCase().replace(/[^a-z\s]/g, ' ').replace(/\s+/g, ' ').trim(); }
+function buildJadwalIdx() {
+  jadwalIdx = {};
+  if (!jadwalData || !allSiswa.length) return;
+  const T = jadwalData.teachers || [], Z = jadwalData.zones || [], JS = jadwalData.students || [], SC = jadwalData.schedules || [];
+  const tok = allSiswa.map(x => ({ s:x, n:normNama(x.nama), t:normNama(x.nama).split(' ') }));
+  const idMap = {};   // id siswa di aplikasi Jadwal → siswa obs
+  JS.forEach(js => {
+    if (js.active === false) return;
+    const n = normNama(js.name), t = n.split(' ').filter(Boolean);
+    if (!t.length) return;
+    let c = tok.filter(x => x.n === n);
+    if (!c.length) c = tok.filter(x => t.every(w => x.t.includes(w)) || x.t.every(w => t.includes(w)));
+    if (c.length > 1) { const two = c.filter(x => x.t[0] === t[0] && x.t[1] === t[1]); if (two.length) c = two; }
+    if (c.length === 1 && (t.length >= 2 || c[0].t.length >= 1)) idMap[js.id] = c[0].s;
+  });
+  SC.forEach(sc => {
+    const siswa = idMap[sc.studentId];
+    if (!siswa) return;
+    const th = T.find(x => x.name === sc.teacher), zn = Z.find(x => x.name === sc.zone && x.program === sc.program);
+    if ((th && th.active === false) || (zn && zn.active === false)) return;
+    (jadwalIdx[siswa.id] || (jadwalIdx[siswa.id] = [])).push(sc);
+  });
+}
+function hhmm(t) { const [h, m] = String(t).split(':').map(Number); return h * 60 + (m || 0); }
+
+// Info kelas hari ini untuk satu anak (null kalau tidak ada kelas hari ini)
+function todayInfo(s) {
+  const rows = jadwalIdx[s.id];
+  if (!rows) return null;
+  const now = new Date(), today = HARI_ID[(now.getDay() + 6) % 7], nm = now.getHours() * 60 + now.getMinutes();
+  const td = rows.filter(r => r.day === today).sort((a, b) => hhmm(a.start) - hhmm(b.start));
+  if (!td.length) return null;
+  const live = td.find(r => hhmm(r.start) <= nm && nm < hhmm(r.end));
+  const upcoming = td.filter(r => hhmm(r.start) > nm);
+  const finished = td.filter(r => hhmm(r.end) <= nm);
+  let r, state, rank;
+  if (live)               { r = live;        state = 'live'; rank = 0; }
+  else if (!upcoming.length) { r = finished[finished.length - 1]; state = 'done'; rank = 1; }
+  else                    { r = upcoming[0]; state = 'soon'; rank = 2; }
+  const rng = `${r.start}–${r.end}`;
+  const label = state === 'live' ? `Sedang kelas · ${rng}` : state === 'done' ? `Selesai · ${rng}` : `Kelas ${rng}`;
+  return { state, rank, label, startMin: hhmm(r.start), endMin: hhmm(r.end) };
 }
 
 // ── Update stats (gabungan semua jenis screening) ──
@@ -1329,9 +1433,13 @@ async function init() {
   updateStats();
   renderList();
   loadAllKB();   // status Kekuatan Belajar per siswa, dimuat di latar belakang
+  loadJadwal().then(() => renderList());   // jadwal hari ini → anak yang sedang/baru selesai kelas naik ke atas
 }
 
 init();
+// Perbarui urutan tiap menit (status "sedang kelas" → "selesai") dan muat ulang jadwal tiap 10 menit
+setInterval(() => { if (jadwalData && document.visibilityState === 'visible') renderList(); }, 60000);
+setInterval(() => { if (allSiswa.length) loadJadwal().then(() => renderList()); }, 600000);
 </script>
 </body>
 </html>
