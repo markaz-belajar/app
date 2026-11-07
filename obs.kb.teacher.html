@@ -141,6 +141,15 @@ select{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radi
 .rb.x.on .c{background:#6b7280;border-color:#6b7280;color:#fff;transform:scale(1.08);box-shadow:0 6px 16px rgba(107,114,128,.4);} .rb.x.on .l{color:#374151;}
 .ans-cap{text-align:center;font-size:13px;color:var(--text-2);margin-top:12px;min-height:20px;line-height:1.5;}
 .f-bot .btn{padding:13px 18px;}
+
+/* ── bulatan kecil di atas kapsul abu-abu yang menyatu ── */
+.prows{display:flex;flex-direction:column;gap:10px;margin-top:18px;}
+.prow{display:flex;justify-content:space-between;align-items:center;gap:6px;padding:7px;background:#eef1f5;border-radius:999px;}
+.prow .pb{flex:0 0 auto;width:clamp(44px,12.5vw,54px);height:clamp(44px,12.5vw,54px);aspect-ratio:auto;border-radius:50%;border:2px solid #fff;background:#fff;font-size:clamp(15px,4.4vw,18px);font-weight:700;color:var(--text);box-shadow:0 2px 6px rgba(15,23,42,.08);padding:0;}
+.prow .pb.done{background:var(--green-light);border-color:#86efac;color:var(--green);}
+.prow .pb.draft{background:var(--amber-light);border-color:#fcd34d;color:var(--amber);}
+.prow .pb.next{background:var(--blue-light);border-color:var(--blue);color:var(--blue);box-shadow:0 0 0 3px rgba(6,134,199,.15);}
+@media(min-width:700px){.prow{padding:9px 14px;} .prow .pb{width:58px;height:58px;font-size:20px;}}
 </style>
 </head>
 <body>
@@ -169,7 +178,7 @@ select{width:100%;padding:11px 12px;border:1.5px solid var(--border);border-radi
     <span class="dlg-chip" id="pk-chip">TAHAP 1</span>
     <h2>Ini observasi ke berapa?</h2>
     <p id="pk-sub"></p>
-    <div class="grid" id="pk-grid"></div>
+    <div class="prows" id="pk-grid"></div>
     <div class="dlg-foot"><div style="display:flex;gap:12px;flex-wrap:wrap;"><span><i style="background:#86efac"></i>Selesai</span><span><i style="background:#fcd34d"></i>Draft</span><span><i style="background:var(--blue)"></i>Berikutnya</span></div><button class="dlg-x2" onclick="closePicker()" aria-label="Batal">✕</button></div>
   </div></div>
 </div>
@@ -379,15 +388,17 @@ function openPicker(stage) {
   const firstOpen = (() => { for (let k = 1; k <= PER_TAHAP; k++) { const o = arr.find(x => x.n === k); if (!o || o.status !== 'selesai') return k; } return 0; })();
   $('pk-chip').textContent = 'TAHAP ' + stage + ' · ' + NAMA_TAHAP[stage].toUpperCase();
   $('pk-sub').textContent = (siswa.nama || '') + ' — pilih nomor observasi untuk hari ini. Nomor yang sudah selesai bisa dibuka lagi untuk dikoreksi.';
-  $('pk-grid').innerHTML = Array.from({ length: PER_TAHAP }, (_, i) => {
+  const perRow = window.innerWidth >= 700 ? 6 : 4;
+  const bubbles = Array.from({ length: PER_TAHAP }, (_, i) => {
     const k = i + 1, o = arr.find(x => x.n === k);
     const loc = localStorage.getItem(draftKey(stage, k));
-    let cls = '', sub = '';
-    if (o && o.status === 'selesai') { cls = 'done'; sub = fmtD(o.tanggal) || '✓'; }
-    else if (o || loc) { cls = 'draft'; sub = 'draft'; }
-    else if (k === firstOpen) { cls = 'next'; sub = 'berikutnya'; }
-    return `<button class="pb ${cls}" onclick="startObs(${stage},${k})">${k}<small>${sub || '&nbsp;'}</small></button>`;
-  }).join('');
+    const cls = (o && o.status === 'selesai') ? 'done' : (o || loc) ? 'draft' : (k === firstOpen ? 'next' : '');
+    const ttl = (o && o.status === 'selesai' && o.tanggal) ? ' title="' + fmtD(o.tanggal) + '"' : '';
+    return `<button class="pb ${cls}"${ttl} onclick="startObs(${stage},${k})">${k}</button>`;
+  });
+  let rows = '';
+  for (let i = 0; i < bubbles.length; i += perRow) rows += `<div class="prow">${bubbles.slice(i, i + perRow).join('')}</div>`;
+  $('pk-grid').innerHTML = rows;
   $('picker').classList.add('open');
 }
 function closePicker() { $('picker').classList.remove('open'); }
