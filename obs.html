@@ -943,6 +943,7 @@ function renderKBView(s, rec) {
   html += `</div>`;
 
   if (hasResult) {
+    const nRes = info.filter(i => (i.method === 'lama' && i.status === 'selesai') || (i.method !== 'lama' && i.done >= KB_MIN_LAPORAN)).length;
     const resBtns = info.map((i, idx) => {
       const n = idx + 1;
       if (i.method === 'lama' && i.status === 'selesai') return `<button class="btn btn-ghost btn-full" style="margin-top:6px;" onclick="lihatLaporanKB(${n})">Lihat hasil Tahap ${n}</button>`;
@@ -951,10 +952,15 @@ function renderKBView(s, rec) {
     }).join('');
     html += `<div class="action-group">
       <div class="sec-lbl">Laporan & Berbagi</div>
+      <button class="btn btn-accent btn-full" style="margin-top:6px;" onclick="lihatLaporanKB()">
+        <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="8" y1="13" x2="16" y2="13"/><line x1="8" y1="17" x2="16" y2="17"/></svg>
+        Lihat Laporan ${nRes >= 2 ? 'Gabungan' : '(Sementara)'}
+      </button>
+      ${nRes >= 2 ? '<div class="sec-lbl" style="margin-top:12px;">Per tahap</div>' : ''}
       ${resBtns}
-      <button class="btn btn-wa btn-full" style="margin-top:10px;" onclick="kirimLaporanKB()">
-        <svg viewBox="0 0 24 24" fill="currentColor" stroke="none" width="16" height="16"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/></svg>
-        Kirim Laporan ke Orang Tua
+      <button class="btn btn-ghost btn-full" style="margin-top:10px;" onclick="salinLinkLaporanKB()">
+        <svg viewBox="0 0 24 24"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+        Salin Link Laporan untuk Orang Tua
       </button>
     </div>`;
   }
@@ -982,24 +988,25 @@ function lihatLaporanKB(tahap) {
   window.open(url, '_blank');
 }
 
-// ⭐ Kirim laporan Kekuatan Belajar ke orang tua (WhatsApp).
+// ⭐ Salin link laporan Kekuatan Belajar untuk orang tua (hanya menyalin link, tidak membuka WhatsApp).
 // Link HANYA membawa "gen" (kode singkat) — nama anak TIDAK ada di URL;
 // halaman laporan mengambil namanya sendiri dari server.
-function kirimLaporanKB() {
+async function salinLinkLaporanKB() {
   const s = currentSiswa;
   const genId = s.nomorInduk || ('ID-' + s.id);
-  const namaIbu = s.namaIbu || '';
-  const waNum = normalizeWA(s.waIbu || '');
-  if (!waNum) { showToast('Nomor WhatsApp orang tua belum tersedia di data siswa.', false); return; }
-  const laporanUrl = `${FORM_KB_LAPORAN}?gen=${encodeURIComponent(genId)}`;
-  const namaDepan = (s.nama || '').split(' ')[0];
-  const ibuDepan = namaIbu ? namaIbu.split(' ')[0] : '';
-  const sapa = ibuDepan ? `Bunda ${ibuDepan}` : 'Ayah/Bunda';
-  const waMsg = `Assalamualaikum, ${sapa}! 👋\n\nTim Markaz Belajar telah menyiapkan *Profil Kekuatan Belajar* untuk *${namaDepan}*, berdasarkan observasi guru saat belajar. 🌟\n\n📊 Silakan lihat laporannya di sini:\n${laporanUrl}\n\n⚠️ Ini alat bantu pendampingan — *bukan tes bakat, IQ, atau diagnosis*. Hasil bisa berubah seiring waktu.\n\nJika ada pertanyaan, silakan balas pesan ini. Terima kasih, ${sapa}! 💛\n_Tim Markaz Belajar_`;
-  pendingWA = { kind:'kb', waNum, waMsg, genId, namaAnak: s.nama, namaIbu, waIbu: s.waIbu };
-  document.getElementById('waTitleTxt').textContent = 'Kirim Laporan ke Orang Tua';
-  document.getElementById('waPreview').textContent = waMsg;
-  document.getElementById('waOverlay').classList.add('open');
+  const link = `${FORM_KB_LAPORAN}?gen=${encodeURIComponent(genId)}`;
+  let ok = false;
+  try { await navigator.clipboard.writeText(link); ok = true; } catch (e) {}
+  if (!ok) {
+    try {
+      const ta = document.createElement('textarea');
+      ta.value = link; ta.setAttribute('readonly', ''); ta.style.cssText = 'position:fixed;top:0;left:0;opacity:0;';
+      document.body.appendChild(ta); ta.select(); ta.setSelectionRange(0, link.length);
+      ok = document.execCommand('copy'); ta.remove();
+    } catch (e) {}
+  }
+  if (ok) showToast('Link laporan disalin ✓', true);
+  else window.prompt('Salin link laporan ini:', link);
 }
 
 function resetKBTesting() {
