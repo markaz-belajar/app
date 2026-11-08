@@ -569,7 +569,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { display
   <div class="result-parent" id="result-parent">
     <div class="result-parent-banner" id="report-start">
       <img class="rp-logo" src="Open_MB_Icon.png" alt="Markaz Belajar" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='icon_mb.png';}else{this.style.display='none';}">
-      <img class="rp-tiger" src="icon_mb_obs_kb.png" alt="" onerror="this.style.display='none'">
+      <img class="rp-tiger" src="icon_mb_obs_kb.png" alt="" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='icon_mb_obs_kb.png';}else{this.style.display='none';}">
       <p id="report-sub" style="display:none"></p>
     </div>
     <div class="result-parent-body rp-sheet">
@@ -926,7 +926,7 @@ function buildCombinedProfile() {
   const MASCOT = { A:"icon_mb_obs_kb1_4.png", B:"icon_mb_obs_kb1_3.png", C:"icon_mb_obs_kb1_2.png", D:"icon_mb_obs_kb.png", E:"icon_mb_obs_kb1_1.png" };
   const mascotImg = document.querySelector(".rp-tiger");
   const mascotSrc = best.pct >= 67 ? MASCOT[best.domain] : "icon_mb_obs_kb.png";   // di bawah 67% = belum ada area dominan → maskot netral
-  if(mascotImg && mascotImg.getAttribute("src") !== mascotSrc) { mascotImg.style.display = ""; mascotImg.src = mascotSrc; }
+  if(mascotImg && mascotImg.getAttribute("src") !== mascotSrc) { mascotImg.style.display = ""; mascotImg.dataset.fb = ""; mascotImg.src = mascotSrc; }   // bila file pose belum ada di server → otomatis kembali ke maskot netral
 
   document.getElementById("radar-chart-container").innerHTML = buildRadarSVG(radarData);
 
