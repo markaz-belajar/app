@@ -804,6 +804,7 @@ function buildCombinedProfile() {
   const multi = doneStages.length >= 2;
   const RADAR_SHORT = { A:"Fokus", B:"Ketekunan", C:"Kemandirian", D:"Motivasi", E:"Pemahaman Informasi" };
   const radarData = [];
+  const cands = [];
 
   ITEMS.forEach(d => {
     const stagePcts = {};
@@ -817,7 +818,11 @@ function buildCombinedProfile() {
       valid.forEach(n => idxRange(n).forEach(idx => { sum += (record['tahap'+n].answers[`${d.domain}_${idx}`]||0); }));
       combinedPct = Math.round((sum/(valid.length*9))*100);
     }
-    if(!insufAll && combinedPct > best.pct){ best = { domain: d.domain, pct: combinedPct }; }
+    if(!insufAll) {
+      // dukungan data = jumlah kesempatan teramati (metode baru) atau 12 (metode lama: ±4 pertemuan × 3 perilaku)
+      const sup = valid.reduce((t, n) => { const r = record['tahap'+n]; return t + (r._metode === 'baru' && r._stat ? r._stat[d.domain].y + r._stat[d.domain].n : 12); }, 0);
+      cands.push({ domain: d.domain, pct: combinedPct, sup, latest: stagePcts[valid[valid.length-1]] });
+    }
     radarData.push({ short: RADAR_SHORT[d.domain], pct: combinedPct, insuf: insufAll, color: RADAR_COLOR[d.domain], icon: d.icon, img: ICON_BASE + RADAR_IMG[d.domain] });
 
     const meta = DOMAIN_META[d.domain];
@@ -909,6 +914,20 @@ function buildCombinedProfile() {
     areas.appendChild(card);
   });
 
+  // Pemenang kekuatan utama. Seri = selisih ≤ 3 poin dari yang tertinggi → urut: data lebih banyak,
+  // lebih tinggi di tahap terbaru, lalu urutan tetap (Motivasi, Kemandirian, Ketekunan, Fokus, Pemahaman).
+  const ORDER = ["D","C","B","A","E"];
+  let ties = [];
+  if(cands.length) {
+    const top = Math.max.apply(null, cands.map(c => c.pct));
+    ties = cands.filter(c => c.pct >= top - 3).sort((a, b) => (b.sup - a.sup) || (b.latest - a.latest) || (ORDER.indexOf(a.domain) - ORDER.indexOf(b.domain)));
+    best = { domain: ties[0].domain, pct: ties[0].pct };
+  } else { best = { domain: "D", pct: 0 }; }
+  const MASCOT = { A:"icon_mb_obs_kb1_4.png", B:"icon_mb_obs_kb1_3.png", C:"icon_mb_obs_kb1_2.png", D:"icon_mb_obs_kb.png", E:"icon_mb_obs_kb1_1.png" };
+  const mascotImg = document.querySelector(".rp-tiger");
+  const mascotSrc = best.pct >= 67 ? MASCOT[best.domain] : "icon_mb_obs_kb.png";   // di bawah 67% = belum ada area dominan → maskot netral
+  if(mascotImg && mascotImg.getAttribute("src") !== mascotSrc) { mascotImg.style.display = ""; mascotImg.src = mascotSrc; }
+
   document.getElementById("radar-chart-container").innerHTML = buildRadarSVG(radarData);
 
   const nama = record.nama || "Si kecil";
@@ -926,7 +945,13 @@ function buildCombinedProfile() {
   }
     document.getElementById("hero-title").textContent = bestMeta.label;
   document.getElementById("rp-badge-img").src = ICON_BASE + DOMAIN_IMG[best.domain];
-  document.getElementById("hero-sub").innerHTML = `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area ini${extra}.`;
+  const strong = best.pct >= 67;
+  const also = ties.slice(1).filter(c => c.pct >= 67).map(c => RADAR_SHORT[c.domain]);
+  document.getElementById("hero-label").innerHTML = strong ? '<span class="rp-star">★</span> Kekuatan Utama' : '<span class="rp-star">★</span> Paling Terlihat Saat Ini';
+  document.getElementById("hero-sub").innerHTML = (strong
+    ? `<strong>${nama}</strong> menunjukkan kekuatan paling menonjol di area ini${extra}.`
+    : `<strong>${nama}</strong> sedang menemukan gaya belajarnya — kecenderungan yang paling terlihat saat ini ada di area ini${extra}.`)
+    + (strong && also.length ? `<br><span style="font-size:12.5px;opacity:.85;">Juga menonjol di ${also.join(" & ")}.</span>` : "");
   document.getElementById("report-title").textContent = nama;
 
 
@@ -1351,7 +1376,8 @@ async function loadReport() {
       img.style.setProperty('top', (topW / 1.06).toFixed(2) + '%', 'important');   // top % mengikuti tinggi banner (1.06 x lebar)
     } catch(e) { /* gagal baca piksel: pakai posisi bawaan CSS */ }
   }
-  if(img.complete) fit(); else img.addEventListener('load', fit);
+  img.addEventListener('load', fit);
+  if(img.complete) fit();
 })();
 
 // Maskot tetap di tempat; lembar putih naik menimpa, maskot makin blur perlahan
