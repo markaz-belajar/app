@@ -569,7 +569,7 @@ html::-webkit-scrollbar, body::-webkit-scrollbar, *::-webkit-scrollbar { display
   <div class="result-parent" id="result-parent">
     <div class="result-parent-banner" id="report-start">
       <img class="rp-logo" src="Open_MB_Icon.png" alt="Markaz Belajar" onerror="if(!this.dataset.f){this.dataset.f=1;this.src='icon_mb.png';}else{this.style.display='none';}">
-      <img class="rp-tiger" src="icon_mb_obs_kb.png" alt="" onerror="if(!this.dataset.fb){this.dataset.fb=1;this.src='icon_mb_obs_kb.png';}else{this.style.display='none';}">
+      <img class="rp-tiger" src="icon_mb_obs_kb.png" alt="" onerror="console.warn('[Maskot] GAGAL dimuat:', this.src); if(!this.dataset.fb){this.dataset.fb=1;this.src='icon_mb_obs_kb.png';}else{this.style.display='none';}">
       <p id="report-sub" style="display:none"></p>
     </div>
     <div class="result-parent-body rp-sheet">
@@ -933,7 +933,8 @@ function buildCombinedProfile() {
   } else { best = { domain: "D", pct: 0 }; }
   const MASCOT = { A:"icon_mb_obs_kb1.4.png", B:"icon_mb_obs_kb1.3.png", C:"icon_mb_obs_kb1.2.png", D:"icon_mb_obs_kb.png", E:"icon_mb_obs_kb1.1.png" };
   const mascotImg = document.querySelector(".rp-tiger");
-  const mascotSrc = MASCOT[best.domain] || "icon_mb_obs_kb.png";   // maskot selalu mengikuti ikon badge (area yang sama dengan "Kekuatan Utama / Paling Terlihat")
+  const mascotSrc = (MASCOT[best.domain] || "icon_mb_obs_kb.png") + "?v=3";   // ?v=3 = paksa browser memuat ulang gambar (ganti angka bila gambar diganti lagi)
+  console.log("[Maskot] area terpilih:", best.domain, "→", mascotSrc);   // maskot selalu mengikuti ikon badge (area yang sama dengan "Kekuatan Utama / Paling Terlihat")
   if(mascotImg && mascotImg.getAttribute("src") !== mascotSrc) { mascotImg.style.display = ""; mascotImg.dataset.fb = ""; mascotImg.src = mascotSrc; }   // bila file pose belum ada di server → otomatis kembali ke maskot netral
 
   document.getElementById("radar-chart-container").innerHTML = buildRadarSVG(radarData);
