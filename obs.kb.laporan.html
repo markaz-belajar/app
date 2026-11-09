@@ -931,7 +931,7 @@ function buildCombinedProfile() {
     ties = cands.filter(c => c.pct >= top - 3).sort((a, b) => (b.sup - a.sup) || (b.latest - a.latest) || (ORDER.indexOf(a.domain) - ORDER.indexOf(b.domain)));
     best = { domain: ties[0].domain, pct: ties[0].pct };
   } else { best = { domain: "D", pct: 0 }; }
-  const MASCOT = { A:"icon_mb_obs_kb1_4.png", B:"icon_mb_obs_kb1_3.png", C:"icon_mb_obs_kb1_2.png", D:"icon_mb_obs_kb.png", E:"icon_mb_obs_kb1_1.png" };
+  const MASCOT = { A:"icon_mb_obs_kb1.4.png", B:"icon_mb_obs_kb1.3.png", C:"icon_mb_obs_kb1.2.png", D:"icon_mb_obs_kb.png", E:"icon_mb_obs_kb1.1.png" };
   const mascotImg = document.querySelector(".rp-tiger");
   const mascotSrc = MASCOT[best.domain] || "icon_mb_obs_kb.png";   // maskot selalu mengikuti ikon badge (area yang sama dengan "Kekuatan Utama / Paling Terlihat")
   if(mascotImg && mascotImg.getAttribute("src") !== mascotSrc) { mascotImg.style.display = ""; mascotImg.dataset.fb = ""; mascotImg.src = mascotSrc; }   // bila file pose belum ada di server → otomatis kembali ke maskot netral
