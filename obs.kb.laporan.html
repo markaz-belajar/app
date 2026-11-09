@@ -726,6 +726,10 @@ function stageJoin(list){ const l = list.map(n=>"Tahap "+n); return l.length<=1 
 const NUM_WORD = {2:"dua",3:"tiga",4:"empat"};
 let genId = "";
 const KB_PER = 12, KB_MIN = 4;
+// ⭐ Pengaturan tingkat kesulitan skor (metode baru). Makin besar angkanya = makin sulit mencapai 100%.
+const KB_PRIOR = 2;        // "bobot awal" 50%: skor ditarik ke tengah, makin sedikit data makin kuat tarikannya (0 = tanpa penghalusan)
+const KB_THR_MIN = 3;      // minimal kesempatan teramati agar sebuah perilaku dihitung penuh
+const KB_THR_DIV = 2;      // batas = max(KB_THR_MIN, pertemuan ÷ KB_THR_DIV)
 const ONLY = parseInt(new URLSearchParams(location.search).get('tahap'), 10) || 0;   // ?tahap=N → hanya tampilkan satu tahap
 function inc(n) { const r = record['tahap' + n]; return !!(r && r.status === 'selesai' && (!ONLY || n === ONLY)); }
 
@@ -736,7 +740,7 @@ function adaptBaru(d, n) {
   const arr = ((d.baru && d.baru[n]) || []).filter(x => x.status === 'selesai');
   const done = arr.length;
   if (done < KB_MIN) return null;
-  const thr = Math.max(2, Math.ceil(done / 3));        // perilaku dihitung bila punya cukup kesempatan
+  const thr = Math.max(KB_THR_MIN, Math.ceil(done / KB_THR_DIV));   // perilaku dihitung bila punya cukup kesempatan
   const answers = {}, insuf = {}, stat = {};
   ITEMS.forEach(dm => {
     const items = idxRange(n).map(i => {
@@ -748,8 +752,12 @@ function adaptBaru(d, n) {
     let pool = items.filter(it => it.opp >= thr);
     if (!pool.length) pool = items.filter(it => it.opp >= 1);
     if (!pool.length) { insuf[dm.domain] = true; items.forEach(it => { answers[it.key] = 0; }); return; }
-    const m = pool.reduce((a, it) => a + it.y / it.opp, 0) / pool.length;
-    items.forEach(it => { answers[it.key] = (pool.indexOf(it) >= 0 ? it.y / it.opp : m) * 3; });
+    // skor tiap perilaku dihaluskan: (muncul + prior×50%) ÷ (kesempatan + prior) → 100% tidak bisa diraih dengan data sedikit
+    const sm = it => (it.y + KB_PRIOR * 0.5) / (it.opp + KB_PRIOR);
+    const m = pool.reduce((a, it) => a + sm(it), 0) / pool.length;
+    // perilaku yang datanya kurang diisi rata-rata area, tapi ditarik ke 50% sesuai seberapa banyak perilaku yang datanya cukup
+    const fill = 0.5 + (m - 0.5) * (pool.length / items.length);
+    items.forEach(it => { answers[it.key] = (pool.indexOf(it) >= 0 ? sm(it) : fill) * 3; });
   });
   const dates = arr.map(o => o.tanggal).filter(Boolean).sort();
   return { status:'selesai', answers, dates:{}, pertemuan:'', timestamp: dates[dates.length - 1] || '', awal: dates[0] || '', revisi:[], _metode:'baru', _done:done, _final: done >= KB_PER, _insuf:insuf, _stat:stat };
@@ -925,7 +933,7 @@ function buildCombinedProfile() {
   } else { best = { domain: "D", pct: 0 }; }
   const MASCOT = { A:"icon_mb_obs_kb1_4.png", B:"icon_mb_obs_kb1_3.png", C:"icon_mb_obs_kb1_2.png", D:"icon_mb_obs_kb.png", E:"icon_mb_obs_kb1_1.png" };
   const mascotImg = document.querySelector(".rp-tiger");
-  const mascotSrc = best.pct >= 67 ? MASCOT[best.domain] : "icon_mb_obs_kb.png";   // di bawah 67% = belum ada area dominan → maskot netral
+  const mascotSrc = MASCOT[best.domain] || "icon_mb_obs_kb.png";   // maskot selalu mengikuti ikon badge (area yang sama dengan "Kekuatan Utama / Paling Terlihat")
   if(mascotImg && mascotImg.getAttribute("src") !== mascotSrc) { mascotImg.style.display = ""; mascotImg.dataset.fb = ""; mascotImg.src = mascotSrc; }   // bila file pose belum ada di server → otomatis kembali ke maskot netral
 
   document.getElementById("radar-chart-container").innerHTML = buildRadarSVG(radarData);
