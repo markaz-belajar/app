@@ -247,6 +247,13 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .chip-ok{background:var(--success-dim);color:var(--success);}
 .chip-wa{background:rgba(37,211,102,.14);color:#1DA851;}
 .chip-muted{background:var(--surface2);color:var(--text3);}
+.chip-edit{background:var(--success-dim);color:var(--success);}
+.chip-sigd{background:var(--accent-dim);color:var(--accent);}
+.kw-ic.on.edt{color:var(--success);}
+.edit-note{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.5;border-radius:12px;padding:10px 12px;margin:10px 0 2px;}
+.edit-note svg{flex-shrink:0;margin-top:2px;}
+.edit-note.open{background:var(--success-dim);color:var(--text);}
+.edit-note.lock{background:var(--accent-dim);color:var(--text);}
 .sig-status{border-radius:12px;padding:10px 12px;margin-bottom:12px;font-size:12px;line-height:1.5;display:flex;flex-direction:column;gap:6px;}
 .sig-status.warn{background:var(--warning-dim);border:1.5px solid var(--warning);color:var(--text);}
 .sig-status.neutral{background:var(--surface2);border:1.5px solid var(--border);color:var(--text2);}
@@ -585,6 +592,70 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
   </div>
 </div>
 
+<!-- EDIT KUITANSI (hanya selama belum dicetak / dikirim) -->
+<div id="editModal" class="modal-overlay">
+  <div class="modal" style="max-width:560px;">
+    <div class="modal-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="var(--success)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
+      Edit Kuitansi
+    </div>
+    <p id="editModalDesc" style="font-size:12.5px;color:var(--text2);margin-bottom:14px;line-height:1.5;"></p>
+
+    <div class="g2">
+      <div class="modal-field"><label>No. Kuitansi</label><input id="eNo" type="text"></div>
+      <div class="modal-field"><label>Tanggal</label><input id="eDate" type="date"></div>
+    </div>
+    <div class="modal-field">
+      <label>Ref Invoice <span style="opacity:.6;">(opsional)</span></label>
+      <select class="fRefQuickSelect" onchange="editQuickRef(this)" style="margin-bottom:7px;"><option value="">— Pilih dari daftar invoice —</option></select>
+      <input id="eRef" type="text" placeholder="mis. INV/2026/07/012 atau kosongkan">
+      <div class="hint">Memilih invoice hanya mengisi kolom Ref Invoice, field lain tidak berubah.</div>
+    </div>
+    <div class="modal-field"><label>Diterima Dari</label><input id="eDari" type="text" placeholder="Nama orang tua / wali / pihak pembayar"></div>
+    <div class="g2">
+      <div class="modal-field"><label>Nama Ananda <span style="opacity:.6;">(opsional)</span></label><input id="eAnak" type="text" placeholder="Nama anak / siswa"></div>
+      <div class="modal-field">
+        <label>No. WhatsApp Orang Tua</label>
+        <input id="eWa" type="tel" inputmode="tel" placeholder="mis. 0812xxxxxxxx">
+      </div>
+    </div>
+    <div class="modal-field">
+      <label>Sejumlah Uang (Rp)</label>
+      <input id="eJumlah" type="text" inputmode="numeric" placeholder="0" style="font-family:'Geist Mono',monospace;font-size:15px;font-weight:700;">
+      <div id="eTerbilang" class="terbilang-box"></div>
+    </div>
+    <div class="modal-field"><label>Untuk Pembayaran</label><textarea id="eUntuk" style="min-height:96px;"></textarea></div>
+    <div class="modal-field"><label>Catatan <span style="opacity:.6;">(opsional)</span></label><textarea id="eCatatan" style="min-height:50px;"></textarea></div>
+    <div class="g2">
+      <div class="modal-field">
+        <label>Penerima (penanda tangan)</label>
+        <select id="ePenerimaQuick" onchange="quickFill('ePenerimaQuick','ePenerima')" style="margin-bottom:7px;">
+          <option value="">— Pilih cepat dari daftar —</option>
+          <option value="Elis Rosmiati, S.Pd.">Elis Rosmiati, S.Pd.</option>
+          <option value="Nita Fuziati">Nita Fuziati</option>
+          <option value="Annisa Zahrotun J, S.Kom.">Annisa Zahrotun J, S.Kom.</option>
+        </select>
+        <input id="ePenerima" type="text" placeholder="Nama penerima">
+      </div>
+      <div class="modal-field">
+        <label>Jabatan Penerima</label>
+        <select id="eCreatorQuick" onchange="quickFill('eCreatorQuick','eCreator')" style="margin-bottom:7px;">
+          <option value="">— Pilih cepat —</option>
+          <option value="Cashier">Cashier</option>
+          <option value="Financial">Financial</option>
+          <option value="Admission">Admission</option>
+          <option value="Operational">Operational</option>
+        </select>
+        <input id="eCreator" type="text" placeholder="Cashier/Financial, atau ketik custom">
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-full" onclick="closeEditModal(true)">Batal</button>
+      <button class="btn btn-accent btn-full" id="btnEditSave" onclick="saveEdit()">Simpan Perubahan</button>
+    </div>
+  </div>
+</div>
+
 <!-- KONFIRMASI UMUM -->
 <div id="confirmModal" class="modal-overlay">
   <div class="modal" style="max-width:420px;">
@@ -774,6 +845,15 @@ function buildInvoiceItemsDesc(inv) {
 // HELPER v2 — status kuitansi, nomor WhatsApp, nama anak
 // ══════════════════════════════════════
 const isArchived = k => String(k.status || '').toLowerCase() === 'archived';
+// Sudah dicetak atau dikirim WA -> terkunci. Selama belum, kuitansi aktif bisa diedit penuh.
+function isUsed(k) { return (Number(k.printed_count) || 0) > 0 || (Number(k.sent_count) || 0) > 0; }
+function canEditAll(k) { return !isArchived(k) && !isUsed(k); }
+function sigLabel(k) {
+  const m = String(k.signature_mode || '').toLowerCase();
+  if (m === 'digital') return 'digital';
+  if (m === 'manual') return 'manual';
+  return '';
+}
 
 function getAnanda(k) {
   return String(k.nama_anak || '').trim() || extractAnandaName(k.untuk_pembayaran);
@@ -1055,15 +1135,29 @@ async function updateKuitansiInSheets(id, updates) {
   if (!hasGasUrl()) {
     const local = loadLocal();
     const idx = local.findIndex(x => x.__id === id);
-    if (idx >= 0) { local[idx] = {...local[idx], ...updates}; saveLocal(local); }
-    return { ok: true };
+    const fields = { ...updates };
+    if (idx >= 0) {
+      const core = Object.keys(updates).filter(f => f !== 'nama_anak' && f !== 'no_wa' &&
+        String(local[idx][f] == null ? '' : local[idx][f]) !== String(updates[f] == null ? '' : updates[f]));
+      if (core.length) {
+        fields.edit_count = (Number(local[idx].edit_count) || 0) + 1;
+        fields.last_edited_at = new Date().toISOString();
+      }
+      local[idx] = { ...local[idx], ...fields };
+      saveLocal(local);
+    }
+    return { ok: true, fields };
   }
   return await gasPost('updateKuitansi', { id, updates });
 }
 function computeMarkFields(k, type, extra) {
   const now = new Date().toISOString();
   extra = extra || {};
-  if (type === 'print')   return { printed_count: (Number(k.printed_count) || 0) + 1, last_printed_at: now };
+  if (type === 'print') {
+    const f = { printed_count: (Number(k.printed_count) || 0) + 1, last_printed_at: now };
+    if (extra.signature_mode === 'digital' || extra.signature_mode === 'manual') f.signature_mode = extra.signature_mode;
+    return f;
+  }
   if (type === 'send')    return { sent_count: (Number(k.sent_count) || 0) + 1, last_sent_at: now };
   if (type === 'archive') return { status: 'archived', archived_at: now, archive_reason: extra.reason || '' };
   if (type === 'restore') return { status: 'aktif', archived_at: '', archive_reason: '' };
@@ -1248,7 +1342,7 @@ async function doSaveKuitansi(data, andPrint) {
     populateFilterBulan();
     document.getElementById('filterStatus').value = 'aktif';
     renderList();
-    showToast('Kuitansi tersimpan & terkunci', true);
+    showToast('Kuitansi tersimpan — masih bisa diedit sampai dicetak/dikirim', true);
     if (andPrint) promptSignatureAndPrint(data);
     resetForm();
     switchTab('riwayat');
@@ -1314,6 +1408,8 @@ const IC = {
   print:   '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>',
   wa:      '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>',
   archive: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>',
+  edit:    '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>',
+  sign:    '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M17 3a2.85 2.85 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5z"/></svg>',
   child:   '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
 };
 const IC_BTN = {
@@ -1329,13 +1425,19 @@ function buildChips(k) {
   const c = [];
   c.push(isArchived(k)
     ? `<span class="chip chip-arch">${IC.archive} Diarsipkan</span>`
-    : `<span class="chip chip-lock">${IC.lock} Terkunci</span>`);
+    : (isUsed(k)
+        ? `<span class="chip chip-lock">${IC.lock} Terkunci</span>`
+        : `<span class="chip chip-edit">${IC.edit} Bisa diedit</span>`));
   c.push(pc > 0
     ? `<span class="chip chip-ok" title="Terakhir dicetak ${esc(fmtTimestamp(k.last_printed_at))}">${IC.print} Sudah dicetak ${pc}×</span>`
     : `<span class="chip chip-muted">${IC.print} Belum dicetak</span>`);
   c.push(sc > 0
     ? `<span class="chip chip-wa" title="Terakhir dikirim ${esc(fmtTimestamp(k.last_sent_at))}">${IC.wa} Terkirim WA ${sc}×</span>`
     : `<span class="chip chip-muted">${IC.wa} Belum dikirim WA</span>`);
+  const sg = sigLabel(k);
+  if (sg === 'digital') c.push(`<span class="chip chip-sigd" title="Cetakan terakhir memakai tanda tangan digital">${IC.sign} TTD Digital</span>`);
+  else if (sg === 'manual') c.push(`<span class="chip chip-ok" title="Cetakan terakhir memakai tanda tangan manual">${IC.sign} TTD Manual</span>`);
+  else c.push(`<span class="chip chip-muted" title="${pc > 0 ? 'Jenis TTD tidak tercatat pada cetakan lama' : 'Jenis TTD dipilih saat mencetak'}">${IC.sign} ${pc > 0 ? 'TTD tidak tercatat' : 'TTD belum dipilih'}</span>`);
   return c.join('');
 }
 
@@ -1372,6 +1474,8 @@ function renderList() {
     const sc = Number(k.sent_count) || 0;
     const tgl = String(fmtTimestamp(k.created_at) || '').split(',')[0] || fmtDateShort(k.date);
     const lockIc = IC.lock.replace('width="10" height="10"', 'width="14" height="14"');
+    const used = isUsed(k);
+    const editIc = IC.edit.replace('width="10" height="10"', 'width="14" height="14"');
     return `
     <div class="kw-row${isNew ? ' kw-row-new' : ''}${arch ? ' kw-row-arch' : ''}" onclick="handleRowTap(event,'${id}')">
       <div class="kw-row-main">
@@ -1385,7 +1489,7 @@ function renderList() {
         <div class="kw-l3">
           <div class="kw-meta">${esc(tgl)} · ${esc(creatorName(k))}</div>
           <div class="kw-icons">
-            <span class="kw-ic on ${arch ? 'arc' : 'lock'}" title="${arch ? 'Diarsipkan' : 'Terkunci'}">${arch ? IC_BTN.archive : lockIc}</span>
+            <span class="kw-ic on ${arch ? 'arc' : (used ? 'lock' : 'edt')}" title="${arch ? 'Diarsipkan' : (used ? 'Terkunci (sudah dicetak/dikirim)' : 'Bisa diedit (belum dicetak/dikirim)')}">${arch ? IC_BTN.archive : (used ? lockIc : editIc)}</span>
             <span class="kw-ic prn${pc > 0 ? ' on' : ''}" title="${pc > 0 ? 'Sudah dicetak ' + pc + '×' : 'Belum dicetak'}">${IC_BTN.print}</span>
             <span class="kw-ic wa${sc > 0 ? ' on' : ''}" title="${sc > 0 ? 'Terkirim WA ' + sc + '×' : 'Belum dikirim WA'}">${IC_BTN.wa}</span>
           </div>
@@ -1434,8 +1538,23 @@ function openDetailSheet(id) {
   document.getElementById('detailModalNo').textContent = k.no_kuitansi;
   document.getElementById('detailModalSub').textContent = `${k.diterima_dari || ''} · ${rp(k.jumlah)}`;
 
+  const used = isUsed(k);
+  const sg = sigLabel(k);
+  const sigText = sg === 'digital'
+    ? '<span style="color:var(--accent);">Digital · QR verifikasi</span>'
+    : sg === 'manual'
+      ? 'Manual · stempel + TTD basah'
+      : (pc > 0
+          ? '<span style="color:var(--text3);">Tidak tercatat (cetakan lama)</span>'
+          : '<span style="color:var(--text3);">Belum dipilih — dipilih saat cetak</span>');
+  const noteIcon = '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+  const editNote = arch ? '' : (used
+    ? `<div class="edit-note lock">${noteIcon}<span><b>Terkunci</b> karena sudah ${pc > 0 && sc > 0 ? 'dicetak dan dikirim' : (pc > 0 ? 'dicetak' : 'dikirim')}. Hanya nama ananda &amp; WhatsApp yang bisa diubah. Untuk koreksi: arsipkan lalu buat kuitansi baru.</span></div>`
+    : `<div class="edit-note open">${noteIcon}<span><b>Masih bisa diedit</b> — semua isian boleh diubah sampai kuitansi dicetak atau dikirim ke orang tua. Setelah itu terkunci.</span></div>`);
+
   document.getElementById('detailModalBody').innerHTML = `
     <div class="kw-chips">${buildChips(k)}</div>
+    ${editNote}
     <div class="sheet-sec">Rincian</div>
     ${row('Tanggal', fmtDateLong(k.date))}
     ${row('Diterima Dari', esc(k.diterima_dari))}
@@ -1443,6 +1562,8 @@ function openDetailSheet(id) {
     ${row('WhatsApp Ortu', esc(k.no_wa) || '<span style="color:var(--text3);">Belum tersimpan</span>')}
     ${row('Jumlah', rp(k.jumlah))}
     ${k.ref_invoice ? row('Ref Invoice', esc(k.ref_invoice)) : ''}
+    ${row('Penerima', esc(k.penerima || '—') + (k.created_by ? ' · ' + esc(k.created_by) : ''))}
+    ${row('Tanda Tangan', sigText)}
     <div class="detail-block">
       <span class="db-lbl">Untuk Pembayaran</span>
       <div class="db-val">${nl2br(k.untuk_pembayaran) || '—'}</div>
@@ -1451,6 +1572,7 @@ function openDetailSheet(id) {
     <div class="sheet-sec">Riwayat</div>
     ${row('Dibuat Oleh', esc(createdByText(k)))}
     ${row('Dibuat Pada', esc(fmtTimestamp(k.created_at)))}
+    ${(Number(k.edit_count) || 0) > 0 ? row('Diedit', `${Number(k.edit_count)}× · terakhir ${esc(fmtTimestamp(k.last_edited_at))}`) : ''}
     ${row('Dicetak', pc > 0 ? `${pc}× · terakhir ${esc(fmtTimestamp(k.last_printed_at))}` : 'Belum pernah')}
     ${row('Dikirim WA', sc > 0 ? `${sc}× · terakhir ${esc(fmtTimestamp(k.last_sent_at))}` : 'Belum pernah')}
     ${arch ? row('Diarsipkan', esc(fmtTimestamp(k.archived_at))) : ''}
@@ -1463,9 +1585,9 @@ function openDetailSheet(id) {
       <button class="tile tile-wa" onclick="detailModalWa()">${big(IC_BTN.wa)}<span>${sc > 0 ? 'Kirim Ulang WA' : 'Kirim WA'}</span></button>
     </div>
     <div class="tile-grid">
-      <button class="tile tile-sm tile-blue" onclick="detailModalContact()">
+      <button class="tile tile-sm ${used || arch ? 'tile-blue' : 'tile-green'}" onclick="${used || arch ? 'detailModalContact()' : 'detailModalEdit()'}">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/></svg>
-        <span>Ubah Kontak</span>
+        <span>${used || arch ? 'Ubah Kontak' : 'Edit Kuitansi'}</span>
       </button>
       ${arch
         ? `<button class="tile tile-sm tile-blue" onclick="detailModalRestore()">${small(IC_BTN.restore)}<span>Pulihkan</span></button>`
@@ -1482,6 +1604,7 @@ function closeDetailModal() {
 }
 function detailModalPrint() { printById(detailModalId); }
 function detailModalWa() { sendWhatsApp(detailModalId); }
+function detailModalEdit() { openEditModal(detailModalId); }
 function detailModalContact() { const id = detailModalId; closeDetailModal(); openContactModal(id, false); }
 function detailModalArchive() { const id = detailModalId; closeDetailModal(); openArchive(id); }
 function detailModalRestore() { const id = detailModalId; closeDetailModal(); restoreKuitansi(id); }
@@ -1625,6 +1748,7 @@ function restoreKuitansi(id) {
 
 // ══════════════════════════════════════
 // KONTAK (nama anak + WhatsApp ortu) — satu-satunya data yang boleh dilengkapi setelah terkunci
+// (sebelum dicetak/dikirim, semua isian bisa diedit lewat Edit Kuitansi)
 // ══════════════════════════════════════
 let contactId = null, contactForSend = false;
 function openContactModal(id, forSend) {
@@ -1634,7 +1758,7 @@ function openContactModal(id, forSend) {
   contactId = id; contactForSend = !!forSend;
   document.getElementById('contactModalDesc').innerHTML = forSend
     ? `Nomor WhatsApp orang tua untuk <b>${esc(k.diterima_dari)}</b> belum tersimpan. Isi nomornya, lalu WhatsApp langsung terbuka.`
-    : `Lengkapi kontak untuk <b>${esc(k.no_kuitansi)}</b>. Data nominal & isi kuitansi tetap terkunci.`;
+    : `Lengkapi kontak untuk <b>${esc(k.no_kuitansi)}</b>.` + (canEditAll(k) ? '' : ' Data nominal & isi kuitansi terkunci.');
   document.getElementById('cNama').value = getAnanda(k);
   document.getElementById('cWa').value = k.no_wa || '';
   document.getElementById('btnContactSave').textContent = forSend ? 'Simpan & Kirim WA' : 'Simpan';
@@ -1682,6 +1806,139 @@ async function saveContact() {
 }
 
 // ══════════════════════════════════════
+// EDIT KUITANSI — semua isian, selama belum dicetak / dikirim
+// (server ikut memeriksa, jadi tetap aman bila status berubah di perangkat lain)
+// ══════════════════════════════════════
+let editId = null, editFromDetail = false, editOrig = {}, _isSavingEdit = false;
+
+function updateEditTerbilang() {
+  const v = digitsOnly(document.getElementById('eJumlah').value);
+  document.getElementById('eTerbilang').textContent = v ? '≈ ' + terbilang(v) : '';
+}
+function editQuickRef(sel) {
+  if (sel.value) document.getElementById('eRef').value = sel.value;
+  sel.selectedIndex = 0;
+}
+function openEditModal(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  if (!canEditAll(k)) {
+    showToast('Kuitansi sudah ' + (isArchived(k) ? 'diarsipkan' : 'dicetak/dikirim') + ' — hanya kontak yang bisa diubah', false);
+    openContactModal(id, false);
+    return;
+  }
+  editFromDetail = !!detailModalId;
+  if (detailModalId) closeDetailModal();
+  editId = id;
+  editOrig = {
+    no_kuitansi: String(k.no_kuitansi || ''),
+    date: String(k.date || ''),
+    ref_invoice: String(k.ref_invoice || ''),
+    diterima_dari: String(k.diterima_dari || ''),
+    nama_anak: getAnanda(k),
+    no_wa: String(k.no_wa || ''),
+    jumlah: Number(k.jumlah) || 0,
+    untuk_pembayaran: String(k.untuk_pembayaran || ''),
+    catatan: String(k.catatan || ''),
+    penerima: String(k.penerima || ''),
+    created_by: String(k.created_by || ''),
+  };
+  document.getElementById('eNo').value = editOrig.no_kuitansi;
+  document.getElementById('eDate').value = editOrig.date;
+  document.getElementById('eRef').value = editOrig.ref_invoice;
+  document.getElementById('eDari').value = editOrig.diterima_dari;
+  document.getElementById('eAnak').value = editOrig.nama_anak;
+  document.getElementById('eWa').value = editOrig.no_wa;
+  document.getElementById('eJumlah').value = editOrig.jumlah ? fmtThousand(editOrig.jumlah) : '';
+  document.getElementById('eUntuk').value = editOrig.untuk_pembayaran;
+  document.getElementById('eCatatan').value = editOrig.catatan;
+  document.getElementById('ePenerima').value = editOrig.penerima;
+  document.getElementById('eCreator').value = editOrig.created_by;
+  document.getElementById('ePenerimaQuick').selectedIndex = 0;
+  document.getElementById('eCreatorQuick').selectedIndex = 0;
+  updateEditTerbilang();
+  document.getElementById('editModalDesc').innerHTML =
+    `Ubah isi <b>${esc(k.no_kuitansi)}</b>. Berlaku selama kuitansi <b>belum dicetak atau dikirim</b>; setelah itu terkunci.`;
+  document.getElementById('editModal').classList.add('open');
+}
+function closeEditModal(reopenDetail) {
+  const id = editId;
+  editId = null;
+  document.getElementById('editModal').classList.remove('open');
+  if (reopenDetail && editFromDetail && id) openDetailSheet(id);
+}
+async function saveEdit() {
+  if (_isSavingEdit) return;
+  const k = kuitansiList.find(x => x.__id === editId);
+  if (!k) return;
+  if (!canEditAll(k)) {
+    closeEditModal(false); renderList();
+    showToast('Kuitansi sudah dicetak/dikirim — terkunci', false);
+    openDetailSheet(k.__id);
+    return;
+  }
+  const g = id => document.getElementById(id).value.trim();
+  const v = {
+    no_kuitansi: g('eNo'), date: g('eDate'), ref_invoice: g('eRef'), diterima_dari: g('eDari'),
+    nama_anak: g('eAnak'), no_wa: g('eWa'), jumlah: Number(digitsOnly(g('eJumlah'))) || 0,
+    untuk_pembayaran: g('eUntuk'), catatan: g('eCatatan'), penerima: g('ePenerima'), created_by: g('eCreator'),
+  };
+  if (!v.no_kuitansi || !v.date || !v.diterima_dari || !v.jumlah || !v.untuk_pembayaran) {
+    showToast('Lengkapi No, Tanggal, Diterima Dari, Jumlah, dan Untuk Pembayaran', false);
+    return;
+  }
+  if (v.no_wa && !normalizePhone(v.no_wa)) { showToast('Nomor WhatsApp tidak valid — kosongkan atau perbaiki', false); return; }
+
+  const updates = {};
+  Object.keys(v).forEach(f => { if (String(v[f]) !== String(editOrig[f])) updates[f] = v[f]; });
+  if (!Object.keys(updates).length) { showToast('Tidak ada perubahan', true); closeEditModal(true); return; }
+
+  const merged = { ...k, ...updates };
+  if (updates.no_kuitansi && kuitansiList.some(x => x.__id !== k.__id && String(x.no_kuitansi || '').trim() === merged.no_kuitansi)) {
+    showConfirm({ title: 'Nomor Sudah Dipakai', info: true, okText: 'Mengerti',
+      body: `Nomor <b>${esc(merged.no_kuitansi)}</b> sudah dipakai kuitansi lain. Gunakan nomor yang berbeda.` });
+    return;
+  }
+  const exact = findExactDuplicate(merged, k.__id);
+  if (exact) {
+    showConfirm({ title: 'Kuitansi Sama Sudah Ada', info: true, okText: 'Mengerti',
+      body: `Perubahan ini membuat kuitansi identik dengan <b>${esc(exact.no_kuitansi)}</b> (${esc(exact.diterima_dari)} · ${rp(exact.jumlah)}). Ubah isiannya, atau arsipkan salah satunya.` });
+    return;
+  }
+
+  const btn = document.getElementById('btnEditSave');
+  const label = btn.textContent;
+  _isSavingEdit = true; btn.disabled = true; btn.textContent = 'Menyimpan…';
+  try {
+    const res = await updateKuitansiInSheets(k.__id, updates);
+    Object.assign(k, updates, res.fields || {});
+    cacheList();
+    populateFilterBulan();
+    renderList();
+    closeEditModal(false);
+    showToast('Perubahan disimpan', true);
+    openDetailSheet(k.__id);
+  } catch (e) {
+    showToast('Gagal simpan: ' + e.message, false);
+    if (/terkunci/i.test(e.message)) { closeEditModal(false); loadAll(); }
+  } finally {
+    _isSavingEdit = false; btn.disabled = false; btn.textContent = label;
+  }
+}
+document.getElementById('eJumlah').addEventListener('input', function () {
+  const caret = this.selectionStart, before = this.value.length;
+  this.value = fmtThousand(this.value);
+  this.selectionStart = this.selectionEnd = Math.max(0, caret + (this.value.length - before));
+  updateEditTerbilang();
+});
+document.getElementById('eAnak').addEventListener('change', function () {
+  if (!document.getElementById('eWa').value.trim()) {
+    autofillFromRegistration(this.value, document.getElementById('eDari').value, 'eWa', null, false);
+  }
+});
+document.getElementById('editModal').addEventListener('click', e => { if (e.target === e.currentTarget) closeEditModal(true); });
+
+// ══════════════════════════════════════
 // KIRIM KE WHATSAPP — langsung buka chat ke nomor orang tua dengan pesan terisi
 // (WhatsApp tidak mengizinkan lampiran file otomatis lewat link; pesan memuat
 //  tautan verifikasi resmi kuitansi. PDF bisa dilampirkan manual bila perlu.)
@@ -1709,6 +1966,13 @@ function sendWhatsApp(id) {
     // hanya muncul bila kuitansi ini SUDAH pernah dikirim (cegah kirim ganda tidak sengaja)
     showConfirm({ title: 'Kirim Ulang ke WhatsApp?', okText: 'Kirim Lagi',
       body: `Kuitansi ini sudah pernah dikirim <b>${sc}×</b> (terakhir ${esc(fmtTimestamp(k.last_sent_at))}).`,
+      onOk: () => startSendWhatsApp(k) });
+    return;
+  }
+  if (canEditAll(k)) {
+    // kirim pertama kali akan mengunci kuitansi — beri kesempatan memeriksa dulu
+    showConfirm({ title: 'Kirim ke WhatsApp?', okText: 'Kirim',
+      body: `Setelah dikirim, kuitansi <b>${esc(k.no_kuitansi)}</b> <b>terkunci</b> dan isinya tidak bisa diedit lagi (hanya kontak). Pastikan data sudah benar.`,
       onOk: () => startSendWhatsApp(k) });
     return;
   }
@@ -1964,7 +2228,14 @@ function renderSigStatus(k) {
   lines.push(sc > 0
     ? `<div class="sig-status-line">${chk}<span><b>Sudah dikirim via WhatsApp ${sc}×</b> — terakhir ${esc(fmtTimestamp(k.last_sent_at))}.</span></div>`
     : `<div class="sig-status-line">${dot}<span>Belum pernah dikirim via WhatsApp.</span></div>`);
-  let cls = (pc > 0 || sc > 0) ? 'warn' : 'neutral';
+  const sg = sigLabel(k);
+  if (pc > 0 && sg) {
+    lines.push(`<div class="sig-status-line">${chk}<span>Tanda tangan cetakan terakhir: <b>${sg === 'digital' ? 'Digital' : 'Manual'}</b>.</span></div>`);
+  }
+  if (canEditAll(k)) {
+    lines.push(`<div class="sig-status-line">${dot}<span><b>Setelah dicetak, kuitansi terkunci</b> dan tidak bisa diedit lagi. Pastikan datanya sudah benar.</span></div>`);
+  }
+  let cls = (pc > 0 || sc > 0 || canEditAll(k)) ? 'warn' : 'neutral';
   if (isArchived(k)) {
     lines.unshift(`<div class="sig-status-line">${dot}<span><b>Kuitansi ini sudah diarsipkan</b> (tidak aktif).</span></div>`);
     cls = 'danger';
@@ -1984,7 +2255,7 @@ function confirmPrintWithSignature(mode) {
   _pendingPrintData = null;
   printKuitansi(data); // harus sinkron (dalam aksi klik) supaya popup tidak diblokir
   if (base.__id) {
-    applyMark(base.__id, 'print', {}).catch(e => showToast('Tercetak, tapi gagal mencatat status cetak: ' + e.message, false));
+    applyMark(base.__id, 'print', { signature_mode: mode }).catch(e => showToast('Tercetak, tapi gagal mencatat status cetak: ' + e.message, false));
   }
 }
 
