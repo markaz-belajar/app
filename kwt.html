@@ -250,6 +250,17 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
 .chip-edit{background:var(--success-dim);color:var(--success);}
 .chip-sigd{background:var(--accent-dim);color:var(--accent);}
 .kw-ic.on.edt{color:var(--success);}
+.tile-danger{background:var(--danger-dim);color:var(--danger);border:1px solid rgba(220,53,69,.3);}
+.sheet-actions .tile-wide{min-height:44px;margin-top:0;border-radius:12px;}
+.print-overlay{display:none;position:fixed;inset:0;z-index:6000;background:var(--bg);flex-direction:column;}
+.print-overlay.open{display:flex;}
+.print-bar{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 14px;background:var(--surface);border-bottom:1px solid var(--border);flex-shrink:0;}
+.print-bar .btn{min-width:0;padding:0 14px;height:42px;}
+.print-title{flex:1;min-width:0;text-align:center;font-size:12.5px;font-weight:700;color:var(--text);line-height:1.3;}
+.print-title small{display:block;font-weight:500;color:var(--text3);font-size:11px;}
+.print-stage{flex:1;overflow:auto;padding:12px;background:var(--surface2);-webkit-overflow-scrolling:touch;}
+.print-stage-box{margin:0 auto;background:#fff;box-shadow:0 2px 14px rgba(0,0,0,.15);}
+#printFrame{border:0;width:793px;display:block;background:#fff;transform-origin:top left;}
 .edit-note{display:flex;gap:8px;align-items:flex-start;font-size:12px;line-height:1.5;border-radius:12px;padding:10px 12px;margin:10px 0 2px;}
 .edit-note svg{flex-shrink:0;margin-top:2px;}
 .edit-note.open{background:var(--success-dim);color:var(--text);}
@@ -515,10 +526,6 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
       <svg class="btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
       <span class="btn-label">Simpan</span>
     </button>
-    <button class="btn btn-success" id="btnSimpanCetak" onclick="saveKuitansi(true)" title="Simpan & Cetak PDF">
-      <svg class="btn-ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
-      <span class="btn-label">Simpan &amp; Cetak PDF</span>
-    </button>
   </div>
 
 </div><!-- /tab-buat -->
@@ -589,6 +596,18 @@ input[readonly]{opacity:.75;cursor:not-allowed;}
       <button class="btn btn-ghost btn-full" onclick="closeContactModal()">Batal</button>
       <button class="btn btn-accent btn-full" id="btnContactSave" onclick="saveContact()">Simpan</button>
     </div>
+  </div>
+</div>
+
+<!-- CETAK DI DALAM APLIKASI (tanpa tab/jendela baru) -->
+<div id="printModal" class="print-overlay">
+  <div class="print-bar">
+    <button class="btn btn-ghost" onclick="closePrintModal()">Tutup</button>
+    <div class="print-title"><span id="printTitle"></span><small id="printSub"></small></div>
+    <button class="btn btn-success" id="btnDoPrint" onclick="doPrintNow()">Cetak / PDF</button>
+  </div>
+  <div class="print-stage" id="printStage">
+    <div class="print-stage-box" id="printBox"><iframe id="printFrame" title="Kuitansi siap cetak"></iframe></div>
   </div>
 </div>
 
@@ -1163,6 +1182,13 @@ function computeMarkFields(k, type, extra) {
   if (type === 'restore') return { status: 'aktif', archived_at: '', archive_reason: '' };
   return {};
 }
+async function deleteKuitansiInSheets(id) {
+  if (!hasGasUrl()) {
+    saveLocal(loadLocal().filter(x => x.__id !== id));
+    return { ok: true };
+  }
+  return await gasPost('deleteKuitansi', { id });
+}
 async function markKuitansiInSheets(id, type, extra) {
   if (!hasGasUrl()) {
     const local = loadLocal();
@@ -1593,6 +1619,9 @@ function openDetailSheet(id) {
         ? `<button class="tile tile-sm tile-blue" onclick="detailModalRestore()">${small(IC_BTN.restore)}<span>Pulihkan</span></button>`
         : `<button class="tile tile-sm tile-warn" onclick="detailModalArchive()">${small(IC_BTN.archive)}<span>Arsipkan</span></button>`}
     </div>
+    ${arch ? `<button class="tile tile-wide tile-danger" onclick="detailModalDelete()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+      <span>Hapus Permanen</span></button>` : ''}
   `;
   document.getElementById('detailModal').classList.add('open');
   const sb = document.querySelector('#detailModal .sheet-body');
@@ -1607,6 +1636,7 @@ function detailModalWa() { sendWhatsApp(detailModalId); }
 function detailModalEdit() { openEditModal(detailModalId); }
 function detailModalContact() { const id = detailModalId; closeDetailModal(); openContactModal(id, false); }
 function detailModalArchive() { const id = detailModalId; closeDetailModal(); openArchive(id); }
+function detailModalDelete() { const id = detailModalId; closeDetailModal(); deleteKuitansi(id); }
 function detailModalRestore() { const id = detailModalId; closeDetailModal(); restoreKuitansi(id); }
 
 // ══════════════════════════════════════
@@ -1729,6 +1759,24 @@ async function confirmArchive() {
     btn.disabled = false; btn.textContent = 'Arsipkan'; btnCancel.disabled = false;
   }
 }
+function deleteKuitansi(id) {
+  const k = kuitansiList.find(x => x.__id === id);
+  if (!k) return;
+  if (!isArchived(k)) { showToast('Arsipkan dulu sebelum menghapus permanen', false); return; }
+  showConfirm({ title: 'Hapus Permanen?', okText: 'Hapus Permanen', okClass: 'btn-danger',
+    body: `<b>${esc(k.no_kuitansi)}</b> (${esc(k.diterima_dari)} · ${rp(k.jumlah)}) akan dihapus <b>selamanya</b> dari Google Sheet dan <b>tidak bisa dipulihkan</b>.` +
+          (isUsed(k) ? `<br><br>Kuitansi ini sudah pernah dicetak/dikirim — QR pada kertas/pesan WhatsApp tidak akan bisa diverifikasi lagi.` : '') +
+          `<br><br>Nomornya bisa terpakai lagi bila ini nomor paling akhir.`,
+    onOk: async () => {
+      try {
+        await deleteKuitansiInSheets(id);
+        kuitansiList = kuitansiList.filter(x => x.__id !== id);
+        cacheList(); populateFilterBulan(); renderList();
+        document.getElementById('fNo').value = generateNextNo(document.getElementById('fDate').value);
+        showToast('Kuitansi dihapus permanen', true);
+      } catch (e) { showToast('Gagal hapus: ' + e.message, false); }
+    } });
+}
 function restoreKuitansi(id) {
   const k = kuitansiList.find(x => x.__id === id);
   if (!k) return;
@@ -1786,7 +1834,7 @@ async function saveContact() {
   _isSavingContact = true;
   btn.disabled = true; btn.textContent = 'Menyimpan…';
   // buka tab WA lebih dulu (masih dalam aksi klik) supaya tidak diblokir popup-blocker
-  const preWin = contactForSend ? window.open('', '_blank') : null;
+  const preWin = contactForSend ? preOpenTab() : null;
   try {
     await updateKuitansiInSheets(k.__id, { nama_anak: nama, no_wa: wa });
     k.nama_anak = nama; k.no_wa = wa;
@@ -1986,9 +2034,8 @@ async function startSendWhatsApp(k) {
   const phone = normalizePhone(k.no_wa);
   if (phone) { doOpenWhatsApp(k, phone, null); return; }
 
-  // buka tab dulu (masih dalam aksi klik) supaya tidak diblokir popup-blocker
-  const preWin = window.open('', '_blank');
-  try { if (preWin) preWin.document.write('<p style="font-family:system-ui;padding:24px;color:#555;">Membuka WhatsApp…</p>'); } catch(e) {}
+  // di desktop: buka tab dulu (masih dalam aksi klik) supaya tidak diblokir popup-blocker
+  const preWin = preOpenTab();
   showToast('Mencari nomor WhatsApp Ibu…', true);
 
   const st = pickStudent(await lookupStudent(getAnanda(k), k.diterima_dari));
@@ -2009,8 +2056,34 @@ async function startSendWhatsApp(k) {
   doOpenWhatsApp(k, found, preWin);
 }
 
-function doOpenWhatsApp(k, phone, preWin) {
+function isMobileDevice() {
+  const ua = navigator.userAgent || '';
+  return /Android|iPhone|iPad|iPod|Mobile/i.test(ua) || (navigator.maxTouchPoints > 1 && /Macintosh/i.test(ua));
+}
+// Desktop saja: tab kosong yang dibuka lebih dulu agar tidak kena popup-blocker.
+// Di HP tidak dipakai — HP langsung berpindah ke aplikasi WhatsApp di jendela yang sama.
+function preOpenTab() {
+  if (isMobileDevice()) return null;
+  const w = window.open('', '_blank');
+  try { if (w) w.document.write('<p style="font-family:system-ui;padding:24px;color:#555;">Membuka WhatsApp…</p>'); } catch(e) {}
+  return w;
+}
+
+async function doOpenWhatsApp(k, phone, preWin) {
   const url = `https://wa.me/${phone}?text=${encodeURIComponent(buildWaMessage(k))}`;
+
+  if (isMobileDevice()) {
+    // HP: catat status kirim dulu (maks. 4 dtk), lalu pindah langsung ke aplikasi WhatsApp
+    showToast('Membuka WhatsApp…', true);
+    try {
+      await Promise.race([applyMark(k.__id, 'send', {}), new Promise(res => setTimeout(res, 4000))]);
+    } catch(e) {
+      showToast('Gagal mencatat status kirim: ' + e.message, false);
+    }
+    window.location.href = url;
+    return;
+  }
+
   if (preWin) {
     preWin.location.href = url;
   } else {
@@ -2253,54 +2326,71 @@ function confirmPrintWithSignature(mode) {
   const data = { ...base, signature_mode: mode };
   document.getElementById('signatureModal').classList.remove('open');
   _pendingPrintData = null;
-  printKuitansi(data); // harus sinkron (dalam aksi klik) supaya popup tidak diblokir
-  if (base.__id) {
-    applyMark(base.__id, 'print', { signature_mode: mode }).catch(e => showToast('Tercetak, tapi gagal mencatat status cetak: ' + e.message, false));
-  }
+  printKuitansi(data); // pratinjau cetak tampil di dalam aplikasi; status "dicetak" dicatat saat tombol Cetak ditekan
 }
 
+let _printData = null, _printMarked = false;
 function printKuitansi(k) {
-  const html = buildKuitansiHTML(k);
-  const pw = window.open('', '_blank');
-  if (!pw) { showToast('Popup diblokir browser — izinkan popup untuk mencetak.', false); return; }
-  pw.document.write(`<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>${esc(k.no_kuitansi)}</title>
+  _printData = k; _printMarked = false;
+  const frame = document.getElementById('printFrame');
+  document.getElementById('printTitle').textContent = k.no_kuitansi;
+  document.getElementById('printSub').textContent = 'TTD ' + (k.signature_mode === 'digital' ? 'Digital' : 'Manual') + ' · tekan Cetak / PDF';
+  document.getElementById('printModal').classList.add('open');
+  frame.style.height = '1100px';
+  frame.onload = function () {
+    try {
+      const d = frame.contentDocument;
+      const doc = d.querySelector('.kw-doc');
+      const hPx = Math.ceil(doc.getBoundingClientRect().height);
+      // ukuran halaman cetak mengikuti tinggi isi (maks. A4)
+      const mm = Math.min(Math.ceil(hPx * 25.4 / 96) + 3, 297);
+      const st = d.createElement('style');
+      st.textContent = '@page{size:210mm ' + mm + 'mm;margin:0;}';
+      d.head.appendChild(st);
+      frame.style.height = hPx + 'px';
+      fitPrintFrame();
+    } catch (e) {}
+  };
+  frame.srcdoc = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>${esc(k.no_kuitansi)}</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Geist+Mono:wght@400;500;700&display=swap" rel="stylesheet">
 <style>
 ${KW_DOC_CSS}
+body{padding:0;}
 @media print{
   html,body{background:#fff !important;}
   body{padding:0;display:block;}
   .kw-doc{width:100%;min-height:0;}
-  .no-print{display:none !important;}
 }
-</style></head><body>
-${html}
-<div class="no-print" style="text-align:center;margin-top:20px;font-family:system-ui;font-size:13px;color:#888;">
-  <p style="margin-bottom:10px;">Klik <strong>Cetak / Save as PDF</strong></p>
-  <button onclick="window.print()" style="padding:10px 24px;background:#1c1c1c;color:#fff;border:none;border-radius:8px;font-size:14px;font-weight:600;cursor:pointer;">Cetak / Save PDF</button>
-</div>
-<script>
-window.addEventListener('load', function(){
-  setTimeout(function(){
-    try {
-      // Ukur tinggi konten kuitansi asli, lalu set ukuran halaman cetak
-      // mengikuti tinggi itu — bukan fixed A4. Kalau kontennya sampai
-      // sepanjang/melebihi A4, tetap dibatasi maksimal A4 (297mm).
-      var doc = document.querySelector('.kw-doc');
-      var heightPx = doc.getBoundingClientRect().height;
-      var heightMM = heightPx * 25.4 / 96;
-      var A4_HEIGHT_MM = 297;
-      var finalMM = Math.min(Math.ceil(heightMM) + 3, A4_HEIGHT_MM);
-      var styleTag = document.createElement('style');
-      styleTag.textContent = '@page{size:210mm ' + finalMM + 'mm;margin:0;}';
-      document.head.appendChild(styleTag);
-    } catch(e) {}
-    window.print();
-  }, 500);
-});
-<\/script>
-</body></html>`);
-  pw.document.close();
+</style></head><body>${buildKuitansiHTML(k)}</body></html>`;
+}
+function fitPrintFrame() {
+  const stage = document.getElementById('printStage');
+  const frame = document.getElementById('printFrame');
+  const box = document.getElementById('printBox');
+  if (!stage || !frame || !box) return;
+  const scale = Math.min(1, (stage.clientWidth - 24) / 793);
+  frame.style.transform = `scale(${scale})`;
+  box.style.width = (793 * scale) + 'px';
+  box.style.height = (frame.offsetHeight * scale) + 'px';
+}
+window.addEventListener('resize', fitPrintFrame);
+function closePrintModal() {
+  document.getElementById('printModal').classList.remove('open');
+  document.getElementById('printFrame').srcdoc = '';
+  _printData = null;
+}
+function doPrintNow() {
+  const k = _printData;
+  if (!k) return;
+  const frame = document.getElementById('printFrame');
+  // catat "dicetak" (+ jenis TTD) sekali per sesi pratinjau — kuitansi terkunci sejak titik ini
+  if (!_printMarked && k.__id) {
+    _printMarked = true;
+    applyMark(k.__id, 'print', { signature_mode: k.signature_mode })
+      .catch(e => showToast('Tercetak, tapi gagal mencatat status cetak: ' + e.message, false));
+  }
+  try { frame.contentWindow.focus(); frame.contentWindow.print(); }
+  catch (e) { showToast('Gagal membuka dialog cetak: ' + e.message, false); }
 }
 
 // ══════════════════════════════════════
