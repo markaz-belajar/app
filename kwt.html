@@ -2334,7 +2334,7 @@ function printKuitansi(k) {
   _printData = k; _printMarked = false;
   const frame = document.getElementById('printFrame');
   document.getElementById('printTitle').textContent = k.no_kuitansi;
-  document.getElementById('printSub').textContent = 'TTD ' + (k.signature_mode === 'digital' ? 'Digital' : 'Manual') + ' · tekan Cetak / PDF';
+  document.getElementById('printSub').textContent = 'TTD ' + (k.signature_mode === 'digital' ? 'Digital' : 'Manual') + ' · dialog cetak terbuka otomatis';
   document.getElementById('printModal').classList.add('open');
   frame.style.height = '1100px';
   frame.onload = function () {
@@ -2349,6 +2349,11 @@ function printKuitansi(k) {
       d.head.appendChild(st);
       frame.style.height = hPx + 'px';
       fitPrintFrame();
+      // seperti Invoice: setelah gambar (QR, kop surat) & font siap, dialog cetak/simpan PDF langsung terbuka
+      const waits = Array.from(d.images).map(im => im.complete ? Promise.resolve() : new Promise(r => { im.onload = im.onerror = r; }));
+      if (d.fonts && d.fonts.ready) waits.push(d.fonts.ready.catch(() => {}));
+      Promise.race([Promise.all(waits), new Promise(r => setTimeout(r, 4000))])
+        .then(() => setTimeout(() => { if (_printData === k) doPrintNow(); }, 400));
     } catch (e) {}
   };
   frame.srcdoc = `<!DOCTYPE html><html lang="id"><head><meta charset="UTF-8"><title>${esc(k.no_kuitansi)}</title>
